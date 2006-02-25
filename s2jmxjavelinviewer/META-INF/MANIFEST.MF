@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: S2JmxJavelinViewer プラグイン
+Bundle-SymbolicName: S2JmxJavelinViewer; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: org.seasar.javelin.jmx.viewer.S2JmxJavelinViewerPlugin
+Bundle-Vendor: yamyam
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.gef,
+ org.eclipse.jface.text,
+ org.eclipse.core.resources,
+ org.eclipse.ui.editors,
+ org.eclipse.ui.ide,
+ org.eclipse.ui.workbench.texteditor,
+ org.eclipse.ui.views
+Eclipse-AutoStart: true
