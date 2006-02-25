@@ -236,6 +236,7 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
             caller_.set(invocationBean);
             
         	long start = System.currentTimeMillis();
+        	
             // メソッド呼び出し。
             ret = invocation.proceed();
             
