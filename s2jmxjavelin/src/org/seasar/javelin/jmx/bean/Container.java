@@ -5,16 +5,17 @@ import javax.management.ObjectName;
 
 public class Container implements ContainerMBean
 {
-    private static Map<String, Component> map_;
+    private static Map map_;
 
-    public Container(Map<String, Component> map)
+    public Container(Map map)
     {
     	map_ = map;
     }
     
     public ObjectName[] getAllComponentObjectName()
     {
-    	Component[] components = map_.values().toArray(new Component[0]);
+    	Component[] components = 
+    		(Component[])map_.values().toArray(new Component[0]);
 		ObjectName[] objNames    = new ObjectName[components.length];
 
 		for (int index = 0; index < components.length; index++)
@@ -27,9 +28,11 @@ public class Container implements ContainerMBean
 
 	public void reset()
 	{
-		for (Component component : map_.values())
+		Component[] components = 
+			(Component[])map_.values().toArray(new Component[map_.size()]);
+		for (int index = 0; index < components.length; index++)
 		{
-			component.reset();
+			components[index].reset();
 		}
 	}
 }

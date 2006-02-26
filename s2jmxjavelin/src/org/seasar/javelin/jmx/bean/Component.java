@@ -10,7 +10,7 @@ public class Component implements ComponentMBean
 	private ObjectName objName_;
 	private String     className_;
 	
-	private Map<String, Invocation> map_ = new HashMap<String, Invocation>();
+	private Map map_ = new HashMap();
 
 	public Component(ObjectName objName, String className)
 	{
@@ -48,14 +48,16 @@ public class Component implements ComponentMBean
 	
 	public Invocation getInvocation(String methodName)
 	{
-		return map_.get(methodName);
+		return (Invocation)map_.get(methodName);
 	}
 
 	public void reset()
 	{
-		for (Invocation invocation : map_.values())
+		Invocation[] invocations = 
+			(Invocation[])map_.values().toArray(new Invocation[map_.size()]);
+		for (int index = 0; index < invocations.length; index++)
 		{
-			invocation.reset();
+			invocations[index].reset();
 		}
 	}
 }

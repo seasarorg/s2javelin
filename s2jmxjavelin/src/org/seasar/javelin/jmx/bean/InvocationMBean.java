@@ -16,7 +16,7 @@ public interface InvocationMBean {
 	public long getMaximum();
 	public long getAverage();
 	public long getThrowableCount();
-	public List<Throwable> getThrowableList();
+	public List getThrowableList();
 	public ObjectName[] getAllCallerObjectName();
 	
 	public void reset();

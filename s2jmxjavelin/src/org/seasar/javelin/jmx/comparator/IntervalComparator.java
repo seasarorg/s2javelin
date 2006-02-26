@@ -4,15 +4,19 @@ import java.util.Comparator;
 
 import org.seasar.javelin.jmx.bean.Invocation;
 
-public class IntervalComparator implements Comparator<Invocation> {
+public class IntervalComparator implements Comparator
+{
 
-	public int compare(Invocation arg0, Invocation arg1)
+	public int compare(Object arg0, Object arg1)
 	{
-		if (arg0.getMaximum() > arg1.getMaximum())
+		Invocation invocation0 = (Invocation)arg0;
+		Invocation invocation1 = (Invocation)arg1;
+		
+		if (invocation0.getMaximum() > invocation1.getMaximum())
 		{
 			return -1;
 		}
-		else if (arg0.getMaximum() < arg1.getMaximum())
+		else if (invocation0.getMaximum() < invocation1.getMaximum())
 		{
 			return 1;
 		}

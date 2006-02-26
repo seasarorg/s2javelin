@@ -24,11 +24,17 @@ public class Invocation implements InvocationMBean
 	private long minimum_ = INITIAL;
 	private long maximum_ = INITIAL;
 	
-	private LinkedList<Long>      intervalList_  = new LinkedList<Long>();
-	private LinkedList<Throwable> throwableList_ = new LinkedList<Throwable>();
-	private Set<InvocationMBean>  callerSet_     = new HashSet<InvocationMBean>();
+	private LinkedList intervalList_  = new LinkedList();
+	private LinkedList throwableList_ = new LinkedList();
+	private Set        callerSet_     = new HashSet();
 
-	public Invocation(ObjectName objName, ObjectName classObjName, String className, String methodName, int intervalMax, int throwableMax)
+	public Invocation(
+			ObjectName objName
+			, ObjectName classObjName
+			, String className
+			, String methodName
+			, int intervalMax
+			, int throwableMax)
 	{
 		objName_      = objName;
 		classObjName_ = classObjName;
@@ -81,15 +87,16 @@ public class Invocation implements InvocationMBean
 		}
 		
 		long sum = 0;
-		for (long value : intervalList_)
+		for (int index = 0; index < intervalList_.size(); index++)
 		{
-			sum = sum + value;
+			Long value = (Long)(intervalList_.get(index));
+			sum = sum + value.longValue();
 		}
 		
 		return sum / intervalList_.size();
 	}
 
-	public List<Long> getIntervalList()
+	public List getIntervalList()
 	{
 		return intervalList_;
 	}
@@ -98,14 +105,15 @@ public class Invocation implements InvocationMBean
 		return throwableList_.size();
 	}
 
-	public List<Throwable> getThrowableList()
+	public List getThrowableList()
 	{
 		return throwableList_;
 	}
 	
 	public ObjectName[] getAllCallerObjectName()
 	{
-		Invocation[] invocations = callerSet_.toArray(new Invocation[0]);
+		Invocation[] invocations = 
+			(Invocation[])callerSet_.toArray(new Invocation[callerSet_.size()]);
 		ObjectName[] objNames    = new ObjectName[invocations.length];
 
 		for (int index = 0; index < invocations.length; index++)
@@ -120,7 +128,7 @@ public class Invocation implements InvocationMBean
 	{
 		count_++;
 		
-		intervalList_.add(interval);
+		intervalList_.add(new Long(interval));
 		while (intervalList_.size() > intervalMax_)
 		{
 			intervalList_.removeFirst();
@@ -144,28 +152,26 @@ public class Invocation implements InvocationMBean
 		}
 	}
 	
-	@Override
 	public String toString()
 	{
-		StringBuilder builder = new StringBuilder(256);
-		builder.append(className_);
-		builder.append("#");
-		builder.append(methodName_);
-		builder.append(",");
-		builder.append(getCount());
-		builder.append(",");
-		builder.append(getMinimum());
-		builder.append(",");
-		builder.append(getMaximum());
-		builder.append(",");
-		builder.append(getAverage());
-		builder.append(",");
-		builder.append(getThrowableCount());
+		StringBuffer buffer = new StringBuffer(256);
+		buffer.append(className_);
+		buffer.append("#");
+		buffer.append(methodName_);
+		buffer.append(",");
+		buffer.append(getCount());
+		buffer.append(",");
+		buffer.append(getMinimum());
+		buffer.append(",");
+		buffer.append(getMaximum());
+		buffer.append(",");
+		buffer.append(getAverage());
+		buffer.append(",");
+		buffer.append(getThrowableCount());
 		
-		return builder.toString();
+		return buffer.toString();
 	}
 	
-	@Override
 	public boolean equals(Object target)
 	{
 		if (!(target instanceof Invocation))
@@ -183,7 +189,6 @@ public class Invocation implements InvocationMBean
 		return true;
 	}
 
-	@Override
 	public int hashCode()
 	{
 		String id = className_ + "#" + methodName_;

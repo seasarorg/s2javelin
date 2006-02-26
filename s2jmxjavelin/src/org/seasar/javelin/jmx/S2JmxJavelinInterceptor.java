@@ -1,11 +1,11 @@
 package org.seasar.javelin.jmx;
 
-import java.lang.management.ManagementFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 
 import mx4j.tools.adaptor.http.HttpAdaptor;
@@ -60,11 +60,10 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
     private static final long serialVersionUID = 6661781313519708185L;
 
     private static final MBeanServer server_ = 
-    	ManagementFactory.getPlatformMBeanServer();
+    	MBeanServerFactory.createMBeanServer();
 
     /** ComponentMBeanを登録したマップ。 */
-    private static final Map<String, Component> mBeanMap_ = 
-    	new HashMap<String, Component>();
+    private static final Map mBeanMap_ = new HashMap();
 
     /** 初期化フラグ。初期化済みの場合はtrue。 */
     private static boolean isInitialized_ = false;
@@ -92,9 +91,9 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
     /**
      * メソッドの呼び出し元オブジェクト。
      */
-    private ThreadLocal<Invocation> caller_ = new ThreadLocal<Invocation>()
+    private ThreadLocal caller_ = new ThreadLocal()
     {
-        protected synchronized Invocation initialValue()
+        protected synchronized Object initialValue()
         {
             return null;
         }
@@ -117,9 +116,12 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
                 if (server_.isRegistered(processorName))
                 {
                 	Set beanSet = server_.queryMBeans(processorName, null);
-                	for (Object registered : beanSet)
+                	if (beanSet.size() > 0)
                 	{
-                		processor = (XSLTProcessor)registered;
+                		XSLTProcessor[] processors =
+                			(XSLTProcessor[])beanSet.toArray(
+                			    new XSLTProcessor[beanSet.size()]);
+                		processor = (XSLTProcessor)(processors[0]);
                 	}
                 }
                 else
@@ -133,9 +135,12 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
                 if (server_.isRegistered(adaptorName))
                 {
                 	Set beanSet = server_.queryMBeans(adaptorName, null);
-                	for (Object registered : beanSet)
+                	if (beanSet.size() > 0)
                 	{
-                    	adaptor = (HttpAdaptor)registered;
+                		HttpAdaptor[] adaptors =
+                			(HttpAdaptor[])beanSet.toArray(
+                			    new HttpAdaptor[beanSet.size()]);
+                		adaptor = (HttpAdaptor)(adaptors[0]);
                 	}
                 }
                 else
@@ -156,9 +161,12 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
             if (server_.isRegistered(containerName))
             {
             	Set beanSet = server_.queryMBeans(containerName, null);
-            	for (Object registered : beanSet)
+            	if (beanSet.size() > 0)
             	{
-            		container = (ContainerMBean)registered;
+            		ContainerMBean[] containers =
+            			(ContainerMBean[])beanSet.toArray(
+            			    new ContainerMBean[beanSet.size()]);
+            		container = (ContainerMBean)(containers[0]);
             	}
             }
             else
@@ -202,7 +210,7 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
         String calleeClassName  = getTargetClass(invocation).getName();
         String calleeMethodName = invocation.getMethod().getName();
         
-        Component  componentBean = mBeanMap_.get(calleeClassName);
+        Component  componentBean = (Component)(mBeanMap_.get(calleeClassName));
     	String name = 
     		domain_ 
     		+ ".component:type=org.seasar.javelin.jmx.bean.ComponentMBean" 
