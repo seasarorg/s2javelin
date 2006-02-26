@@ -18,4 +18,6 @@ public interface InvocationMBean {
 	public long getThrowableCount();
 	public List<Throwable> getThrowableList();
 	public ObjectName[] getAllCallerObjectName();
+	
+	public void reset();
 }

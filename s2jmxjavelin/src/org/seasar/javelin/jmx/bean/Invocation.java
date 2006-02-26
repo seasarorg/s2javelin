@@ -17,13 +17,12 @@ public class Invocation implements InvocationMBean
 	private String className_;
 	private String methodName_;
 
-	private int intervalMax_  = 1000;
-    private int throwableMax_ = 1000;
+	private int intervalMax_;
+    private int throwableMax_;
 	
 	private long count_;
 	private long minimum_ = INITIAL;
 	private long maximum_ = INITIAL;
-	private long average_;
 	
 	private LinkedList<Long>      intervalList_  = new LinkedList<Long>();
 	private LinkedList<Throwable> throwableList_ = new LinkedList<Throwable>();
@@ -86,9 +85,8 @@ public class Invocation implements InvocationMBean
 		{
 			sum = sum + value;
 		}
-		average_ = sum / intervalList_.size();
 		
-		return average_;
+		return sum / intervalList_.size();
 	}
 
 	public List<Long> getIntervalList()
@@ -190,5 +188,15 @@ public class Invocation implements InvocationMBean
 	{
 		String id = className_ + "#" + methodName_;
 		return id.hashCode();
+	}
+
+	public void reset()
+	{
+		count_ = 0;
+		minimum_ = INITIAL;
+		maximum_ = INITIAL;
+		
+		intervalList_.clear();
+		throwableList_.clear();
 	}
 }

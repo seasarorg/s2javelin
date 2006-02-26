@@ -51,4 +51,11 @@ public class Component implements ComponentMBean
 		return map_.get(methodName);
 	}
 
+	public void reset()
+	{
+		for (Invocation invocation : map_.values())
+		{
+			invocation.reset();
+		}
+	}
 }

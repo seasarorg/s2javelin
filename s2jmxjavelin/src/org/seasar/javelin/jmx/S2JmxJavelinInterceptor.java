@@ -61,18 +61,30 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
 
     private static final MBeanServer server_ = 
     	ManagementFactory.getPlatformMBeanServer();
-    
+
+    /** ComponentMBeanを登録したマップ。 */
     private static final Map<String, Component> mBeanMap_ = 
     	new HashMap<String, Component>();
+
+    /** 初期化フラグ。初期化済みの場合はtrue。 */
+    private static boolean isInitialized_ = false;
     
-    private static boolean isInitialized_;
-    
+    /** 呼び出し情報を記録する最大件数。デフォルト値は1000。 */
     private int intervalMax_  = 1000;
-    
+
+    /** 例外の発生履歴を記録する最大件数。デフォルト値は1000。 */
     private int throwableMax_ = 1000;
-    
+
+    /** 
+     *  呼び出し情報を記録する際の閾値。
+     *  値（ミリ秒）を下回る処理時間の呼び出し情報は記録しない。
+     *  デフォルト値は0。 
+     */
     private long recordThreshold_ = 0;
-    
+
+    /**
+     * 情報を公開するHTTPポート番号。（MX4Jが必要。）
+     */
     private int httpPort_ = 0;
     
     private String domain_ = "default";
@@ -88,6 +100,11 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
         }
     };
 
+    /**
+     * 初期化処理。
+     * MBeanServerへのContainerMBeanの登録を行う。
+     * 公開用HTTPポートが指定されていた場合は、HttpAdaptorの生成と登録も行う。
+     */
     private void init()
     {
     	try
@@ -157,12 +174,13 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
     }
     
     /**
-     * Javelinログ出力用のinvokeメソッド。
+     * 呼び出し情報取得用のinvokeメソッド。
      * 
      * 実際のメソッド呼び出しを実行する前後で、
-     * 呼び出しと返却の詳細ログを、Javelin形式で出力する。
+     * 実行回数や実行時間をMBeanに記録する。
      * 
-     * 実行時に例外が発生した場合は、その詳細もログ出力する。
+     * 実行時に例外が発生した場合は、
+     * 例外の発生回数や発生履歴も記録する。
      * 
      * @param invocation
      *            インターセプタによって取得された、呼び出すメソッドの情報
@@ -245,9 +263,6 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
             {
                 invocationBean.addInterval(spent, caller);
             }
-            
-            //呼び出し先を消去しておく。
-            caller_.set(null);
         }
         catch (Throwable cause)
         {
@@ -257,30 +272,55 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
             //例外をスローし、終了する。
             throw cause;
         }
+        finally
+        {
+            //呼び出し先を消去しておく。
+            caller_.set(null);
+        }
         
         return ret;
     }
 
+    /**
+     * 
+     * @param intervalMax
+     */
 	public void setIntervalMax(int intervalMax)
 	{
 		this.intervalMax_ = intervalMax;
 	}
 
+	/**
+	 * 
+	 * @param throwableMax
+	 */
 	public void setThrowableMax(int throwableMax)
 	{
 		this.throwableMax_ = throwableMax;
 	}
-	
+
+	/**
+	 * 
+	 * @param recordThreshold
+	 */
 	public void setRecordThreshold(int recordThreshold)
 	{
 		this.recordThreshold_ = recordThreshold;
 	}
 
+	/**
+	 * 
+	 * @param httpPort
+	 */
 	public void setHttpPort(int httpPort)
 	{
 		httpPort_ = httpPort;
 	}
 
+	/**
+	 * 
+	 * @param domain
+	 */
 	public void setDomain(String domain)
 	{
 		domain_ = "org.seasar.javelin.jmx." + domain;

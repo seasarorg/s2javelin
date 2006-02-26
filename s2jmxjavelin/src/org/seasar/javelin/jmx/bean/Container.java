@@ -24,4 +24,12 @@ public class Container implements ContainerMBean
 		
 		return objNames;
     }
+
+	public void reset()
+	{
+		for (Component component : map_.values())
+		{
+			component.reset();
+		}
+	}
 }
