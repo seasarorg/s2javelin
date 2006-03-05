@@ -17,6 +17,8 @@ public class ChangeConstraintCommand extends Command
 	public void execute()
 	{
 		// ƒ‚ƒfƒ‹‚Ì§–ñ‚ğ•ÏX‚·‚é
+		constraint.height = -1;
+		constraint.width  = -1;
 		model_.setConstraint(constraint);
 	}
 

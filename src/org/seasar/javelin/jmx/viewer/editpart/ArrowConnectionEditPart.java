@@ -4,7 +4,7 @@ import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.PolygonDecoration;
 import org.eclipse.draw2d.PolylineConnection;
 
-public class ArrowConnectionEditPart extends MyAbstractConnectionEditPart
+public class ArrowConnectionEditPart extends S2JmxJavelinAbstractConnectionEditPart
 {
 	// オーバーライド
 	protected IFigure createFigure()

@@ -2,7 +2,9 @@ package org.seasar.javelin.jmx.viewer.editors;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,6 +25,7 @@ import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.ui.parts.GraphicalEditor;
+import org.seasar.javelin.jmx.viewer.editpart.S2JmxJavelinEditPartFactory;
 import org.seasar.javelin.jmx.viewer.model.ArrowConnectionModel;
 import org.seasar.javelin.jmx.viewer.model.ComponentModel;
 import org.seasar.javelin.jmx.viewer.model.ContentsModel;
@@ -31,6 +34,9 @@ import org.seasar.javelin.jmx.viewer.model.InvocationModel;
 
 public class S2JmxJavelinEditor extends GraphicalEditor
 {
+	private String hostName_ = "";
+	private int    portNum_  = 0;
+	private String domain_   = "";
 
 	protected void initializeGraphicalViewer()
 	{
@@ -44,21 +50,26 @@ public class S2JmxJavelinEditor extends GraphicalEditor
 
 		try
 		{
-			String hostName = "localhost";
-			int portNum = 10001;
-			JMXServiceURL u = new JMXServiceURL(
+			JMXServiceURL url = new JMXServiceURL(
 					"service:jmx:rmi:///jndi/rmi://" 
-					+ hostName 
+					+ hostName_
 					+ ":" 
-					+ portNum
+					+ portNum_
 					+ "/jmxrmi");
-			JMXConnector c = JMXConnectorFactory.connect(u);
-			MBeanServerConnection connection;
-			connection = c.getMBeanServerConnection();
+			JMXConnector connector = JMXConnectorFactory.connect(url);
+			MBeanServerConnection connection = 
+				connector.getMBeanServerConnection();
 
-			ObjectName objName = new ObjectName(
-					"org.seasar.javelin.jmx.s2jsfexample.container:type=org.seasar.javelin.jmx.ContainerMBean");
+			ObjectName objName = 
+				new ObjectName(
+					domain_ 
+					+ ".container:type=org.seasar.javelin.jmx.bean.ContainerMBean");
 			Set set = connection.queryMBeans(objName, null);
+			if (set.size() == 0)
+			{
+				return;
+			}
+			
 			ObjectInstance instance = (ObjectInstance) set.toArray()[0];
 
 			ObjectName[] names;
@@ -69,13 +80,12 @@ public class S2JmxJavelinEditor extends GraphicalEditor
 			{
 				String className  = (String)connection.getAttribute(name, "ClassName");
 				
-				ComponentModel invocation = new ComponentModel();
-				invocation.setClassName(className);
-				invocation.setConstraint(new Rectangle(0, 0, -1, -1));
+				ComponentModel component = new ComponentModel();
+				component.setClassName(className);
+				component.setConstraint(new Rectangle(0, 0, -1, -1));
 				
-				rootModel.addChild(invocation);
-				componentMap.put(name, invocation);
-				
+				rootModel.addChild(component);
+				componentMap.put(name, component);
 			}
 			
 			for (ObjectName name : names)
@@ -127,6 +137,11 @@ public class S2JmxJavelinEditor extends GraphicalEditor
 					}
 				}
 			}
+			
+			layoutModel(componentMap);
+			
+			viewer.setContents(rootModel);
+			
 		}
 		catch (MalformedURLException e)
 		{
@@ -156,8 +171,65 @@ public class S2JmxJavelinEditor extends GraphicalEditor
 		{
 			e.printStackTrace();
 		}
+	}
 
-		viewer.setContents(rootModel);
+	private void layoutModel(Map<ObjectName, ComponentModel> componentMap)
+	{
+		Map<Integer, List<ComponentModel>> rankMap = 
+			new HashMap<Integer, List<ComponentModel>>();
+		
+		for(ComponentModel component : componentMap.values())
+		{
+			int rank = getRank(0, component);
+			if (rankMap.containsKey(rank))
+			{
+				rankMap.get(rank).add(component);
+			}
+			else
+			{
+				List<ComponentModel> list = new ArrayList<ComponentModel>();
+				list.add(component);
+				rankMap.put(rank, list);
+			}
+			
+		}
+		
+		for (int rank : rankMap.keySet())
+		{
+			List<ComponentModel> list = rankMap.get(rank);
+			int order = 32;
+			for (ComponentModel component : list)
+			{
+				component.getConstraint().x = rank * 240 + 32;
+				component.getConstraint().y = order;
+				order = order + component.getInvocationList().size() * 16;
+				order = order + 32;
+			}
+		}
+	}
+
+	private int getRank(int rank, ComponentModel component)
+	{
+		List<ArrowConnectionModel> list = 
+			(List<ArrowConnectionModel>)
+			component.getModelTargetConnections();
+
+		if (list.size() > 0)
+		{
+			rank = rank + 1;
+		}
+		
+		int newRank = rank;
+		for (ArrowConnectionModel arrowModel : list)
+		{
+			int aRank = getRank(rank, arrowModel.getSource());
+			if (aRank > newRank)
+			{
+				newRank = aRank;
+			}
+		}
+
+		return newRank;
 	}
 
 	public void doSave(IProgressMonitor monitor)
@@ -184,7 +256,22 @@ public class S2JmxJavelinEditor extends GraphicalEditor
 
 		GraphicalViewer viewer = getGraphicalViewer();
 		// EditPartFactoryÇÃçÏê¨Ç∆ê›íË
-		viewer.setEditPartFactory(new MyEditPartFactory());
+		viewer.setEditPartFactory(new S2JmxJavelinEditPartFactory());
+	}
+
+	public void setDomain(String domain)
+	{
+		domain_ = domain;
+	}
+
+	public void setHostName(String hostName)
+	{
+		hostName_ = hostName;
+	}
+
+	public void setPortNum(int portNum)
+	{
+		portNum_ = portNum;
 	}
 
 }
