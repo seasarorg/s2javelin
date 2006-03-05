@@ -6,7 +6,7 @@
       <editor
             class="org.seasar.javelin.jmx.viewer.editors.MultiPageEditor"
             contributorClass="org.seasar.javelin.jmx.viewer.editors.MultiPageEditorContributor"
-            extensions="mpe"
+            extensions="jview"
             icon="icons/sample.gif"
             id="org.seasar.javelin.jmx.viewer.editors.MultiPageEditor"
             name="S2JmxJavelin Viewer"/>

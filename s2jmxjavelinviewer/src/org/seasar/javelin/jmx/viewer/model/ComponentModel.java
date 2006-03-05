@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.gef.EditPart;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
+import org.seasar.javelin.jmx.viewer.editpart.ComponentEditPart;
 
 public class ComponentModel extends AbstractModel
 {
@@ -22,6 +24,8 @@ public class ComponentModel extends AbstractModel
 
 	private String className_;
 
+	private ComponentEditPart part_;
+	
 	private List<InvocationModel> invocationList_ = 
 		new ArrayList<InvocationModel>();
 
@@ -125,6 +129,16 @@ public class ComponentModel extends AbstractModel
 		firePropertyChange(P_CONSTRAINT, null, constraint);
 	}
 
+	public void setEditPart(ComponentEditPart part)
+	{
+		part_ = part;
+	}
+	
+	public ComponentEditPart getEditPart()
+	{
+		return part_;
+	}
+	
 	// このモデルから伸びているコネクションのリスト
 	private List sourceConnections = new ArrayList();
 

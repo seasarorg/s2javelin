@@ -1,10 +1,24 @@
 package org.seasar.javelin.jmx.viewer.editors;
 
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Set;
+
+import javax.management.MBeanServerConnection;
+import javax.management.ObjectInstance;
+import javax.management.ObjectName;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
+
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
@@ -55,6 +69,9 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 	void createPage0() {
 		try {
 			editor = new S2JmxJavelinEditor();
+			editor.setHostName(host_);
+			editor.setPortNum(port_);
+			editor.setDomain(domain_);
 			int index = addPage(editor, getEditorInput());
 			setPageText(index, "View");
 //			setPageText(index, editor.getTitle());
@@ -66,6 +83,19 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 				e.getStatus());
 		}
 	}
+	
+	private Label hostLabel_;
+	private Label portLabel_;
+	private Label domainLabel_;
+	private Text  hostText_;
+	private Text  portText_;
+	private Text  domainText_;
+	
+	private String host_   = "";
+	private int    port_;
+	private String domain_ = "";
+	private int    interval_;
+	
 	/**
 	 * Creates page 1 of the multi-page editor,
 	 * which allows you to change the font used in page 2.
@@ -75,58 +105,62 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 		Composite composite = new Composite(getContainer(), SWT.NONE);
 		GridLayout layout = new GridLayout();
 		composite.setLayout(layout);
-		layout.numColumns = 2;
+		layout.numColumns = 4;
 
 		//------------------------------------------------------------
-		Label hostLabel = new Label(composite, SWT.NONE);
-		hostLabel.setText("Host:");
+		hostLabel_ = new Label(composite, SWT.NONE);
+		hostLabel_.setText("Host:");
 		GridData hostGrid = new GridData(GridData.BEGINNING);
-		hostGrid.horizontalSpan = 1;
-		hostLabel.setLayoutData(hostGrid);
+		hostGrid.horizontalSpan = 2;
+		hostLabel_.setLayoutData(hostGrid);
 
 		//------------------------------------------------------------
-		Text  hostText  = new Text(composite, SWT.NONE);
+		hostText_  = new Text(composite, SWT.NONE);
+		hostText_.setText(host_);
 		hostGrid = new GridData(GridData.BEGINNING);
-		hostGrid.horizontalSpan = 1;
-		hostText.setLayoutData(hostGrid);
+		hostGrid.horizontalSpan = 2;
+		hostText_.setLayoutData(hostGrid);
 
 		//------------------------------------------------------------
-		Label portLabel = new Label(composite, SWT.NONE);
-		portLabel.setText("Port:");
+		portLabel_ = new Label(composite, SWT.NONE);
+		portLabel_.setText("Port:");
 		GridData portGrid = new GridData(GridData.BEGINNING);
-		portGrid.horizontalSpan = 1;
-		portLabel.setLayoutData(hostGrid);
+		portGrid.horizontalSpan = 2;
+		portLabel_.setLayoutData(hostGrid);
 		
 		//------------------------------------------------------------
-		Text  portText  = new Text(composite, SWT.NONE);
+		portText_  = new Text(composite, SWT.NONE);
+		portText_.setText(Integer.toString(port_));
 		portGrid = new GridData(GridData.BEGINNING);
-		portGrid.horizontalSpan = 1;
-		portText.setLayoutData(portGrid);
+		portGrid.horizontalSpan = 2;
+		portText_.setLayoutData(portGrid);
 
 		//------------------------------------------------------------
-		Label domainLabel = new Label(composite, SWT.NONE);
-		domainLabel.setText("Domain:");
+		domainLabel_ = new Label(composite, SWT.NONE);
+		domainLabel_.setText("Domain:");
 		GridData domainGrid = new GridData(GridData.BEGINNING);
-		domainGrid.horizontalSpan = 1;
-		domainLabel.setLayoutData(hostGrid);
+		domainGrid.horizontalSpan = 2;
+		domainLabel_.setLayoutData(hostGrid);
 		
 		//------------------------------------------------------------
-		Text  domainText  = new Text(composite, SWT.NONE);
+		domainText_  = new Text(composite, SWT.NONE);
+		domainText_.setText(domain_);
 		domainGrid = new GridData(GridData.BEGINNING);
-		domainGrid.horizontalSpan = 1;
-		domainText.setLayoutData(domainGrid);
+		domainGrid.horizontalSpan = 2;
+		domainText_.setLayoutData(domainGrid);
 
 		//------------------------------------------------------------
 		Label intervalLabel = new Label(composite, SWT.NONE);
 		intervalLabel.setText("Interval:");
 		GridData intervalGrid = new GridData(GridData.BEGINNING);
-		intervalGrid.horizontalSpan = 1;
+		intervalGrid.horizontalSpan = 2;
 		intervalLabel.setLayoutData(hostGrid);
 		
 		//------------------------------------------------------------
 		Text  intervalText  = new Text(composite, SWT.NONE);
+		intervalText.setText(Integer.toString(interval_));
 		intervalGrid = new GridData(GridData.BEGINNING);
-		intervalGrid.horizontalSpan = 1;
+		intervalGrid.horizontalSpan = 2;
 		intervalText.setLayoutData(domainGrid);
 
 		//------------------------------------------------------------
@@ -137,14 +171,62 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 		reloadButton.setText("Reload");
 		
 		reloadButton.addSelectionListener(new SelectionAdapter()
+				{
+					public void widgetSelected(SelectionEvent event)
+					{
+						editor.setHostName(hostText_.getText());
+						editor.setPortNum(Integer.parseInt(portText_.getText()));
+						editor.setDomain(domainText_.getText());
+						editor.initializeGraphicalViewer();
+					}
+				});
+
+		//------------------------------------------------------------
+		Button resetButton = new Button(composite, SWT.NONE);
+		GridData resetGrid = new GridData(GridData.BEGINNING);
+		resetGrid.horizontalSpan = 2;
+		resetButton.setLayoutData(reloadGrid);
+		resetButton.setText("Reset");
+		
+		resetButton.addSelectionListener(new SelectionAdapter()
 		{
 			public void widgetSelected(SelectionEvent event)
 			{
+				try
+				{
+					JMXServiceURL url = new JMXServiceURL(
+							"service:jmx:rmi:///jndi/rmi://" 
+							+ hostText_.getText()
+							+ ":" 
+							+ portText_.getText()
+							+ "/jmxrmi");
+					JMXConnector connector = JMXConnectorFactory.connect(url);
+					MBeanServerConnection connection = 
+						connector.getMBeanServerConnection();
+
+					ObjectName objName = 
+						new ObjectName(
+							domain_ 
+							+ ".container:type=org.seasar.javelin.jmx.bean.ContainerMBean");
+					Set set = connection.queryMBeans(objName, null);
+					if (set.size() == 0)
+					{
+						return;
+					}
+					
+					ObjectInstance instance = (ObjectInstance) set.toArray()[0];
+
+					connection.invoke(instance.getObjectName(), "reset", null, null);
+				}
+				catch (Exception ex)
+				{
+					;
+				}
 			}
 		});
 
 		int index = addPage(composite);
-		setPageText(index, "Properties");
+		setPageText(index, "Settings");
 	}
 	
 	/**
@@ -192,10 +274,43 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 	 * checks that the input is an instance of <code>IFileEditorInput</code>.
 	 */
 	public void init(IEditorSite site, IEditorInput editorInput)
-		throws PartInitException {
+		throws PartInitException
+	{
 		if (!(editorInput instanceof IFileEditorInput))
 			throw new PartInitException("Invalid Input: Must be IFileEditorInput");
 		super.init(site, editorInput);
+		
+		IFileEditorInput input = (IFileEditorInput)editorInput;
+
+		try
+		{
+			InputStream stream = input.getFile().getContents();
+			InputStreamReader reader = new InputStreamReader(stream);
+			BufferedReader bufferedReader = new BufferedReader(reader);
+			
+			host_     = bufferedReader.readLine();
+			port_     = Integer.parseInt(bufferedReader.readLine());
+			domain_   = bufferedReader.readLine();
+			interval_ = Integer.parseInt(bufferedReader.readLine());
+		}
+		catch (CoreException e)
+		{
+			host_   = "";
+			domain_ = "";
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			host_   = "";
+			domain_ = "";
+			e.printStackTrace();
+		}
+		catch(NumberFormatException e)
+		{
+			host_   = "";
+			domain_ = "";
+			e.printStackTrace();
+		}
 	}
 	/* (non-Javadoc)
 	 * Method declared on IEditorPart.
