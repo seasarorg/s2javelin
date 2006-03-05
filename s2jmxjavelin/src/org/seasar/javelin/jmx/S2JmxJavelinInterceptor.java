@@ -1,11 +1,11 @@
 package org.seasar.javelin.jmx;
 
+import java.lang.management.ManagementFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 
 import mx4j.tools.adaptor.http.HttpAdaptor;
@@ -14,9 +14,11 @@ import mx4j.tools.adaptor.http.XSLTProcessor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.seasar.framework.aop.interceptors.AbstractInterceptor;
 import org.seasar.javelin.jmx.bean.Component;
+import org.seasar.javelin.jmx.bean.ComponentMBean;
 import org.seasar.javelin.jmx.bean.Container;
 import org.seasar.javelin.jmx.bean.ContainerMBean;
 import org.seasar.javelin.jmx.bean.Invocation;
+import org.seasar.javelin.jmx.bean.InvocationMBean;
 
 /**
  * Component間の呼び出し関係をMBeanとして公開するためのInterceptor。
@@ -41,13 +43,12 @@ import org.seasar.javelin.jmx.bean.Invocation;
  *     この時間を越えたメソッド呼び出しのみ記録する。
  *     デフォルト値は0。</li>
  * <li>domain:MBeanを登録する際に使用するドメイン。
- *     実際のドメイン名は、
- *     "org.seasar.javelin.jmx." + [domainパラメータ] + [Mbeanの種類]となる。
+ *     実際のドメイン名は、[domainパラメータ] + [Mbeanの種類]となる。
  *     MBeanの種類は以下のものがある。
  *     <ol>
- *       <li>Container:全コンポーネントのObjectNameを管理する。</li>
- *       <li>Component:一つのコンポーネントに関する情報を公開するMBean。</li>
- *       <li>Invocation:メソッド呼び出しに関する情報を公開するMBean。</li>
+ *       <li>container:全コンポーネントのObjectNameを管理する。</li>
+ *       <li>component:一つのコンポーネントに関する情報を公開するMBean。</li>
+ *       <li>invocation:メソッド呼び出しに関する情報を公開するMBean。</li>
  *     </ol>
  *     </li>
  * </ol>
@@ -59,11 +60,10 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
 {
     private static final long serialVersionUID = 6661781313519708185L;
 
-    private static final MBeanServer server_ = 
-    	MBeanServerFactory.createMBeanServer();
+    private static MBeanServer server_;
 
     /** ComponentMBeanを登録したマップ。 */
-    private static final Map mBeanMap_ = new HashMap();
+    private static Map mBeanMap_;
 
     /** 初期化フラグ。初期化済みの場合はtrue。 */
     private static boolean isInitialized_ = false;
@@ -86,7 +86,11 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
      */
     private int httpPort_ = 0;
     
-    private String domain_ = "default";
+    /**
+     * ドメイン名。
+     * デフォルト値は"org.seasar.javelin.jmx.default"。
+     */
+    private String domain_ = "org.seasar.javelin.jmx.default";
     
     /**
      * メソッドの呼び出し元オブジェクト。
@@ -108,6 +112,10 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
     {
     	try
     	{
+    		server_ = ManagementFactory.getPlatformMBeanServer();
+
+    		mBeanMap_ = new HashMap();
+    		
     		if (httpPort_ != 0)
     		{
         	    XSLTProcessor processor = new XSLTProcessor();
@@ -131,7 +139,7 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
         	    
                 HttpAdaptor adaptor;
         		ObjectName adaptorName = 
-        			new ObjectName("Adaptor:name=adaptor,port=10000");
+        			new ObjectName("Adaptor:name=adaptor,port=" + httpPort_);
                 if (server_.isRegistered(adaptorName))
                 {
                 	Set beanSet = server_.queryMBeans(adaptorName, null);
@@ -153,11 +161,12 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
                 }
                 
     		}
-    		
+
             ContainerMBean container;
     		ObjectName containerName = new ObjectName(
     				domain_ 
-    				+ ".container:type=org.seasar.javelin.jmx.bean.ContainerMBean");        
+    				+ ".container:type=" 
+    				+ ContainerMBean.class.getName());        
             if (server_.isRegistered(containerName))
             {
             	Set beanSet = server_.queryMBeans(containerName, null);
@@ -213,7 +222,8 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
         Component  componentBean = (Component)(mBeanMap_.get(calleeClassName));
     	String name = 
     		domain_ 
-    		+ ".component:type=org.seasar.javelin.jmx.bean.ComponentMBean" 
+    		+ ".component:type=" 
+    		+ ComponentMBean.class.getName() 
     		+ ",class="
     		+ calleeClassName;
         ObjectName componentName = new ObjectName(name);
@@ -229,7 +239,8 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
         	componentBean.getInvocation(calleeMethodName);
     	name = 
     		domain_ 
-    		+ ".invocation:type=org.seasar.javelin.jmx.bean.InvocationMBean" 
+    		+ ".invocation:type="
+    		+ InvocationMBean.class.getName()
     		+ ",class="
     		+ calleeClassName 
     		+ ",method="
@@ -331,6 +342,6 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
 	 */
 	public void setDomain(String domain)
 	{
-		domain_ = "org.seasar.javelin.jmx." + domain;
+		domain_ = domain;
 	}
 }
