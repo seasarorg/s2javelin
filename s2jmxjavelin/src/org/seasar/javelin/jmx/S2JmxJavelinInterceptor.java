@@ -1,8 +1,6 @@
 package org.seasar.javelin.jmx;
 
 import java.lang.management.ManagementFactory;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import javax.management.MBeanServer;
@@ -13,12 +11,10 @@ import mx4j.tools.adaptor.http.XSLTProcessor;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.seasar.framework.aop.interceptors.AbstractInterceptor;
-import org.seasar.javelin.jmx.bean.Component;
-import org.seasar.javelin.jmx.bean.ComponentMBean;
 import org.seasar.javelin.jmx.bean.Container;
 import org.seasar.javelin.jmx.bean.ContainerMBean;
-import org.seasar.javelin.jmx.bean.Invocation;
-import org.seasar.javelin.jmx.bean.InvocationMBean;
+import org.seasar.javelin.jmx.bean.Statistics;
+import org.seasar.javelin.jmx.bean.StatisticsMBean;
 
 /**
  * Component間の呼び出し関係をMBeanとして公開するためのInterceptor。
@@ -60,10 +56,8 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
 {
     private static final long serialVersionUID = 6661781313519708185L;
 
+    /** プラットフォームMBeanサーバ */
     private static MBeanServer server_;
-
-    /** ComponentMBeanを登録したマップ。 */
-    private static Map mBeanMap_;
 
     /** 初期化フラグ。初期化済みの場合はtrue。 */
     private static boolean isInitialized_ = false;
@@ -93,17 +87,6 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
     private String domain_ = "org.seasar.javelin.jmx.default";
     
     /**
-     * メソッドの呼び出し元オブジェクト。
-     */
-    private ThreadLocal caller_ = new ThreadLocal()
-    {
-        protected synchronized Object initialValue()
-        {
-            return null;
-        }
-    };
-
-    /**
      * 初期化処理。
      * MBeanServerへのContainerMBeanの登録を行う。
      * 公開用HTTPポートが指定されていた場合は、HttpAdaptorの生成と登録も行う。
@@ -114,8 +97,6 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
     	{
     		server_ = ManagementFactory.getPlatformMBeanServer();
 
-    		mBeanMap_ = new HashMap();
-    		
     		if (httpPort_ != 0)
     		{
         	    XSLTProcessor processor = new XSLTProcessor();
@@ -161,9 +142,10 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
                 }
                 
     		}
-
+    		
             ContainerMBean container;
-    		ObjectName containerName = new ObjectName(
+    		ObjectName containerName = 
+    			new ObjectName(
     				domain_ 
     				+ ".container:type=" 
     				+ ContainerMBean.class.getName());        
@@ -180,8 +162,31 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
             }
             else
             {
-                container = new Container(mBeanMap_);
+                container = new Container();
                 server_.registerMBean(container, containerName);
+            }
+            
+            StatisticsMBean statistics;
+    		ObjectName statisticsName = 
+    			new ObjectName(
+    				domain_ 
+    				+ ".statistics:type=" 
+    				+ StatisticsMBean.class.getName());        
+            if (server_.isRegistered(statisticsName))
+            {
+            	Set beanSet = server_.queryMBeans(statisticsName, null);
+            	if (beanSet.size() > 0)
+            	{
+            		StatisticsMBean[] statisticses =
+            			(StatisticsMBean[])beanSet.toArray(
+            			    new StatisticsMBean[beanSet.size()]);
+            		statistics = (StatisticsMBean)(statisticses[0]);
+            	}
+            }
+            else
+            {
+                statistics = new Statistics();
+                server_.registerMBean(statistics, statisticsName);
             }
         }
     	catch(Exception ex)
@@ -216,91 +221,41 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
 		}
     	
         // 呼び出し先情報取得。
-        String calleeClassName  = getTargetClass(invocation).getName();
-        String calleeMethodName = invocation.getMethod().getName();
+        String className  = getTargetClass(invocation).getName();
+        String methodName = invocation.getMethod().getName();
         
-        Component  componentBean = (Component)(mBeanMap_.get(calleeClassName));
-    	String name = 
-    		domain_ 
-    		+ ".component:type=" 
-    		+ ComponentMBean.class.getName() 
-    		+ ",class="
-    		+ calleeClassName;
-        ObjectName componentName = new ObjectName(name);
-        if (componentBean == null)
-        {
-        	componentBean = new Component(componentName, calleeClassName);
-
-        	server_.registerMBean(componentBean, componentName);
-        	mBeanMap_.put(calleeClassName, componentBean);
-        }
-        
-        Invocation invocationBean = 
-        	componentBean.getInvocation(calleeMethodName);
-    	name = 
-    		domain_ 
-    		+ ".invocation:type="
-    		+ InvocationMBean.class.getName()
-    		+ ",class="
-    		+ calleeClassName 
-    		+ ",method="
-    		+ calleeMethodName;
-		ObjectName objName = new ObjectName(name);
-        if (invocationBean == null)
-        {
-            
-        	invocationBean = 
-        		new Invocation(
-        				objName
-        				, componentName
-        				, calleeClassName
-        				, calleeMethodName
-        				, intervalMax_
-        				, throwableMax_);
-        	
-        	componentBean.addInvocation(invocationBean);
-    		server_.registerMBean(invocationBean, objName);
-        }
-
-        // 呼び出し元情報取得。
-        Invocation caller = (Invocation) caller_.get();
-
         Object ret = null;
         try
         {
-            // 呼び出し先を、
-        	// 次回ログ出力時の呼び出し元として使用するために保存する。
-            caller_.set(invocationBean);
-            
         	long start = System.currentTimeMillis();
+        	S2JmxJavelinRecorder.preProcess(
+        			domain_
+        			, className
+        			, methodName
+        			, intervalMax_
+        			, throwableMax_
+        			, recordThreshold_);
         	
+        	//==================================================
             // メソッド呼び出し。
             ret = invocation.proceed();
-            
+        	//==================================================
+
             long spent = System.currentTimeMillis() - start;
-            if (spent >= recordThreshold_)
-            {
-                invocationBean.addInterval(spent, caller);
-            }
+            S2JmxJavelinRecorder.postProcess(spent);
         }
         catch (Throwable cause)
         {
-        	// 発生した例外を記録しておく。
-        	invocationBean.addThrowable(cause);
+            S2JmxJavelinRecorder.postProcess(cause);
         	
             //例外をスローし、終了する。
             throw cause;
-        }
-        finally
-        {
-            //呼び出し先を消去しておく。
-            caller_.set(null);
         }
         
         return ret;
     }
 
-    /**
+	/**
      * 
      * @param intervalMax
      */

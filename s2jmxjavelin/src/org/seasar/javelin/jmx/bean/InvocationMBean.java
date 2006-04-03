@@ -18,6 +18,9 @@ public interface InvocationMBean {
 	public long getThrowableCount();
 	public List getThrowableList();
 	public ObjectName[] getAllCallerObjectName();
+
+	public long getRecordThreshold();
+	public void setRecordThreshold(long recordThreshold);
 	
 	public void reset();
 }

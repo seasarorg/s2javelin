@@ -7,5 +7,6 @@
 	<classpathentry kind="lib" path="lib/mx4j-tools.jar"/>
 	<classpathentry kind="lib" path="lib/mx4j.jar"/>
 	<classpathentry kind="lib" path="lib/mx4j-remote.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

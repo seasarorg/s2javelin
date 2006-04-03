@@ -24,9 +24,15 @@ public class Invocation implements InvocationMBean
 	private long minimum_ = INITIAL;
 	private long maximum_ = INITIAL;
 	
-	private LinkedList intervalList_  = new LinkedList();
-	private LinkedList throwableList_ = new LinkedList();
-	private Set        callerSet_     = new HashSet();
+	private LinkedList<Long>      intervalList_  = new LinkedList<Long>();
+	private LinkedList<Throwable> throwableList_ = new LinkedList<Throwable>();
+	private Set<Invocation>       callerSet_     = new HashSet<Invocation>();
+
+    /** 
+     *  呼び出し情報を記録する際の閾値。
+     *  値（ミリ秒）を下回る処理時間の呼び出し情報は記録しない。
+     */
+    private long recordThreshold_ = 0L;
 
 	public Invocation(
 			ObjectName objName
@@ -34,14 +40,16 @@ public class Invocation implements InvocationMBean
 			, String className
 			, String methodName
 			, int intervalMax
-			, int throwableMax)
+			, int throwableMax
+			, long recordThreshold)
 	{
-		objName_      = objName;
-		classObjName_ = classObjName;
-		className_    = className;
-		methodName_   = methodName;
-		intervalMax_  = intervalMax;
-		throwableMax_ = throwableMax;
+		objName_         = objName;
+		classObjName_    = classObjName;
+		className_       = className;
+		methodName_      = methodName;
+		intervalMax_     = intervalMax;
+		throwableMax_    = throwableMax;
+		recordThreshold_ = recordThreshold;
 	}
 
 	public ObjectName getComponentObjectName()
@@ -124,7 +132,7 @@ public class Invocation implements InvocationMBean
 		return objNames;
 	}
 	
-	public void addInterval(long interval, InvocationMBean caller)
+	public void addInterval(long interval)
 	{
 		count_++;
 		
@@ -134,13 +142,16 @@ public class Invocation implements InvocationMBean
 			intervalList_.removeFirst();
 		}
 		
+		if (interval < minimum_ || minimum_ == INITIAL) minimum_ = interval;
+		if (interval > maximum_ || maximum_ == INITIAL) maximum_ = interval;
+	}
+	
+	public void addCaller(Invocation caller)
+	{
 		if (caller != null)
 		{
 			callerSet_.add(caller);
 		}
-		
-		if (interval < minimum_ || minimum_ == INITIAL) minimum_ = interval;
-		if (interval > maximum_ || maximum_ == INITIAL) maximum_ = interval;
 	}
 	
 	public void addThrowable(Throwable throwable)
@@ -152,6 +163,16 @@ public class Invocation implements InvocationMBean
 		}
 	}
 	
+	public long getRecordThreshold()
+	{
+		return recordThreshold_;
+	}
+
+	public void setRecordThreshold(long recordThreshold)
+	{
+		recordThreshold_ = recordThreshold;
+	}
+
 	public String toString()
 	{
 		StringBuffer buffer = new StringBuffer(256);

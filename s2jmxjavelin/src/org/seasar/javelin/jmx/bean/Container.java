@@ -3,19 +3,13 @@ package org.seasar.javelin.jmx.bean;
 import java.util.Map;
 import javax.management.ObjectName;
 
+import org.seasar.javelin.jmx.MBeanManager;
+
 public class Container implements ContainerMBean
 {
-    private static Map map_;
-
-    public Container(Map map)
-    {
-    	map_ = map;
-    }
-    
     public ObjectName[] getAllComponentObjectName()
     {
-    	Component[] components = 
-    		(Component[])map_.values().toArray(new Component[0]);
+    	Component[] components = MBeanManager.getAllComponents();
 		ObjectName[] objNames    = new ObjectName[components.length];
 
 		for (int index = 0; index < components.length; index++)
@@ -28,8 +22,7 @@ public class Container implements ContainerMBean
 
 	public void reset()
 	{
-		Component[] components = 
-			(Component[])map_.values().toArray(new Component[map_.size()]);
+    	Component[] components = MBeanManager.getAllComponents();
 		for (int index = 0; index < components.length; index++)
 		{
 			components[index].reset();
