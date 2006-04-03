@@ -37,6 +37,8 @@ public class S2JmxJavelinEditor extends GraphicalEditor
 	private String hostName_ = "";
 	private int    portNum_  = 0;
 	private String domain_   = "";
+	private long   warningThreshold_ = Long.MAX_VALUE;
+	private long   alarmThreshold_   = Long.MAX_VALUE;
 
 	protected void initializeGraphicalViewer()
 	{
@@ -106,6 +108,8 @@ public class S2JmxJavelinEditor extends GraphicalEditor
 						(Long)connection.getAttribute(invocationName, "Minimum");
 					Long maximum = 
 						(Long)connection.getAttribute(invocationName, "Maximum");
+					Long throwableCount = 
+						(Long)connection.getAttribute(invocationName, "ThrowableCount");
 					
 					String methodName = 
 						(String)connection.getAttribute(invocationName, "MethodName");
@@ -115,6 +119,9 @@ public class S2JmxJavelinEditor extends GraphicalEditor
 					invocation.setAverage(average.longValue());
 					invocation.setMinimum(minimum.longValue());
 					invocation.setMaximum(maximum.longValue());
+					invocation.setThrowableCount(throwableCount);
+					invocation.setAlarmThreshold(alarmThreshold_);
+					invocation.setWarningThreshold(warningThreshold_);
 					invocation.setMethodName(methodName);
 					
 					target.addInvocation(invocation);
@@ -274,4 +281,15 @@ public class S2JmxJavelinEditor extends GraphicalEditor
 		portNum_ = portNum;
 	}
 
+	public void setWarningThreshold(long warningThreshold)
+	{
+		if (warningThreshold < 1) warningThreshold = Long.MAX_VALUE;
+		warningThreshold_ = warningThreshold;
+	}
+
+	public void setAlarmThreshold(long alarmThreshold)
+	{
+		if (alarmThreshold < 1) alarmThreshold = Long.MAX_VALUE;
+		alarmThreshold_ = alarmThreshold;
+	}
 }

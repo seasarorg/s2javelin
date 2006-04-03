@@ -1,6 +1,7 @@
 package org.seasar.javelin.jmx.viewer.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.draw2d.geometry.Rectangle;
@@ -110,6 +111,7 @@ public class ComponentModel extends AbstractModel
 	{
 		invocationList_.add(invocation);
 		invocation.setComponent(this);
+		Collections.sort(invocationList_);
 	}
 
 	public List<InvocationModel> getInvocationList()
