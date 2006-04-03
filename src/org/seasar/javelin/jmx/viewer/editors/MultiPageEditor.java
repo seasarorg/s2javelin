@@ -72,6 +72,9 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 			editor.setHostName(host_);
 			editor.setPortNum(port_);
 			editor.setDomain(domain_);
+			editor.setWarningThreshold(warningThreshold_);
+			editor.setAlarmThreshold(alarmThreshold_);
+			
 			int index = addPage(editor, getEditorInput());
 			setPageText(index, "View");
 //			setPageText(index, editor.getTitle());
@@ -87,14 +90,20 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 	private Label hostLabel_;
 	private Label portLabel_;
 	private Label domainLabel_;
+	private Label warningLabel_;
+	private Label alarmLabel_;
+	
 	private Text  hostText_;
 	private Text  portText_;
 	private Text  domainText_;
+	private Text  warningText_;
+	private Text  alarmText_;
 	
 	private String host_   = "";
 	private int    port_;
 	private String domain_ = "";
-	private int    interval_;
+	private long   warningThreshold_;
+	private long   alarmThreshold_;
 	
 	/**
 	 * Creates page 1 of the multi-page editor,
@@ -126,7 +135,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 		portLabel_.setText("Port:");
 		GridData portGrid = new GridData(GridData.BEGINNING);
 		portGrid.horizontalSpan = 2;
-		portLabel_.setLayoutData(hostGrid);
+		portLabel_.setLayoutData(portGrid);
 		
 		//------------------------------------------------------------
 		portText_  = new Text(composite, SWT.NONE);
@@ -140,7 +149,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 		domainLabel_.setText("Domain:");
 		GridData domainGrid = new GridData(GridData.BEGINNING);
 		domainGrid.horizontalSpan = 2;
-		domainLabel_.setLayoutData(hostGrid);
+		domainLabel_.setLayoutData(domainGrid);
 		
 		//------------------------------------------------------------
 		domainText_  = new Text(composite, SWT.NONE);
@@ -150,18 +159,32 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 		domainText_.setLayoutData(domainGrid);
 
 		//------------------------------------------------------------
-		Label intervalLabel = new Label(composite, SWT.NONE);
-		intervalLabel.setText("Interval:");
-		GridData intervalGrid = new GridData(GridData.BEGINNING);
-		intervalGrid.horizontalSpan = 2;
-		intervalLabel.setLayoutData(hostGrid);
+		warningLabel_ = new Label(composite, SWT.NONE);
+		warningLabel_.setText("Warning:");
+		GridData warningGrid = new GridData(GridData.BEGINNING);
+		warningGrid.horizontalSpan = 2;
+		warningLabel_.setLayoutData(warningGrid);
 		
 		//------------------------------------------------------------
-		Text  intervalText  = new Text(composite, SWT.NONE);
-		intervalText.setText(Integer.toString(interval_));
-		intervalGrid = new GridData(GridData.BEGINNING);
-		intervalGrid.horizontalSpan = 2;
-		intervalText.setLayoutData(domainGrid);
+		warningText_ = new Text(composite, SWT.NONE);
+		warningText_.setText(Long.toString(warningThreshold_));
+		warningGrid = new GridData(GridData.BEGINNING);
+		warningGrid.horizontalSpan = 2;
+		warningText_.setLayoutData(warningGrid);
+
+		//------------------------------------------------------------
+		alarmLabel_ = new Label(composite, SWT.NONE);
+		alarmLabel_.setText("Alarm:");
+		GridData alarmGrid = new GridData(GridData.BEGINNING);
+		alarmGrid.horizontalSpan = 2;
+		alarmLabel_.setLayoutData(alarmGrid);
+		
+		//------------------------------------------------------------
+		alarmText_ = new Text(composite, SWT.NONE);
+		alarmText_.setText(Long.toString(alarmThreshold_));
+		alarmGrid = new GridData(GridData.BEGINNING);
+		alarmGrid.horizontalSpan = 2;
+		alarmText_.setLayoutData(alarmGrid);
 
 		//------------------------------------------------------------
 		Button reloadButton = new Button(composite, SWT.NONE);
@@ -177,6 +200,9 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 						editor.setHostName(hostText_.getText());
 						editor.setPortNum(Integer.parseInt(portText_.getText()));
 						editor.setDomain(domainText_.getText());
+						editor.setWarningThreshold(warningThreshold_);
+						editor.setAlarmThreshold(alarmThreshold_);
+						
 						editor.initializeGraphicalViewer();
 					}
 				});
@@ -262,6 +288,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 		setPageText(0, editor.getTitle());
 		setInput(editor.getEditorInput());
 	}
+	
 	/* (non-Javadoc)
 	 * Method declared on IEditorPart
 	 */
@@ -288,10 +315,11 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 			InputStreamReader reader = new InputStreamReader(stream);
 			BufferedReader bufferedReader = new BufferedReader(reader);
 			
-			host_     = bufferedReader.readLine();
-			port_     = Integer.parseInt(bufferedReader.readLine());
-			domain_   = bufferedReader.readLine();
-			interval_ = Integer.parseInt(bufferedReader.readLine());
+			host_             = bufferedReader.readLine();
+			port_             = Integer.parseInt(bufferedReader.readLine());
+			domain_           = bufferedReader.readLine();
+			warningThreshold_ = Integer.parseInt(bufferedReader.readLine());
+			alarmThreshold_   = Integer.parseInt(bufferedReader.readLine());
 		}
 		catch (CoreException e)
 		{
@@ -312,6 +340,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 			e.printStackTrace();
 		}
 	}
+	
 	/* (non-Javadoc)
 	 * Method declared on IEditorPart.
 	 */

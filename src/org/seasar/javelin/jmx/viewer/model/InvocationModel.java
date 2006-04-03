@@ -2,16 +2,34 @@ package org.seasar.javelin.jmx.viewer.model;
 
 import java.util.List;
 
-public class InvocationModel
+public class InvocationModel implements Comparable
 {
 	private ComponentModel component_;
 	private String methodName_;
+	
+	/** メソッドの呼び出し回数。 */
 	private long count_;
+	
+	/** メソッドの最短処理時間（単位:ミリ秒）。 */
 	private long minimum_;
+	
+	/** メソッドの最長処理時間（単位:ミリ秒）。 */
 	private long maximum_;
+	
+	/** メソッドの平均処理時間（単位:ミリ秒）。 */
 	private long average_;
+	
+	/** メソッド内での例外発生回数。 */
 	private long throwableCount_;
+	
+	/** メソッド内で発生した例外の履歴。 */
 	private List<Throwable> throwableList_;
+
+	/**  */
+	private long warningThreshold_ = Long.MAX_VALUE;
+	
+	/**  */
+	private long alarmThreshold_   = Long.MAX_VALUE;
 
 	public long getAverage()
 	{
@@ -93,6 +111,26 @@ public class InvocationModel
 		methodName_ = methodName;
 	}
 
+	public long getWarningThreshold()
+	{
+		return warningThreshold_;
+	}
+
+	public void setWarningThreshold(long warningThreshold)
+	{
+		warningThreshold_ = warningThreshold;
+	}
+
+	public long getAlarmThreshold()
+	{
+		return alarmThreshold_;
+	}
+
+	public void setAlarmThreshold(long alarmThreshold)
+	{
+		alarmThreshold_ = alarmThreshold;
+	}
+	
 	@Override
 	public String toString()
 	{
@@ -111,14 +149,14 @@ public class InvocationModel
 		return builder.toString();
 	}
 
-	
-	
-//	public long getCount();
-//	public long getMinimum();
-//	public long getMaximum();
-//	public long getAverage();
-//	public long getThrowableCount();
-//	public List<Throwable> getThrowableList();
-//	public ObjectName[] getAllCallerObjectName();
-
+	public int compareTo(Object arg0)
+	{
+		if (arg0 instanceof InvocationModel)
+		{
+			InvocationModel target = (InvocationModel)arg0;
+			return this.getMethodName().compareTo(target.getMethodName());
+		}
+		
+		return 0;
+	}
 }

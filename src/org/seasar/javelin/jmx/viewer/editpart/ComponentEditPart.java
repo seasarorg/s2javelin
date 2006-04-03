@@ -4,6 +4,7 @@ import java.beans.PropertyChangeEvent;
 import java.util.List;
 
 import org.eclipse.draw2d.ChopboxAnchor;
+import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.ConnectionAnchor;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.Label;
@@ -26,6 +27,12 @@ import org.seasar.javelin.jmx.viewer.model.InvocationModel;
 public class ComponentEditPart extends EditPartWithListener implements
 		NodeEditPart
 {
+	/** クラスの背景色。 */
+	private static final Color YELLOW = new Color(null,255, 255, 206);
+	
+	/** 警告色。 */
+	private static final Color ORANGE = new Color(null,224, 160,   0);
+	
 	protected IFigure createFigure()
 	{
 		ComponentModel model = (ComponentModel) getModel();
@@ -33,40 +40,61 @@ public class ComponentEditPart extends EditPartWithListener implements
 	    Layer layer = new Layer();
 	    layer.setBorder(new LineBorder());
 	    layer.setOpaque(true);
-	    layer.setBackgroundColor(new Color(null,255,255,206));
+	    layer.setBackgroundColor(YELLOW);
 	    layer.setLayoutManager(new ToolbarLayout());
 
 	    // コンポーネント名用ラベルの設定。
 		Label label = new Label();
 
-		// 背景色をオレンジに
-		label.setBackgroundColor(new Color(null,255,255,206));
+		// 背景色を黄色に
+		label.setBackgroundColor(YELLOW);
 
 		// 背景色を不透明に
 		label.setOpaque(true);
 		
 		// 表示文字列の決定
-		String componentName = 
-			model.getClassName().substring(
-				model.getClassName().lastIndexOf(".") + 1);
+		String componentName = "";
+		if (model.getClassName().indexOf("/") > -1)
+		{
+//			componentName = 
+//				model.getClassName().substring(
+//					model.getClassName().lastIndexOf("/") + 1);
+			componentName = model.getClassName();
+		}
+		else
+		{
+			componentName = 
+				model.getClassName().substring(
+					model.getClassName().lastIndexOf(".") + 1);
+		}
 		
 		label.setText(componentName);
 		layer.add(label);
 		
 		CompartmentFigure figure = new CompartmentFigure();
-		figure.setBackgroundColor(new Color(null,255,255,206));
+		figure.setBackgroundColor(YELLOW);
 		
 		for (InvocationModel invocation : model.getInvocationList())
 		{
 			Label invocationLabel = new Label();
 			invocationLabel.setOpaque(true);
-			invocationLabel.setBackgroundColor(new Color(null,255,255,206));
+			invocationLabel.setBackgroundColor(YELLOW);
 			invocationLabel.setTextAlignment(PositionConstants.ALWAYS_LEFT);
 			invocationLabel.setText(
 					invocation.getMethodName() 
 					+ "(" 
-					+ invocation.getAverage() 
+					+ invocation.getMaximum() 
+					+ ":"
+					+ invocation.getAverage()
 					+ ")");
+			if (invocation.getMaximum() > invocation.getAlarmThreshold())
+			{
+				invocationLabel.setForegroundColor(ColorConstants.red);
+			}
+			else if (invocation.getMaximum() > invocation.getWarningThreshold())
+			{
+				invocationLabel.setForegroundColor(ORANGE);
+			}
 			
 			figure.add(invocationLabel);
 		}
