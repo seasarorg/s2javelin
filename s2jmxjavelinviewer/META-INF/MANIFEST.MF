@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: S2JmxJavelinViewer プラグイン
-Bundle-SymbolicName: S2JmxJavelinViewer; singleton:=true
-Bundle-Version: 1.0.0
+Bundle-SymbolicName: org.seaser.s2jmxjavelinviwer; singleton:=true
+Bundle-Version: 0.2.0
 Bundle-Activator: org.seasar.javelin.jmx.viewer.S2JmxJavelinViewerPlugin
-Bundle-Vendor: yamyam
+Bundle-Vendor: seaser.org
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
