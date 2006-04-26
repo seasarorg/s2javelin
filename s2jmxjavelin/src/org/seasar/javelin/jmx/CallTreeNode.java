@@ -9,8 +9,12 @@ public class CallTreeNode
 {
 	private Invocation invocation_;
 	
-	private long accumulatedTime_;
+	private long startTime_;
 
+	private long endTime_;
+
+	private long accumulatedTime_;
+	
 	private CallTreeNode parent_;
 	
 	private List<CallTreeNode> children_ = new ArrayList<CallTreeNode>();
@@ -25,14 +29,30 @@ public class CallTreeNode
 		invocation_ = invocation;
 	}
 
+	public long getStartTime()
+	{
+		return startTime_;
+	}
+
+	public void setStartTime(long startTime)
+	{
+		startTime_ = startTime;
+	}
+
+	public long getEndTime()
+	{
+		return endTime_;
+	}
+
+	public void setEndTime(long endTime)
+	{
+		endTime_ = endTime;
+		accumulatedTime_ = endTime_ - startTime_;
+	}
+
 	public long getAccumulatedTime()
 	{
 		return accumulatedTime_;
-	}
-
-	public void setAccumulatedTime(long accumulatedTime)
-	{
-		accumulatedTime_ = accumulatedTime;
 	}
 
 	public CallTreeNode getParent()

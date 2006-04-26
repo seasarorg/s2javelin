@@ -116,12 +116,14 @@ public class S2JmxJavelinRecorder
 	        	callTree_.set(tree);
 	        	
 	        	node = new CallTreeNode();
+	        	node.setStartTime(System.currentTimeMillis());
 	        	tree.setRootNode(node);
 	        }
 	        else
 	        {
 	        	CallTreeNode parent = node;
 	        	node = new CallTreeNode();
+	        	node.setStartTime(System.currentTimeMillis());
 	        	parent.addChild(node);
 	        }
 	        
@@ -142,7 +144,7 @@ public class S2JmxJavelinRecorder
 	 * 後処理（本処理成功時）。
 	 * @param spent
 	 */
-	public static void postProcess(long spent)
+	public static void postProcess()
 	{
 		try
 		{
@@ -155,14 +157,14 @@ public class S2JmxJavelinRecorder
 	        	return;
 	        }
 
-	        node.setAccumulatedTime(spent);
+	        node.setEndTime(System.currentTimeMillis());
 	        
 	        CallTreeNode parent = node.getParent();
 	        if (parent != null)
 	        {
 	            callerNode_.set(parent);
 	        }
-	        else if (spent >= node.getInvocation().getRecordThreshold())
+	        else if (node.getAccumulatedTime() >= node.getInvocation().getRecordThreshold())
 	        {
 	        	// ルートノードでの経過時間が閾値を超えていた場合は、
 	        	// トランザクションを記録する。

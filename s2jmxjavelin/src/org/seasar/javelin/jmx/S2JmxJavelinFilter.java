@@ -43,11 +43,9 @@ public class S2JmxJavelinFilter implements Filter
 		
 		String contextPath = httpRequest.getContextPath();
 		String servletPath = httpRequest.getServletPath();
-//		String requestPath = httpRequest.getRequestURI();
 
     	try
     	{
-        	long start = System.currentTimeMillis();
         	S2JmxJavelinRecorder.preProcess(
         			domain_
         			, contextPath
@@ -61,8 +59,7 @@ public class S2JmxJavelinFilter implements Filter
         	chain.doFilter(request, response);
         	//==================================================
         	
-            long spent = System.currentTimeMillis() - start;
-            S2JmxJavelinRecorder.postProcess(spent);
+            S2JmxJavelinRecorder.postProcess();
     	}
     	catch (IOException ex)
     	{

@@ -227,7 +227,6 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
         Object ret = null;
         try
         {
-        	long start = System.currentTimeMillis();
         	S2JmxJavelinRecorder.preProcess(
         			domain_
         			, className
@@ -241,8 +240,7 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
             ret = invocation.proceed();
         	//==================================================
 
-            long spent = System.currentTimeMillis() - start;
-            S2JmxJavelinRecorder.postProcess(spent);
+            S2JmxJavelinRecorder.postProcess();
         }
         catch (Throwable cause)
         {
