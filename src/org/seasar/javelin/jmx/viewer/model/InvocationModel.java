@@ -2,7 +2,11 @@ package org.seasar.javelin.jmx.viewer.model;
 
 import java.util.List;
 
-public class InvocationModel implements Comparable
+import javax.management.AttributeChangeNotification;
+import javax.management.Notification;
+import javax.management.NotificationListener;
+
+public class InvocationModel implements Comparable, NotificationListener
 {
 	private ComponentModel component_;
 	private String methodName_;
@@ -31,6 +35,9 @@ public class InvocationModel implements Comparable
 	/**  */
 	private long alarmThreshold_   = Long.MAX_VALUE;
 
+    /** ËáílîªíËópÇÃíËêîï∂éöóÒ */
+    private static final String EXCEED_THRESHOLD_ALARM = "Alarm:EXCEED_THRESHOLD";
+    
 	public long getAverage()
 	{
 		return average_;
@@ -159,4 +166,24 @@ public class InvocationModel implements Comparable
 		
 		return 0;
 	}
+
+    public void handleNotification(Notification notification, Object handback)
+    {
+        if( notification instanceof AttributeChangeNotification )
+        {
+            String alarmMsg = ((AttributeChangeNotification)notification).getMessage();
+            if( EXCEED_THRESHOLD_ALARM.equals( alarmMsg ) == true )
+            {
+                handleExceedThresholdAlarm( (AttributeChangeNotification)notification );
+            }
+        }
+        
+    }
+    
+    private void handleExceedThresholdAlarm(AttributeChangeNotification notification)
+    {
+    	setAverage((Long)notification.getOldValue());
+    	setMaximum((Long)notification.getNewValue());
+        this.component_.setExceededThresholdAlarm( this.methodName_ );
+    }
 }
