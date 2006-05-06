@@ -12,68 +12,105 @@ import javax.servlet.http.HttpServletRequest;
 
 public class S2JmxJavelinFilter implements Filter
 {
-	private static final String PNAME_DOMAIN = "domain";
-	private static final String PNAME_INTERVAL_MAX = "intervalMax";
-	private static final String PNAME_THROWABLE_MAX = "throwableMax";
-	private static final String PNAME_RECORD_THRESHOLD = "recordThreshold";
-	
-	private String domain_;
-	private int intervalMax_;
-	private int throwableMax_;
-	private long recordThreshold_;
-	
-	public void init(FilterConfig config) throws ServletException
+    private static final String PNAME_DOMAIN           = "domain";
+
+    private static final String PNAME_INTERVAL_MAX     = "intervalMax";
+
+    private static final String PNAME_THROWABLE_MAX    = "throwableMax";
+
+    private static final String PNAME_RECORD_THRESHOLD = "recordThreshold";
+
+    private static final String PNAME_ALARM_THRESHOLD  = "fileThreshold";
+
+    private static final String PNAME_JAVELIN_DIR      = "javelinFileDir";
+
+    private S2JmxJavelinConfig  config_;
+
+    public void init(FilterConfig config)
+        throws ServletException
+    {
+    	config_ = new S2JmxJavelinConfig();
+    	String domain = getInitParameter(config, PNAME_DOMAIN);
+    	if (domain !=null && domain.trim().length() > 0)
+    	{
+        	config_.setDomain(domain);
+    	}
+    	
+    	config_.setIntervalMax(getInitParameter(config, PNAME_INTERVAL_MAX, 1000));
+    	config_.setThrowableMax(getInitParameter(config, PNAME_THROWABLE_MAX, 1000));
+    	config_.setRecordThreshold(getInitParameter(config, PNAME_RECORD_THRESHOLD, 0));
+    	config_.setAlarmThreshold(getInitParameter(config, PNAME_ALARM_THRESHOLD, 1000));
+    	String javelinFileDir = getInitParameter(config, PNAME_JAVELIN_DIR);
+    	if (javelinFileDir !=null && javelinFileDir.trim().length() > 0)
+    	{
+        	config_.setJavelinFileDir(javelinFileDir);
+    	}
+    }
+
+    private int getInitParameter(FilterConfig config, String pname, int defaultValue)
 	{
-		domain_ = config.getInitParameter(PNAME_DOMAIN);
-		intervalMax_ = 
-			Integer.parseInt(config.getInitParameter(PNAME_INTERVAL_MAX));
-		throwableMax_ = 
-			Integer.parseInt(config.getInitParameter(PNAME_THROWABLE_MAX));
-		recordThreshold_ = 
-			Long.parseLong(config.getInitParameter(PNAME_RECORD_THRESHOLD));
+    	int value = 0;
+		String configValue = config.getInitParameter(pname);
+		if (configValue != null)
+		{
+			try
+			{
+				value = Integer.parseInt(configValue);
+			}
+			catch (NumberFormatException ex)
+			{
+				value = defaultValue;
+			}
+		}
+		else
+		{
+			value = defaultValue;
+		}
+
+		return value;
 	}
 
-	public void doFilter(
-			ServletRequest request
-			, ServletResponse response
-			,FilterChain chain) throws IOException, ServletException
+	private String getInitParameter(FilterConfig config, String pname)
 	{
-		HttpServletRequest httpRequest =
-			(HttpServletRequest)request;
-		
-		String contextPath = httpRequest.getContextPath();
-		String servletPath = httpRequest.getServletPath();
+		String value = config.getInitParameter(pname);
+		return value;
+	}
 
-    	try
-    	{
-        	S2JmxJavelinRecorder.preProcess(
-        			domain_
-        			, contextPath
-        			, servletPath
-        			, intervalMax_
-        			, throwableMax_
-        			, recordThreshold_);
-        	
-        	//==================================================
+	public void doFilter(ServletRequest request, ServletResponse response,
+            FilterChain chain)
+        throws IOException,
+            ServletException
+    {
+        HttpServletRequest httpRequest = (HttpServletRequest)request;
+
+        String contextPath = httpRequest.getContextPath();
+        String servletPath = httpRequest.getServletPath();
+
+        try
+        {
+            S2JmxJavelinRecorder.preProcess(contextPath, servletPath, config_);
+
+            //==================================================
             // メソッド呼び出し。
-        	chain.doFilter(request, response);
-        	//==================================================
-        	
-            S2JmxJavelinRecorder.postProcess();
-    	}
-    	catch (IOException ex)
-    	{
-            S2JmxJavelinRecorder.postProcess(ex);
-            throw ex;
-    	}
-    	catch (ServletException ex)
-    	{
-            S2JmxJavelinRecorder.postProcess(ex);
-            throw ex;
-    	}
-	}
+            chain.doFilter(request, response);
+            //==================================================
 
-	public void destroy()
-	{
-	}
+            S2JmxJavelinRecorder.postProcess(config_);
+        }
+        catch (IOException ex)
+        {
+            S2JmxJavelinRecorder.postProcess(ex);
+            throw ex;
+        }
+        catch (ServletException ex)
+        {
+            S2JmxJavelinRecorder.postProcess(ex);
+            throw ex;
+        }
+    }
+
+    public void destroy( )
+    {
+    	;
+    }
 }

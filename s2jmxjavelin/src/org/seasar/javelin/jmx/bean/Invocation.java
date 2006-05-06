@@ -5,9 +5,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import javax.management.AttributeChangeNotification;
+import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
 
-public class Invocation implements InvocationMBean
+import org.seasar.javelin.jmx.CallTreeNode;
+
+public class Invocation extends NotificationBroadcasterSupport
+                    implements InvocationMBean
 {
 	private static final long INITIAL = -1;
 
@@ -32,7 +37,13 @@ public class Invocation implements InvocationMBean
      *  呼び出し情報を記録する際の閾値。
      *  値（ミリ秒）を下回る処理時間の呼び出し情報は記録しない。
      */
-    private long recordThreshold_ = 0L;
+    private long recordThreshold_;
+
+    /** 
+     *  呼び出し情報を記録する際の閾値。
+     *  値（ミリ秒）を下回る処理時間の呼び出し情報は記録しない。
+     */
+    private long alarmThreshold_;
 
 	public Invocation(
 			ObjectName objName
@@ -41,7 +52,8 @@ public class Invocation implements InvocationMBean
 			, String methodName
 			, int intervalMax
 			, int throwableMax
-			, long recordThreshold)
+			, long recordThreshold
+			, long alarmThreshold)
 	{
 		objName_         = objName;
 		classObjName_    = classObjName;
@@ -50,6 +62,7 @@ public class Invocation implements InvocationMBean
 		intervalMax_     = intervalMax;
 		throwableMax_    = throwableMax;
 		recordThreshold_ = recordThreshold;
+		alarmThreshold_  = alarmThreshold;
 	}
 
 	public ObjectName getComponentObjectName()
@@ -173,6 +186,16 @@ public class Invocation implements InvocationMBean
 		recordThreshold_ = recordThreshold;
 	}
 
+	public long getAlarmThreshold()
+	{
+		return alarmThreshold_;
+	}
+
+	public void setAlarmThreshold(long alarmThreshold)
+	{
+		alarmThreshold_ = alarmThreshold;
+	}
+
 	public String toString()
 	{
 		StringBuffer buffer = new StringBuffer(256);
@@ -225,4 +248,25 @@ public class Invocation implements InvocationMBean
 		intervalList_.clear();
 		throwableList_.clear();
 	}
+
+
+    public void sendExceedThresholdAlarm()
+    {
+        // メッセージ
+        String ararmMsg = "Alarm:EXCEED_THRESHOLD";
+        
+        // TODO: 適切なNotificationが無いので、
+        //       AttributeChangeNotificationで代用
+        AttributeChangeNotification notification =
+            new AttributeChangeNotification(this,
+                                            0,
+                                            System.currentTimeMillis(),
+                                            ararmMsg,         // アラームメッセージ
+                                            getMethodName(),  // 属性名 => メソッド名
+                                            "Method",         // 属性タイプ => Method
+                                            getAverage(),     // 変更前の値 => 閾値の時間
+                                            getMaximum());    // 変更後の値 => 経過時間
+
+        sendNotification(notification);
+    }
 }

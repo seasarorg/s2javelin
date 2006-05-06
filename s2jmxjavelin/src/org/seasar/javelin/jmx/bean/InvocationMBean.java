@@ -22,5 +22,8 @@ public interface InvocationMBean {
 	public long getRecordThreshold();
 	public void setRecordThreshold(long recordThreshold);
 	
+	public long getAlarmThreshold();
+	public void setAlarmThreshold(long alarmThreshold);
+	
 	public void reset();
 }

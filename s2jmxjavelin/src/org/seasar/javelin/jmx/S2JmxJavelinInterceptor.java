@@ -54,83 +54,63 @@ import org.seasar.javelin.jmx.bean.StatisticsMBean;
  */
 public class S2JmxJavelinInterceptor extends AbstractInterceptor
 {
-    private static final long serialVersionUID = 6661781313519708185L;
+    private static final long  serialVersionUID = 6661781313519708185L;
 
     /** プラットフォームMBeanサーバ */
     private static MBeanServer server_;
 
     /** 初期化フラグ。初期化済みの場合はtrue。 */
-    private static boolean isInitialized_ = false;
-    
-    /** 呼び出し情報を記録する最大件数。デフォルト値は1000。 */
-    private int intervalMax_  = 1000;
-
-    /** 例外の発生履歴を記録する最大件数。デフォルト値は1000。 */
-    private int throwableMax_ = 1000;
-
-    /** 
-     *  呼び出し情報を記録する際の閾値。
-     *  値（ミリ秒）を下回る処理時間の呼び出し情報は記録しない。
-     *  デフォルト値は0。 
-     */
-    private long recordThreshold_ = 0;
+    private static boolean     isInitialized_   = false;
 
     /**
      * 情報を公開するHTTPポート番号。（MX4Jが必要。）
      */
-    private int httpPort_ = 0;
-    
-    /**
-     * ドメイン名。
-     * デフォルト値は"org.seasar.javelin.jmx.default"。
-     */
-    private String domain_ = "org.seasar.javelin.jmx.default";
-    
+    private int                httpPort_        = 0;
+
+    private S2JmxJavelinConfig  config_ = new S2JmxJavelinConfig();
+
     /**
      * 初期化処理。
      * MBeanServerへのContainerMBeanの登録を行う。
      * 公開用HTTPポートが指定されていた場合は、HttpAdaptorの生成と登録も行う。
      */
-    private void init()
+    private void init( )
     {
-    	try
-    	{
-    		server_ = ManagementFactory.getPlatformMBeanServer();
+        try
+        {
+            server_ = ManagementFactory.getPlatformMBeanServer();
 
-    		if (httpPort_ != 0)
-    		{
-        	    XSLTProcessor processor = new XSLTProcessor();
-        	    ObjectName processorName = 
-        	    	new ObjectName("Server:name=XSLTProcessor");
+            if (httpPort_ != 0)
+            {
+                XSLTProcessor processor = new XSLTProcessor();
+                ObjectName processorName = new ObjectName(
+                                                          "Server:name=XSLTProcessor");
                 if (server_.isRegistered(processorName))
                 {
-                	Set beanSet = server_.queryMBeans(processorName, null);
-                	if (beanSet.size() > 0)
-                	{
-                		XSLTProcessor[] processors =
-                			(XSLTProcessor[])beanSet.toArray(
-                			    new XSLTProcessor[beanSet.size()]);
-                		processor = (XSLTProcessor)(processors[0]);
-                	}
+                    Set beanSet = server_.queryMBeans(processorName, null);
+                    if (beanSet.size() > 0)
+                    {
+                        XSLTProcessor[] processors = (XSLTProcessor[])beanSet.toArray(new XSLTProcessor[beanSet.size()]);
+                        processor = (XSLTProcessor)(processors[0]);
+                    }
                 }
                 else
                 {
-            	    server_.registerMBean(processor, processorName);
+                    server_.registerMBean(processor, processorName);
                 }
-        	    
+
                 HttpAdaptor adaptor;
-        		ObjectName adaptorName = 
-        			new ObjectName("Adaptor:name=adaptor,port=" + httpPort_);
+                ObjectName adaptorName = new ObjectName(
+                                                        "Adaptor:name=adaptor,port="
+                                                                + httpPort_);
                 if (server_.isRegistered(adaptorName))
                 {
-                	Set beanSet = server_.queryMBeans(adaptorName, null);
-                	if (beanSet.size() > 0)
-                	{
-                		HttpAdaptor[] adaptors =
-                			(HttpAdaptor[])beanSet.toArray(
-                			    new HttpAdaptor[beanSet.size()]);
-                		adaptor = (HttpAdaptor)(adaptors[0]);
-                	}
+                    Set beanSet = server_.queryMBeans(adaptorName, null);
+                    if (beanSet.size() > 0)
+                    {
+                        HttpAdaptor[] adaptors = (HttpAdaptor[])beanSet.toArray(new HttpAdaptor[beanSet.size()]);
+                        adaptor = (HttpAdaptor)(adaptors[0]);
+                    }
                 }
                 else
                 {
@@ -140,48 +120,38 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
                     server_.registerMBean(adaptor, adaptorName);
                     adaptor.start();
                 }
-                
-    		}
-    		
+
+            }
+
             ContainerMBean container;
-    		ObjectName containerName = 
-    			new ObjectName(
-    				domain_ 
-    				+ ".container:type=" 
-    				+ ContainerMBean.class.getName());        
+            ObjectName containerName = new ObjectName(config_.getDomain()
+                    + ".container:type=" + ContainerMBean.class.getName());
             if (server_.isRegistered(containerName))
             {
-            	Set beanSet = server_.queryMBeans(containerName, null);
-            	if (beanSet.size() > 0)
-            	{
-            		ContainerMBean[] containers =
-            			(ContainerMBean[])beanSet.toArray(
-            			    new ContainerMBean[beanSet.size()]);
-            		container = (ContainerMBean)(containers[0]);
-            	}
+                Set beanSet = server_.queryMBeans(containerName, null);
+                if (beanSet.size() > 0)
+                {
+                    ContainerMBean[] containers = (ContainerMBean[])beanSet.toArray(new ContainerMBean[beanSet.size()]);
+                    container = (ContainerMBean)(containers[0]);
+                }
             }
             else
             {
                 container = new Container();
                 server_.registerMBean(container, containerName);
             }
-            
+
             StatisticsMBean statistics;
-    		ObjectName statisticsName = 
-    			new ObjectName(
-    				domain_ 
-    				+ ".statistics:type=" 
-    				+ StatisticsMBean.class.getName());        
+            ObjectName statisticsName = new ObjectName(config_.getDomain()
+                    + ".statistics:type=" + StatisticsMBean.class.getName());
             if (server_.isRegistered(statisticsName))
             {
-            	Set beanSet = server_.queryMBeans(statisticsName, null);
-            	if (beanSet.size() > 0)
-            	{
-            		StatisticsMBean[] statisticses =
-            			(StatisticsMBean[])beanSet.toArray(
-            			    new StatisticsMBean[beanSet.size()]);
-            		statistics = (StatisticsMBean)(statisticses[0]);
-            	}
+                Set beanSet = server_.queryMBeans(statisticsName, null);
+                if (beanSet.size() > 0)
+                {
+                    StatisticsMBean[] statisticses = (StatisticsMBean[])beanSet.toArray(new StatisticsMBean[beanSet.size()]);
+                    statistics = (StatisticsMBean)(statisticses[0]);
+                }
             }
             else
             {
@@ -189,12 +159,12 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
                 server_.registerMBean(statistics, statisticsName);
             }
         }
-    	catch(Exception ex)
-    	{
-    		ex.printStackTrace();
-    	}
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
     }
-    
+
     /**
      * 呼び出し情報取得用のinvokeメソッド。
      * 
@@ -209,92 +179,92 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
      * @return invocationを実行したときの戻り値
      * @throws Throwable invocationを実行したときに発生した例外
      */
-    public Object invoke(MethodInvocation invocation) throws Throwable
+    public Object invoke(MethodInvocation invocation)
+        throws Throwable
     {
-    	synchronized (this.getClass())
-		{
-    		if (!isInitialized_)
-    		{
-    			isInitialized_ = true;
-    			init();
-    		}
-		}
-    	
+        synchronized (this.getClass())
+        {
+            if (!isInitialized_)
+            {
+                isInitialized_ = true;
+                init();
+            }
+        }
+
         // 呼び出し先情報取得。
-        String className  = getTargetClass(invocation).getName();
+        String className = getTargetClass(invocation).getName();
         String methodName = invocation.getMethod().getName();
-        
+
         Object ret = null;
         try
         {
-        	S2JmxJavelinRecorder.preProcess(
-        			domain_
-        			, className
-        			, methodName
-        			, intervalMax_
-        			, throwableMax_
-        			, recordThreshold_);
-        	
-        	//==================================================
+            S2JmxJavelinRecorder.preProcess(className, methodName, config_);
+
+            //==================================================
             // メソッド呼び出し。
             ret = invocation.proceed();
-        	//==================================================
+            //==================================================
 
-            S2JmxJavelinRecorder.postProcess();
+            S2JmxJavelinRecorder.postProcess(config_);
         }
         catch (Throwable cause)
         {
             S2JmxJavelinRecorder.postProcess(cause);
-        	
+
             //例外をスローし、終了する。
             throw cause;
         }
-        
+
         return ret;
     }
 
-	/**
+    /**
      * 
      * @param intervalMax
      */
-	public void setIntervalMax(int intervalMax)
-	{
-		this.intervalMax_ = intervalMax;
-	}
+    public void setIntervalMax(int intervalMax)
+    {
+        config_.setIntervalMax(intervalMax);
+    }
 
-	/**
-	 * 
-	 * @param throwableMax
-	 */
-	public void setThrowableMax(int throwableMax)
-	{
-		this.throwableMax_ = throwableMax;
-	}
+    /**
+     * 
+     * @param throwableMax
+     */
+    public void setThrowableMax(int throwableMax)
+    {
+        config_.setThrowableMax(throwableMax);
+    }
 
-	/**
-	 * 
-	 * @param recordThreshold
-	 */
-	public void setRecordThreshold(int recordThreshold)
-	{
-		this.recordThreshold_ = recordThreshold;
-	}
+    /**
+     * 
+     * @param recordThreshold
+     */
+    public void setRecordThreshold(int recordThreshold)
+    {
+    	config_.setRecordThreshold(recordThreshold);
+    }
 
-	/**
-	 * 
-	 * @param httpPort
-	 */
-	public void setHttpPort(int httpPort)
-	{
-		httpPort_ = httpPort;
-	}
+    /**
+     * 
+     * @param domain
+     */
+    public void setDomain(String domain)
+    {
+        config_.setDomain(domain);
+    }
 
-	/**
-	 * 
-	 * @param domain
-	 */
-	public void setDomain(String domain)
-	{
-		domain_ = domain;
-	}
+    public void setJavelinFileDir(String javelinFileDir)
+    {
+    	config_.setJavelinFileDir(javelinFileDir);
+    }
+    
+    /**
+     * 
+     * @param httpPort
+     */
+    public void setHttpPort(int httpPort)
+    {
+        httpPort_ = httpPort;
+    }
 }
