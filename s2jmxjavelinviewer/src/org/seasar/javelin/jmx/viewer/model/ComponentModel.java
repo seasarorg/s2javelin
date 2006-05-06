@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.management.AttributeChangeNotification;
+import javax.management.Notification;
+import javax.management.NotificationListener;
+
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.EditPart;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
@@ -23,6 +27,10 @@ public class ComponentModel extends AbstractModel
 
 	public static final String P_TARGET_CONNECTION = "_target_connection";
 
+    public static final String P_EXCEEDED_THRESHOLD_ALARM = "exceededThresholdMethodName";
+    
+    private String exceededThresholdMethodName_ = "";
+    
 	private String className_;
 
 	private ComponentEditPart part_;
@@ -186,4 +194,22 @@ public class ComponentModel extends AbstractModel
 		targetConnections.remove(connx);
 		firePropertyChange(P_TARGET_CONNECTION, null, null);
 	}
+
+    /**
+     * @param exceededThresholdAlarm ê›íËÇ∑ÇÈ exceededThresholdAlarmÅB
+     */
+    public void setExceededThresholdAlarm(String exceededThresholdMethodName)
+    {
+    	if (exceededThresholdMethodName == null)
+    	{
+    		exceededThresholdMethodName_ = null;
+    		return;
+    	}
+    	
+        String oldMethodName = this.exceededThresholdMethodName_;
+        this.exceededThresholdMethodName_ = exceededThresholdMethodName;
+        this.firePropertyChange(
+                P_EXCEEDED_THRESHOLD_ALARM, oldMethodName, this.exceededThresholdMethodName_);
+    }
+    
 }

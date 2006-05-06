@@ -61,7 +61,7 @@ public class S2JmxJavelinEditor extends GraphicalEditor
 			JMXConnector connector = JMXConnectorFactory.connect(url);
 			MBeanServerConnection connection = 
 				connector.getMBeanServerConnection();
-
+            
 			ObjectName objName = 
 				new ObjectName(
 					domain_ 
@@ -125,7 +125,9 @@ public class S2JmxJavelinEditor extends GraphicalEditor
 					invocation.setMethodName(methodName);
 					
 					target.addInvocation(invocation);
-					
+
+                    connection.addNotificationListener(invocationName, invocation, null, null);
+                    
 					ObjectName[] callerNames = 
 						(ObjectName[])connection.getAttribute(invocationName, "AllCallerObjectName");
 					for (ObjectName callerName : callerNames)
@@ -292,4 +294,5 @@ public class S2JmxJavelinEditor extends GraphicalEditor
 		if (alarmThreshold < 1) alarmThreshold = Long.MAX_VALUE;
 		alarmThreshold_ = alarmThreshold;
 	}
+    
 }
