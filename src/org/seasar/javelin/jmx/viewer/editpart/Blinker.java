@@ -14,14 +14,14 @@ public class Blinker implements Runnable
 	Color orgBg_;
 	Color orgFg_;
 
-	public Blinker(Display display, Label label, Color fg, Color bg)
+	public Blinker(Display display, Label label, Color fg, Color bg, Color orgFg, Color orgBg)
 	{
 		display_ = display;
 		label_ = label;
 		fg_ = fg;
 		bg_ = bg;
-		orgFg_ = label_.getForegroundColor();
-		orgBg_ = label_.getBackgroundColor();
+		orgFg_ = orgFg;
+		orgBg_ = orgBg;
 	}
 
 	public void run()
