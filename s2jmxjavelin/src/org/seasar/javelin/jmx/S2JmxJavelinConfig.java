@@ -21,7 +21,7 @@ public class S2JmxJavelinConfig
      */
 	private long recordThreshold_;
 
-	private long alarmThreshold_;
+	private long alarmThreshold_ = 1000;
 
     /**
      * Javelinログファイルを出力するフォルダ名

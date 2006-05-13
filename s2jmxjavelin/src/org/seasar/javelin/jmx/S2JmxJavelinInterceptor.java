@@ -38,6 +38,9 @@ import org.seasar.javelin.jmx.bean.StatisticsMBean;
  * <li>recordThreshold:処理時間記録用の閾値。
  *     この時間を越えたメソッド呼び出しのみ記録する。
  *     デフォルト値は0。</li>
+ * <li>alarmThreshold:処理時間記録用の閾値。
+ *     この時間を越えたメソッド呼び出しの発生をViwerに通知する。
+ *     デフォルト値は1000。</li>
  * <li>domain:MBeanを登録する際に使用するドメイン。
  *     実際のドメイン名は、[domainパラメータ] + [Mbeanの種類]となる。
  *     MBeanの種類は以下のものがある。
@@ -243,6 +246,15 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
     public void setRecordThreshold(int recordThreshold)
     {
     	config_.setRecordThreshold(recordThreshold);
+    }
+
+    /**
+     * 
+     * @param alarmThreshold
+     */
+    public void setAlarmThreshold(int alarmThreshold)
+    {
+    	config_.setAlarmThreshold(alarmThreshold);
     }
 
     /**
