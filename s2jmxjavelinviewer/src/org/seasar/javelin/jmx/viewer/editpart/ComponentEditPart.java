@@ -213,10 +213,31 @@ public class ComponentEditPart extends EditPartWithListener implements
         
         display.asyncExec(new LabelUpdateJob(label, message));
 
-        Runnable blinkJob = new Blinker(display, label, ColorConstants.black, RED);
+        Runnable blinkJob = new Blinker(display, label, ColorConstants.black, RED, getFgColor(invocation), getBgColor(invocation));
         Thread blinker = new Thread(blinkJob);
         blinker.start();
         
         ((ComponentModel) getModel()).setExceededThresholdAlarm(null);
+    }
+    
+    private Color getBgColor(InvocationModel invocation)
+    {
+    	return YELLOW;
+    }
+    
+    private Color getFgColor(InvocationModel invocation)
+    {
+		if (invocation.getMaximum() > invocation.getAlarmThreshold())
+		{
+			return RED;
+		}
+		else if (invocation.getMaximum() > invocation.getWarningThreshold())
+		{
+			return ORANGE;
+		}
+		else
+		{
+			return ColorConstants.black;
+		}
     }
 }
