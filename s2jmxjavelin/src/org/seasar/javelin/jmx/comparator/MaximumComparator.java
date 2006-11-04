@@ -1,11 +1,13 @@
 package org.seasar.javelin.jmx.comparator;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 import org.seasar.javelin.jmx.bean.Invocation;
 
-public class MaximumComparator implements Comparator
+public class MaximumComparator implements Comparator, Serializable
 {
+	private static final long serialVersionUID = 1255690461628306016L;
 
 	public int compare(Object arg0, Object arg1)
 	{

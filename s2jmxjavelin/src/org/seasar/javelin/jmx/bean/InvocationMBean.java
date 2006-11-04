@@ -6,24 +6,24 @@ import javax.management.ObjectName;
 
 public interface InvocationMBean {
 
-	public ObjectName getComponentObjectName();
+	ObjectName getComponentObjectName();
 	
-	public String getClassName();
-	public String getMethodName();
+	String getClassName();
+	String getMethodName();
 	
-	public long getCount();
-	public long getMinimum();
-	public long getMaximum();
-	public long getAverage();
-	public long getThrowableCount();
-	public List getThrowableList();
-	public ObjectName[] getAllCallerObjectName();
+	long getCount();
+	long getMinimum();
+	long getMaximum();
+	long getAverage();
+	long getThrowableCount();
+	List getThrowableList();
+	ObjectName[] getAllCallerObjectName();
 
-	public long getRecordThreshold();
-	public void setRecordThreshold(long recordThreshold);
+	long getRecordThreshold();
+	void setRecordThreshold(long recordThreshold);
 	
-	public long getAlarmThreshold();
-	public void setAlarmThreshold(long alarmThreshold);
+	long getAlarmThreshold();
+	void setAlarmThreshold(long alarmThreshold);
 	
-	public void reset();
+	void reset();
 }

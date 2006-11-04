@@ -74,8 +74,6 @@ public class CallTreeNode
     {
         children_.add(node);
         node.setParent(this);
-
-        return;
     }
 
     public long getElapsedTime( )

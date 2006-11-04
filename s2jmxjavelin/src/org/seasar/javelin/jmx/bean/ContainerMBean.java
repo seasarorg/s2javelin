@@ -4,7 +4,7 @@ import javax.management.ObjectName;
 
 public interface ContainerMBean
 {
-    public ObjectName[] getAllComponentObjectName();
+    ObjectName[] getAllComponentObjectName();
 	
-	public void reset();
+	void reset();
 }

@@ -9,14 +9,14 @@ public class JavelinLogMaker
     /**
      * 内部処理で、動作ログの種類を区別するために使用する"Return"のID。 <br>
      */
-    public static final int     ID_RETURN     = 1;
+    public static final int ID_RETURN     = 1;
 
     /**
      * 内部処理で、動作ログの種類を区別するために使用する"Call"のID。 <br>
      */
-    public static final int     ID_CALL       = 0;
+    public static final int ID_CALL       = 0;
 
-    private static String[]     MESSAGE_TYPES = new String[]{"Call  ", "Return"};
+    private static final String[] MESSAGE_TYPES = new String[]{"Call  ", "Return"};
 
     private static final String NEW_LINE      = "\n";
 

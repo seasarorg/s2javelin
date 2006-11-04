@@ -1,11 +1,13 @@
 package org.seasar.javelin.jmx.comparator;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 import org.seasar.javelin.jmx.bean.Invocation;
 
-public class MinimumComparator implements Comparator
+public class MinimumComparator implements Comparator, Serializable
 {
+	private static final long serialVersionUID = 4440894441141274763L;
 
 	public int compare(Object arg0, Object arg1)
 	{

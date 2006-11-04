@@ -83,19 +83,23 @@ public class S2JmxJavelinFilter implements Filter
     {
         HttpServletRequest httpRequest = (HttpServletRequest)request;
 
-        String contextPath = httpRequest.getContextPath();
-        String servletPath = httpRequest.getServletPath();
-
         try
         {
+            String contextPath = httpRequest.getContextPath();
+            String servletPath = httpRequest.getServletPath();
             S2JmxJavelinRecorder.preProcess(contextPath, servletPath, config_);
-
+        }
+        catch (Throwable th)
+        {
+        	th.printStackTrace();
+        }
+        
+        try
+        {
             //==================================================
             // メソッド呼び出し。
             chain.doFilter(request, response);
             //==================================================
-
-            S2JmxJavelinRecorder.postProcess(config_);
         }
         catch (IOException ex)
         {
@@ -106,6 +110,15 @@ public class S2JmxJavelinFilter implements Filter
         {
             S2JmxJavelinRecorder.postProcess(ex);
             throw ex;
+        }
+        
+        try
+        {
+            S2JmxJavelinRecorder.postProcess(config_);
+        }
+        catch(Throwable th)
+        {
+        	th.printStackTrace();
         }
     }
 

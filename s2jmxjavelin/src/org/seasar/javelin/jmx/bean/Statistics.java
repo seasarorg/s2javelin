@@ -3,7 +3,6 @@ package org.seasar.javelin.jmx.bean;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.seasar.javelin.jmx.MBeanManager;
 import org.seasar.javelin.jmx.comparator.AverageComparator;

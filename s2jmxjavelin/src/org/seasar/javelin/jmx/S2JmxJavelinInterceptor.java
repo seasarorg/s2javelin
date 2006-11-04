@@ -6,9 +6,6 @@ import java.util.Set;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import mx4j.tools.adaptor.http.HttpAdaptor;
-import mx4j.tools.adaptor.http.XSLTProcessor;
-
 import org.aopalliance.intercept.MethodInvocation;
 import org.seasar.framework.aop.interceptors.AbstractInterceptor;
 import org.seasar.javelin.jmx.bean.Container;
@@ -85,45 +82,14 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
 
             if (httpPort_ != 0)
             {
-                XSLTProcessor processor = new XSLTProcessor();
-                ObjectName processorName = new ObjectName(
-                                                          "Server:name=XSLTProcessor");
-                if (server_.isRegistered(processorName))
-                {
-                    Set beanSet = server_.queryMBeans(processorName, null);
-                    if (beanSet.size() > 0)
-                    {
-                        XSLTProcessor[] processors = (XSLTProcessor[])beanSet.toArray(new XSLTProcessor[beanSet.size()]);
-                        processor = (XSLTProcessor)(processors[0]);
-                    }
-                }
-                else
-                {
-                    server_.registerMBean(processor, processorName);
-                }
-
-                HttpAdaptor adaptor;
-                ObjectName adaptorName = new ObjectName(
-                                                        "Adaptor:name=adaptor,port="
-                                                                + httpPort_);
-                if (server_.isRegistered(adaptorName))
-                {
-                    Set beanSet = server_.queryMBeans(adaptorName, null);
-                    if (beanSet.size() > 0)
-                    {
-                        HttpAdaptor[] adaptors = (HttpAdaptor[])beanSet.toArray(new HttpAdaptor[beanSet.size()]);
-                        adaptor = (HttpAdaptor)(adaptors[0]);
-                    }
-                }
-                else
-                {
-                    adaptor = new HttpAdaptor();
-                    adaptor.setProcessor(processor);
-                    adaptor.setPort(httpPort_);
-                    server_.registerMBean(adaptor, adaptorName);
-                    adaptor.start();
-                }
-
+            	try
+            	{
+                	Mx4JLauncher.execute(server_, httpPort_);
+            	}
+            	catch(Exception ex)
+            	{
+            		ex.printStackTrace();
+            	}
             }
 
             ContainerMBean container;
@@ -194,21 +160,24 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
             }
         }
 
-        // 呼び出し先情報取得。
-        String className = getTargetClass(invocation).getName();
-        String methodName = invocation.getMethod().getName();
+        try
+        {
+            // 呼び出し先情報取得。
+            String className = getTargetClass(invocation).getName();
+            String methodName = invocation.getMethod().getName();
 
+            S2JmxJavelinRecorder.preProcess(className, methodName, config_);
+        }
+        catch(Throwable th)
+        {
+        	th.printStackTrace();
+        }
+        
         Object ret = null;
         try
         {
-            S2JmxJavelinRecorder.preProcess(className, methodName, config_);
-
-            //==================================================
             // メソッド呼び出し。
             ret = invocation.proceed();
-            //==================================================
-
-            S2JmxJavelinRecorder.postProcess(config_);
         }
         catch (Throwable cause)
         {
@@ -218,6 +187,15 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
             throw cause;
         }
 
+        try
+        {
+            S2JmxJavelinRecorder.postProcess(config_);
+        }
+        catch(Throwable th)
+        {
+        	th.printStackTrace();
+        }
+        
         return ret;
     }
 

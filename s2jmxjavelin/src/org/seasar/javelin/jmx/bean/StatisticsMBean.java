@@ -17,11 +17,11 @@ import java.util.List;
  */
 public interface StatisticsMBean
 {
-	public List<InvocationMBean> getInvocationListOrderByAverage();
+	List<InvocationMBean> getInvocationListOrderByAverage();
 	
-	public List<InvocationMBean> getInvocationListOrderByMaximum();
+	List<InvocationMBean> getInvocationListOrderByMaximum();
 	
-	public List<InvocationMBean> getInvocationListOrderByMinimum();
+	List<InvocationMBean> getInvocationListOrderByMinimum();
 	
-	public List<InvocationMBean> getInvocationListOrderByThrowableCount();
+	List<InvocationMBean> getInvocationListOrderByThrowableCount();
 }

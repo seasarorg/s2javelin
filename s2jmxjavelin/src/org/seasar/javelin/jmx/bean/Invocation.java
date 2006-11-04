@@ -9,7 +9,6 @@ import javax.management.AttributeChangeNotification;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
 
-import org.seasar.javelin.jmx.CallTreeNode;
 
 public class Invocation extends NotificationBroadcasterSupport
                     implements InvocationMBean

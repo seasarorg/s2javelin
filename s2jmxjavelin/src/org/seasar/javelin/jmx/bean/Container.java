@@ -1,6 +1,5 @@
 package org.seasar.javelin.jmx.bean;
 
-import java.util.Map;
 import javax.management.ObjectName;
 
 import org.seasar.javelin.jmx.MBeanManager;

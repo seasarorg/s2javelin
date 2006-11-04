@@ -1,11 +1,14 @@
 package org.seasar.javelin.jmx.comparator;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 import org.seasar.javelin.jmx.bean.Invocation;
 
-public class AverageComparator implements Comparator
+public class AverageComparator implements Comparator, Serializable
 {
+	private static final long serialVersionUID = 150841565321516412L;
+
 	public int compare(Object arg0, Object arg1)
 	{
 		Invocation invocation0 = (Invocation)arg0;

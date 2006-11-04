@@ -4,9 +4,9 @@ import javax.management.ObjectName;
 
 public interface ComponentMBean
 {
-	public String getClassName();
-    public ObjectName[] getAllInvocationObjectName();
-    public Invocation[] getAllInvocation();
+	String getClassName();
+    ObjectName[] getAllInvocationObjectName();
+    Invocation[] getAllInvocation();
 	
-	public void reset();
+	void reset();
 }

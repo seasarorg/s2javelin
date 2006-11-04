@@ -30,8 +30,9 @@ public class Component implements ComponentMBean
 	
 	public ObjectName[] getAllInvocationObjectName()
 	{
+		int size = invocationMap_.values().size();
 		Invocation[] invocations = 
-			(Invocation[])invocationMap_.values().toArray(new Invocation[0]);
+			(Invocation[])invocationMap_.values().toArray(new Invocation[size]);
 		ObjectName[] objNames    = new ObjectName[invocations.length];
 
 		for (int index = 0; index < invocations.length; index++)
@@ -44,8 +45,9 @@ public class Component implements ComponentMBean
 	
 	public Invocation[] getAllInvocation()
 	{
+		int size = invocationMap_.values().size();
 		Invocation[] invocations = 
-			(Invocation[])invocationMap_.values().toArray(new Invocation[0]);
+			(Invocation[])invocationMap_.values().toArray(new Invocation[size]);
 		return invocations;
 	}
 	
@@ -61,8 +63,9 @@ public class Component implements ComponentMBean
 
 	public void reset()
 	{
+		int size = invocationMap_.values().size();
 		Invocation[] invocations = 
-			(Invocation[])invocationMap_.values().toArray(new Invocation[invocationMap_.size()]);
+			invocationMap_.values().toArray(new Invocation[size]);
 		for (int index = 0; index < invocations.length; index++)
 		{
 			invocations[index].reset();
