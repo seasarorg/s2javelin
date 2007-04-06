@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public class S2JmxJavelinFileGenerator
 {
@@ -60,7 +61,7 @@ public class S2JmxJavelinFileGenerator
         SimpleDateFormat jvnFileFormat = new SimpleDateFormat(
                                                               "yyyyMMddhhmmssSSS");
 
-        return javelinFileDir_ + File.separator + "s2jmx_" + jvnFileFormat.format(new Date())
+        return javelinFileDir_ + File.separator + "javelin_" + jvnFileFormat.format(new Date())
                 + ".jvn";
     }
 
@@ -88,8 +89,10 @@ public class S2JmxJavelinFileGenerator
             e.printStackTrace();
         }
 
-        for (CallTreeNode child : node.getChildren())
+        List children = node.getChildren();
+		for (int index = 0; index <  children.size(); index++)
         {
+			CallTreeNode child = (CallTreeNode) children.get(index);
             generateJavelinFileImpl(writer, threadID, child);
         }
 

@@ -1,10 +1,12 @@
 package org.seasar.javelin.jmx;
 
 import java.lang.management.ManagementFactory;
+import java.util.List;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+import org.seasar.javelin.StatsUtil;
 import org.seasar.javelin.jmx.bean.Component;
 import org.seasar.javelin.jmx.bean.ComponentMBean;
 import org.seasar.javelin.jmx.bean.Invocation;
@@ -216,14 +218,16 @@ public class S2JmxJavelinRecorder
     private static void recordTransaction(CallTreeNode node)
     {
         Invocation invocation = node.getInvocation();
-        invocation.addInterval(node.getElapsedTime());
+        invocation.addInterval(StatsUtil.getElapsedTime(node));
         if (node.getParent() != null)
         {
             invocation.addCaller(node.getParent().getInvocation());
         }
 
-        for (CallTreeNode child : node.getChildren())
+        List children = node.getChildren();
+		for (int index = 0; index <  children.size(); index++)
         {
+			CallTreeNode child = (CallTreeNode) children.get(index);
             recordTransaction(child);
         }
     }
@@ -232,8 +236,10 @@ public class S2JmxJavelinRecorder
 	{
         node.getInvocation().sendExceedThresholdAlarm();
         
-        for (CallTreeNode child : node.getChildren())
+        List children = node.getChildren();
+		for (int index = 0; index <  children.size(); index++)
         {
+			CallTreeNode child = (CallTreeNode) children.get(index);
         	sendExceedThresholdAlarm(child);
         }
 	}

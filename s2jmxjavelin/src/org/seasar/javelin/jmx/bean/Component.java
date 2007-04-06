@@ -5,19 +5,18 @@ import java.util.Map;
 
 import javax.management.ObjectName;
 
-public class Component implements ComponentMBean
-{
+public class Component implements ComponentMBean {
+	private String className_;
+
 	private ObjectName objName_;
-	private String     className_;
-	
-	private Map<String, Invocation> invocationMap_ = new HashMap<String, Invocation>();
+	private Map invocationMap_ = new HashMap();
 
 	public Component(ObjectName objName, String className)
 	{
 		objName_   = objName;
 		className_ = className;
 	}
-	
+
 	public ObjectName getObjectName()
 	{
 		return objName_;
@@ -27,48 +26,47 @@ public class Component implements ComponentMBean
 	{
 		return className_;
 	}
-	
+
 	public ObjectName[] getAllInvocationObjectName()
 	{
 		int size = invocationMap_.values().size();
 		Invocation[] invocations = 
-			(Invocation[])invocationMap_.values().toArray(new Invocation[size]);
-		ObjectName[] objNames    = new ObjectName[invocations.length];
+			(Invocation[]) invocationMap_.values().toArray(new Invocation[size]);
+		ObjectName[] objNames = new ObjectName[invocations.length];
 
-		for (int index = 0; index < invocations.length; index++)
+		for (int index = 0; index < invocations.length; index++) 
 		{
 			objNames[index] = invocations[index].getObjectName();
 		}
-		
+
 		return objNames;
 	}
-	
-	public Invocation[] getAllInvocation()
+
+	public Invocation[] getAllInvocation() 
 	{
 		int size = invocationMap_.values().size();
-		Invocation[] invocations = 
-			(Invocation[])invocationMap_.values().toArray(new Invocation[size]);
+		Invocation[] invocations = (Invocation[]) invocationMap_.values()
+				.toArray(new Invocation[size]);
 		return invocations;
 	}
-	
-	public void addInvocation(Invocation invocation)
+
+	public void addInvocation(Invocation invocation) 
 	{
 		invocationMap_.put(invocation.getMethodName(), invocation);
 	}
-	
+
 	public Invocation getInvocation(String methodName)
 	{
-		return (Invocation)invocationMap_.get(methodName);
+		return (Invocation) invocationMap_.get(methodName);
 	}
 
 	public void reset()
 	{
-		int size = invocationMap_.values().size();
-		Invocation[] invocations = 
-			invocationMap_.values().toArray(new Invocation[size]);
-		for (int index = 0; index < invocations.length; index++)
-		{
+		Invocation[] invocations = (Invocation[]) invocationMap_.values()
+				.toArray(new Invocation[0]);
+		for (int index = 0; index < invocations.length; index++) {
 			invocations[index].reset();
 		}
 	}
+
 }

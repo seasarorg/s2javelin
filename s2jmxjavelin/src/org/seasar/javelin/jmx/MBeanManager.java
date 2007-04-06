@@ -1,34 +1,53 @@
 package org.seasar.javelin.jmx;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.seasar.javelin.jmx.bean.Component;
 
-public class MBeanManager
+public class MBeanManager 
 {
-    /** ComponentMBeanを登録したマップ。 */
-    private static Map<String, Component> mBeanMap_;
+	/** ComponentMBeanを登録したマップ。 */
+	private static Map mBeanMap_;
 
-	static
+	static 
 	{
-		mBeanMap_ = new HashMap<String, Component>();
+		mBeanMap_ = new HashMap();
 	}
 
-	public static Component[] getAllComponents()
+	public static Component[] getAllComponents() 
 	{
-		Component[] components = 
-			mBeanMap_.values().toArray(new Component[mBeanMap_.size()]);
-		return components;
+		synchronized (mBeanMap_) 
+		{
+			Component[] components = (Component[])
+			mBeanMap_.values().toArray(new Component[0]);
+			return components;
+		}
 	}
-	
-    public static Component getComponent(String className)
-    {
-    	return (Component)mBeanMap_.get(className);
-    }
-    
-    public static void setComponent(String className, Component component)
-    {
-    	mBeanMap_.put(className, component);
-    }
+
+	public static Component getComponent(String className) {
+		synchronized (mBeanMap_) {
+			return (Component) mBeanMap_.get(className);
+		}
+	}
+
+	public static void setComponent(String className, Component component) {
+		synchronized (mBeanMap_) {
+			mBeanMap_.put(className, component);
+		}
+	}
+
+	public static void reset() {
+		synchronized (mBeanMap_) {
+			Collection values = mBeanMap_.values();
+			for (Iterator iter = values.iterator(); iter.hasNext();) {
+				Component component = (Component) iter.next();
+				synchronized (component) {
+					component.reset();
+				}
+			}
+		}
+	}
 }

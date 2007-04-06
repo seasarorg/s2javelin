@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.seasar.javelin.jmx.bean.Invocation;
 
+
+
 public class CallTreeNode
 {
     private Invocation         invocation_;
@@ -15,9 +17,11 @@ public class CallTreeNode
 
     private long               accumulatedTime_;
 
+	String[] args_;
+    
     private CallTreeNode       parent_;
 
-    private List<CallTreeNode> children_ = new ArrayList<CallTreeNode>();
+    private List children_ = new ArrayList();
 
     public Invocation getInvocation( )
     {
@@ -65,7 +69,7 @@ public class CallTreeNode
         parent_ = parent;
     }
 
-    public List<CallTreeNode> getChildren( )
+    public List getChildren( )
     {
         return children_;
     }
@@ -76,14 +80,11 @@ public class CallTreeNode
         node.setParent(this);
     }
 
-    public long getElapsedTime( )
-    {
-        long elapsedTime = accumulatedTime_;
-        for (CallTreeNode node : children_)
-        {
-            elapsedTime = elapsedTime - node.getAccumulatedTime();
-        }
+	public Object[] getArgs() {
+		return args_;
+	}
 
-        return elapsedTime;
-    }
+	public void setArgs(String[] args) {
+		args_ = args;
+	}
 }
