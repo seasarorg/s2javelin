@@ -6,11 +6,11 @@ import java.util.List;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.seasar.javelin.StatsUtil;
 import org.seasar.javelin.stats.bean.Component;
 import org.seasar.javelin.stats.bean.ComponentMBean;
 import org.seasar.javelin.stats.bean.Invocation;
 import org.seasar.javelin.stats.bean.InvocationMBean;
+import org.seasar.javelin.stats.util.StatsUtil;
 
 public class S2StatsJavelinRecorder
 {

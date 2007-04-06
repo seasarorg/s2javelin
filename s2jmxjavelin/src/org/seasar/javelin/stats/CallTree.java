@@ -1,7 +1,7 @@
 package org.seasar.javelin.stats;
 
 
-import org.seasar.javelin.StatsUtil;
+import org.seasar.javelin.stats.util.StatsUtil;
 
 
 public class CallTree
