@@ -20,7 +20,7 @@ public class S2JmxJavelinRecorder
     /**
      * メソッドコールツリーの記録用オブジェクト。
      */
-    private static ThreadLocal<CallTree>     callTree_   = new ThreadLocal<CallTree>() {
+    public static ThreadLocal<CallTree>     callTree_   = new ThreadLocal<CallTree>() {
                                                              protected synchronized CallTree initialValue( )
                                                              {
                                                                  return null;
@@ -30,7 +30,7 @@ public class S2JmxJavelinRecorder
     /**
      * メソッドの呼び出し元オブジェクト。
      */
-    private static ThreadLocal<CallTreeNode> callerNode_ = new ThreadLocal<CallTreeNode>() {
+    public static ThreadLocal<CallTreeNode> callerNode_ = new ThreadLocal<CallTreeNode>() {
                                                              protected synchronized CallTreeNode initialValue( )
                                                              {
                                                                  return null;

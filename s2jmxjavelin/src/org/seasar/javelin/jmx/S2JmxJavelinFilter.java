@@ -70,6 +70,12 @@ public class S2JmxJavelinFilter implements Filter
 		return value;
 	}
 
+    /**
+     * サーブレットフィルタの設定から、指定されたパラメータの値を取得する。
+     * @param config サーブレットフィルタの設定。
+     * @param pname 取得したいパラメータの名称。
+     * @return パラメータの値。
+     */
 	private String getInitParameter(FilterConfig config, String pname)
 	{
 		String value = config.getInitParameter(pname);
