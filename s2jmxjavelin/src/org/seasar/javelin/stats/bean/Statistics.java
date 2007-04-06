@@ -1,14 +1,14 @@
-package org.seasar.javelin.jmx.bean;
+package org.seasar.javelin.stats.bean;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.seasar.javelin.jmx.MBeanManager;
-import org.seasar.javelin.jmx.comparator.AverageComparator;
-import org.seasar.javelin.jmx.comparator.MaximumComparator;
-import org.seasar.javelin.jmx.comparator.MinimumComparator;
-import org.seasar.javelin.jmx.comparator.ThrowableComparator;
+import org.seasar.javelin.stats.MBeanManager;
+import org.seasar.javelin.stats.comparator.AverageComparator;
+import org.seasar.javelin.stats.comparator.MaximumComparator;
+import org.seasar.javelin.stats.comparator.MinimumComparator;
+import org.seasar.javelin.stats.comparator.ThrowableComparator;
 
 public class Statistics implements StatisticsMBean
 {

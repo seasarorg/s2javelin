@@ -1,8 +1,8 @@
-package org.seasar.javelin.jmx;
+package org.seasar.javelin.stats;
 
 import java.text.SimpleDateFormat;
 
-import org.seasar.javelin.jmx.bean.Invocation;
+import org.seasar.javelin.stats.bean.Invocation;
 
 public class JavelinLogMaker
 {

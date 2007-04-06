@@ -1,9 +1,9 @@
-package org.seasar.javelin.jmx.comparator;
+package org.seasar.javelin.stats.comparator;
 
 import java.io.Serializable;
 import java.util.Comparator;
 
-import org.seasar.javelin.jmx.bean.Invocation;
+import org.seasar.javelin.stats.bean.Invocation;
 
 public class MinimumComparator implements Comparator, Serializable
 {

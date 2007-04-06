@@ -1,4 +1,4 @@
-package org.seasar.javelin.jmx.bean;
+package org.seasar.javelin.stats.bean;
 
 import java.util.HashSet;
 import java.util.LinkedList;

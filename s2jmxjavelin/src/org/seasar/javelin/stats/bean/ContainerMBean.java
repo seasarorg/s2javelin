@@ -1,4 +1,4 @@
-package org.seasar.javelin.jmx.bean;
+package org.seasar.javelin.stats.bean;
 
 import javax.management.ObjectName;
 

@@ -1,4 +1,4 @@
-package org.seasar.javelin.jmx;
+package org.seasar.javelin.stats;
 
 import java.io.IOException;
 import java.util.Set;

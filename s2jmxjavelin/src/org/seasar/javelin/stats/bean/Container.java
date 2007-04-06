@@ -1,8 +1,8 @@
-package org.seasar.javelin.jmx.bean;
+package org.seasar.javelin.stats.bean;
 
 import javax.management.ObjectName;
 
-import org.seasar.javelin.jmx.MBeanManager;
+import org.seasar.javelin.stats.MBeanManager;
 
 public class Container implements ContainerMBean
 {

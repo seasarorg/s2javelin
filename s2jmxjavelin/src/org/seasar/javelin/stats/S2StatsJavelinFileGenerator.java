@@ -1,4 +1,4 @@
-package org.seasar.javelin.jmx;
+package org.seasar.javelin.stats;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -8,11 +8,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-public class S2JmxJavelinFileGenerator
+public class S2StatsJavelinFileGenerator
 {
     static String javelinFileDir_ = "";
 
-    public S2JmxJavelinFileGenerator(String javelinFielDir)
+    public S2StatsJavelinFileGenerator(String javelinFielDir)
     {
         this.javelinFileDir_ = javelinFielDir;
     }

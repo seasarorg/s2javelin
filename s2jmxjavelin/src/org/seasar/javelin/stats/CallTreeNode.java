@@ -1,9 +1,9 @@
-package org.seasar.javelin.jmx;
+package org.seasar.javelin.stats;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.seasar.javelin.jmx.bean.Invocation;
+import org.seasar.javelin.stats.bean.Invocation;
 
 
 

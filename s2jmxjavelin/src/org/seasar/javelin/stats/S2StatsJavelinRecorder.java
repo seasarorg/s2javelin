@@ -1,4 +1,4 @@
-package org.seasar.javelin.jmx;
+package org.seasar.javelin.stats;
 
 import java.lang.management.ManagementFactory;
 import java.util.List;
@@ -7,12 +7,12 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import org.seasar.javelin.StatsUtil;
-import org.seasar.javelin.jmx.bean.Component;
-import org.seasar.javelin.jmx.bean.ComponentMBean;
-import org.seasar.javelin.jmx.bean.Invocation;
-import org.seasar.javelin.jmx.bean.InvocationMBean;
+import org.seasar.javelin.stats.bean.Component;
+import org.seasar.javelin.stats.bean.ComponentMBean;
+import org.seasar.javelin.stats.bean.Invocation;
+import org.seasar.javelin.stats.bean.InvocationMBean;
 
-public class S2JmxJavelinRecorder
+public class S2StatsJavelinRecorder
 {
     /** プラットフォームMBeanサーバ */
     private static MBeanServer               server_     = ManagementFactory.getPlatformMBeanServer();
@@ -45,7 +45,7 @@ public class S2JmxJavelinRecorder
     public static void preProcess(
     		String className
     		, String methodName
-    		, S2JmxJavelinConfig config)
+    		, S2StatsJavelinConfig config)
     {
         try
         {
@@ -132,7 +132,7 @@ public class S2JmxJavelinRecorder
      * 後処理（本処理成功時）。
      * @param spent
      */
-    public static void postProcess(S2JmxJavelinConfig config)
+    public static void postProcess(S2StatsJavelinConfig config)
     {
         try
         {
@@ -163,8 +163,8 @@ public class S2JmxJavelinRecorder
             	
             	if (node.getAccumulatedTime() >= node.getInvocation().getAlarmThreshold())
             	{
-                    S2JmxJavelinFileGenerator generator = 
-                    	new S2JmxJavelinFileGenerator(config.getJavelinFileDir());
+                    S2StatsJavelinFileGenerator generator = 
+                    	new S2StatsJavelinFileGenerator(config.getJavelinFileDir());
                     generator.generateJaveinFile(callTree_.get(), node);
 
                     sendExceedThresholdAlarm(node);

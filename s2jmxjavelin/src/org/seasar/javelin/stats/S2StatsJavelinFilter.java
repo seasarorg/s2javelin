@@ -1,4 +1,4 @@
-package org.seasar.javelin.jmx;
+package org.seasar.javelin.stats;
 
 import java.io.IOException;
 
@@ -10,7 +10,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-public class S2JmxJavelinFilter implements Filter
+public class S2StatsJavelinFilter implements Filter
 {
     private static final String PNAME_DOMAIN           = "domain";
 
@@ -24,12 +24,12 @@ public class S2JmxJavelinFilter implements Filter
 
     private static final String PNAME_JAVELIN_DIR      = "javelinFileDir";
 
-    private S2JmxJavelinConfig  config_;
+    private S2StatsJavelinConfig  config_;
 
     public void init(FilterConfig config)
         throws ServletException
     {
-    	config_ = new S2JmxJavelinConfig();
+    	config_ = new S2StatsJavelinConfig();
     	String domain = getInitParameter(config, PNAME_DOMAIN);
     	if (domain !=null && domain.trim().length() > 0)
     	{
@@ -93,7 +93,7 @@ public class S2JmxJavelinFilter implements Filter
         {
             String contextPath = httpRequest.getContextPath();
             String servletPath = httpRequest.getServletPath();
-            S2JmxJavelinRecorder.preProcess(contextPath, servletPath, config_);
+            S2StatsJavelinRecorder.preProcess(contextPath, servletPath, config_);
         }
         catch (Throwable th)
         {
@@ -109,18 +109,18 @@ public class S2JmxJavelinFilter implements Filter
         }
         catch (IOException ex)
         {
-            S2JmxJavelinRecorder.postProcess(ex);
+            S2StatsJavelinRecorder.postProcess(ex);
             throw ex;
         }
         catch (ServletException ex)
         {
-            S2JmxJavelinRecorder.postProcess(ex);
+            S2StatsJavelinRecorder.postProcess(ex);
             throw ex;
         }
         
         try
         {
-            S2JmxJavelinRecorder.postProcess(config_);
+            S2StatsJavelinRecorder.postProcess(config_);
         }
         catch(Throwable th)
         {

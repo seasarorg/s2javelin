@@ -1,11 +1,11 @@
-package org.seasar.javelin.jmx;
+package org.seasar.javelin.stats;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.seasar.javelin.jmx.bean.Component;
+import org.seasar.javelin.stats.bean.Component;
 
 public class MBeanManager 
 {

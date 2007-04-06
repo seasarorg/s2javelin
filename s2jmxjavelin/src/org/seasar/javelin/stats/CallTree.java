@@ -1,4 +1,4 @@
-package org.seasar.javelin.jmx;
+package org.seasar.javelin.stats;
 
 
 import org.seasar.javelin.StatsUtil;

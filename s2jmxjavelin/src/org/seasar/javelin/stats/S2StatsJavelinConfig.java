@@ -1,6 +1,6 @@
-package org.seasar.javelin.jmx;
+package org.seasar.javelin.stats;
 
-public class S2JmxJavelinConfig
+public class S2StatsJavelinConfig
 {
     /**
      * ƒhƒƒCƒ“–¼B

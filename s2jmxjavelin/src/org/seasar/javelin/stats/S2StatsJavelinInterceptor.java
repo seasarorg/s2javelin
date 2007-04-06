@@ -1,4 +1,4 @@
-package org.seasar.javelin.jmx;
+package org.seasar.javelin.stats;
 
 import java.lang.management.ManagementFactory;
 import java.util.Set;
@@ -8,10 +8,10 @@ import javax.management.ObjectName;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.seasar.framework.aop.interceptors.AbstractInterceptor;
-import org.seasar.javelin.jmx.bean.Container;
-import org.seasar.javelin.jmx.bean.ContainerMBean;
-import org.seasar.javelin.jmx.bean.Statistics;
-import org.seasar.javelin.jmx.bean.StatisticsMBean;
+import org.seasar.javelin.stats.bean.Container;
+import org.seasar.javelin.stats.bean.ContainerMBean;
+import org.seasar.javelin.stats.bean.Statistics;
+import org.seasar.javelin.stats.bean.StatisticsMBean;
 
 /**
  * Component間の呼び出し関係をMBeanとして公開するためのInterceptor。
@@ -52,7 +52,7 @@ import org.seasar.javelin.jmx.bean.StatisticsMBean;
  * @version 0.1
  * @author Masanori Yamasaki(SMG)
  */
-public class S2JmxJavelinInterceptor extends AbstractInterceptor
+public class S2StatsJavelinInterceptor extends AbstractInterceptor
 {
     private static final long  serialVersionUID = 6661781313519708185L;
 
@@ -67,7 +67,7 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
      */
     private int                httpPort_        = 0;
 
-    private S2JmxJavelinConfig  config_ = new S2JmxJavelinConfig();
+    private S2StatsJavelinConfig  config_ = new S2StatsJavelinConfig();
 
     /**
      * 初期化処理。
@@ -166,7 +166,7 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
             String className = getTargetClass(invocation).getName();
             String methodName = invocation.getMethod().getName();
 
-            S2JmxJavelinRecorder.preProcess(className, methodName, config_);
+            S2StatsJavelinRecorder.preProcess(className, methodName, config_);
         }
         catch(Throwable th)
         {
@@ -181,7 +181,7 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
         }
         catch (Throwable cause)
         {
-            S2JmxJavelinRecorder.postProcess(cause);
+            S2StatsJavelinRecorder.postProcess(cause);
 
             //例外をスローし、終了する。
             throw cause;
@@ -189,7 +189,7 @@ public class S2JmxJavelinInterceptor extends AbstractInterceptor
 
         try
         {
-            S2JmxJavelinRecorder.postProcess(config_);
+            S2StatsJavelinRecorder.postProcess(config_);
         }
         catch(Throwable th)
         {
