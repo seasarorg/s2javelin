@@ -257,4 +257,14 @@ public class S2StatsJavelinInterceptor extends AbstractInterceptor
     {
         httpPort_ = httpPort;
     }
+    
+    public void isLogMethodArgsAndReturnValue(boolean value)
+    {
+    	config_.setLogMethodArgsAndReturnValue(value);
+    }
+    
+    public void isLogStacktrace(boolean value)
+    {
+    	config_.setLogStacktrace(value);
+    }
 }

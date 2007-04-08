@@ -104,12 +104,22 @@ public class S2StatsJavelinRecorder
 
                 node = new CallTreeNode();
                 node.setStartTime(System.currentTimeMillis());
-                String[] argumentsString = new String[arguments.length];
-                for (int index = 0; index < arguments.length; index++)
+                if (config.isLogMethodArgsAndReturnValue())
                 {
-                	argumentsString[index] = arguments[index].toString();
+                    String[] argumentsString = new String[arguments.length];
+                    for (int index = 0; index < arguments.length; index++)
+                    {
+                    	if (arguments[index] != null)
+                    	{
+                        	argumentsString[index] = arguments[index].toString();
+                    	}
+                    	else
+                    	{
+                    		argumentsString[index] = "null";
+                    	}
+                    }
+                    node.setArgs(argumentsString);
                 }
-                node.setArgs(argumentsString);
 
                 tree.setRootNode(node);
             }
@@ -118,12 +128,15 @@ public class S2StatsJavelinRecorder
                 CallTreeNode parent = node;
                 node = new CallTreeNode();
                 node.setStartTime(System.currentTimeMillis());
-                String[] argumentsString = new String[arguments.length];
-                for (int index = 0; index < arguments.length; index++)
+                if (config.isLogMethodArgsAndReturnValue())
                 {
-                	argumentsString[index] = arguments[index].toString();
+                    String[] argumentsString = new String[arguments.length];
+                    for (int index = 0; index < arguments.length; index++)
+                    {
+                    	argumentsString[index] = arguments[index].toString();
+                    }
+                    node.setArgs(argumentsString);
                 }
-                node.setArgs(argumentsString);
                 
                 parent.addChild(node);
                 

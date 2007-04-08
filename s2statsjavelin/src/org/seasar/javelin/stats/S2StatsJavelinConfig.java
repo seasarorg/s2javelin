@@ -9,10 +9,10 @@ public class S2StatsJavelinConfig
 	private String domain_ = "org.seasar.javelin.jmx.default";
 
     /** 呼び出し情報を記録する最大件数。デフォルト値は1000。 */
-	private int intervalMax_;
+	private int intervalMax_ = 1000;
 
     /** 例外の発生履歴を記録する最大件数。デフォルト値は1000。 */
-	private int throwableMax_;
+	private int throwableMax_ =1000;
 
     /** 
      *  呼び出し情報を記録する際の閾値。
@@ -23,6 +23,10 @@ public class S2StatsJavelinConfig
 
 	private long alarmThreshold_ = 1000;
 
+	private boolean isLogStacktrace_ = false;
+
+	private boolean isLogMethodArgsAndReturnValue_ = false;
+	
     /**
      * Javelinログファイルを出力するフォルダ名
      */
@@ -88,5 +92,23 @@ public class S2StatsJavelinConfig
 		throwableMax_ = throwableMax;
 	}
 
-	
+	public boolean isLogMethodArgsAndReturnValue()
+	{
+		return isLogMethodArgsAndReturnValue_;
+	}
+
+	public void setLogMethodArgsAndReturnValue(boolean isLogMethodArgs)
+	{
+		isLogMethodArgsAndReturnValue_ = isLogMethodArgs;
+	}
+
+	public boolean isLogStacktrace()
+	{
+		return isLogStacktrace_;
+	}
+
+	public void setLogStacktrace(boolean isLogStacktrace)
+	{
+		isLogStacktrace_ = isLogStacktrace;
+	}
 }

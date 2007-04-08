@@ -10,11 +10,11 @@ import java.util.List;
 
 public class S2StatsJavelinFileGenerator
 {
-    static String javelinFileDir_ = "";
+    private static String javelinFileDir_ = "";
 
     public S2StatsJavelinFileGenerator(String javelinFielDir)
     {
-        this.javelinFileDir_ = javelinFielDir;
+        javelinFileDir_ = javelinFielDir;
     }
     
     /**

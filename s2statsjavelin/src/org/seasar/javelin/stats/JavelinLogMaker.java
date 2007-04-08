@@ -88,7 +88,8 @@ public class JavelinLogMaker
         jvnBuffer.append(threadID);
         jvnBuffer.append(NEW_LINE);
 
-        if (messageType != ID_RETURN && node.getArgs() != null && node.getArgs().length > 0)
+        if (messageType != ID_RETURN && node.getArgs() != null 
+        		&& node.getArgs().length > 0)
         {
         	jvnBuffer.append("<<javelin.Args_START>>");
             jvnBuffer.append(NEW_LINE);
@@ -103,7 +104,8 @@ public class JavelinLogMaker
             jvnBuffer.append(NEW_LINE);
         }
         
-        if (messageType == ID_RETURN && node.getReturnValue() != null)
+        if (messageType == ID_RETURN 
+        		&& node.getReturnValue() != null)
         {
         	jvnBuffer.append("<<javelin.Return_START>>");
             jvnBuffer.append(NEW_LINE);
