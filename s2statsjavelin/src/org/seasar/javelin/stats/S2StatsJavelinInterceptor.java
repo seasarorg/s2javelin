@@ -166,7 +166,7 @@ public class S2StatsJavelinInterceptor extends AbstractInterceptor
             String className = getTargetClass(invocation).getName();
             String methodName = invocation.getMethod().getName();
 
-            S2StatsJavelinRecorder.preProcess(className, methodName, config_);
+            S2StatsJavelinRecorder.preProcess(className, methodName, invocation.getArguments(), config_);
         }
         catch(Throwable th)
         {
@@ -189,7 +189,7 @@ public class S2StatsJavelinInterceptor extends AbstractInterceptor
 
         try
         {
-            S2StatsJavelinRecorder.postProcess(config_);
+            S2StatsJavelinRecorder.postProcess(config_, ret);
         }
         catch(Throwable th)
         {

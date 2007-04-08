@@ -88,6 +88,31 @@ public class JavelinLogMaker
         jvnBuffer.append(threadID);
         jvnBuffer.append(NEW_LINE);
 
+        if (messageType != ID_RETURN && node.getArgs() != null && node.getArgs().length > 0)
+        {
+        	jvnBuffer.append("<<javelin.Args_START>>");
+            jvnBuffer.append(NEW_LINE);
+			for (int i = 0; i < node.getArgs().length; i++) {
+				jvnBuffer.append("args[");
+				jvnBuffer.append(i);
+				jvnBuffer.append("] = ");
+				jvnBuffer.append(node.getArgs()[i]);
+				jvnBuffer.append(NEW_LINE);
+			}
+        	jvnBuffer.append("<<javelin.Args_END>>");
+            jvnBuffer.append(NEW_LINE);
+        }
+        
+        if (messageType == ID_RETURN && node.getReturnValue() != null)
+        {
+        	jvnBuffer.append("<<javelin.Return_START>>");
+            jvnBuffer.append(NEW_LINE);
+            jvnBuffer.append(node.getReturnValue().toString());
+            jvnBuffer.append(NEW_LINE);
+        	jvnBuffer.append("<<javelin.Return_END>>");
+            jvnBuffer.append(NEW_LINE);
+        }
+        
         String jvnMessage = jvnBuffer.toString();
         return jvnMessage;
     }

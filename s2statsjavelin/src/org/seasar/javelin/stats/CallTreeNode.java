@@ -10,6 +10,8 @@ import org.seasar.javelin.stats.bean.Invocation;
 public class CallTreeNode
 {
     private Invocation         invocation_;
+    
+    private Object             returnValue_;
 
     private long               startTime_;
 
@@ -32,7 +34,17 @@ public class CallTreeNode
     {
         invocation_ = invocation;
     }
-
+    
+    public Object getReturnValue()
+    {
+    	return returnValue_;
+    }
+    
+    public void setReturnValue(Object returnValue)
+    {
+    	returnValue_ = returnValue;
+    }
+    
     public long getStartTime( )
     {
         return startTime_;

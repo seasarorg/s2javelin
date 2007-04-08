@@ -45,6 +45,7 @@ public class S2StatsJavelinRecorder
     public static void preProcess(
     		String className
     		, String methodName
+    		, Object[] arguments
     		, S2StatsJavelinConfig config)
     {
         try
@@ -103,6 +104,13 @@ public class S2StatsJavelinRecorder
 
                 node = new CallTreeNode();
                 node.setStartTime(System.currentTimeMillis());
+                String[] argumentsString = new String[arguments.length];
+                for (int index = 0; index < arguments.length; index++)
+                {
+                	argumentsString[index] = arguments[index].toString();
+                }
+                node.setArgs(argumentsString);
+
                 tree.setRootNode(node);
             }
             else
@@ -110,6 +118,13 @@ public class S2StatsJavelinRecorder
                 CallTreeNode parent = node;
                 node = new CallTreeNode();
                 node.setStartTime(System.currentTimeMillis());
+                String[] argumentsString = new String[arguments.length];
+                for (int index = 0; index < arguments.length; index++)
+                {
+                	argumentsString[index] = arguments[index].toString();
+                }
+                node.setArgs(argumentsString);
+                
                 parent.addChild(node);
                 
                 invocationBean.addCaller(parent.getInvocation());
@@ -132,7 +147,7 @@ public class S2StatsJavelinRecorder
      * 後処理（本処理成功時）。
      * @param spent
      */
-    public static void postProcess(S2StatsJavelinConfig config)
+    public static void postProcess(S2StatsJavelinConfig config, Object returnValue)
     {
         try
         {
@@ -146,6 +161,7 @@ public class S2StatsJavelinRecorder
             }
 
             node.setEndTime(System.currentTimeMillis());
+            node.setReturnValue(returnValue);
 
             CallTreeNode parent = node.getParent();
             if (parent != null)

@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class S2StatsJavelinFilter implements Filter
 {
@@ -20,7 +21,7 @@ public class S2StatsJavelinFilter implements Filter
 
     private static final String PNAME_RECORD_THRESHOLD = "recordThreshold";
 
-    private static final String PNAME_ALARM_THRESHOLD  = "fileThreshold";
+    private static final String PNAME_ALARM_THRESHOLD  = "alarmThreshold";
 
     private static final String PNAME_JAVELIN_DIR      = "javelinFileDir";
 
@@ -87,13 +88,14 @@ public class S2StatsJavelinFilter implements Filter
         throws IOException,
             ServletException
     {
-        HttpServletRequest httpRequest = (HttpServletRequest)request;
+        HttpServletRequest  httpRequest  = (HttpServletRequest)request;
+        HttpServletResponse httpResponse = (HttpServletResponse)response;
 
         try
         {
             String contextPath = httpRequest.getContextPath();
             String servletPath = httpRequest.getServletPath();
-            S2StatsJavelinRecorder.preProcess(contextPath, servletPath, config_);
+            S2StatsJavelinRecorder.preProcess(contextPath, servletPath, null, config_);
         }
         catch (Throwable th)
         {
@@ -120,7 +122,7 @@ public class S2StatsJavelinFilter implements Filter
         
         try
         {
-            S2StatsJavelinRecorder.postProcess(config_);
+            S2StatsJavelinRecorder.postProcess(config_, createReturnValue(httpResponse));
         }
         catch(Throwable th)
         {
@@ -128,7 +130,14 @@ public class S2StatsJavelinFilter implements Filter
         }
     }
 
-    public void destroy( )
+    private Object createReturnValue(HttpServletResponse response)
+	{
+    	String returnValue;
+    	returnValue = response.getContentType();
+		return returnValue;
+	}
+
+	public void destroy( )
     {
     	;
     }
