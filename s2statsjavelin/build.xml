@@ -7,6 +7,8 @@
 	
 	<property name="src"     location="src" />
 	<property name="classes" location="classes" />
+	<property name="src_core"     location="src_core" />
+	<property name="classes_core" location="classes_core" />
 	<property name="dist"    location="dist" />
 	<property name="doc"     location="doc" />
 	<property name="lib"     location="lib" />
@@ -24,13 +26,21 @@
 		<tstamp />
 		<!-- コンパイルで使用するビルドディレクトリ構造を作成する -->
 		<mkdir dir="${classes}" />
+		<mkdir dir="${classes_core}" />
 	</target>
 
+	<!-- コンパイル -->
 	<target name="compile" depends="init" description="ソースをコンパイルする">
 		<!-- ${src}から${classes}に、Javaコードをコンパイルする -->
+		<javac srcdir="${src_core}" destdir="${classes_core}" debug="on">
+			<classpath>
+				<path refid="classpath" />
+			</classpath>
+		</javac>
 		<javac srcdir="${src}" destdir="${classes}" debug="on">
 			<classpath>
 				<path refid="classpath" />
+				<path path="${classes_core}" />
 			</classpath>
 		</javac>
 	</target>
@@ -44,6 +54,9 @@
 		<!-- jarを作成する -->
 		<jar jarfile="${tmp_s2jvn}/s2statsjavelin.jar" basedir="${classes}" />
 
+		<!-- jarを作成する -->
+		<jar jarfile="${tmp_s2jvn}/s2statsjavelin_core.jar" basedir="${classes_core}" />
+		
 		<!-- ドキュメントをコピーする -->
     	<copy todir="${tmp_s2jvn}">
             <fileset dir="${doc}">
@@ -52,7 +65,8 @@
     	</copy>
 		
 		<!-- ソースファイルをzipにする -->
-		<zip destfile="${tmp_s2jvn}/src.zip" basedir="${src}"/>
+		<zip destfile="${tmp_s2jvn}/src.zip"      basedir="${src}"/>
+		<zip destfile="${tmp_s2jvn}/src_core.zip" basedir="${src_core}"/>
 		
 		<!-- zipを生成する -->
 		<zip destfile="${dist}/${dist.zip.name}" basedir="${tmp}">
@@ -67,6 +81,7 @@
 		<!-- ${classes}と${dist}のjarを削除する -->
 
 		<delete dir="${classes}" />
+		<delete dir="${classes_core}" />
 		<delete dir="${dist}" />
 	</target>
 </project>
