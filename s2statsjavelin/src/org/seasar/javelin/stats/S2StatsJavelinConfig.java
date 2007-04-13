@@ -27,6 +27,16 @@ public class S2StatsJavelinConfig
 
 	private boolean isLogMethodArgsAndReturnValue_ = false;
 	
+	private String endCallerName_ = "unknown";
+	
+	private String endCalleeName_ = "unknown";
+	
+	private int threadModel_ = 1;
+	
+	public static final int TM_THREAD_ID    = 1;
+	public static final int TM_THREAD_NAME  = 2;
+	public static final int TM_CONTEXT_PATH = 3;
+	
     /**
      * Javelinログファイルを出力するフォルダ名
      */
@@ -102,6 +112,26 @@ public class S2StatsJavelinConfig
 		isLogMethodArgsAndReturnValue_ = isLogMethodArgs;
 	}
 
+	public String getEndCalleeName()
+	{
+		return endCalleeName_;
+	}
+
+	public void setEndCalleeName(String endCalleeName)
+	{
+		endCalleeName_ = endCalleeName;
+	}
+
+	public String getRootCallerName()
+	{
+		return endCallerName_;
+	}
+
+	public void setEndCallerName(String endCallerName)
+	{
+		endCallerName_ = endCallerName;
+	}
+
 	public boolean isLogStacktrace()
 	{
 		return isLogStacktrace_;
@@ -110,5 +140,15 @@ public class S2StatsJavelinConfig
 	public void setLogStacktrace(boolean isLogStacktrace)
 	{
 		isLogStacktrace_ = isLogStacktrace;
+	}
+
+	public int getThreadModel()
+	{
+		return threadModel_;
+	}
+
+	public void setThreadModel(int threadModel)
+	{
+		threadModel_ = threadModel;
 	}
 }

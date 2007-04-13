@@ -46,6 +46,7 @@ public class S2StatsJavelinRecorder
     		String className
     		, String methodName
     		, Object[] arguments
+    		, StackTraceElement[] stacktrace
     		, S2StatsJavelinConfig config)
     {
         try
@@ -101,7 +102,24 @@ public class S2StatsJavelinRecorder
                 // 初回呼び出し時はコールツリーを初期化する。
                 CallTree tree = new CallTree();
                 callTree_.set(tree);
+                tree.setRootCallerName(config.getRootCallerName());
+                tree.setEndCalleeName(config.getEndCalleeName());
 
+                switch(config.getThreadModel())
+                {
+                case S2StatsJavelinConfig.TM_THREAD_ID:
+                	tree.setThreadID("" + Thread.currentThread().getId());
+                	break;
+                case S2StatsJavelinConfig.TM_THREAD_NAME:
+                	tree.setThreadID(Thread.currentThread().getName());
+                	break;
+                case S2StatsJavelinConfig.TM_CONTEXT_PATH:
+                	tree.setThreadID(methodName);
+                	break;
+                default:
+                	break;
+                }
+                
                 node = new CallTreeNode();
                 node.setStartTime(System.currentTimeMillis());
                 if (config.isLogMethodArgsAndReturnValue())
@@ -120,7 +138,11 @@ public class S2StatsJavelinRecorder
                     }
                     node.setArgs(argumentsString);
                 }
-
+                if (config.isLogStacktrace())
+                {
+                	node.setStacktrace(stacktrace);
+                }
+                
                 tree.setRootNode(node);
             }
             else
@@ -136,6 +158,10 @@ public class S2StatsJavelinRecorder
                     	argumentsString[index] = arguments[index].toString();
                     }
                     node.setArgs(argumentsString);
+                }
+                if (config.isLogStacktrace())
+                {
+                	node.setStacktrace(stacktrace);
                 }
                 
                 parent.addChild(node);
@@ -160,7 +186,7 @@ public class S2StatsJavelinRecorder
      * 後処理（本処理成功時）。
      * @param spent
      */
-    public static void postProcess(S2StatsJavelinConfig config, Object returnValue)
+    public static void postProcess(Object returnValue, S2StatsJavelinConfig config)
     {
         try
         {
@@ -261,6 +287,10 @@ public class S2StatsJavelinRecorder
         }
     }
     
+    /**
+     * 
+     * @param node
+     */
     private static void sendExceedThresholdAlarm(CallTreeNode node)
 	{
         node.getInvocation().sendExceedThresholdAlarm();

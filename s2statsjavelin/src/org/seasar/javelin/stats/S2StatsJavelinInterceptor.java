@@ -166,7 +166,13 @@ public class S2StatsJavelinInterceptor extends AbstractInterceptor
             String className = getTargetClass(invocation).getName();
             String methodName = invocation.getMethod().getName();
 
-            S2StatsJavelinRecorder.preProcess(className, methodName, invocation.getArguments(), config_);
+            StackTraceElement[] stacktrace  = null;
+            if (config_.isLogStacktrace())
+            {
+            	stacktrace = Thread.currentThread().getStackTrace();
+            }
+            
+            S2StatsJavelinRecorder.preProcess(className, methodName, invocation.getArguments(), stacktrace, config_);
         }
         catch(Throwable th)
         {
@@ -189,7 +195,7 @@ public class S2StatsJavelinInterceptor extends AbstractInterceptor
 
         try
         {
-            S2StatsJavelinRecorder.postProcess(config_, ret);
+            S2StatsJavelinRecorder.postProcess(ret, config_);
         }
         catch(Throwable th)
         {
@@ -258,13 +264,28 @@ public class S2StatsJavelinInterceptor extends AbstractInterceptor
         httpPort_ = httpPort;
     }
     
-    public void isLogMethodArgsAndReturnValue(boolean value)
+    public void setLogMethodArgsAndReturnValue(boolean value)
     {
     	config_.setLogMethodArgsAndReturnValue(value);
     }
     
-    public void isLogStacktrace(boolean value)
+    public void setLogStacktrace(boolean value)
     {
     	config_.setLogStacktrace(value);
     }
+    
+	public void setEndCalleeName(String endCalleeName)
+	{
+		config_.setEndCalleeName(endCalleeName);
+	}
+
+	public void setEndCallerName(String endCallerName)
+	{
+		config_.setEndCallerName(endCallerName);
+	}
+
+	public void setThreadModel(int threadModel)
+	{
+		config_.setThreadModel(threadModel);
+	}
 }

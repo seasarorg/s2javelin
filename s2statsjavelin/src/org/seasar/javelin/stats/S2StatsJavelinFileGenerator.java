@@ -32,7 +32,7 @@ public class S2StatsJavelinFileGenerator
             writer = new FileWriter(jvnFileName, true);
 
             // 再帰的にwriterに書き込みを行う。
-            generateJavelinFileImpl(writer, threadID, node);
+            generateJavelinFileImpl(writer, tree, node);
         }
         catch (IOException ioe)
         {
@@ -70,13 +70,13 @@ public class S2StatsJavelinFileGenerator
      * 
      * @param node
      */
-    private void generateJavelinFileImpl(Writer writer, String threadID,
+    private void generateJavelinFileImpl(Writer writer, CallTree tree,
             CallTreeNode node)
     {
         String jvnCallMessage = JavelinLogMaker.createJavelinLog(
                                                                  JavelinLogMaker.ID_CALL,
                                                                  node.getStartTime(),
-                                                                 threadID, node);
+                                                                 tree, node);
 
         // ファイルに1メッセージを書き込む。
         try
@@ -93,13 +93,13 @@ public class S2StatsJavelinFileGenerator
 		for (int index = 0; index <  children.size(); index++)
         {
 			CallTreeNode child = (CallTreeNode) children.get(index);
-            generateJavelinFileImpl(writer, threadID, child);
+            generateJavelinFileImpl(writer, tree, child);
         }
 
         String jvnReturnMessage = JavelinLogMaker.createJavelinLog(
                                                                    JavelinLogMaker.ID_RETURN,
                                                                    node.getEndTime(),
-                                                                   threadID,
+                                                                   tree,
                                                                    node);
         // ファイルに1メッセージを書き込む。
         try

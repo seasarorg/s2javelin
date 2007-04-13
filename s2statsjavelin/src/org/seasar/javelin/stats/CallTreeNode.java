@@ -20,11 +20,13 @@ public class CallTreeNode
     private long               accumulatedTime_;
 
 	String[] args_;
-    
+
+    private StackTraceElement[] stacktrace_;
+
     private CallTreeNode       parent_;
 
     private List children_ = new ArrayList();
-
+    
     public Invocation getInvocation( )
     {
         return invocation_;
@@ -71,6 +73,16 @@ public class CallTreeNode
         return accumulatedTime_;
     }
 
+    public StackTraceElement[] getStacktrace()
+    {
+    	return stacktrace_;
+    }
+    
+    public void setStacktrace(StackTraceElement[] stacktrace)
+    {
+    	stacktrace_ = stacktrace;
+    }
+    
     public CallTreeNode getParent( )
     {
         return parent_;

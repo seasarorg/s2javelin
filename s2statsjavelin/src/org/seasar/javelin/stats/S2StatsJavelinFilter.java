@@ -25,8 +25,15 @@ public class S2StatsJavelinFilter implements Filter
 
     private static final String PNAME_JAVELIN_DIR      = "javelinFileDir";
 
-    private static final String PNAME_isLogMethodArgsAndReturnValue      = "isLogMethodArgsAndReturnValue";
-    private static final String PNAME_isLogStacktrace      = "isLogStacktrace";
+    private static final String PNAME_IS_LOG_METHODARGS_AND_RETURNVALUE = "isLogMethodArgsAndReturnValue";
+
+    private static final String PNAME_IS_LOG_STACKTRACE = "isLogStacktrace";
+    
+    private static final String PNAME_ROOT_CALLER_NAME = "rootCallerName";
+    
+    private static final String PNAME_END_CALLEE_NAME = "endCalleeName";
+    
+    private static final String PNAME_THREAD_MODEL = "threadModel";
     
     private S2StatsJavelinConfig  config_;
 
@@ -49,8 +56,11 @@ public class S2StatsJavelinFilter implements Filter
     	{
         	config_.setJavelinFileDir(javelinFileDir);
     	}
-    	config_.setLogMethodArgsAndReturnValue(getInitParameter(config, PNAME_isLogMethodArgsAndReturnValue, false));
-    	config_.setLogStacktrace(getInitParameter(config, PNAME_isLogStacktrace, false));
+    	config_.setLogMethodArgsAndReturnValue(getInitParameter(config, PNAME_IS_LOG_METHODARGS_AND_RETURNVALUE, false));
+    	config_.setLogStacktrace(getInitParameter(config, PNAME_IS_LOG_STACKTRACE, false));
+    	config_.setEndCallerName(getInitParameter(config, PNAME_ROOT_CALLER_NAME));
+    	config_.setEndCalleeName(getInitParameter(config, PNAME_END_CALLEE_NAME));
+    	config_.setThreadModel(getInitParameter(config, PNAME_THREAD_MODEL, 1));
     }
 
     private int getInitParameter(FilterConfig config, String pname, int defaultValue)
@@ -86,7 +96,7 @@ public class S2StatsJavelinFilter implements Filter
 			{
 				value = Boolean.valueOf(configValue);
 			}
-			catch (NumberFormatException ex)
+			catch (Exception ex)
 			{
 				value = defaultValue;
 			}
@@ -130,14 +140,22 @@ public class S2StatsJavelinFilter implements Filter
             Object[] args = null;
             if (config_.isLogMethodArgsAndReturnValue())
             {
-            	args = new Object[4];
+            	args = new Object[6];
             	args[0] = httpRequest.getRemoteHost();
             	args[1] = httpRequest.getRemotePort();
-            	args[2] = httpRequest.getMethod();
-            	args[3] = httpRequest.getParameterMap();
+            	args[2] = contextPath;
+            	args[3] = servletPath;
+            	args[4] = httpRequest.getMethod();
+            	args[5] = httpRequest.getParameterMap();
             }
             
-            S2StatsJavelinRecorder.preProcess(contextPath, servletPath, args, config_);
+            StackTraceElement[] stacktrace = null;
+            if (config_.isLogStacktrace())
+            {
+            	stacktrace = Thread.currentThread().getStackTrace();
+            }
+            
+            S2StatsJavelinRecorder.preProcess(contextPath, servletPath, args, stacktrace, config_);
         }
         catch (Throwable th)
         {
@@ -169,7 +187,7 @@ public class S2StatsJavelinFilter implements Filter
         	{
         		returnValue = createReturnValue(httpResponse);
         	}
-            S2StatsJavelinRecorder.postProcess(config_, returnValue);
+            S2StatsJavelinRecorder.postProcess(returnValue, config_);
         }
         catch(Throwable th)
         {

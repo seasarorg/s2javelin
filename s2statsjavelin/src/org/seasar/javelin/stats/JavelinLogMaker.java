@@ -26,7 +26,7 @@ public class JavelinLogMaker
     private static final String DATE_PATTERN  = "yyyy/MM/dd HH:mm:ss.SSS";
 
     public static String createJavelinLog(int messageType, long time,
-            String threadID, CallTreeNode node)
+            CallTree tree, CallTreeNode node)
     {
         CallTreeNode parent = node.getParent();
 
@@ -36,12 +36,11 @@ public class JavelinLogMaker
         Invocation caller;
         if (parent == null)
         {
-            caller = new Invocation(null, null, "unknown", "unknown", 0, 0, 0, 0);
+            caller = new Invocation(null, null, tree.getRootCallerName(), "unknown", 0, 0, 0, 0);
         }
         else
         {
             caller = parent.getInvocation();
-
         }
 
         if (callee == null)
@@ -85,7 +84,7 @@ public class JavelinLogMaker
         jvnBuffer.append(",");
 
         // ƒXƒŒƒbƒhID
-        jvnBuffer.append(threadID);
+        jvnBuffer.append(tree.getThreadID());
         jvnBuffer.append(NEW_LINE);
 
         if (messageType != ID_RETURN && node.getArgs() != null 
@@ -93,7 +92,8 @@ public class JavelinLogMaker
         {
         	jvnBuffer.append("<<javelin.Args_START>>");
             jvnBuffer.append(NEW_LINE);
-			for (int i = 0; i < node.getArgs().length; i++) {
+			for (int i = 0; i < node.getArgs().length; i++)
+			{
 				jvnBuffer.append("args[");
 				jvnBuffer.append(i);
 				jvnBuffer.append("] = ");
@@ -112,6 +112,19 @@ public class JavelinLogMaker
             jvnBuffer.append(node.getReturnValue().toString());
             jvnBuffer.append(NEW_LINE);
         	jvnBuffer.append("<<javelin.Return_END>>");
+            jvnBuffer.append(NEW_LINE);
+        }
+        
+        if (messageType != ID_RETURN && node.getStacktrace() != null)
+        {
+        	jvnBuffer.append("<<javelin.StackTrace_START>>");
+            jvnBuffer.append(NEW_LINE);
+			for (int i = 0; i < node.getStacktrace().length; i++)
+			{
+				jvnBuffer.append(node.getStacktrace()[i]);
+				jvnBuffer.append(NEW_LINE);
+			}
+        	jvnBuffer.append("<<javelin.StackTrace_END>>");
             jvnBuffer.append(NEW_LINE);
         }
         

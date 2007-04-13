@@ -2,7 +2,8 @@ package org.seasar.javelin.stats.util;
 
 import org.seasar.javelin.stats.CallTreeNode;
 
-public class StatsUtil {
+public class StatsUtil
+{
 
 	public static long getElapsedTime(CallTreeNode node)
 	{
