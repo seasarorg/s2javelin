@@ -1,22 +1,13 @@
 package org.seasar.javelin.stats;
 
-import java.lang.management.ManagementFactory;
 import java.util.List;
 
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
 import org.seasar.javelin.stats.bean.Component;
-import org.seasar.javelin.stats.bean.ComponentMBean;
 import org.seasar.javelin.stats.bean.Invocation;
-import org.seasar.javelin.stats.bean.InvocationMBean;
 import org.seasar.javelin.stats.util.StatsUtil;
 
 public class S2StatsJavelinRecorder
 {
-    /** プラットフォームMBeanサーバ */
-    private static MBeanServer               server_     = ManagementFactory.getPlatformMBeanServer();
-
     /**
      * メソッドコールツリーの記録用オブジェクト。
      */
@@ -49,51 +40,11 @@ public class S2StatsJavelinRecorder
     		, StackTraceElement[] stacktrace
     		, S2StatsJavelinConfig config)
     {
+    	Component component = MBeanManager.getComponent(className);
+    	Invocation invocation = component.getInvocation(methodName);
+    	
         try
         {
-            Component componentBean = MBeanManager.getComponent(className);
-            String name = config.getDomain() + ".component:type="
-                    + ComponentMBean.class.getName() + ",class=" + className;
-            ObjectName componentName = new ObjectName(name);
-            if (componentBean == null)
-            {
-                componentBean = new Component(componentName, className);
-
-                if (server_.isRegistered(componentName))
-                {
-                    server_.unregisterMBean(componentName);
-                }
-                server_.registerMBean(componentBean, componentName);
-                MBeanManager.setComponent(className, componentBean);
-            }
-
-            Invocation invocationBean = componentBean.getInvocation(methodName);
-            name = config.getDomain() + ".invocation:type="
-                    + InvocationMBean.class.getName() + ",class=" + className
-                    + ",method=" + methodName;
-            ObjectName objName = new ObjectName(name);
-
-            if (invocationBean == null)
-            {
-                invocationBean = 
-                	new Invocation(
-                		objName
-                		, componentName
-                		, className
-                		, methodName
-                		, config.getIntervalMax()
-                		, config.getThrowableMax()
-                		, config.getRecordThreshold()
-                		, config.getAlarmThreshold());
-
-                componentBean.addInvocation(invocationBean);
-                if (server_.isRegistered(objName))
-                {
-                    server_.unregisterMBean(objName);
-                }
-                server_.registerMBean(invocationBean, objName);
-            }
-
             // 呼び出し元情報取得。
             CallTreeNode node = callerNode_.get();
 
@@ -165,11 +116,9 @@ public class S2StatsJavelinRecorder
                 }
                 
                 parent.addChild(node);
-                
-                invocationBean.addCaller(parent.getInvocation());
             }
 
-            node.setInvocation(invocationBean);
+            node.setInvocation(invocation);
 
             // 呼び出し先を、
             // 次回ログ出力時の呼び出し元として使用するために保存する。
