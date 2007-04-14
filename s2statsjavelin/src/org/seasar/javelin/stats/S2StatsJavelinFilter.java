@@ -35,8 +35,13 @@ public class S2StatsJavelinFilter implements Filter
     
     private static final String PNAME_THREAD_MODEL = "threadModel";
     
+    private static final String PNAME_HTTP_PORT = "httpPort";
+    
     private S2StatsJavelinConfig  config_;
 
+    /**
+     * 初期化。
+     */
     public void init(FilterConfig config)
         throws ServletException
     {
@@ -61,6 +66,7 @@ public class S2StatsJavelinFilter implements Filter
     	config_.setEndCallerName(getInitParameter(config, PNAME_ROOT_CALLER_NAME));
     	config_.setEndCalleeName(getInitParameter(config, PNAME_END_CALLEE_NAME));
     	config_.setThreadModel(getInitParameter(config, PNAME_THREAD_MODEL, 1));
+    	config_.setHttpPort(getInitParameter(config, PNAME_HTTP_PORT, 0));
     }
 
     private int getInitParameter(FilterConfig config, String pname, int defaultValue)
@@ -122,7 +128,8 @@ public class S2StatsJavelinFilter implements Filter
 	}
 
 	/**
-	 * 
+	 * フィルタリング処理。
+	 * サーブレットの処理時間を計測し、各種処理を行う。
 	 */
 	public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain)
@@ -155,6 +162,7 @@ public class S2StatsJavelinFilter implements Filter
             	stacktrace = Thread.currentThread().getStackTrace();
             }
             
+            JmxRecorder.preProcess(contextPath, servletPath, config_);
             S2StatsJavelinRecorder.preProcess(contextPath, servletPath, args, stacktrace, config_);
         }
         catch (Throwable th)
@@ -171,11 +179,13 @@ public class S2StatsJavelinFilter implements Filter
         }
         catch (IOException ex)
         {
+            JmxRecorder.postProcess(ex);
             S2StatsJavelinRecorder.postProcess(ex);
             throw ex;
         }
         catch (ServletException ex)
         {
+            JmxRecorder.postProcess(ex);
             S2StatsJavelinRecorder.postProcess(ex);
             throw ex;
         }
@@ -187,6 +197,7 @@ public class S2StatsJavelinFilter implements Filter
         	{
         		returnValue = createReturnValue(httpResponse);
         	}
+            JmxRecorder.postProcess();
             S2StatsJavelinRecorder.postProcess(returnValue, config_);
         }
         catch(Throwable th)
@@ -195,6 +206,12 @@ public class S2StatsJavelinFilter implements Filter
         }
     }
 
+	/**
+	 * HttpServletResponseから、戻り値を生成する。
+	 * 
+	 * @param response サーブレットレスポンス。
+	 * @return 戻り値。
+	 */
     private Object createReturnValue(HttpServletResponse response)
 	{
     	String returnValue;

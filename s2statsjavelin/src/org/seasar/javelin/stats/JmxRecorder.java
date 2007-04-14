@@ -2,20 +2,93 @@ package org.seasar.javelin.stats;
 
 import java.lang.management.ManagementFactory;
 import java.util.List;
+import java.util.Set;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import org.seasar.javelin.stats.bean.Component;
 import org.seasar.javelin.stats.bean.ComponentMBean;
+import org.seasar.javelin.stats.bean.Container;
+import org.seasar.javelin.stats.bean.ContainerMBean;
 import org.seasar.javelin.stats.bean.Invocation;
 import org.seasar.javelin.stats.bean.InvocationMBean;
+import org.seasar.javelin.stats.bean.Statistics;
+import org.seasar.javelin.stats.bean.StatisticsMBean;
 import org.seasar.javelin.stats.util.StatsUtil;
 
 public class JmxRecorder
 {
     /** プラットフォームMBeanサーバ */
     private static MBeanServer               server_     = ManagementFactory.getPlatformMBeanServer();
+
+    /** 初期化フラグ。初期化済みの場合はtrue。 */
+    private static boolean     isInitialized_   = false;
+
+    /**
+     * 初期化処理。
+     * MBeanServerへのContainerMBeanの登録を行う。
+     * 公開用HTTPポートが指定されていた場合は、HttpAdaptorの生成と登録も行う。
+     */
+    private static void init(S2StatsJavelinConfig config)
+    {
+        try
+        {
+            server_ = ManagementFactory.getPlatformMBeanServer();
+
+            if (config.getHttpPort() != 0)
+            {
+            	try
+            	{
+                	Mx4JLauncher.execute(server_, config.getHttpPort());
+            	}
+            	catch(Exception ex)
+            	{
+            		ex.printStackTrace();
+            	}
+            }
+
+            ContainerMBean container;
+            ObjectName containerName = new ObjectName(config.getDomain()
+                    + ".container:type=" + ContainerMBean.class.getName());
+            if (server_.isRegistered(containerName))
+            {
+                Set beanSet = server_.queryMBeans(containerName, null);
+                if (beanSet.size() > 0)
+                {
+                    ContainerMBean[] containers = (ContainerMBean[])beanSet.toArray(new ContainerMBean[beanSet.size()]);
+                    container = (ContainerMBean)(containers[0]);
+                }
+            }
+            else
+            {
+                container = new Container();
+                server_.registerMBean(container, containerName);
+            }
+
+            StatisticsMBean statistics;
+            ObjectName statisticsName = new ObjectName(config.getDomain()
+                    + ".statistics:type=" + StatisticsMBean.class.getName());
+            if (server_.isRegistered(statisticsName))
+            {
+                Set beanSet = server_.queryMBeans(statisticsName, null);
+                if (beanSet.size() > 0)
+                {
+                    StatisticsMBean[] statisticses = (StatisticsMBean[])beanSet.toArray(new StatisticsMBean[beanSet.size()]);
+                    statistics = (StatisticsMBean)(statisticses[0]);
+                }
+            }
+            else
+            {
+                statistics = new Statistics();
+                server_.registerMBean(statistics, statisticsName);
+            }
+        }
+        catch (Throwable th)
+        {
+        	th.printStackTrace();
+        }
+    }
 
     /**
      * 前処理。
@@ -25,10 +98,17 @@ public class JmxRecorder
     public static void preProcess(
     		String className
     		, String methodName
-    		, Object[] arguments
-    		, StackTraceElement[] stacktrace
     		, S2StatsJavelinConfig config)
     {
+        synchronized (JmxRecorder.class)
+        {
+            if (!isInitialized_)
+            {
+                isInitialized_ = true;
+                init(config);
+            }
+        }
+
         try
         {
             Component componentBean = MBeanManager.getComponent(className);
@@ -74,10 +154,11 @@ public class JmxRecorder
                 server_.registerMBean(invocationBean, objName);
             }
         }
-        catch (Exception ex)
+        catch (Throwable th)
         {
             // 想定外の例外が発生した場合は標準エラー出力に出力しておく。
-            ex.printStackTrace();
+        	// (上位には伝播させない。)
+        	th.printStackTrace();
         }
     }
 
@@ -85,7 +166,7 @@ public class JmxRecorder
      * 後処理（本処理成功時）。
      * @param spent
      */
-    public static void postProcess(Object returnValue, S2StatsJavelinConfig config)
+    public static void postProcess()
     {
         try
         {
@@ -112,10 +193,11 @@ public class JmxRecorder
             	}
             }
         }
-        catch (Exception ex)
+        catch (Throwable th)
         {
             // 想定外の例外が発生した場合は標準エラー出力に出力しておく。
-            ex.printStackTrace();
+        	// (上位には伝播させない。)
+            th.printStackTrace();
         }
     }
 
@@ -125,28 +207,6 @@ public class JmxRecorder
      */
     public static void postProcess(Throwable cause)
     {
-        try
-        {
-            // 呼び出し元情報取得。
-            CallTreeNode node = S2StatsJavelinRecorder.callerNode_.get();
-            if (node == null)
-            {
-                // 呼び出し元情報が取得できない場合は処理をキャンセルする。
-                // (すでに記録済みの例外のため。)
-                return;
-            }
-
-            // 発生した例外を記録しておく。
-            node.getInvocation().addThrowable(cause);
-
-            //呼び出し元を消去しておく。
-            S2StatsJavelinRecorder.callerNode_.set(null);
-        }
-        catch (Exception ex)
-        {
-            // 想定外の例外が発生した場合は標準エラー出力に出力しておく。
-            ex.printStackTrace();
-        }
     }
 
     /**

@@ -38,6 +38,11 @@ public class S2StatsJavelinConfig
 	public static final int TM_CONTEXT_PATH = 3;
 	
     /**
+     * 情報を公開するHTTPポート番号。（MX4Jが必要。）
+     */
+    private int                httpPort_        = 0;
+
+    /**
      * Javelinログファイルを出力するフォルダ名
      */
 	private String javelinFileDir_ = System.getProperty("java.io.tmpdir");
@@ -150,5 +155,15 @@ public class S2StatsJavelinConfig
 	public void setThreadModel(int threadModel)
 	{
 		threadModel_ = threadModel;
+	}
+
+	public int getHttpPort()
+	{
+		return httpPort_;
+	}
+
+	public void setHttpPort(int httpPort)
+	{
+		httpPort_ = httpPort;
 	}
 }

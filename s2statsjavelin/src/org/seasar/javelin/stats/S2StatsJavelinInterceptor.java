@@ -59,80 +59,7 @@ public class S2StatsJavelinInterceptor extends AbstractInterceptor
     /** プラットフォームMBeanサーバ */
     private static MBeanServer server_;
 
-    /** 初期化フラグ。初期化済みの場合はtrue。 */
-    private static boolean     isInitialized_   = false;
-
-    /**
-     * 情報を公開するHTTPポート番号。（MX4Jが必要。）
-     */
-    private int                httpPort_        = 0;
-
     private S2StatsJavelinConfig  config_ = new S2StatsJavelinConfig();
-
-    /**
-     * 初期化処理。
-     * MBeanServerへのContainerMBeanの登録を行う。
-     * 公開用HTTPポートが指定されていた場合は、HttpAdaptorの生成と登録も行う。
-     */
-    private void init( )
-    {
-        try
-        {
-            server_ = ManagementFactory.getPlatformMBeanServer();
-
-            if (httpPort_ != 0)
-            {
-            	try
-            	{
-                	Mx4JLauncher.execute(server_, httpPort_);
-            	}
-            	catch(Exception ex)
-            	{
-            		ex.printStackTrace();
-            	}
-            }
-
-            ContainerMBean container;
-            ObjectName containerName = new ObjectName(config_.getDomain()
-                    + ".container:type=" + ContainerMBean.class.getName());
-            if (server_.isRegistered(containerName))
-            {
-                Set beanSet = server_.queryMBeans(containerName, null);
-                if (beanSet.size() > 0)
-                {
-                    ContainerMBean[] containers = (ContainerMBean[])beanSet.toArray(new ContainerMBean[beanSet.size()]);
-                    container = (ContainerMBean)(containers[0]);
-                }
-            }
-            else
-            {
-                container = new Container();
-                server_.registerMBean(container, containerName);
-            }
-
-            StatisticsMBean statistics;
-            ObjectName statisticsName = new ObjectName(config_.getDomain()
-                    + ".statistics:type=" + StatisticsMBean.class.getName());
-            if (server_.isRegistered(statisticsName))
-            {
-                Set beanSet = server_.queryMBeans(statisticsName, null);
-                if (beanSet.size() > 0)
-                {
-                    StatisticsMBean[] statisticses = (StatisticsMBean[])beanSet.toArray(new StatisticsMBean[beanSet.size()]);
-                    statistics = (StatisticsMBean)(statisticses[0]);
-                }
-            }
-            else
-            {
-                statistics = new Statistics();
-                server_.registerMBean(statistics, statisticsName);
-            }
-        }
-        catch (Exception ex)
-        {
-            ex.printStackTrace();
-        }
-    }
 
     /**
      * 呼び出し情報取得用のinvokeメソッド。
@@ -151,15 +78,6 @@ public class S2StatsJavelinInterceptor extends AbstractInterceptor
     public Object invoke(MethodInvocation invocation)
         throws Throwable
     {
-        synchronized (this.getClass())
-        {
-            if (!isInitialized_)
-            {
-                isInitialized_ = true;
-                init();
-            }
-        }
-
         try
         {
             // 呼び出し先情報取得。
@@ -172,6 +90,7 @@ public class S2StatsJavelinInterceptor extends AbstractInterceptor
             	stacktrace = Thread.currentThread().getStackTrace();
             }
             
+            JmxRecorder.preProcess(className, methodName, config_);
             S2StatsJavelinRecorder.preProcess(className, methodName, invocation.getArguments(), stacktrace, config_);
         }
         catch(Throwable th)
@@ -187,6 +106,7 @@ public class S2StatsJavelinInterceptor extends AbstractInterceptor
         }
         catch (Throwable cause)
         {
+            JmxRecorder.postProcess(cause);
             S2StatsJavelinRecorder.postProcess(cause);
 
             //例外をスローし、終了する。
@@ -195,6 +115,7 @@ public class S2StatsJavelinInterceptor extends AbstractInterceptor
 
         try
         {
+            JmxRecorder.postProcess();
             S2StatsJavelinRecorder.postProcess(ret, config_);
         }
         catch(Throwable th)
@@ -261,7 +182,7 @@ public class S2StatsJavelinInterceptor extends AbstractInterceptor
      */
     public void setHttpPort(int httpPort)
     {
-        httpPort_ = httpPort;
+        config_.setHttpPort(httpPort);
     }
     
     public void setLogMethodArgsAndReturnValue(boolean value)
