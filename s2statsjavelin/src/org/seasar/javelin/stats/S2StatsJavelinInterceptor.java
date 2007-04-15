@@ -1,17 +1,7 @@
 package org.seasar.javelin.stats;
 
-import java.lang.management.ManagementFactory;
-import java.util.Set;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
 import org.aopalliance.intercept.MethodInvocation;
 import org.seasar.framework.aop.interceptors.AbstractInterceptor;
-import org.seasar.javelin.stats.bean.Container;
-import org.seasar.javelin.stats.bean.ContainerMBean;
-import org.seasar.javelin.stats.bean.Statistics;
-import org.seasar.javelin.stats.bean.StatisticsMBean;
 
 /**
  * Component間の呼び出し関係をMBeanとして公開するためのInterceptor。
@@ -55,9 +45,6 @@ import org.seasar.javelin.stats.bean.StatisticsMBean;
 public class S2StatsJavelinInterceptor extends AbstractInterceptor
 {
     private static final long  serialVersionUID = 6661781313519708185L;
-
-    /** プラットフォームMBeanサーバ */
-    private static MBeanServer server_;
 
     private S2StatsJavelinConfig  config_ = new S2StatsJavelinConfig();
 

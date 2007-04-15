@@ -15,7 +15,6 @@ import org.seasar.javelin.stats.bean.Invocation;
 import org.seasar.javelin.stats.bean.InvocationMBean;
 import org.seasar.javelin.stats.bean.Statistics;
 import org.seasar.javelin.stats.bean.StatisticsMBean;
-import org.seasar.javelin.stats.util.StatsUtil;
 
 public class JmxRecorder
 {
