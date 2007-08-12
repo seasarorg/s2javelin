@@ -1,15 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
-<plugin>
-   <extension
-         point="org.eclipse.ui.editors">
-      <editor
-            class="org.seasar.javelin.jmx.viewer.editors.MultiPageEditor"
-            contributorClass="org.seasar.javelin.jmx.viewer.editors.MultiPageEditorContributor"
-            extensions="jview"
-            icon="icons/sample.gif"
-            id="org.seasar.javelin.jmx.viewer.editors.MultiPageEditor"
-            name="S2JmxJavelin Viewer"/>
+<plugin
+   id="org.seasar.javelin.statsvision"
+   name="%pluginName"
+   version="1.0.0"
+   class="org.seasar.javelin.statsvision.StatsVisionPlugin"
+   provider-name="%providerName">
+   <requires>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.gef"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.ui.views"/>
+      <import plugin="org.eclipse.ui.workbench.texteditor"/>
+   </requires>
+   <runtime>
+      <library name="statsvision.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+  <extension
+     point="org.eclipse.ui.editors">
+	  <editor
+	        class="org.seasar.javelin.statsvision.editors.MultiPageEditor"
+	        contributorClass="org.seasar.javelin.statsvision.editors.MultiPageEditorContributor"
+	        extensions="jview"
+	        icon="icons/sample.gif"
+	        id="org.seasar.javelin.statsvision.viewer.editors.MultiPageEditor"
+	        name="StatsVision"/>
    </extension>
 
+   <extension
+         point="org.eclipse.ui.views">
+       <category
+            name="ENdoSnipe"
+            id="org.seasar.javelin.statsvision.views"/>
+      <view
+            icon="icons/file.gif"
+            class="org.seasar.javelin.statsvision.views.JournalView"
+            category="org.seasar.javelin.statsvision.views"
+            name="ジャーナル"
+            id="org.seasar.javelin.statsvision.views.JournalView"/>
+   </extension>
+   
+<!--
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            icon="image/efv_16.gif"
+            class="org.seasar.javelin.statsvision.viewer.PerspectiveFactory"
+            name="ENdoSnipe"
+            id="org.seasar.javelin.statsvision.viewer.perspective"/>
+   </extension>
+   <extension
+         id="org.seasar.javelin.statsvision.Perspective"
+         name="メイン"
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension targetID="org.seasar.javelin.statsvision.perspective">
+         <view
+            id="org.seasar.javelin.statsvision.perspective"
+               relationship="stack"
+               relative="right"/>
+      </perspectiveExtension>
+   </extension>   
+-->
 </plugin>
