@@ -1,0 +1,275 @@
+package org.seasar.javelin.statsvision.model;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.management.AttributeChangeNotification;
+import javax.management.Notification;
+import javax.management.NotificationListener;
+
+import org.seasar.javelin.statsvision.communicate.Body;
+import org.seasar.javelin.statsvision.communicate.ResponseBody;
+import org.seasar.javelin.statsvision.communicate.Telegram;
+import org.seasar.javelin.statsvision.editors.TcpStatsVisionEditor;
+
+public class InvocationModel implements Comparable, NotificationListener {
+	private ComponentModel component_;
+
+	private String targetAddress_;
+
+	private String className_;
+
+	private String methodName_;
+
+	private Date date_;
+
+	/** メソッドの呼び出し回数。 */
+	private long count_;
+
+	/** メソッドの最短処理時間（単位:ミリ秒）。 */
+	private long minimum_;
+
+	/** メソッドの最長処理時間（単位:ミリ秒）。 */
+	private long maximum_;
+
+	/** メソッドの平均処理時間（単位:ミリ秒）。 */
+	private long average_;
+
+	/** メソッド内での例外発生回数。 */
+	private long throwableCount_;
+
+	/** メソッド内で発生した例外の履歴。 */
+	private List<Throwable> throwableList_;
+
+	/**  */
+	private long warningThreshold_ = Long.MAX_VALUE;
+
+	/**  */
+	private long alarmThreshold_ = Long.MAX_VALUE;
+
+	/** 閾値判定用の定数文字列 */
+	private static final String EXCEED_THRESHOLD_ALARM = "Alarm:EXCEED_THRESHOLD";
+
+	public String getClassName() {
+		return className_;
+	}
+
+	public void setClassName(String className_) {
+		this.className_ = className_;
+	}
+
+	public String getTargetAddress() {
+		return targetAddress_;
+	}
+
+	public void setTargetAddress(String targetAddress_) {
+		this.targetAddress_ = targetAddress_;
+	}
+
+	public long getAverage() {
+		return average_;
+	}
+
+	public void setAverage(long average) {
+		average_ = average;
+	}
+
+	public long getCount() {
+		return count_;
+	}
+
+	public void setCount(long count) {
+		count_ = count;
+	}
+
+	public long getMaximum() {
+		return maximum_;
+	}
+
+	public void setMaximum(long maximum) {
+		maximum_ = maximum;
+	}
+
+	public long getMinimum() {
+		return minimum_;
+	}
+
+	public void setMinimum(long minimum) {
+		minimum_ = minimum;
+	}
+
+	public long getThrowableCount() {
+		return throwableCount_;
+	}
+
+	public void setThrowableCount(long throwableCount) {
+		throwableCount_ = throwableCount;
+	}
+
+	public List<Throwable> getThrowableList() {
+		return throwableList_;
+	}
+
+	public void setThrowableList(List<Throwable> throwableList) {
+		throwableList_ = throwableList;
+	}
+
+	public ComponentModel getComponent() {
+		return component_;
+	}
+
+	public void setComponent(ComponentModel component) {
+		component_ = component;
+	}
+
+	public String getMethodName() {
+		return methodName_;
+	}
+
+	public void setMethodName(String methodName) {
+		methodName_ = methodName;
+	}
+
+	public long getWarningThreshold() {
+		return warningThreshold_;
+	}
+
+	public void setWarningThreshold(long warningThreshold) {
+		warningThreshold_ = warningThreshold;
+	}
+
+	public long getAlarmThreshold() {
+		return alarmThreshold_;
+	}
+
+	public void setAlarmThreshold(long alarmThreshold) {
+		alarmThreshold_ = alarmThreshold;
+	}
+
+	public Date getDate() {
+		return date_;
+	}
+
+	public void setDate(Date date) {
+		this.date_ = date;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("呼び出し回数=");
+		builder.append(getCount());
+		builder.append(", 平均処理時間=");
+		builder.append(getAverage());
+		builder.append(", 最大処理時間=");
+		builder.append(getMaximum());
+		builder.append(", 最小処理時間=");
+		builder.append(getMinimum());
+		builder.append(", 例外発生回数=");
+		builder.append(getThrowableCount());
+
+		return builder.toString();
+	}
+
+	public int compareTo(Object arg0) {
+		if (arg0 instanceof InvocationModel) {
+			InvocationModel target = (InvocationModel) arg0;
+			return this.getMethodName().compareTo(target.getMethodName());
+		}
+
+		return 0;
+	}
+
+	public void handleNotification(Notification notification, Object handback) {
+		if (notification instanceof AttributeChangeNotification) {
+			String alarmMsg = ((AttributeChangeNotification) notification)
+					.getMessage();
+			if (EXCEED_THRESHOLD_ALARM.equals(alarmMsg) == true) {
+				handleExceedThresholdAlarm((AttributeChangeNotification) notification);
+			}
+		}
+
+	}
+
+	private void handleExceedThresholdAlarm(
+			AttributeChangeNotification notification) {
+		setAverage((Long) notification.getOldValue());
+		setMaximum((Long) notification.getNewValue());
+		this.component_.setExceededThresholdAlarm(this.methodName_);
+	}
+
+	public static InvocationModel[] createFromTelegram(Telegram telegram, long alarmThreshold, long warningThreshold) {
+		Map invocationMap = new HashMap();
+
+		Body[] objBody = telegram.getObjBody();
+		for (int index = 0; index < objBody.length; index++) {
+			ResponseBody responseBody = (ResponseBody) objBody[index];
+
+			if (invocationMap.containsKey(responseBody.getStrObjName()) == false) {
+				// 取得した後、一つInvocationModelを作って、データを設定する
+				InvocationModel invocation = new InvocationModel();
+				invocation.setDate(new Date());
+				// 対象名より、クラス名、メソッド名を取得する
+				String strClassMethodName = (responseBody).getStrObjName();
+				String[] strClassMethodNameArr = strClassMethodName
+						.split("\\.");
+				StringBuilder builder = new StringBuilder();
+				builder.append(strClassMethodNameArr[0]);
+				for (int j = 1; j < strClassMethodNameArr.length - 1; j++) {
+					builder.append(".");
+					builder.append(strClassMethodNameArr[j]);
+				}
+				String strClassName = builder.toString();
+				String strMethodName = strClassMethodNameArr[strClassMethodNameArr.length - 1];
+				invocation.setClassName(strClassName);
+				invocation.setMethodName(strMethodName);
+
+				invocationMap.put(responseBody.getStrObjName(), invocation);
+			}
+
+			InvocationModel invocation = (InvocationModel) invocationMap
+					.get(responseBody.getStrObjName());
+
+			// 全て呼び出す元を設定用
+			// データをInvocationModelに設定する
+			String strItemName = ((ResponseBody) objBody[index])
+					.getStrItemName();
+			Object[] objTempArr = ((ResponseBody) objBody[index])
+					.getObjItemValueArr();
+			// 呼び出し回数
+			if (strItemName.equals("callCount"))
+				invocation.setCount((Long) objTempArr[0]);
+			// 平均時間
+			if (strItemName.equals("averageInterval"))
+				invocation.setAverage((Long) objTempArr[0]);
+			// 最大処理時間
+			if (strItemName.equals("maximumInterval"))
+				invocation.setMaximum((Long) objTempArr[0]);
+			// 最小処理時間
+			if (strItemName.equals("minimumInterval"))
+				invocation.setMinimum((Long) objTempArr[0]);
+			// 例外発生回数
+			if (strItemName.equals("throwableCount"))
+				invocation.setThrowableCount((Long) objTempArr[0]);
+			// メソッドの呼び出し元 クラス名
+			if (strItemName.equals("allCallerNames")) {
+				if (((ResponseBody) objBody[index]).getIntLoopCount() > 0) {
+					String[] strCallersName = new String[0];
+					strCallersName = new String[objTempArr.length];
+					for (int j = 0; j < objTempArr.length; j++) {
+						strCallersName[j] = (String) objTempArr[j];
+					}
+					// TODO 呼び出し元?
+				}
+			}
+			invocation.setAlarmThreshold(alarmThreshold);
+			invocation.setWarningThreshold(warningThreshold);
+		}
+
+		return (InvocationModel[]) invocationMap.values().toArray(
+				new InvocationModel[0]);
+	}
+}
