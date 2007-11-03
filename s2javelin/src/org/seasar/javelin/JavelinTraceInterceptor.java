@@ -1,5 +1,6 @@
 package org.seasar.javelin;
 
+import java.io.PrintStream;
 import java.lang.reflect.Modifier;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -12,7 +13,42 @@ import org.seasar.framework.aop.interceptors.AbstractInterceptor;
 import org.seasar.framework.log.Logger;
 
 /**
- * Javelinログを出力するためのTraceInterceptor。
+ * Javelinログを出力し、Component間の呼び出し関係を
+ * MBeanとして公開するためのInterceptor。<br>
+ * <br>
+ * また、以下の情報を、MBean経由で取得することが可能。
+ * <ol>
+ * <li>メソッドの呼び出し回数</li>
+ * <li>メソッドの平均処理時間（ミリ秒単位）</li>
+ * <li>メソッドの最長処理時間（ミリ秒単位）</li>
+ * <li>メソッドの最短処理時間（ミリ秒単位）</li>
+ * <li>メソッドの呼び出し元</li>
+ * <li>例外の発生回数</li>
+ * <li>例外の発生履歴</li>
+ * </ol>
+ * また、以下の条件をdiconファイルでのパラメータで指定可能。
+ * <ol>
+ * <li>httpPort:HTTPで公開する際のポート番号。使用にはMX4Jが必要。</li>
+ * <li>intervalMax:メソッドの処理時間を何回分記録するか。
+ *     デフォルト値は1000。</li>
+ * <li>throwableMax:例外の発生を何回分記録するか。
+ *     デフォルト値は1000。</li>
+ * <li>recordThreshold:処理時間記録用の閾値。
+ *     この時間を越えたメソッド呼び出しのみ記録する。
+ *     デフォルト値は0。</li>
+ * <li>alarmThreshold:処理時間記録用の閾値。
+ *     この時間を越えたメソッド呼び出しの発生をViwerに通知する。
+ *     デフォルト値は1000。</li>
+ * <li>domain:MBeanを登録する際に使用するドメイン。
+ *     実際のドメイン名は、[domainパラメータ] + [Mbeanの種類]となる。
+ *     MBeanの種類は以下のものがある。
+ *     <ol>
+ *       <li>container:全コンポーネントのObjectNameを管理する。</li>
+ *       <li>component:一つのコンポーネントに関する情報を公開するMBean。</li>
+ *       <li>invocation:メソッド呼び出しに関する情報を公開するMBean。</li>
+ *     </ol>
+ *     </li>
+ * </ol>
  * 
  * @version 0.2
  * @author On Eriguchi (SMG), Tetsu Hayakawa (SMG)
@@ -118,13 +154,23 @@ public class JavelinTraceInterceptor extends AbstractInterceptor
      */
     static private Map exceptionMap__ = Collections.synchronizedMap(new HashMap());
     
+    private S2StatsJavelinConfig config_ = new S2StatsJavelinConfig();
+
+    /** 設定値を標準出力に出力したらtrue */
+    private boolean isPrintConfig_ = false;
+    
     /**
      * Javelinログ出力用のinvokeメソッド。
      * 
      * 実際のメソッド呼び出しを実行する前後で、
      * 呼び出しと返却の詳細ログを、Javelin形式で出力する。
+     * 実行時に例外が発生した場合は、その詳細もログ出力する。<br>
      * 
-     * 実行時に例外が発生した場合は、その詳細もログ出力する。
+     * また、実際のメソッド呼び出しを実行する前後で、
+     * 実行回数や実行時間をMBeanに記録する。
+     * 
+     * 実行時に例外が発生した場合は、
+     * 例外の発生回数や発生履歴も記録する。
      * 
      * @param invocation
      *            インターセプタによって取得された、呼び出すメソッドの情報
@@ -133,6 +179,37 @@ public class JavelinTraceInterceptor extends AbstractInterceptor
      */
     public Object invoke(MethodInvocation invocation) throws Throwable
     {
+        // 設定値を出力していなければ出力する
+        synchronized (this)
+        {
+            if (isPrintConfig_ == false)
+            {
+                isPrintConfig_ = true;
+                printConfigValue();
+            }
+        }
+
+        try
+        {
+            // 呼び出し先情報取得。
+            String className = getTargetClass(invocation).getName();
+            String methodName = invocation.getMethod().getName();
+
+            StackTraceElement[] stacktrace  = null;
+            if (config_.isLogStacktrace())
+            {
+            	stacktrace = Thread.currentThread().getStackTrace();
+            }
+            
+            JmxRecorder.preProcess(className, methodName, this.config_);
+            S2StatsJavelinRecorder.preProcess(className, methodName,
+                                              invocation.getArguments(), stacktrace, this.config_);
+        }
+        catch(Throwable th)
+        {
+        	th.printStackTrace();
+        }
+        
         StringBuffer methodCallBuff = new StringBuffer(256);
 
         // 呼び出し先情報取得。
@@ -188,6 +265,9 @@ public class JavelinTraceInterceptor extends AbstractInterceptor
         }
         catch (Throwable cause)
         {
+            JmxRecorder.postProcess(cause);
+            S2StatsJavelinRecorder.postProcess(cause, this.config_);
+
             // Throw詳細ログ生成。
             StringBuffer throwBuff = createThrowCatchDetail(THROW, calleeMethodName,
                     calleeClassName, objectID, threadInfo, cause);
@@ -227,6 +307,16 @@ public class JavelinTraceInterceptor extends AbstractInterceptor
 
         this.callerLog_.set(currentCallerLog);
 
+        try
+        {
+            JmxRecorder.postProcess();
+            S2StatsJavelinRecorder.postProcess(ret, this.config_);
+        }
+        catch(Throwable th)
+        {
+        	th.printStackTrace();
+        }
+        
         //invocationを実行した際の戻り値を返す。
         return ret;
     }
@@ -363,29 +453,179 @@ public class JavelinTraceInterceptor extends AbstractInterceptor
     }
 
     /**
-     * 引数の内容をログ出力するかどうか設定する。
-     * @param isLogArgs 引数をログ出力するならtrue
+     * 
+     * @param intervalMax
+     */
+    public void setIntervalMax(int intervalMax)
+    {
+        if (this.config_.isSetIntervalMax() == false)
+        {
+            this.config_.setIntervalMax(intervalMax);
+        }
+    }
+
+    /**
+     * 
+     * @param throwableMax
+     */
+    public void setThrowableMax(int throwableMax)
+    {
+        if (this.config_.isSetThrowableMax() == false)
+        {
+            this.config_.setThrowableMax(throwableMax);
+        }
+    }
+
+    /**
+     * 
+     * @param recordThreshold
+     */
+    public void setRecordThreshold(int recordThreshold)
+    {
+        if (this.config_.isSetRecordThreshold() == false)
+        {
+            this.config_.setRecordThreshold(recordThreshold);
+        }
+    }
+
+    /**
+     * 
+     * @param alarmThreshold
+     */
+    public void setAlarmThreshold(int alarmThreshold)
+    {
+        if (this.config_.isSetAlarmThreshold() == false)
+        {
+            this.config_.setAlarmThreshold(alarmThreshold);
+        }
+    }
+
+    /**
+     * 
+     * @param domain
+     */
+    public void setDomain(String domain)
+    {
+        if (this.config_.isSetDomain() == false)
+        {
+            this.config_.setDomain(domain);
+        }
+    }
+
+    /**
+     * StatsJavelinログを出力するディレクトリを指定する。
+     *
+     * @param javelinFileDir ディレクトリ名
+     */
+    public void setJavelinFileDir(String javelinFileDir)
+    {
+        if (this.config_.isSetJavelinFileDir() == false)
+        {
+            this.config_.setJavelinFileDir(javelinFileDir);
+        }
+    }
+    
+    /**
+     * 
+     * @param httpPort
+     */
+    public void setHttpPort(int httpPort)
+    {
+        if (this.config_.isSetHttpPort() == false)
+        {
+            this.config_.setHttpPort(httpPort);
+        }
+    }
+
+    /**
+     * 引数を出力するかどうかの設定を変更する。
+     *
+     * @param isLogArgs 引数を出力するならtrue
      */
     public void setLogArgs(boolean isLogArgs)
     {
-        this.isLogArgs_ = isLogArgs;
+        if (this.config_.isLogArgs() == false)
+        {
+            this.config_.setLogArgs(isLogArgs);
+        }
     }
 
     /**
-     * 戻り値の内容をログ出力するかどうか設定する。
-     * @param isLogReturn 戻り値をログ出力するならtrue
+     * 戻り値を出力するかどうかの設定を変更する。
+     *
+     * @param isLogReturn 戻り値を出力するならtrue
      */
     public void setLogReturn(boolean isLogReturn)
     {
-        this.isLogReturn_ = isLogReturn;
+        if (this.config_.isLogReturn() == false)
+        {
+            this.config_.setLogArgs(isLogReturn);
+        }
     }
 
     /**
-     * メソッド呼び出しまでのスタックトレースをログ出力するか設定する。
-     * @param isLogStackTrace スタックトレースをログ出力するならtrue
+     * スタックトレースを出力するかどうかの設定を変更する。
+     *
+     * @param isLogStacktrace スタックトレースを出力するならtrue
      */
-    public void setLogStackTrace(boolean isLogStackTrace)
+    public void setLogStacktrace(boolean isLogStacktrace)
     {
-        this.isLogStackTrace_ = isLogStackTrace;
+        if (this.config_.isLogStacktrace() == false)
+        {
+            this.config_.setLogStacktrace(isLogStacktrace);
+        }
+    }
+
+    /**
+     * 
+     * @param endCalleeName
+     */
+	public void setEndCalleeName(String endCalleeName)
+	{
+        if (this.config_.isSetEndCalleeName() == false)
+        {
+            this.config_.setEndCalleeName(endCalleeName);
+        }
+	}
+
+    /**
+     * 
+     * @param endCallerName
+     */
+	public void setRootCallerName(String endCallerName)
+	{
+        if (this.config_.isSetRootCallerName() == false)
+        {
+            this.config_.setRootCallerName(endCallerName);
+        }
+	}
+
+    /**
+     * 
+     * @param threadModel
+     */
+	public void setThreadModel(int threadModel)
+	{
+        if (this.config_.isSetThreadModel() == false)
+        {
+            this.config_.setThreadModel(threadModel);
+        }
+	}
+
+
+    /**
+     * 設定値を標準出力に出力する。
+     */
+    private void printConfigValue()
+    {
+        PrintStream out = System.out;
+        out.println(">>>> Properties related with S2StatsJavelinInterceptor");
+        out.println("\tjavelin.intervalMax     : " + this.config_.getIntervalMax());
+        out.println("\tjavelin.throwableMax    : " + this.config_.getThrowableMax());
+        out.println("\tjavelin.recordThreshold : " + this.config_.getRecordThreshold());
+        out.println("\tjavelin.alarmThreshold  : " + this.config_.getAlarmThreshold());
+        out.println("\tjavelin.domain          : " + this.config_.getDomain());
+        out.println("\tjavelin.httpPort        : " + this.config_.getHttpPort());
+        out.println("<<<<");
     }
 }
