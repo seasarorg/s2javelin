@@ -51,7 +51,7 @@ public class JavelinLogMaker
         }
 
         CallTreeNode parent = node.getParent();
-        S2StatsJavelinConfig config = new S2StatsJavelinConfig();
+        S2JavelinConfig config = new S2JavelinConfig();
         boolean isReturnDetail = config.isReturnDetail();
         int returnDetailDepth = config.getReturnDetailDepth();
 

@@ -41,7 +41,7 @@ public class S2JavelinFilter implements Filter
     
     private static final String PNAME_HTTP_PORT = "httpPort";
     
-    private S2StatsJavelinConfig config_;
+    private S2JavelinConfig config_;
 
     /**
      * èâä˙âªÅB
@@ -51,7 +51,7 @@ public class S2JavelinFilter implements Filter
      */
     public void init(FilterConfig config)
     {
-    	this.config_ = new S2StatsJavelinConfig();
+    	this.config_ = new S2JavelinConfig();
 
         String domain = getInitParameter(config, PNAME_DOMAIN);
     	if (this.config_.isSetDomain() == false

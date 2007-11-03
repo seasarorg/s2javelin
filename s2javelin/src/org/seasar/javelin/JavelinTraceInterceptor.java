@@ -154,7 +154,7 @@ public class JavelinTraceInterceptor extends AbstractInterceptor
      */
     static private Map exceptionMap__ = Collections.synchronizedMap(new HashMap());
     
-    private S2StatsJavelinConfig config_ = new S2StatsJavelinConfig();
+    private S2JavelinConfig config_ = new S2JavelinConfig();
 
     /** 設定値を標準出力に出力したらtrue */
     private boolean isPrintConfig_ = false;
@@ -189,11 +189,15 @@ public class JavelinTraceInterceptor extends AbstractInterceptor
             }
         }
 
+        // 呼び出し先情報取得。
+        String calleeClassName  = getTargetClass(invocation).getName();
+        String calleeMethodName = invocation.getMethod().getName();
+        
         try
         {
             // 呼び出し先情報取得。
-            String className = getTargetClass(invocation).getName();
-            String methodName = invocation.getMethod().getName();
+            String className  = calleeClassName;
+            String methodName = calleeMethodName;
 
             StackTraceElement[] stacktrace  = null;
             if (config_.isLogStacktrace())
@@ -210,50 +214,60 @@ public class JavelinTraceInterceptor extends AbstractInterceptor
         	th.printStackTrace();
         }
         
+        String objectID   = "";
+        String threadInfo = "";
+        
         StringBuffer methodCallBuff = new StringBuffer(256);
-
-        // 呼び出し先情報取得。
-        String calleeMethodName = invocation.getMethod().getName();
-        String calleeClassName = getTargetClass(invocation).getName();
-        String objectID = Integer.toHexString(System
-                .identityHashCode(invocation.getThis()));
-        String modifiers = Modifier.toString(invocation.getMethod()
-                .getModifiers());
-
         // 呼び出し元情報取得。
-        String currentCallerLog = (String) this.callerLog_.get();
+        String currentCallerLog = "";
 
-        Thread currentThread = Thread.currentThread();
-        String threadName = currentThread.getName();
-        String threadClassName = currentThread.getClass().getName();
-        String threadID = Integer.toHexString(System
-                .identityHashCode(currentThread));
-        String threadInfo = threadName + THREAD_DELIM + threadClassName + THREAD_DELIM + threadID;
+        if (config_.isJavelinEnable())
+        {
+        	currentCallerLog = (String) this.callerLog_.get();
+        	
+            objectID = Integer.toHexString(System
+                    .identityHashCode(invocation.getThis()));
+            String modifiers = Modifier.toString(invocation.getMethod()
+                    .getModifiers());
 
-        // メソッド呼び出し共通部分生成。
-        methodCallBuff.append(calleeMethodName);
-        methodCallBuff.append(DELIM);
-        methodCallBuff.append(calleeClassName);
-        methodCallBuff.append(DELIM);
-        methodCallBuff.append(objectID);
+            Thread currentThread   = Thread.currentThread();
+            String threadName      = currentThread.getName();
+            String threadClassName = currentThread.getClass().getName();
+            String threadID        = 
+            	Integer.toHexString(System.identityHashCode(currentThread));
+            
+            threadInfo = 
+            	threadName 
+            	+ THREAD_DELIM 
+            	+ threadClassName 
+            	+ THREAD_DELIM 
+            	+ threadID;
 
-        // 呼び出し先のログを、次回ログ出力時の呼び出し元として使用するために保存する。
-        this.callerLog_.set(methodCallBuff.toString());
+            // メソッド呼び出し共通部分生成。
+            methodCallBuff.append(calleeMethodName);
+            methodCallBuff.append(DELIM);
+            methodCallBuff.append(calleeClassName);
+            methodCallBuff.append(DELIM);
+            methodCallBuff.append(objectID);
 
-        methodCallBuff.append(DELIM);
-        methodCallBuff.append(currentCallerLog);
-        methodCallBuff.append(DELIM);
-        methodCallBuff.append(modifiers);
-        methodCallBuff.append(DELIM);
-        methodCallBuff.append(threadInfo);
-        methodCallBuff.append(NEW_LINE);
+            // 呼び出し先のログを、次回ログ出力時の呼び出し元として使用するために保存する。
+            this.callerLog_.set(methodCallBuff.toString());
 
-        // Call 詳細ログ生成。
-        StringBuffer callDetailBuff = createCallDetail(methodCallBuff,
-                invocation);
+            methodCallBuff.append(DELIM);
+            methodCallBuff.append(currentCallerLog);
+            methodCallBuff.append(DELIM);
+            methodCallBuff.append(modifiers);
+            methodCallBuff.append(DELIM);
+            methodCallBuff.append(threadInfo);
+            methodCallBuff.append(NEW_LINE);
 
-        // Call ログ出力。
-        logger_.debug(callDetailBuff);
+            // Call 詳細ログ生成。
+            StringBuffer callDetailBuff = createCallDetail(methodCallBuff,
+                    invocation);
+
+            // Call ログ出力。
+            logger_.debug(callDetailBuff);
+        }
 
         //実際のメソッド呼び出しを実行する。
         //実行中に例外が発生したら、その詳細ログを出力する。
@@ -268,44 +282,50 @@ public class JavelinTraceInterceptor extends AbstractInterceptor
             JmxRecorder.postProcess(cause);
             S2StatsJavelinRecorder.postProcess(cause, this.config_);
 
-            // Throw詳細ログ生成。
-            StringBuffer throwBuff = createThrowCatchDetail(THROW, calleeMethodName,
-                    calleeClassName, objectID, threadInfo, cause);
+            if (config_.isJavelinEnable())
+            {
+                // Throw詳細ログ生成。
+                StringBuffer throwBuff = createThrowCatchDetail(THROW, calleeMethodName,
+                        calleeClassName, objectID, threadInfo, cause);
 
-            // Throw ログ出力。
-            logger_.debug(throwBuff);
+                // Throw ログ出力。
+                logger_.debug(throwBuff);
 
-            //例外発生を記録する。
-            exceptionMap__.put(threadInfo, cause);
+                //例外発生を記録する。
+                exceptionMap__.put(threadInfo, cause);
+            }
             
             //例外をスローし、終了する。
             throw cause;
         }
         
-        //このスレッドで、直前に例外が発生していたかを確認する。
-        //発生していてここにたどり着いたのであれば、この時点で例外が
-        //catchされたということになるので、Catchログを出力する。
-        boolean isExceptionThrowd = exceptionMap__.containsKey(threadInfo);
-        if(isExceptionThrowd == true) 
+        if (config_.isJavelinEnable())
         {
-            //発生していた例外オブジェクトをマップから取り出す。（かつ削除する）
-            Throwable exception = (Throwable)exceptionMap__.remove(threadInfo);
-            
-            // Catch詳細ログ生成。
-            StringBuffer throwBuff = createThrowCatchDetail(CATCH, calleeMethodName,
-                    calleeClassName, objectID, threadInfo, exception);
+            //このスレッドで、直前に例外が発生していたかを確認する。
+            //発生していてここにたどり着いたのであれば、この時点で例外が
+            //catchされたということになるので、Catchログを出力する。
+            boolean isExceptionThrowd = exceptionMap__.containsKey(threadInfo);
+            if(isExceptionThrowd == true) 
+            {
+                //発生していた例外オブジェクトをマップから取り出す。（かつ削除する）
+                Throwable exception = (Throwable)exceptionMap__.remove(threadInfo);
+                
+                // Catch詳細ログ生成。
+                StringBuffer throwBuff = createThrowCatchDetail(CATCH, calleeMethodName,
+                        calleeClassName, objectID, threadInfo, exception);
 
-            // Catch ログ出力。
-            logger_.debug(throwBuff);
+                // Catch ログ出力。
+                logger_.debug(throwBuff);
+            }
+
+            // Return詳細ログ生成。
+            StringBuffer returnDetailBuff = createReturnDetail(methodCallBuff, ret);
+
+            // Returnログ出力。
+            logger_.debug(returnDetailBuff);
+
+            this.callerLog_.set(currentCallerLog);
         }
-
-        // Return詳細ログ生成。
-        StringBuffer returnDetailBuff = createReturnDetail(methodCallBuff, ret);
-
-        // Returnログ出力。
-        logger_.debug(returnDetailBuff);
-
-        this.callerLog_.set(currentCallerLog);
 
         try
         {
@@ -619,7 +639,8 @@ public class JavelinTraceInterceptor extends AbstractInterceptor
     private void printConfigValue()
     {
         PrintStream out = System.out;
-        out.println(">>>> Properties related with S2StatsJavelinInterceptor");
+        out.println(">>>> Properties related with S2JavelinInterceptor");
+        out.println("\tjavelin.javelinEnable   : " + this.config_.isJavelinEnable());
         out.println("\tjavelin.intervalMax     : " + this.config_.getIntervalMax());
         out.println("\tjavelin.throwableMax    : " + this.config_.getThrowableMax());
         out.println("\tjavelin.recordThreshold : " + this.config_.getRecordThreshold());

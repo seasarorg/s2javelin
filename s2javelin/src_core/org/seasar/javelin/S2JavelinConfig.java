@@ -3,7 +3,7 @@ package org.seasar.javelin;
 /**
  * S2StatsJavelinの設定を保持するクラス。
  */
-public class S2StatsJavelinConfig
+public class S2JavelinConfig
 {
 
     /** スレッドモデルの値：スレッドID */
@@ -59,6 +59,10 @@ public class S2StatsJavelinConfig
 
     private static final String  DEBUG_KEY                   = JAVELIN_PREFIX + "debug";
 
+    /** Javelinのログ出力ON/OFF切替フラグのプロパティ名 */
+    private static final String  JAVELINENABLE_KEY           = JAVELIN_PREFIX + "javelinEnable";
+
+    
     private static final int     DEFAULT_INTERVALMAX         = 1000;
 
     private static final int     DEFAULT_THROWABLEMAX        = 1000;
@@ -97,12 +101,15 @@ public class S2StatsJavelinConfig
 
     private static final boolean DEFAULT_DEBUG               = false;
 
+    /** Javelinログを出力するかどうかのデフォルト設定 */
+    public static final boolean DEFAULT_JAVELINENABLE = false;
+
     /**
      * S2StatsJavelinの設定を保持するオブジェクトを作成する。
      */
-    public S2StatsJavelinConfig()
+    public S2JavelinConfig()
     {
-    // 何もしない
+    	// 何もしない
     }
 
     /**
@@ -713,5 +720,16 @@ public class S2StatsJavelinConfig
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         configUtil.setLong(STATISTICSTHRESHOLD_KEY, statisticsThreshold);
+    }
+    
+    /**
+     * Javelinログを出力するかどうかの設定を返す。
+     *
+     * @return ログを出力するならtrue
+     */
+    public boolean isJavelinEnable()
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        return configUtil.getBoolean(JAVELINENABLE_KEY, DEFAULT_JAVELINENABLE);
     }
 }

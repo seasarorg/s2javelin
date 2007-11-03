@@ -27,7 +27,7 @@ public class JmxRecorder
      * MBeanServerへのContainerMBeanの登録を行う。
      * 公開用HTTPポートが指定されていた場合は、HttpAdaptorの生成と登録も行う。
      */
-    private static void init(S2StatsJavelinConfig config)
+    private static void init(S2JavelinConfig config)
     {
         try
         {
@@ -97,7 +97,7 @@ public class JmxRecorder
     public static void preProcess(
     		String className
     		, String methodName
-    		, S2StatsJavelinConfig config)
+    		, S2JavelinConfig config)
     {
         synchronized (JmxRecorder.class)
         {

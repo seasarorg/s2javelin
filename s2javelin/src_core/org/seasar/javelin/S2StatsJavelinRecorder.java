@@ -51,7 +51,7 @@ public class S2StatsJavelinRecorder
      * 初期化処理。 MBeanServerへのContainerMBeanの登録を行う。
      * 公開用HTTPポートが指定されていた場合は、HttpAdaptorの生成と登録も行う。
      */
-    private static void javelinInit(S2StatsJavelinConfig config, MBeanServer server)
+    private static void javelinInit(S2JavelinConfig config, MBeanServer server)
     {
         try
         {
@@ -93,14 +93,14 @@ public class S2StatsJavelinRecorder
      * @return 登録する文字列
      */
     private static String createInvocationBeanName(String className, String methodName,
-            S2StatsJavelinConfig config)
+            S2JavelinConfig config)
     {
         return config.getDomain() + ".invocation:type=" + InvocationMBean.class.getName()
                 + ",class=" + ObjectNameUtil.encode(className) + ",method="
                 + ObjectNameUtil.encode(methodName);
     }
 
-    private static String createComponentBeanName(String className, S2StatsJavelinConfig config)
+    private static String createComponentBeanName(String className, S2JavelinConfig config)
     {
         return config.getDomain() + ".component:type=" + ComponentMBean.class.getName() + ",class="
                 + ObjectNameUtil.encode(className);
@@ -115,7 +115,7 @@ public class S2StatsJavelinRecorder
      * @param args
      */
     public static void preProcess(String className, String methodName, Object[] args,
-            S2StatsJavelinConfig config)
+            S2JavelinConfig config)
     {
         synchronized (S2StatsJavelinRecorder.class)
         {
@@ -211,7 +211,7 @@ public class S2StatsJavelinRecorder
      *            設定
      */
     public static void preProcess(String className, String methodName, Object[] args,
-            StackTraceElement[] stacktrace, S2StatsJavelinConfig config)
+            StackTraceElement[] stacktrace, S2JavelinConfig config)
     {
         Component component = MBeanManager.getComponent(className);
         Invocation invocation = component.getInvocation(methodName);
@@ -236,13 +236,13 @@ public class S2StatsJavelinRecorder
 
                 switch (config.getThreadModel())
                 {
-                case S2StatsJavelinConfig.TM_THREAD_ID:
+                case S2JavelinConfig.TM_THREAD_ID:
                     tree.setThreadID("" + Thread.currentThread().getId());
                     break;
-                case S2StatsJavelinConfig.TM_THREAD_NAME:
+                case S2JavelinConfig.TM_THREAD_NAME:
                     tree.setThreadID(Thread.currentThread().getName());
                     break;
-                case S2StatsJavelinConfig.TM_CONTEXT_PATH:
+                case S2JavelinConfig.TM_CONTEXT_PATH:
                     tree.setThreadID(methodName);
                     break;
                 default:
@@ -264,7 +264,7 @@ public class S2StatsJavelinRecorder
      * @param node
      */
     private static void setNode(CallTreeNode node, CallTree tree, StackTraceElement[] stacktrace,
-            Object[] args, Invocation invocation, S2StatsJavelinConfig config)
+            Object[] args, Invocation invocation, S2JavelinConfig config)
     {
         try
         {
@@ -344,7 +344,7 @@ public class S2StatsJavelinRecorder
      * @param config
      *            設定
      */
-    public static void postProcess(Object returnValue, S2StatsJavelinConfig config)
+    public static void postProcess(Object returnValue, S2JavelinConfig config)
     {
         try
         {
@@ -418,7 +418,7 @@ public class S2StatsJavelinRecorder
      * 
      * @param cause
      */
-    public static void postProcess(Throwable cause, S2StatsJavelinConfig config)
+    public static void postProcess(Throwable cause, S2JavelinConfig config)
     {
         try
         {
@@ -473,7 +473,7 @@ public class S2StatsJavelinRecorder
     }
 
     public static void preProcessField(String className, String methodName,
-            S2StatsJavelinConfig config)
+            S2JavelinConfig config)
     {
         try
         {
@@ -511,7 +511,7 @@ public class S2StatsJavelinRecorder
         }
     }
 
-    public static void postProcessField(S2StatsJavelinConfig config)
+    public static void postProcessField(S2JavelinConfig config)
     {
         try
         {

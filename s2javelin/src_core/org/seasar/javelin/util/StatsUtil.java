@@ -1,7 +1,7 @@
 package org.seasar.javelin.util;
 
 import org.seasar.javelin.CallTreeNode;
-import org.seasar.javelin.S2StatsJavelinConfig;
+import org.seasar.javelin.S2JavelinConfig;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
@@ -80,7 +80,7 @@ public class StatsUtil
 		try {
 			result = object.toString();
 		} catch (Throwable th) {
-			S2StatsJavelinConfig config = new S2StatsJavelinConfig();
+			S2JavelinConfig config = new S2JavelinConfig();
 			if(config.isDebug())
 			{
 				System.err.println("Javelin Exception "
@@ -121,7 +121,7 @@ public class StatsUtil
 				result = result.substring(0, length) + "...";
 			}
 		} catch (Throwable th) {
-			S2StatsJavelinConfig config = new S2StatsJavelinConfig();
+			S2JavelinConfig config = new S2JavelinConfig();
 			if(config.isDebug())
 			{
 				System.err.println("Javelin Exception "

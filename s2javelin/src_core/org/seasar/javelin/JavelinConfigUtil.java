@@ -15,7 +15,7 @@ import java.util.Properties;
  */
 public class JavelinConfigUtil
 {
-    private static final String JAVELIN_OPTION_KEY = S2StatsJavelinConfig.JAVELIN_PREFIX + "property";
+    private static final String JAVELIN_OPTION_KEY = S2JavelinConfig.JAVELIN_PREFIX + "property";
 
     /** ê›íËÉtÉ@ÉCÉãñº */
     private String fileName_;
