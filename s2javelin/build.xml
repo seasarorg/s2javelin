@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Shift_JIS" ?>
 <project name="S2Javelin" default="dist" basedir=".">
 	<!-- このビルド用のグローバルプロパティを設定する -->
-	<property name="version" value="3.2.0" />
+	<property name="version" value="1.0.0" />
 	<property name="dist.zip.name" value="S2Javelin-V${version}.zip" />
 	<property name="dist.zip.dir"  value="s2javelin-${version}" />
 	
