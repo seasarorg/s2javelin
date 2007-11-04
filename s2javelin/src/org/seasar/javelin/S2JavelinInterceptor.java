@@ -53,7 +53,7 @@ import org.seasar.framework.log.Logger;
  * @version 0.2
  * @author On Eriguchi (SMG), Tetsu Hayakawa (SMG)
  */
-public class JavelinTraceInterceptor extends AbstractInterceptor
+public class S2JavelinInterceptor extends AbstractInterceptor
 {
     private static final long serialVersionUID = 6661781313519708185L;
 
@@ -126,7 +126,7 @@ public class JavelinTraceInterceptor extends AbstractInterceptor
      * Javelinログ出力用ロガー。
      */
     private static Logger logger_ = Logger
-            .getLogger(JavelinTraceInterceptor.class);
+            .getLogger(S2JavelinInterceptor.class);
 
     /**
      * 引数を出力するかどうか。
