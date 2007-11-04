@@ -62,6 +62,8 @@ public class S2JavelinConfig
     /** Javelinのログ出力ON/OFF切替フラグのプロパティ名 */
     private static final String  JAVELINENABLE_KEY           = JAVELIN_PREFIX + "javelinEnable";
 
+    /** 属性、戻り値情報の文字列長 */
+    private static final String  STRINGLIMITLENGTH_KEY       = JAVELIN_PREFIX + "stringLimitLength";
     
     private static final int     DEFAULT_INTERVALMAX         = 1000;
 
@@ -100,6 +102,8 @@ public class S2JavelinConfig
     private static final int     DEFAULT_HTTPPORT            = 0;
 
     private static final boolean DEFAULT_DEBUG               = false;
+
+    private static final int     DEFAULT_STRINGLIMITLENGTH   = 1024;
 
     /** Javelinログを出力するかどうかのデフォルト設定 */
     public static final boolean DEFAULT_JAVELINENABLE = false;
@@ -720,6 +724,18 @@ public class S2JavelinConfig
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         configUtil.setLong(STATISTICSTHRESHOLD_KEY, statisticsThreshold);
+    }
+    
+    public int getStringLimitLength()
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        return configUtil.getInteger(STRINGLIMITLENGTH_KEY, DEFAULT_STRINGLIMITLENGTH);
+    }
+
+    public void setStringLimitLength(int stringLimitLength)
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        configUtil.setLong(STRINGLIMITLENGTH_KEY, stringLimitLength);
     }
     
     /**

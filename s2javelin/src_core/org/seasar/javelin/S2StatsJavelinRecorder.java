@@ -312,14 +312,14 @@ public class S2StatsJavelinRecorder
                     if (config.isArgsDetail())
                     {
                         int argsDetailDepth = config.getArgsDetailDepth();
-                        argStrings[index] = StatsUtil.objectDetailPrinter(args[index],
-                                                                          argsDetailDepth, 0);
+                        argStrings[index] = 
+                        	StatsUtil.objectDetailPrinter(args[index],
+                                                          argsDetailDepth, 0);
                     }
-                    else
-                    {
-                        // TODO:文字列長の制限を追加する。Configクラスの拡張が必要。
-                        argStrings[index] = StatsUtil.toStr(args[index]);
-                    }
+                    
+                    argStrings[index] = 
+                    	StatsUtil.toStr(
+                    			args[index], config.getStringLimitLength());
                 }
                 node.setArgs(argStrings);
             }
@@ -365,11 +365,13 @@ public class S2StatsJavelinRecorder
                 {
                     int returnDetailDepth = config.getReturnDetailDepth();
                     returnString = StatsUtil.objectDetailPrinter(returnValue, returnDetailDepth, 0);
+                    returnString = StatsUtil.toStr(returnString, config.getStringLimitLength());
                 }
                 else
                 {
-                    // TODO:文字列長の制限を追加する。Configクラスの拡張が必要。
-                    returnString = StatsUtil.toStr(returnValue);
+                    returnString = 
+                    	StatsUtil.toStr(
+                    			returnValue, config.getStringLimitLength());
                 }
                 node.setReturnValue(returnString);
             }

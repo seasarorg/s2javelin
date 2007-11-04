@@ -140,7 +140,9 @@ public class JavelinLogMaker
                 jvnBuffer.append(i);
                 jvnBuffer.append("] = ");
 
-                jvnBuffer.append(StatsUtil.toStr(node.getArgs()[i]));
+                jvnBuffer.append(
+                		StatsUtil.toStr(node.getArgs()[i]
+                		                , config.getStringLimitLength()));
 
                 jvnBuffer.append(NEW_LINE);
             }
@@ -159,7 +161,9 @@ public class JavelinLogMaker
             }
             else
             {
-                jvnBuffer.append(StatsUtil.toStr(node.getReturnValue()));
+                jvnBuffer.append(
+                		StatsUtil.toStr(node.getReturnValue()
+                				        , config.getStringLimitLength()));
             }
             jvnBuffer.append(NEW_LINE);
             jvnBuffer.append("<<javelin.Return_END>>");
