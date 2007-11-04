@@ -30,7 +30,8 @@ public class Mx4JLauncher
             Set beanSet = server.queryMBeans(processorName, null);
             if (beanSet.size() > 0)
             {
-                XSLTProcessor[] processors = (XSLTProcessor[])beanSet.toArray(new XSLTProcessor[beanSet.size()]);
+                XSLTProcessor[] processors = 
+                	(XSLTProcessor[])beanSet.toArray(new XSLTProcessor[beanSet.size()]);
                 processor = (XSLTProcessor)(processors[0]);
             }
         }
@@ -48,7 +49,8 @@ public class Mx4JLauncher
             Set beanSet = server.queryMBeans(adaptorName, null);
             if (beanSet.size() > 0)
             {
-                HttpAdaptor[] adaptors = (HttpAdaptor[])beanSet.toArray(new HttpAdaptor[beanSet.size()]);
+                HttpAdaptor[] adaptors = 
+                	(HttpAdaptor[])beanSet.toArray(new HttpAdaptor[beanSet.size()]);
                 adaptor = (HttpAdaptor)(adaptors[0]);
             }
         }

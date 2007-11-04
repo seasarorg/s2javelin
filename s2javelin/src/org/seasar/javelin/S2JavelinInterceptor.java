@@ -2,6 +2,7 @@ package org.seasar.javelin;
 
 import java.io.PrintStream;
 import java.lang.reflect.Modifier;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -103,9 +104,9 @@ public class S2JavelinInterceptor extends AbstractInterceptor
     /**
      * Javelinログに出力する時刻データ整形用フォーマッタ。
      */
-    private ThreadLocal timeFormat_ = new ThreadLocal()
+    private ThreadLocal<DateFormat> timeFormat_ = new ThreadLocal<DateFormat>()
     {
-        protected synchronized Object initialValue()
+        protected synchronized DateFormat initialValue()
         {
             return new SimpleDateFormat(TIME_FORMAT_STR);
         }
@@ -114,9 +115,9 @@ public class S2JavelinInterceptor extends AbstractInterceptor
     /**
      * メソッドの呼び出し元オブジェクトを表す文字列。
      */
-    private ThreadLocal callerLog_ = new ThreadLocal()
+    private ThreadLocal<String> callerLog_ = new ThreadLocal<String>()
     {
-        protected synchronized Object initialValue()
+        protected synchronized String initialValue()
         {
             return "<unknown>,<unknown>,0";
         }
@@ -152,7 +153,8 @@ public class S2JavelinInterceptor extends AbstractInterceptor
      * 例外が発生したらこのマップにその例外を登録し、
      * キャッチされた時点で削除する。
      */
-    static private Map exceptionMap__ = Collections.synchronizedMap(new HashMap());
+    static private Map<String, Throwable> exceptionMap__ = 
+    	Collections.synchronizedMap(new HashMap<String, Throwable>());
     
     private S2JavelinConfig config_ = new S2JavelinConfig();
 
