@@ -53,7 +53,6 @@ public class JavelinLogMaker
         CallTreeNode parent = node.getParent();
         S2JavelinConfig config = new S2JavelinConfig();
         boolean isReturnDetail = config.isReturnDetail();
-        int returnDetailDepth = config.getReturnDetailDepth();
 
         StringBuffer jvnBuffer = new StringBuffer();
 
@@ -156,8 +155,7 @@ public class JavelinLogMaker
             jvnBuffer.append(NEW_LINE);
             if (isReturnDetail)
             {
-                jvnBuffer.append("Detail").append(returnDetailDepth).append("Depth: ");
-                jvnBuffer.append(node.getReturnValue());
+                jvnBuffer.append(StatsUtil.toStr(node.getReturnValue(), config.getStringLimitLength()));
             }
             else
             {
@@ -187,6 +185,8 @@ public class JavelinLogMaker
         if (messageType == ID_THROW)
         {
             jvnBuffer.append("<<javelin.StackTrace_START>>");
+            jvnBuffer.append(NEW_LINE);
+            jvnBuffer.append(node.getThrowable().getClass().getName() + ":" + node.getThrowable().getLocalizedMessage());
             jvnBuffer.append(NEW_LINE);
             StackTraceElement[] stacktrace = node.getThrowable().getStackTrace();
             for (int i = 0; i < stacktrace.length; i++)

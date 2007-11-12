@@ -13,6 +13,7 @@ import org.seasar.javelin.bean.Container;
 import org.seasar.javelin.bean.ContainerMBean;
 import org.seasar.javelin.bean.Invocation;
 import org.seasar.javelin.bean.InvocationMBean;
+import org.seasar.javelin.communicate.JavelinAcceptThread;
 import org.seasar.javelin.util.ObjectNameUtil;
 import org.seasar.javelin.util.StatsUtil;
 
@@ -55,6 +56,9 @@ public class S2StatsJavelinRecorder
     {
         try
         {
+            // エラーロガーを初期化する。
+            JavelinErrorLogger.initErrorLog(config);
+
             server = ManagementFactory.getPlatformMBeanServer();
 
             ContainerMBean container;
@@ -74,6 +78,11 @@ public class S2StatsJavelinRecorder
                 container = new Container();
                 server.registerMBean(container, containerName);
             }
+
+            // TCPでの接続受付を開始する。
+            int port = config.getAcceptPort();
+            JavelinAcceptThread.getInstance().start(port);
+
         }
         catch (Exception ex)
         {
@@ -126,6 +135,7 @@ public class S2StatsJavelinRecorder
                 isInitialized = true;
             }
         }
+
         try
         {
             // ルートクラス名を作る
@@ -213,6 +223,16 @@ public class S2StatsJavelinRecorder
     public static void preProcess(String className, String methodName, Object[] args,
             StackTraceElement[] stacktrace, S2JavelinConfig config)
     {
+        synchronized (S2StatsJavelinRecorder.class)
+        {
+            // 初期化処理
+            if (isInitialized == false)
+            {
+                javelinInit(config, server_);
+                isInitialized = true;
+            }
+        }
+
         Component component = MBeanManager.getComponent(className);
         Invocation invocation = component.getInvocation(methodName);
 
@@ -312,14 +332,11 @@ public class S2StatsJavelinRecorder
                     if (config.isArgsDetail())
                     {
                         int argsDetailDepth = config.getArgsDetailDepth();
-                        argStrings[index] = 
-                        	StatsUtil.objectDetailPrinter(args[index],
-                                                          argsDetailDepth, 0);
+                        argStrings[index] = StatsUtil.objectDetailPrinter(args[index],
+                                                                          argsDetailDepth, 0);
                     }
-                    
-                    argStrings[index] = 
-                    	StatsUtil.toStr(
-                    			args[index], config.getStringLimitLength());
+
+                    argStrings[index] = StatsUtil.toStr(args[index], config.getStringLimitLength());
                 }
                 node.setArgs(argStrings);
             }
@@ -369,9 +386,7 @@ public class S2StatsJavelinRecorder
                 }
                 else
                 {
-                    returnString = 
-                    	StatsUtil.toStr(
-                    			returnValue, config.getStringLimitLength());
+                    returnString = StatsUtil.toStr(returnValue, config.getStringLimitLength());
                 }
                 node.setReturnValue(returnString);
             }
@@ -433,7 +448,7 @@ public class S2StatsJavelinRecorder
                 // (下位レイヤで例外が発生した場合のため。)
                 return;
             }
-            
+
             if (cause_ != cause)
             {
                 node.setThrowable(cause);
@@ -452,7 +467,14 @@ public class S2StatsJavelinRecorder
                 // Javelinログファイルを出力する。
                 S2StatsJavelinFileGenerator generator = new S2StatsJavelinFileGenerator(
                                                                                         config.getJavelinFileDir());
-                generator.generateJaveinFile(callTree_.get(), node);
+                CallTreeNode callTreeNode = callerNode_.get();
+                CallTree callTree = callTree_.get();
+                generator.generateJaveinFile(callTree, callTreeNode);
+
+                // アラームを送信する。
+                sendExceedThresholdAlarm(node);
+
+                callerNode_.set(null);
             }
 
             if (cause_ == cause)
@@ -474,9 +496,34 @@ public class S2StatsJavelinRecorder
         }
     }
 
-    public static void preProcessField(String className, String methodName,
-            S2JavelinConfig config)
+    public static void dumpJavelinLog(S2JavelinConfig config)
     {
+        // Javelinログファイルを出力する。
+        S2StatsJavelinFileGenerator generator = new S2StatsJavelinFileGenerator(
+                                                                                config.getJavelinFileDir());
+        
+        
+        CallTree callTree = callTree_.get();
+        CallTreeNode root = callTree.getRootNode();
+        if (root != null && callTree != null)
+        {
+            generator.generateJaveinFile(callTree, root);
+
+        }
+    }
+
+    public static void preProcessField(String className, String methodName, S2JavelinConfig config)
+    {
+        synchronized (S2StatsJavelinRecorder.class)
+        {
+            // 初期化処理
+            if (isInitialized == false)
+            {
+                javelinInit(config, server_);
+                isInitialized = true;
+            }
+        }
+
         try
         {
             // 呼び出し元情報取得。

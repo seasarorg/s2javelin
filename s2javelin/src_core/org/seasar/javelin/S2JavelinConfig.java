@@ -59,12 +59,18 @@ public class S2JavelinConfig
 
     private static final String  DEBUG_KEY                   = JAVELIN_PREFIX + "debug";
 
+    /** StatsJavelinの待ちうけポートのプロパティ名 */
+    public static final String   ACCEPTPORT_KEY              = JAVELIN_PREFIX + "acceptPort";
+
     /** Javelinのログ出力ON/OFF切替フラグのプロパティ名 */
     private static final String  JAVELINENABLE_KEY           = JAVELIN_PREFIX + "javelinEnable";
 
     /** 属性、戻り値情報の文字列長 */
     private static final String  STRINGLIMITLENGTH_KEY       = JAVELIN_PREFIX + "stringLimitLength";
-    
+
+    /** エラーログファイルのプロパティ名 */
+    public static final String   ERRORLOG_KEY                = JAVELIN_PREFIX + "error.log";
+
     private static final int     DEFAULT_INTERVALMAX         = 1000;
 
     private static final int     DEFAULT_THROWABLEMAX        = 1000;
@@ -106,14 +112,20 @@ public class S2JavelinConfig
     private static final int     DEFAULT_STRINGLIMITLENGTH   = 1024;
 
     /** Javelinログを出力するかどうかのデフォルト設定 */
-    public static final boolean DEFAULT_JAVELINENABLE = false;
+    public static final boolean  DEFAULT_JAVELINENABLE       = false;
+
+    /** 待ちうけポート番号のデフォルト値 */
+    public static final int      DEFAULT_ACCEPTPORT          = 32000;
+
+    /** Javelin実行エラーメッセージの出力先パスのデフォルト値 */
+    public static final String   DEFAULT_ERRORLOG            = "log/error.log";
 
     /**
      * S2StatsJavelinの設定を保持するオブジェクトを作成する。
      */
     public S2JavelinConfig()
     {
-    	// 何もしない
+    // 何もしない
     }
 
     /**
@@ -725,7 +737,7 @@ public class S2JavelinConfig
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         configUtil.setLong(STATISTICSTHRESHOLD_KEY, statisticsThreshold);
     }
-    
+
     public int getStringLimitLength()
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
@@ -737,7 +749,7 @@ public class S2JavelinConfig
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         configUtil.setLong(STRINGLIMITLENGTH_KEY, stringLimitLength);
     }
-    
+
     /**
      * Javelinログを出力するかどうかの設定を返す。
      *
@@ -747,5 +759,27 @@ public class S2JavelinConfig
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         return configUtil.getBoolean(JAVELINENABLE_KEY, DEFAULT_JAVELINENABLE);
+    }
+
+    /**
+     * 待ちうけポート番号を返す。
+     *
+     * @return ポート番号
+     */
+    public int getAcceptPort()
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        return configUtil.getInteger(ACCEPTPORT_KEY, DEFAULT_ACCEPTPORT);
+    }
+
+    /**
+     * Javelin実行エラーメッセージの出力先パスを返す。
+     *
+     * @return パス
+     */
+    public String getErrorLog()
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        return configUtil.getString(ERRORLOG_KEY, DEFAULT_ERRORLOG);
     }
 }

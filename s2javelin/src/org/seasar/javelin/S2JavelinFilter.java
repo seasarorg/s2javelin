@@ -292,44 +292,49 @@ public class S2JavelinFilter implements Filter
         catch (IOException ex)
         {
             JmxRecorder.postProcess(ex);
+            S2StatsJavelinRecorder.postProcessField(config_);
             S2StatsJavelinRecorder.postProcess(ex, this.config_);
             throw ex;
         }
         catch (ServletException ex)
         {
             JmxRecorder.postProcess(ex);
+            S2StatsJavelinRecorder.postProcessField(config_);
             S2StatsJavelinRecorder.postProcess(ex, this.config_);
             throw ex;
         }
         catch (RuntimeException ex)
         {
             JmxRecorder.postProcess(ex);
+            S2StatsJavelinRecorder.postProcessField(config_);
             S2StatsJavelinRecorder.postProcess(ex, this.config_);
             throw ex;
         }
         catch (Error error)
         {
             JmxRecorder.postProcess(error);
+            S2StatsJavelinRecorder.postProcessField(config_);
             S2StatsJavelinRecorder.postProcess(error, this.config_);
             throw error;
         }
         
+        
         try
         {
-        	Object returnValue = null;
-        	if (this.config_.isLogReturn())
-        	{
-        		returnValue = createReturnValue(httpResponse);
-        	}
-        	
-            S2StatsJavelinRecorder.postProcessField(config_);
+            Object returnValue = null;
+            if (this.config_.isLogReturn())
+            {
+                returnValue = createReturnValue(httpResponse);
+            }
+            
 
             JmxRecorder.postProcess();
+            S2StatsJavelinRecorder.postProcessField(config_);
             S2StatsJavelinRecorder.postProcess(returnValue, this.config_);
         }
         catch(Throwable th)
         {
-        	th.printStackTrace();
+            th.printStackTrace();
         }
     }
 
@@ -358,7 +363,7 @@ public class S2JavelinFilter implements Filter
     private void printConfigValue()
     {
         PrintStream out = System.out;
-        out.println(">>>> Properties related with S2StatsJavelinFilter");
+        out.println(">>>> Properties related with S2JavelinFilter");
         out.println("\tjavelin.intervalMax             : " + this.config_.getIntervalMax());
         out.println("\tjavelin.throwableMax            : " + this.config_.getThrowableMax());
         out.println("\tjavelin.recordThreshold         : " + this.config_.getRecordThreshold());

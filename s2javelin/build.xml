@@ -4,13 +4,14 @@
 	<property name="version" value="1.0.0" />
 	<property name="dist.zip.name" value="S2Javelin-V${version}.zip" />
 	<property name="dist.zip.dir"  value="s2javelin-${version}" />
-	
+
 	<property name="src"          location="src" />
 	<property name="classes"      location="classes" />
 	<property name="src_core"     location="src_core" />
 	<property name="classes_core" location="classes_core" />
 	<property name="dist"         location="dist" />
 	<property name="doc"          location="doc" />
+	<property name="conf"         value="conf" />
 	<property name="lib"          location="lib" />
 	<property name="tmp"          location="tmp" />
 	<property name="tmp_s2jvn"    location="tmp/${dist.zip.dir}" />
@@ -43,6 +44,13 @@
 				<path path="${classes_core}" />
 			</classpath>
 		</javac>
+
+		<!-- リソースをコピーする -->
+		<copy todir="${classes}">
+			<fileset dir="${src}">
+				<exclude name="**/*.java"/>
+			</fileset>
+		</copy>
 	</target>
 
 	<target name="dist_jar" depends="compile" description="配布物を生成する">
@@ -55,38 +63,48 @@
 		<!-- jarを作成する -->
 		<jar jarfile="${dist}/s2javelin_core.jar" basedir="${classes_core}" />
 	</target>
-	
-	
+
+
 	<target name="dist" depends="compile" description="配布物を生成する">
 		<!-- distributionディレクトリを作成する -->
 		<mkdir dir="${dist}" />
 		<mkdir dir="${tmp}" />
 		<mkdir dir="${tmp_s2jvn}" />
+		<mkdir dir="${tmp_s2jvn}/${conf}" />
+		<mkdir dir="${tmp_s2jvn}/lib" />
+		<mkdir dir="${tmp_s2jvn}/src" />
 
 		<!-- jarを作成する -->
-		<jar jarfile="${tmp_s2jvn}/s2javelin.jar" basedir="${classes}" />
+		<jar jarfile="${tmp_s2jvn}/lib/s2javelin.jar" basedir="${classes}" />
 
 		<!-- jarを作成する -->
-		<jar jarfile="${tmp_s2jvn}/s2javelin_core.jar" basedir="${classes_core}" />
-		
+		<jar jarfile="${tmp_s2jvn}/lib/s2javelin_core.jar" basedir="${classes_core}" />
+
+		<!-- 設定ファイルをコピーする -->
+		<copy todir="${tmp_s2jvn}/${conf}">
+			<fileset dir="${conf}">
+				<include name="**/*.*"/>
+			</fileset>
+		</copy>
+
 		<!-- ドキュメントをコピーする -->
-    	<copy todir="${tmp_s2jvn}">
-            <fileset dir="${doc}">
-                <include name="**/*.*"/>
-            </fileset>
-    	</copy>
-		
+		<copy todir="${tmp_s2jvn}">
+			<fileset dir="${doc}">
+				<include name="**/*.*"/>
+			</fileset>
+		</copy>
+
 		<!-- ソースファイルをzipにする -->
-		<zip destfile="${tmp_s2jvn}/src.zip"      basedir="${src}"/>
-		<zip destfile="${tmp_s2jvn}/src_core.zip" basedir="${src_core}"/>
-		
+		<zip destfile="${tmp_s2jvn}/src/src.zip"      basedir="${src}"/>
+		<zip destfile="${tmp_s2jvn}/src/src_core.zip" basedir="${src_core}"/>
+
 		<!-- zipを生成する -->
 		<zip destfile="${dist}/${dist.zip.name}" basedir="${tmp}">
 		</zip>
-		
+
 		<!-- tmpを消す -->
 		<delete dir="${tmp}" />
-		
+
 	</target>
 
 	<target name="clean" description="クリーンアップ">
