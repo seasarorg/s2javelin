@@ -5,211 +5,263 @@ import java.util.List;
 
 import org.seasar.javelin.bean.Invocation;
 
-public class CallTreeNode
-{
-    private Invocation          invocation_;
+public class CallTreeNode {
+	private Invocation invocation_;
 
-    private String              returnValue_;
+	private String returnValue_;
 
-    private Throwable           throwable_;
+	private Throwable throwable_;
 
-    private long                throwTime_;
+	private long throwTime_;
 
-    private long                startTime_;
+	private long startTime_;
 
-    private long                endTime_;
+	private long endTime_;
 
-    private long                accumulatedTime_;
+	private long accumulatedTime_;
 
-    String[]                    args_;
+	private long startCpuTime_;
 
-    private StackTraceElement[] stacktrace_;
+	private long endCpuTime_;
 
-    private CallTreeNode        parent_;
+	private long startUserTime_;
 
-    private List<CallTreeNode>  children_ = new ArrayList<CallTreeNode>();
+	private long endUserTime_;
 
-    private boolean             isFieldAccess_;
+	private long startBlockedTime_;
 
-    public Invocation getInvocation()
-    {
-        return invocation_;
-    }
+	private long endBlockedTime_;
 
-    public void setInvocation(Invocation invocation)
-    {
-        invocation_ = invocation;
-    }
+	private long startWaitedTime_;
 
-    public String getReturnValue()
-    {
-        return returnValue_;
-    }
+	private long endWaitedTime_;
 
-    public void setReturnValue(String returnValue)
-    {
-        returnValue_ = returnValue;
-    }
 
-    public long getStartTime()
-    {
-        return startTime_;
-    }
+	String[] args_;
 
-    public void setStartTime(long startTime)
-    {
-        startTime_ = startTime;
-    }
+	private StackTraceElement[] stacktrace_;
 
-    public long getEndTime()
-    {
-        return endTime_;
-    }
+	private CallTreeNode parent_;
 
-    public void setEndTime(long endTime)
-    {
-        endTime_ = endTime;
-        accumulatedTime_ = endTime_ - startTime_;
-    }
+	private List<CallTreeNode> children_ = new ArrayList<CallTreeNode>();
 
-    public long getAccumulatedTime()
-    {
-        return accumulatedTime_;
-    }
+	private boolean isFieldAccess_;
 
-    public StackTraceElement[] getStacktrace()
-    {
-        return stacktrace_;
-    }
+	public Invocation getInvocation() {
+		return invocation_;
+	}
 
-    public void setStacktrace(StackTraceElement[] stacktrace)
-    {
-        stacktrace_ = stacktrace;
-    }
+	public void setInvocation(Invocation invocation) {
+		invocation_ = invocation;
+	}
 
-    public CallTreeNode getParent()
-    {
-        return parent_;
-    }
+	public String getReturnValue() {
+		return returnValue_;
+	}
 
-    public void setParent(CallTreeNode parent)
-    {
-        parent_ = parent;
-    }
+	public void setReturnValue(String returnValue) {
+		returnValue_ = returnValue;
+	}
 
-    public List getChildren()
-    {
-        return children_;
-    }
+	public long getStartTime() {
+		return startTime_;
+	}
 
-    public void addChild(CallTreeNode node)
-    {
-        children_.add(node);
-        node.setParent(this);
-    }
+	public void setStartTime(long startTime) {
+		startTime_ = startTime;
+	}
 
-    public String[] getArgs()
-    {
-        return args_;
-    }
+	public long getEndTime() {
+		return endTime_;
+	}
 
-    public void setArgs(String[] args)
-    {
-        args_ = args;
-    }
+	public void setEndTime(long endTime) {
+		endTime_ = endTime;
+		accumulatedTime_ = endTime_ - startTime_;
+	}
 
-    /**
-     * このノードの親ノードを削除する。
-     * 親ノードがない場合は何もしない。
-     *
-     * @param tree ツリー
-     */
-    public void removeParent(CallTree tree)
-    {
-        CallTreeNode parent = getParent();
-        if (parent != null)
-        {
-            // 親の親があれば、親の親の中に自分を入れる。
-            // 親の親がなければ、自分がツリーのルートになる。
-            CallTreeNode grandParent = parent.getParent();
-            if (grandParent != null)
-            {
-                int childIndex = grandParent.getChildIndex(parent);
-                if (childIndex != -1)
-                {
-                    grandParent.children_.set(childIndex, this);
-                    setParent(grandParent);
-                }
-            }
-            else
-            {
-                tree.setRootNode(this);
-                setParent(null);
-            }
-        }
-    }
+	public long getAccumulatedTime() {
+		return accumulatedTime_;
+	}
 
-    /**
-     * このノードをツリーから削除する。
-     *
-     * @return このノードの親
-     */
-    public CallTreeNode remove()
-    {
-        CallTreeNode parent = getParent();
-        if (parent != null)
-        {
-            parent.children_.remove(this);
-        }
-        return parent;
-    }
+	public StackTraceElement[] getStacktrace() {
+		return stacktrace_;
+	}
 
-    /**
-     * 指定されたノードが何番目の子ノードかを調べる。
-     *
-     * @param node ノード
-     * @return ノードの番号。子ノードでなければ -1
-     */
-    private int getChildIndex(CallTreeNode node)
-    {
-        return this.children_.indexOf(node);
-    }
+	public void setStacktrace(StackTraceElement[] stacktrace) {
+		stacktrace_ = stacktrace;
+	}
 
-    /**
-     * ノードがフィールドへのアクセスかどうかを示すフラグを取得する。
-     * @return フィールドアクセスならtrue、そうでなければfalseを返す。
-     */
-    public boolean isFieldAccess()
-    {
-        return isFieldAccess_;
-    }
+	public CallTreeNode getParent() {
+		return parent_;
+	}
 
-    /**
-     * ノードがフィールドへのアクセスかどうかを示すフラグを取得する。
-     * @param isFieldAccess フィールドアクセスならtrue、そうでなければfalse。
-     */
-    public void setFieldAccess(boolean isFieldAccess)
-    {
-        this.isFieldAccess_ = isFieldAccess;
-    }
+	public void setParent(CallTreeNode parent) {
+		parent_ = parent;
+	}
 
-    public Throwable getThrowable()
-    {
-        return throwable_;
-    }
+	public List getChildren() {
+		return children_;
+	}
 
-    public void setThrowable(Throwable throwable)
-    {
-        throwable_ = throwable;
-    }
+	public void addChild(CallTreeNode node) {
+		children_.add(node);
+		node.setParent(this);
+	}
 
-    public long getThrowTime()
-    {
-        return throwTime_;
-    }
+	public String[] getArgs() {
+		return args_;
+	}
 
-    public void setThrowTime(long throwTime)
-    {
-        throwTime_ = throwTime;
-    }
+	public void setArgs(String[] args) {
+		args_ = args;
+	}
+
+	/**
+	 * このノードの親ノードを削除する。 親ノードがない場合は何もしない。
+	 * 
+	 * @param tree
+	 *            ツリー
+	 */
+	public void removeParent(CallTree tree) {
+		CallTreeNode parent = getParent();
+		if (parent != null) {
+			// 親の親があれば、親の親の中に自分を入れる。
+			// 親の親がなければ、自分がツリーのルートになる。
+			CallTreeNode grandParent = parent.getParent();
+			if (grandParent != null) {
+				int childIndex = grandParent.getChildIndex(parent);
+				if (childIndex != -1) {
+					grandParent.children_.set(childIndex, this);
+					setParent(grandParent);
+				}
+			} else {
+				tree.setRootNode(this);
+				setParent(null);
+			}
+		}
+	}
+
+	/**
+	 * このノードをツリーから削除する。
+	 * 
+	 * @return このノードの親
+	 */
+	public CallTreeNode remove() {
+		CallTreeNode parent = getParent();
+		if (parent != null) {
+			parent.children_.remove(this);
+		}
+		return parent;
+	}
+
+	/**
+	 * 指定されたノードが何番目の子ノードかを調べる。
+	 * 
+	 * @param node
+	 *            ノード
+	 * @return ノードの番号。子ノードでなければ -1
+	 */
+	private int getChildIndex(CallTreeNode node) {
+		return this.children_.indexOf(node);
+	}
+
+	/**
+	 * ノードがフィールドへのアクセスかどうかを示すフラグを取得する。
+	 * 
+	 * @return フィールドアクセスならtrue、そうでなければfalseを返す。
+	 */
+	public boolean isFieldAccess() {
+		return isFieldAccess_;
+	}
+
+	/**
+	 * ノードがフィールドへのアクセスかどうかを示すフラグを取得する。
+	 * 
+	 * @param isFieldAccess
+	 *            フィールドアクセスならtrue、そうでなければfalse。
+	 */
+	public void setFieldAccess(boolean isFieldAccess) {
+		this.isFieldAccess_ = isFieldAccess;
+	}
+
+	public Throwable getThrowable() {
+		return throwable_;
+	}
+
+	public void setThrowable(Throwable throwable) {
+		throwable_ = throwable;
+	}
+
+	public long getThrowTime() {
+		return throwTime_;
+	}
+
+	public void setThrowTime(long throwTime) {
+		throwTime_ = throwTime;
+	}
+
+	public long getStartCpuTime() {
+		return startCpuTime_;
+	}
+
+	public void setStartCpuTime(long startCpuTime) {
+		startCpuTime_ = startCpuTime;
+	}
+
+	public long getEndCpuTime() {
+		return endCpuTime_;
+	}
+
+	public void setEndCpuTime(long endCpuTime) {
+		endCpuTime_ = endCpuTime;
+	}
+
+	public long getStartUserTime() {
+		return startUserTime_;
+	}
+
+	public void setStartUserTime(long startUserTime) {
+		startUserTime_ = startUserTime;
+	}
+
+	public long getEndUserTime() {
+		return endUserTime_;
+	}
+
+	public void setEndUserTime(long endUserTime) {
+		endUserTime_ = endUserTime;
+	}
+
+	public long getEndBlockedTime() {
+		return endBlockedTime_;
+	}
+
+	public void setEndBlockedTime(long endBlockedTime) {
+		endBlockedTime_ = endBlockedTime;
+	}
+
+	public long getStartBlockedTime() {
+		return startBlockedTime_;
+	}
+
+	public void setStartBlockedTime(long startBlockedTime) {
+		startBlockedTime_ = startBlockedTime;
+	}
+
+	public long getStartWaitedTime() {
+		return startWaitedTime_;
+	}
+
+	public void setStartWaitedTime(long startWaitedTime) {
+		startWaitedTime_ = startWaitedTime;
+	}
+
+	public long getEndWaitedTime() {
+		return endWaitedTime_;
+	}
+
+	public void setEndWaitedTime(long endWaitedTime) {
+		endWaitedTime_ = endWaitedTime;
+	}
 }
