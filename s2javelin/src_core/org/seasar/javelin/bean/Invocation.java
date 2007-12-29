@@ -40,6 +40,8 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
 
     private boolean           isReadFieldAccess_ = false;
 
+    private long intervalSum_ = 0;
+
     /**
      * 呼び出し情報を記録する際の閾値。 
      * 値（ミリ秒）を下回る処理時間の呼び出し情報は記録しない。
@@ -108,14 +110,7 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
             return 0;
         }
 
-        long sum = 0;
-        for (int index = 0; index < intervalList_.size(); index++)
-        {
-            Long value = (Long)(intervalList_.get(index));
-            sum = sum + value.longValue();
-        }
-
-        return sum / intervalList_.size();
+        return intervalSum_ / intervalList_.size();
     }
 
     public List getIntervalList()
@@ -152,15 +147,17 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
 
         return invocations;
     }
-
+    
     public synchronized void addInterval(long interval)
     {
         count_++;
 
+        intervalSum_ += interval;
         intervalList_.add(new Long(interval));
         while (intervalList_.size() > intervalMax_)
         {
-            intervalList_.removeFirst();
+            Long firstLong = (Long)intervalList_.removeFirst();
+            intervalSum_ -= firstLong.longValue();
         }
 
         if (interval < minimum_ || minimum_ == INITIAL)
@@ -254,6 +251,7 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
         count_ = 0;
         minimum_ = INITIAL;
         maximum_ = INITIAL;
+        intervalSum_ = 0;
 
         intervalList_.clear();
         throwableList_.clear();

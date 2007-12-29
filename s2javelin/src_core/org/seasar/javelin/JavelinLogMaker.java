@@ -158,18 +158,20 @@ public class JavelinLogMaker {
 			jvnBuffer.append("<<javelin.ThreadInfo_START>>");
 			jvnBuffer.append(NEW_LINE);
 			jvnBuffer.append("user time   :");
-			jvnBuffer.append((node.getEndUserTime() - node.getStartUserTime()));
+			jvnBuffer.append((node.getEndVmStatus().getUserTime() 
+					- node.getStartVmStatus().getUserTime()));
 			jvnBuffer.append(NEW_LINE);
 			jvnBuffer.append("cpu time    :");
-			jvnBuffer.append((node.getEndCpuTime() - node.getStartCpuTime()));
+			jvnBuffer.append((node.getEndVmStatus().getCpuTime() 
+					- node.getStartVmStatus().getCpuTime()));
 			jvnBuffer.append(NEW_LINE);
 			jvnBuffer.append("blocked time:");
-			jvnBuffer.append((node.getEndBlockedTime() - node
-					.getStartBlockedTime()));
+			jvnBuffer.append((node.getEndVmStatus().getBlockedTime() 
+					- node.getStartVmStatus().getBlockedTime()));
 			jvnBuffer.append(NEW_LINE);
 			jvnBuffer.append("waited time :");
-			jvnBuffer.append((node.getEndWaitedTime() - node
-					.getStartWaitedTime()));
+			jvnBuffer.append((node.getEndVmStatus().getWaitedTime() 
+					- node.getStartVmStatus().getWaitedTime()));
 			jvnBuffer.append(NEW_LINE);
 			jvnBuffer.append("<<javelin.ThreadInfo_END>>");
 			jvnBuffer.append(NEW_LINE);

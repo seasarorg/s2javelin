@@ -9,6 +9,7 @@ import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+
 /**
  * Javelinの実行時エラーのロガークラス。<br>
  * 

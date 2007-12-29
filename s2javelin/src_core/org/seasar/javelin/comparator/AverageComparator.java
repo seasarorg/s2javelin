@@ -3,7 +3,7 @@ package org.seasar.javelin.comparator;
 import java.io.Serializable;
 import java.util.Comparator;
 
-import org.seasar.javelin.bean.Invocation;;
+import org.seasar.javelin.bean.Invocation;
 
 public class AverageComparator implements Comparator, Serializable
 {

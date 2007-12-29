@@ -1,5 +1,7 @@
 package org.seasar.javelin;
 
+import org.seasar.javelin.util.JavelinConfigUtil;
+
 /**
  * S2StatsJavelinの設定を保持するクラス。
  */
@@ -36,6 +38,8 @@ public class S2JavelinConfig
     private static final String  LOG_STACKTRACE_KEY          = JAVELIN_PREFIX + "log.stacktrace";
 
     private static final String  LOG_ARGS_KEY                = JAVELIN_PREFIX + "log.args";
+
+    private static final String  LOG_JMXNFO_KEY              = JAVELIN_PREFIX + "log.jmxinfo";
 
     private static final String  LOG_RETURN_KEY              = JAVELIN_PREFIX + "log.return";
 
@@ -89,6 +93,8 @@ public class S2JavelinConfig
 
     private static final boolean DEFAULT_LOG_ARGS            = true;
 
+    private static final boolean DEFAULT_LOG_JMXINFO         = true;
+
     private static final boolean DEFAULT_LOG_RETURN          = true;
 
     private static final boolean DEFAULT_ARGS_DETAIL         = false;
@@ -125,7 +131,7 @@ public class S2JavelinConfig
      */
     public S2JavelinConfig()
     {
-    // 何もしない
+        // 何もしない
     }
 
     /**
@@ -428,6 +434,17 @@ public class S2JavelinConfig
     }
 
     /**
+     * JMXによって取得した情報を出力するかどうかの設定を返す。
+     *
+     * @return JMXによって取得した情報を出力するならtrue
+     */
+    public boolean isLogJmxInfo()
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        return configUtil.getBoolean(LOG_JMXNFO_KEY, DEFAULT_LOG_JMXINFO);
+    }
+
+    /**
      * 引数を出力するかどうかが設定されているかどうかを調べる。
      *
      * @return 設定されていればtrue
@@ -446,6 +463,17 @@ public class S2JavelinConfig
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         configUtil.setBoolean(LOG_ARGS_KEY, isLogArgs);
+    }
+
+    /**
+     * JMXによって取得した情報を出力するかどうかを設定する。
+     *
+     * @param isLogJmxInfo JMXによって取得した情報を出力するならtrue
+     */
+    public void setLogJmxInfo(boolean isLogJmxInfo)
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        configUtil.setBoolean(LOG_JMXNFO_KEY, isLogJmxInfo);
     }
 
     /**

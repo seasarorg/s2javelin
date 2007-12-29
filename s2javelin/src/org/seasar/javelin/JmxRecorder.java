@@ -13,6 +13,7 @@ import org.seasar.javelin.bean.Invocation;
 import org.seasar.javelin.bean.InvocationMBean;
 import org.seasar.javelin.bean.Statistics;
 import org.seasar.javelin.bean.StatisticsMBean;
+import org.seasar.javelin.communicate.JmxListener;
 
 public class JmxRecorder
 {

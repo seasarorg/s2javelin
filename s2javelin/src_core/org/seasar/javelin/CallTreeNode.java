@@ -20,24 +20,11 @@ public class CallTreeNode {
 
 	private long accumulatedTime_;
 
-	private long startCpuTime_;
+	private VMStatus startVmStatus_;
 
-	private long endCpuTime_;
+    private VMStatus endVmStatus_;
 
-	private long startUserTime_;
-
-	private long endUserTime_;
-
-	private long startBlockedTime_;
-
-	private long endBlockedTime_;
-
-	private long startWaitedTime_;
-
-	private long endWaitedTime_;
-
-
-	String[] args_;
+	private String[] args_;
 
 	private StackTraceElement[] stacktrace_;
 
@@ -201,67 +188,23 @@ public class CallTreeNode {
 		throwTime_ = throwTime;
 	}
 
-	public long getStartCpuTime() {
-		return startCpuTime_;
-	}
+    public VMStatus getEndVmStatus( )
+    {
+        return this.endVmStatus_;
+    }
 
-	public void setStartCpuTime(long startCpuTime) {
-		startCpuTime_ = startCpuTime;
-	}
+    public VMStatus getStartVmStatus( )
+    {
+        return this.startVmStatus_;
+    }
 
-	public long getEndCpuTime() {
-		return endCpuTime_;
-	}
+    public void setEndVmStatus(VMStatus endVmStatus)
+    {
+        this.endVmStatus_ = endVmStatus;
+    }
 
-	public void setEndCpuTime(long endCpuTime) {
-		endCpuTime_ = endCpuTime;
-	}
-
-	public long getStartUserTime() {
-		return startUserTime_;
-	}
-
-	public void setStartUserTime(long startUserTime) {
-		startUserTime_ = startUserTime;
-	}
-
-	public long getEndUserTime() {
-		return endUserTime_;
-	}
-
-	public void setEndUserTime(long endUserTime) {
-		endUserTime_ = endUserTime;
-	}
-
-	public long getEndBlockedTime() {
-		return endBlockedTime_;
-	}
-
-	public void setEndBlockedTime(long endBlockedTime) {
-		endBlockedTime_ = endBlockedTime;
-	}
-
-	public long getStartBlockedTime() {
-		return startBlockedTime_;
-	}
-
-	public void setStartBlockedTime(long startBlockedTime) {
-		startBlockedTime_ = startBlockedTime;
-	}
-
-	public long getStartWaitedTime() {
-		return startWaitedTime_;
-	}
-
-	public void setStartWaitedTime(long startWaitedTime) {
-		startWaitedTime_ = startWaitedTime;
-	}
-
-	public long getEndWaitedTime() {
-		return endWaitedTime_;
-	}
-
-	public void setEndWaitedTime(long endWaitedTime) {
-		endWaitedTime_ = endWaitedTime;
-	}
+    public void setStartVmStatus(VMStatus startVmStatus)
+    {
+        this.startVmStatus_ = startVmStatus;
+    }
 }

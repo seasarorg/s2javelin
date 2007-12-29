@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 
 
-import org.seasar.javelin.AlarmListener;
 import org.seasar.javelin.JavelinErrorLogger;
 import org.seasar.javelin.S2StatsJavelinRecorder;
 import org.seasar.javelin.bean.Invocation;
@@ -181,7 +180,7 @@ public class JavelinAcceptThread implements Runnable, AlarmListener
     public void sendExceedThresholdAlarm(Invocation invocation)
     {
         Telegram objTelegram = TelegramUtil.create(
-                                                   Arrays.asList((Object[])new Invocation[]{invocation}),
+                                                   Arrays.asList(new Object[]{invocation}),
                                                    Common.BYTE_TELEGRAM_KIND_ALERT,
                                                    Common.BYTE_REQUEST_KIND_NOTIFY);
 
