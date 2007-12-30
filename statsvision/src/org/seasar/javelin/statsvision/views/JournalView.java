@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.part.ViewPart;
 import org.seasar.javelin.statsvision.event.DataChangeListener;
@@ -29,244 +30,272 @@ import org.seasar.javelin.statsvision.util.NormalDateFormatter;
  * 
  * @author cero-t
  */
-public class JournalView  extends ViewPart implements DataChangeListener {
+public class JournalView extends ViewPart implements DataChangeListener
+{
 
     /** このビューの中で使用するビューア（テーブルやリスト） */
-    private Control viewer_;
+    private Control          viewer_;
 
-	private MainCtrl main_;
-    
+    /** このビューで保持するイベントの最大数。これを超えると、最も古いイベントから削除される。 */
+    private static final int JOURNAL_MAX = 1000;
+
+    private MainCtrl         main_;
+
     /**
-	 * ビューを生成しする。
-	 * またコンテキストメニュー、ツールバー、
-	 * ダブルクリック時のアクションなどを初期化する。
-	 * 
-	 * @param parent 親のウィジット
-	 * @see org.eclipse.ui.IWorkbenchPart#createPartControl(org.eclipse.swt.widgets.Composite)
-	 */
-	public void createPartControl(Composite parent)
+     * ビューを生成しする。
+     * またコンテキストメニュー、ツールバー、
+     * ダブルクリック時のアクションなどを初期化する。
+     * 
+     * @param parent 親のウィジット
+     * @see org.eclipse.ui.IWorkbenchPart#createPartControl(org.eclipse.swt.widgets.Composite)
+     */
+    public void createPartControl(Composite parent)
     {
-	    this.viewer_ = createComposite(parent);
-		if(this.viewer_ != null)
-		{
-	        hookContextMenu();
-		}
+        this.viewer_ = createComposite(parent);
+        if (this.viewer_ != null)
+        {
+            hookContextMenu();
+        }
         init();
-	}
+    }
+
     /**
      * コンテキストメニューを初期化し、マウス操作で表示されるようにする。
      * メニューの項目は、fillContextMenuによって生成する。
      *
      */
-	private void hookContextMenu()
+    private void hookContextMenu()
     {
         //メニューマネージャを初期化する。
-		MenuManager menuMgr = new MenuManager("#PopupMenu");
-        
-		menuMgr.setRemoveAllWhenShown(true);
-		menuMgr.addMenuListener(new IMenuListener() {
-			public void menuAboutToShow(IMenuManager manager) {
-			}
-		});
-        
-	    Menu menu = menuMgr.createContextMenu(this.viewer_);
-	    this.viewer_.setMenu(menu);
-	}
-	
-	/**
-	 * ビューで用いるテーブルを生成する。
-	 *  
-	 * @param parent 親のウィジット
-	 * @return テーブル
-	 * @see jp.co.smg.efv.views.AbstractView#createComposite(org.eclipse.swt.widgets.Composite)
-	 */
+        MenuManager menuMgr = new MenuManager("#PopupMenu");
+
+        menuMgr.setRemoveAllWhenShown(true);
+        menuMgr.addMenuListener(new IMenuListener() {
+            public void menuAboutToShow(IMenuManager manager)
+            {}
+        });
+
+        Menu menu = menuMgr.createContextMenu(this.viewer_);
+        this.viewer_.setMenu(menu);
+    }
+
+    /**
+     * ビューで用いるテーブルを生成する。
+     *  
+     * @param parent 親のウィジット
+     * @return テーブル
+     * @see jp.co.smg.efv.views.AbstractView#createComposite(org.eclipse.swt.widgets.Composite)
+     */
     public Control createComposite(Composite parent)
     {
-		this.main_ = MainCtrl.getInstance();
+        this.main_ = MainCtrl.getInstance();
 
-		//テーブルのビューアを生成する。
-		tbv =
-			new TableViewer(
-				parent,
-				SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI
-				/*| SWT.VIRTUAL*/);
-		
-		//コンテンツプロバイダをセットする。
-		tbv.setContentProvider(new TableContentProvider());
-		
-		//ラベルプロバイダをセットする。
-		tbv.setLabelProvider(getLabelProvider());
+        //テーブルのビューアを生成する。
+        tbv = new TableViewer(parent, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI
+        /*| SWT.VIRTUAL*/);
+
+        //コンテンツプロバイダをセットする。
+        tbv.setContentProvider(new TableContentProvider());
+
+        //ラベルプロバイダをセットする。
+        tbv.setLabelProvider(getLabelProvider());
 
         //テーブルヘッダを初期化する。
         initTableHeader(tbv);
-		
-		//テーブルに表示する対象となる要素を取得し、ビューアにセットする。
-		Object inputElement = getInputElement(this.main_);
-		tbv.setInput(inputElement);
-		
-		return this.tbv.getControl();
+
+        //テーブルに表示する対象となる要素を取得し、ビューアにセットする。
+        Object inputElement = getInputElement(this.main_);
+        tbv.setInput(inputElement);
+
+        return this.tbv.getControl();
     }
 
-	
-	private TableViewer tbv;
+    private TableViewer         tbv;
 
-	static final private String COLMUN_TIME = "Time";
+    static final private String COLMUN_TIME     = "Time";
 
-	static final private String COLMUN_NODE = "Node";
+    static final private String COLMUN_NODE     = "Node";
 
-	static final private String COLMUN_NAME = "Name";
+    static final private String COLMUN_NAME     = "Name";
 
-	static final private String COLMUN_DURATION = "Duration";
+    static final private String COLMUN_DURATION = "Duration";
 
-	public JournalView() {
-	}
+    public JournalView()
+    {}
 
-	protected void init() {
-		MainCtrl.getInstance().addDataChangeListeners(this);
-	}
+    protected void init()
+    {
+        MainCtrl.getInstance().addDataChangeListeners(this);
+    }
 
-	public void updateData(final Object element) {
-		Display.getDefault().asyncExec(new Runnable() {
-			public void run() {
-				addInputElement(element);
-			}
-		});
-	}
+    public void updateData(final Object element)
+    {
+        Display.getDefault().asyncExec(new Runnable() {
+            public void run()
+            {
+                addInputElement(element);
+            }
+        });
+    }
 
-	public void addInputElement(Object element) {
-		this.tbv.add(element);
-	}
+    public void addInputElement(Object element)
+    {
+        this.tbv.add(element);
+        Table table = this.tbv.getTable();
+        int itemCount = table.getItemCount();
 
-	/**
-	 * テーブルで表現する内容を取得する。 このビューの場合は、アクションのリストを返す。
-	 * 
-	 * 
-	 */
-	protected Object getInputElement(MainCtrl main) {
-		List list = main.getInvocationList();
-		return list;
-	}
+        if (itemCount > JOURNAL_MAX)
+        {
+            table.remove(0);
+            itemCount--;
+        }
 
-	public void addEvent() {
+        int row = itemCount - 1;
 
-	}
+        table.showItem(table.getItem(row));
+    }
 
-	/**
-	 * ラベルプロバイダを返す。
-	 */
-	protected IBaseLabelProvider getLabelProvider() {
-		return new ActionListLabelProvider();
-	}
+    /**
+     * テーブルで表現する内容を取得する。 このビューの場合は、アクションのリストを返す。
+     * 
+     * 
+     */
+    protected Object getInputElement(MainCtrl main)
+    {
+        List list = main.getInvocationList();
+        return list;
+    }
 
-	/**
-	 * 
-	 * @see org.eclipse.ui.IWorkbenchPart#setFocus()
-	 */
-	public void setFocus() {
-	}
+    public void addEvent()
+    {
 
-	/**
-	 * テーブルヘッダを初期化する。
-	 * 
-	 */
-	protected void initTableHeader(TableViewer tbv) {
-		TableColumn column = new TableColumn(tbv.getTable(), SWT.LEFT);
+    }
 
-		column = new TableColumn(tbv.getTable(), SWT.LEFT);
-		column.setText(COLMUN_TIME);
-		column.setWidth(140);
+    /**
+     * ラベルプロバイダを返す。
+     */
+    protected IBaseLabelProvider getLabelProvider()
+    {
+        return new ActionListLabelProvider();
+    }
 
-		column = new TableColumn(tbv.getTable(), SWT.LEFT);
-		column.setText(COLMUN_NODE);
-		column.setWidth(100);
+    /**
+     * 
+     * @see org.eclipse.ui.IWorkbenchPart#setFocus()
+     */
+    public void setFocus()
+    {}
 
-		column = new TableColumn(tbv.getTable(), SWT.LEFT);
-		column.setText(COLMUN_NAME);
-		column.setWidth(100);
+    /**
+     * テーブルヘッダを初期化する。
+     * 
+     */
+    protected void initTableHeader(TableViewer tbv)
+    {
+        TableColumn column = new TableColumn(tbv.getTable(), SWT.LEFT);
 
-		column = new TableColumn(tbv.getTable(), SWT.LEFT);
-		column.setText(COLMUN_DURATION);
-		column.setWidth(70);
+        column = new TableColumn(tbv.getTable(), SWT.LEFT);
+        column.setText(COLMUN_TIME);
+        column.setWidth(140);
 
-		tbv.getTable().setHeaderVisible(true);
-		this.tbv = tbv;
-	}
+        column = new TableColumn(tbv.getTable(), SWT.LEFT);
+        column.setText(COLMUN_NODE);
+        column.setWidth(100);
 
-	class ActionListLabelProvider implements ITableLabelProvider,
-			ITableColorProvider {
-		/**
-		 * elementを表す行の、column_index列目のテキストを返す。
-		 * 
-		 * @param element
-		 * @param column_index
-		 * @return
-		 * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnText(java.lang.Object,
-		 *      int)
-		 */
-		public String getColumnText(Object element, int column_index) {
-			String ret;
+        column = new TableColumn(tbv.getTable(), SWT.LEFT);
+        column.setText(COLMUN_NAME);
+        column.setWidth(100);
 
-			InvocationModel invocation = (InvocationModel) element;
+        column = new TableColumn(tbv.getTable(), SWT.LEFT);
+        column.setText(COLMUN_DURATION);
+        column.setWidth(70);
 
-			// TODO 行番号にハードコードした実装としたため、改善したい。。
-			switch (column_index) {
-			case 0:
-				ret = "-";
-				break;
-			case 1:
-				long time = invocation.getDate().getTime();
-				ret = NormalDateFormatter.format(time);
-				break;
-			case 2:
-				ret = invocation.getClassName();
-				break;
-			case 3:
-				ret = invocation.getMethodName();
-				break;
-			case 4:
-				ret = String.valueOf(invocation.getAverage());
-				break;
-			default:
-				ret = "";
-			}
+        tbv.getTable().setHeaderVisible(true);
+        this.tbv = tbv;
+    }
 
-			if (ret == null) {
-				return "";
-			}
+    class ActionListLabelProvider implements ITableLabelProvider, ITableColorProvider
+    {
+        /**
+         * elementを表す行の、column_index列目のテキストを返す。
+         * 
+         * @param element
+         * @param column_index
+         * @return
+         * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnText(java.lang.Object,
+         *      int)
+         */
+        public String getColumnText(Object element, int column_index)
+        {
+            String ret;
 
-			return ret;
-		}
+            InvocationModel invocation = (InvocationModel)element;
 
-		public Image getColumnImage(Object element, int column_index) {
-			return null;
-		}
+            // TODO 行番号にハードコードした実装としたため、改善したい。。
+            switch (column_index)
+            {
+            case 0:
+                ret = "-";
+                break;
+            case 1:
+                long time = invocation.getDate().getTime();
+                ret = NormalDateFormatter.format(time);
+                break;
+            case 2:
+                ret = invocation.getClassName();
+                break;
+            case 3:
+                ret = invocation.getMethodName();
+                break;
+            case 4:
+                ret = String.valueOf(invocation.getAverage());
+                break;
+            default:
+                ret = "";
+            }
 
-		public Color getBackground(Object element, int columnIndex) {
-			// TODO TANIMOTO 閾値の設定は検討する必要あり
-			if (element == null
-					|| ((InvocationModel) element).getAverage() < 50) {
-				return null;
-			}
+            if (ret == null)
+            {
+                return "";
+            }
 
-			return new Color(null, 255, 0, 0);
-		}
+            return ret;
+        }
 
-		public Color getForeground(Object element, int columnIndex) {
-			// TODO 自動生成されたメソッド・スタブ
-			return null;
-		}
+        public Image getColumnImage(Object element, int column_index)
+        {
+            return null;
+        }
 
-		public void addListener(ILabelProviderListener ilabelproviderlistener) {
-		}
+        public Color getBackground(Object element, int columnIndex)
+        {
+            // TODO TANIMOTO 閾値の設定は検討する必要あり
+            if (element == null || ((InvocationModel)element).getAverage() < 50)
+            {
+                return null;
+            }
 
-		public void dispose() {
-		}
+            return new Color(null, 255, 0, 0);
+        }
 
-		public boolean isLabelProperty(Object obj, String s) {
-			return false;
-		}
+        public Color getForeground(Object element, int columnIndex)
+        {
+            // TODO 自動生成されたメソッド・スタブ
+            return null;
+        }
 
-		public void removeListener(ILabelProviderListener ilabelproviderlistener) {
-		}
-	}
+        public void addListener(ILabelProviderListener ilabelproviderlistener)
+        {}
+
+        public void dispose()
+        {}
+
+        public boolean isLabelProperty(Object obj, String s)
+        {
+            return false;
+        }
+
+        public void removeListener(ILabelProviderListener ilabelproviderlistener)
+        {}
+    }
 }

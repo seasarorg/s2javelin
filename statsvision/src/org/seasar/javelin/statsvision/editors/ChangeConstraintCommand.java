@@ -13,6 +13,14 @@ public class ChangeConstraintCommand extends Command
 
 	private Rectangle oldConstraint; // 以前の制約
 
+	private StatsVisionEditor statsVisionEditor_;
+
+	public ChangeConstraintCommand(StatsVisionEditor editor)
+	{
+		super();
+		statsVisionEditor_ = editor;
+	}
+	
 	// オーバーライド
 	public void execute()
 	{
@@ -20,6 +28,7 @@ public class ChangeConstraintCommand extends Command
 		constraint.height = -1;
 		constraint.width  = -1;
 		model_.setConstraint(constraint);
+		statsVisionEditor_.setDirty(true);
 	}
 
 	public void setConstraint(Rectangle rect)
