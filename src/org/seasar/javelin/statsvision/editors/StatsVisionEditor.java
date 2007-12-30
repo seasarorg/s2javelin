@@ -1,54 +1,58 @@
 package org.seasar.javelin.statsvision.editors;
 
+import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.ui.IEditorPart;
 import org.seasar.javelin.statsvision.communicate.Telegram;
 import org.seasar.javelin.statsvision.editpart.ComponentEditPart;
 
 public interface StatsVisionEditor extends IEditorPart {
 
-	public abstract void connect();
+	void connect();
 
-	public abstract void disconnect();
+	void disconnect();
 
 	/**
 	 * 初期表示
 	 */
-	public abstract void initializeGraphicalViewer();
+	void initializeGraphicalViewer();
 
 	/**
 	 * 通信の開始
 	 */
-	public abstract void start();
+	void start();
 
 	/**
 	 * 通信の終了
 	 */
-	public abstract void stop();
+	void stop();
 
-	public abstract void setDomain(String domain);
+	void setDomain(String domain);
 
-	public abstract void setHostName(String hostName);
+	void setHostName(String hostName);
 
-	public abstract void setPortNum(int portNum);
+	void setPortNum(int portNum);
 
+	void setMode(String mode);
+	
 	// サーバIPを取得する
-	public abstract String getHostName();
+	String getHostName();
 
 	// サーバPortを取得する
-	public abstract int getPortNum();
+	int getPortNum();
 
-	public abstract void setWarningThreshold(long warningThreshold);
+	void setWarningThreshold(long warningThreshold);
 
-	public abstract void setAlarmThreshold(long alarmThreshold);
+	void setAlarmThreshold(long alarmThreshold);
 
-	public abstract void setBlnReload(boolean blnReload);
+	void setBlnReload(boolean blnReload);
 
-	public abstract void reset();
+	void reset();
 
-	public abstract void listeningGraphicalViewer(Telegram telegram);
+	void listeningGraphicalViewer(Telegram telegram);
 
-	public abstract void addResponseTelegram(Telegram telegram);
+	void addResponseTelegram(Telegram telegram);
 
-	public abstract void setComponentEditPart(ComponentEditPart componentPart);
-
+	void setComponentEditPart(ComponentEditPart componentPart);
+	
+	void setDirty(boolean isDirty);
 }

@@ -24,7 +24,7 @@ public class StatsVisionEditPartFactory implements EditPartFactory
 		// ƒ‚ƒfƒ‹‚ÌŒ^‚ğ’²‚×‚Ä‘Î‰‚·‚éEditPart‚ğì¬
 		if (model instanceof ContentsModel)
 		{
-			part = new ContentsEditPart();
+			part = new ContentsEditPart(statsVisionEditor);
 		}
 		else if (model instanceof ComponentModel)
 		{

@@ -9,17 +9,26 @@ import org.eclipse.gef.requests.CreateRequest;
 
 public class StatsVisionXYLayoutEditPolicy extends XYLayoutEditPolicy
 {
+	private StatsVisionEditor statsVisionEditor_;
 
+	public StatsVisionXYLayoutEditPolicy(StatsVisionEditor editor)
+	{
+		super();
+		statsVisionEditor_ = editor;
+	}
+	
 	protected Command createAddCommand(EditPart child, Object constraint)
 	{
 		return null;
 	}
 
-	protected Command createChangeConstraintCommand(EditPart child,
+	protected Command createChangeConstraintCommand(
+			EditPart child,
 			Object constraint)
 	{
 		// コマンドの作成
-		ChangeConstraintCommand command = new ChangeConstraintCommand();
+		ChangeConstraintCommand command = 
+			new ChangeConstraintCommand(statsVisionEditor_);
 		// 編集対象のモデルの設定
 		command.setModel(child.getModel());
 		command.setConstraint((Rectangle) constraint);

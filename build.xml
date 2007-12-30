@@ -6,7 +6,6 @@
     <property name="image.dir"         value="${basedir}/icons"/>
     <property name="cnf.dir"           value="${basedir}/cnf"/>
     <property name="dist.dir"          value="${basedir}/dist"/>
-	<property name="eclipsePlugin.dir" value="C:/software/eclipse3_2/plugins"/> <!-- 環境依存なので、対処が必要 -->
 
     <!-- Project settings -->
     <property name="jarname" value="statsvision"/>
@@ -41,7 +40,7 @@
 
     <!-- Normal build of application -->
     <target name="compile" depends="clean">
-        <javac srcdir="${src.dir}" destdir="${bin.dir}" fork="true" debug="true">
+        <javac srcdir="${src.dir}" destdir="${bin.dir}" fork="false" debug="true">
             <classpath refid="compile.classpath"/>
         </javac>
     </target>

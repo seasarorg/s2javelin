@@ -34,7 +34,7 @@
    <extension
          point="org.eclipse.ui.views">
        <category
-            name="ENdoSnipe"
+            name="StatsVision"
             id="org.seasar.javelin.statsvision.views"/>
       <view
             icon="icons/file.gif"

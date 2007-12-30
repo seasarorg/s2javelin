@@ -2,9 +2,7 @@ package org.seasar.javelin.statsvision.editors;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,11 +18,9 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.GraphicalViewer;
-import org.eclipse.gef.ui.parts.GraphicalEditor;
 import org.seasar.javelin.statsvision.communicate.Telegram;
 import org.seasar.javelin.statsvision.editpart.ComponentEditPart;
 import org.seasar.javelin.statsvision.editpart.StatsVisionEditPartFactory;
@@ -33,18 +29,8 @@ import org.seasar.javelin.statsvision.model.ComponentModel;
 import org.seasar.javelin.statsvision.model.ContentsModel;
 import org.seasar.javelin.statsvision.model.InvocationModel;
 
-public class JmxStatsVisionEditor extends GraphicalEditor implements
-		StatsVisionEditor {
-	private String hostName_ = "";
-
-	private int portNum_ = 0;
-
-	private String domain_ = "";
-
-	private long warningThreshold_ = Long.MAX_VALUE;
-
-	private long alarmThreshold_ = Long.MAX_VALUE;
-
+public class JmxStatsVisionEditor extends AbstractStatsVisionEditor<ObjectName> {
+	
 	/**
 	 * ListeningÇ∑ÇÈÇ∆Ç´ÅAèâä˙ï\é¶éûégÇ§EditPartÇéùÇ¬
 	 */
@@ -61,54 +47,6 @@ public class JmxStatsVisionEditor extends GraphicalEditor implements
 		layoutModel(componentMap);
 
 		viewer.setContents(rootModel);
-	}
-
-	private void layoutModel(Map<ObjectName, ComponentModel> componentMap) {
-		Map<Integer, List<ComponentModel>> rankMap = new HashMap<Integer, List<ComponentModel>>();
-
-		for (ComponentModel component : componentMap.values()) {
-			int rank = getRank(0, component);
-			if (rankMap.containsKey(rank)) {
-				rankMap.get(rank).add(component);
-			} else {
-				List<ComponentModel> list = new ArrayList<ComponentModel>();
-				list.add(component);
-				rankMap.put(rank, list);
-			}
-
-		}
-
-		for (int rank : rankMap.keySet()) {
-			List<ComponentModel> list = rankMap.get(rank);
-			int order = 32;
-			for (ComponentModel component : list) {
-				component.getConstraint().x = rank * 240 + 32;
-				component.getConstraint().y = order;
-				order = order + component.getInvocationList().size() * 16;
-				order = order + 32;
-			}
-		}
-	}
-
-	private int getRank(int rank, ComponentModel component) {
-		List<ArrowConnectionModel> list = component.getModelTargetConnections();
-
-		if (list.size() > 0) {
-			rank = rank + 1;
-		}
-
-		int newRank = rank;
-		for (ArrowConnectionModel arrowModel : list) {
-			int aRank = getRank(rank, arrowModel.getSource());
-			if (aRank > newRank) {
-				newRank = aRank;
-			}
-		}
-
-		return newRank;
-	}
-
-	public void doSave(IProgressMonitor monitor) {
 	}
 
 	public void doSaveAs() {
@@ -130,38 +68,6 @@ public class JmxStatsVisionEditor extends GraphicalEditor implements
 		viewer.setEditPartFactory(new StatsVisionEditPartFactory(this));
 	}
 
-	public void setDomain(String domain) {
-		domain_ = domain;
-	}
-
-	public void setHostName(String hostName) {
-		hostName_ = hostName;
-	}
-
-	public void setPortNum(int portNum) {
-		portNum_ = portNum;
-	}
-
-	public void setWarningThreshold(long warningThreshold) {
-		if (warningThreshold < 1)
-			warningThreshold = Long.MAX_VALUE;
-		warningThreshold_ = warningThreshold;
-	}
-
-	public void setAlarmThreshold(long alarmThreshold) {
-		if (alarmThreshold < 1)
-			alarmThreshold = Long.MAX_VALUE;
-		alarmThreshold_ = alarmThreshold;
-	}
-
-	public String getHostName() {
-		return hostName_;
-	}
-
-	public int getPortNum() {
-		return portNum_;
-	}
-
 	public void setBlnReload(boolean blnReload) {
 		// TODO Auto-generated method stub
 
@@ -177,15 +83,15 @@ public class JmxStatsVisionEditor extends GraphicalEditor implements
 
 		try {
 			JMXServiceURL url = new JMXServiceURL(
-					"service:jmx:rmi:///jndi/rmi://" + hostName_ + ":"
-							+ portNum_ + "/jmxrmi");
+					"service:jmx:rmi:///jndi/rmi://" + getHostName() + ":"
+							+ getPortNum() + "/jmxrmi");
 			JMXConnector connector = JMXConnectorFactory.connect(url);
 			MBeanServerConnection connection = connector
 					.getMBeanServerConnection();
 
 			ObjectName objName = new ObjectName(
-					domain_
-							+ ".container:type=org.seasar.javelin.jmx.bean.ContainerMBean");
+					getDomain()
+							+ ".container:type=org.seasar.javelin.bean.ContainerMBean");
 			Set set = connection.queryMBeans(objName, null);
 			if (set.size() == 0) {
 				return;
@@ -315,15 +221,15 @@ public class JmxStatsVisionEditor extends GraphicalEditor implements
 	public void reset() {
 		try {
 			JMXServiceURL url = new JMXServiceURL(
-					"service:jmx:rmi:///jndi/rmi://" + hostName_ + ":"
-							+ portNum_ + "/jmxrmi");
+					"service:jmx:rmi:///jndi/rmi://" + getHostName() + ":"
+							+ getPortNum() + "/jmxrmi");
 			JMXConnector connector = JMXConnectorFactory.connect(url);
 			MBeanServerConnection connection = connector
 					.getMBeanServerConnection();
 
 			ObjectName objName = new ObjectName(
-					domain_
-							+ ".container:type=org.seasar.javelin.jmx.bean.ContainerMBean");
+					getDomain()
+							+ ".container:type=org.seasar.javelin.bean.ContainerMBean");
 			Set set = connection.queryMBeans(objName, null);
 			if (set.size() == 0) {
 				return;
@@ -334,6 +240,20 @@ public class JmxStatsVisionEditor extends GraphicalEditor implements
 			connection.invoke(instance.getObjectName(), "reset", null, null);
 		} catch (Exception ex) {
 			;
+		}
+	}
+
+	@Override
+	protected ObjectName getComponentKey(String className)
+	{
+		try
+		{
+			return new ObjectName(className);
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+			throw new IllegalArgumentException(ex);
 		}
 	}
 
