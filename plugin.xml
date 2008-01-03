@@ -26,7 +26,7 @@
 	        class="org.seasar.javelin.statsvision.editors.MultiPageEditor"
 	        contributorClass="org.seasar.javelin.statsvision.editors.MultiPageEditorContributor"
 	        extensions="jview"
-	        icon="icons/sample.gif"
+	        icon="icons/statsvision.gif"
 	        id="org.seasar.javelin.statsvision.viewer.editors.MultiPageEditor"
 	        name="StatsVision"/>
    </extension>
@@ -40,8 +40,22 @@
             icon="icons/file.gif"
             class="org.seasar.javelin.statsvision.views.JournalView"
             category="org.seasar.javelin.statsvision.views"
-            name="ジャーナル"
+            name="Jurnal"
             id="org.seasar.javelin.statsvision.views.JournalView"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="org.seasar.javelin.statvision.wizard"
+            name="StatsVision">
+      </category>
+      <wizard
+            category="org.seasar.javelin.statvision.wizard"
+            class="org.seasar.javelin.statsvision.wizard.NewFileWizard"
+            icon="icons/statsvision.gif"
+            id="org.seasar.javelin.statvision.wizard.newFileWizard"
+            name="File">
+      </wizard>
    </extension>
    
 <!--

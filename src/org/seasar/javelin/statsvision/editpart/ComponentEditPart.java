@@ -41,13 +41,10 @@ public class ComponentEditPart extends EditPartWithListener implements NodeEditP
     private static final Color GRAY   = ColorConstants.gray;
 
     /** コンポーネント名の最大長。これを越える部分は...で表示する。 */
-    private static final int                       COMPONENTNAME_MAXLENGTH = 80;
+    private static final int COMPONENTNAME_MAXLENGTH = 80;
 
     /** メソッド名の最大長。これを越える部分は...で表示する。 */
-    private static final int                       METHODNAME_MAXLENGTH    = 80;
-
-    /** メジャーブリンク */
-    /** マイナーブリンク */
+    private static final int METHODNAME_MAXLENGTH    = 80;
 
     public static HashMap<String, Label>           invocationLabelMap      = new HashMap<String, Label>();
 
