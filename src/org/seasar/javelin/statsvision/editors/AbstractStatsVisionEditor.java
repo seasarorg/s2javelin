@@ -41,10 +41,15 @@ import org.seasar.javelin.statsvision.editpart.StatsVisionEditPartFactory;
 import org.seasar.javelin.statsvision.model.ArrowConnectionModel;
 import org.seasar.javelin.statsvision.model.ComponentModel;
 import org.seasar.javelin.statsvision.model.ContentsModel;
+import org.seasar.javelin.statsvision.model.InvocationModel;
 
 public abstract class AbstractStatsVisionEditor<T> 
     extends GraphicalEditor implements StatsVisionEditor
 {
+    private static final String START_OF_METHOD = "<START-OF-METHOD>";
+
+    private static final String END_OF_METHOD = "<END-OF-METHOD>";
+    
     private String                       hostName_         = "";
 
     private int                          portNum_          = 0;
@@ -108,6 +113,25 @@ public abstract class AbstractStatsVisionEditor<T>
                     point.x = x;
                     point.y = y;
                     pointMap.put(getComponentKey(className), point);
+
+                    // メソッド情報を保存する。
+                    data.append(START_OF_METHOD).append(lineSeparator);
+                    
+                    for (InvocationModel invocation : component.getInvocationList())
+                    {
+                        data.append(invocation.getAverage());
+                        data.append(",");
+                        data.append(invocation.getMaximum());
+                        data.append(",");
+                        data.append(invocation.getMinimum());
+                        data.append(",");
+                        data.append(invocation.getThrowableCount());
+                        data.append(",");
+                        data.append(invocation.getMethodName());
+                        data.append(lineSeparator);
+                    }
+                    
+                    data.append(END_OF_METHOD).append(lineSeparator);
                 }
 
                 for (T key : pointMap.keySet())
@@ -155,8 +179,11 @@ public abstract class AbstractStatsVisionEditor<T>
                 line = bReader.readLine();
             }
 
+            // クラス情報を読み込む。
             while (line != null)
             {
+                ComponentModel component = null;
+                
                 int index = line.lastIndexOf("=");
                 if (index > 0)
                 {
@@ -169,14 +196,64 @@ public abstract class AbstractStatsVisionEditor<T>
                     Point point = new Point(x, y);
                     pointMap.put(getComponentKey(className), point);
                     
-                    ComponentModel component = new ComponentModel();
+                    component = new ComponentModel();
                     component.setClassName(className);
                     component.setConstraint(new Rectangle(0, 0, -1, -1));
                     rootModel.addChild(component);
                     
                     componentMap.put(getComponentKey(className), component);
+                    
+                    
                 }
 
+                line = bReader.readLine();
+                while(line != null && !line.equals(START_OF_METHOD))
+                {
+                    line = bReader.readLine();
+                }
+                
+                // メソッド情報を読み込む。
+                line = bReader.readLine();
+                while(line != null && !line.equals(END_OF_METHOD))
+                {
+                    int    from = 0;
+                    int    to;
+                    String value;
+
+                    to = line.indexOf(",", from);
+                    value = line.substring(from, to);
+                    long avg = Long.parseLong(value);
+
+                    from = to + 1;
+                    to = line.indexOf(",", from);
+                    value = line.substring(from, to);
+                    long max = Long.parseLong(value);
+
+                    from = to + 1;
+                    to = line.indexOf(",", from);
+                    value = line.substring(from, to);
+                    long min = Long.parseLong(value);
+
+                    from = to + 1;
+                    to = line.indexOf(",", from);
+                    value = line.substring(from, to);
+                    long err = Long.parseLong(value);
+                    
+                    from = to + 1;
+                    value = line.substring(from);
+                    
+                    InvocationModel invocation = new InvocationModel();
+                    invocation.setMethodName(value);
+                    invocation.setAverage(avg);
+                    invocation.setMaximum(max);
+                    invocation.setMinimum(min);
+                    invocation.setThrowableCount(err);
+                    
+                    component.addInvocation(invocation);
+                    
+                    line = bReader.readLine();
+                }
+                
                 line = bReader.readLine();
             }
         }
