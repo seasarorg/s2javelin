@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: StatsVision
 Bundle-SymbolicName: org.seasar.javelin.statsvision;singleton:=true
-Bundle-ClassPath: bin
+Bundle-ClassPath: statsvision.jar
 Bundle-Version: 0.5.0
 Bundle-Activator: org.seasar.javelin.statsvision.StatsVisionPlugin
 Bundle-Vendor: seasar.org
