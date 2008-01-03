@@ -29,15 +29,17 @@ import org.seasar.javelin.statsvision.model.InvocationModel;
 public class ComponentEditPart extends EditPartWithListener implements NodeEditPart
 {
     /** クラスの背景色。 */
-    private static final Color                     YELLOW                  = new Color(null, 255,
-                                                                                       255, 206);
+    private static final Color YELLOW = new Color(null, 255, 255, 206);
 
     /** メジャー警告色。 */
-    private static final Color                     RED                     = ColorConstants.red;
+    private static final Color RED    = ColorConstants.red;
 
     /** マイナー警告色。 */
-    private static final Color                     ORANGE                  = new Color(null, 224,
-                                                                                       160, 0);
+    private static final Color ORANGE = new Color(null, 224, 160, 0);
+
+    /** 無効色（呼び出されていないクラス／メソッド）。 */
+    private static final Color GRAY   = ColorConstants.gray;
+
     /** コンポーネント名の最大長。これを越える部分は...で表示する。 */
     private static final int                       COMPONENTNAME_MAXLENGTH = 80;
 
@@ -71,15 +73,15 @@ public class ComponentEditPart extends EditPartWithListener implements NodeEditP
         label.setOpaque(true);
 
         // 表示文字列の決定
+        String className     = model.getClassName();
         String componentName = "";
-        if (model.getClassName().indexOf("/") > -1 || model.getClassName().indexOf("@") > -1)
+        if (className.indexOf("/") > -1 || className.indexOf("@") > -1)
         {
-            componentName = model.getClassName();
+            componentName = className;
         }
         else
         {
-            componentName = model.getClassName().substring(
-                                                           model.getClassName().lastIndexOf(".") + 1);
+            componentName = className.substring(className.lastIndexOf(".") + 1);
         }
 
         label.setText(toStr(componentName, COMPONENTNAME_MAXLENGTH));
@@ -105,6 +107,11 @@ public class ComponentEditPart extends EditPartWithListener implements NodeEditP
             {
                 invocationLabel.setForegroundColor(ORANGE);
             }
+            else if (invocation.getMaximum() < 0
+                    && invocation.getAverage() < 0)
+            {
+                invocationLabel.setForegroundColor(GRAY);
+            }
             else
             {
                 invocationLabel.setForegroundColor(ColorConstants.black);
@@ -129,10 +136,36 @@ public class ComponentEditPart extends EditPartWithListener implements NodeEditP
 
     private String createMethodLabelText(InvocationModel invocation)
     {
-        String methodName = invocation.getMethodName();
-        String methodLabelText = toStr(methodName, METHODNAME_MAXLENGTH) + "(" + invocation.getMaximum()
-                + ":" + invocation.getAverage() + ")";
-        return methodLabelText;
+        String        methodName = invocation.getMethodName();
+        StringBuilder builder    = new StringBuilder(methodName);
+        
+        builder.append("(");
+        
+        long max = invocation.getMaximum();
+        if (max < 0)
+        {
+            builder.append("-");
+        }
+        else
+        {
+            builder.append(max);
+        }
+
+        builder.append(":");
+        
+        long avg = invocation.getAverage();
+        if (avg < 0)
+        {
+            builder.append("-");
+        }
+        else
+        {
+            builder.append(avg);
+        }
+        
+        builder.append(")");
+        
+        return builder.toString();
     }
 
     public ConnectionAnchor getSourceConnectionAnchor(Request request)
