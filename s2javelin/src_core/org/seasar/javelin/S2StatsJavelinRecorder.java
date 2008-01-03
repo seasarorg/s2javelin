@@ -176,7 +176,8 @@ public class S2StatsJavelinRecorder
 
             if (invocation == null)
             {
-                invocation = new Invocation(objName, componentName, className, methodName,
+                String processName = VMStatusHelper.getProcessName();
+            	invocation = new Invocation(processName, objName, componentName, className, methodName,
                                             config.getIntervalMax(), config.getThrowableMax(),
                                             config.getRecordThreshold(), config.getAlarmThreshold());
 

@@ -54,10 +54,13 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
      */
     private long              alarmThreshold_;
 
-    public Invocation(ObjectName objName, ObjectName classObjName, String className,
+	private String processName_;
+
+    public Invocation(String processName, ObjectName objName, ObjectName classObjName, String className,
             String methodName, int intervalMax, int throwableMax, long recordThreshold,
             long alarmThreshold)
     {
+    	processName_ = processName;
         objName_ = objName;
         classObjName_ = classObjName;
         className_ = className;
@@ -206,6 +209,8 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
     public String toString()
     {
         StringBuffer buffer = new StringBuffer(256);
+        buffer.append(processName_);
+        buffer.append(":");
         buffer.append(className_);
         buffer.append("#");
         buffer.append(methodName_);
@@ -276,4 +281,8 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
     {
         isReadFieldAccess_ = isReadFieldAccess;
     }
+
+	public String getProcessName() {
+		return processName_;
+	}
 }

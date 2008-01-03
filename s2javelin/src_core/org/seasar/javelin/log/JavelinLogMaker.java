@@ -7,6 +7,7 @@ import org.seasar.javelin.CallTreeNode;
 import org.seasar.javelin.S2JavelinConfig;
 import org.seasar.javelin.VMStatus;
 import org.seasar.javelin.bean.Invocation;
+import org.seasar.javelin.helper.VMStatusHelper;
 import org.seasar.javelin.util.StatsUtil;
 
 import static org.seasar.javelin.JavelinConstants.ID_CALL;
@@ -83,7 +84,8 @@ public class JavelinLogMaker
         Invocation caller;
         if (parent == null)
         {
-            caller = new Invocation(null, null, tree.getRootCallerName(), "unknown", 0, 0, 0, 0);
+            String processName = VMStatusHelper.getProcessName();
+            caller = new Invocation(processName, null, null, tree.getRootCallerName(), "unknown", 0, 0, 0, 0);
         }
         else
         {

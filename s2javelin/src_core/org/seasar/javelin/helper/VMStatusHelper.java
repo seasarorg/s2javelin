@@ -4,6 +4,7 @@ import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
+import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.util.List;
@@ -59,7 +60,9 @@ import org.seasar.javelin.VMStatus;
  */
 public class VMStatusHelper
 {
-    private ThreadMXBean                 threadMBean                 = ManagementFactory.getThreadMXBean();
+    private static RuntimeMXBean                 runtimeMBean_                = ManagementFactory.getRuntimeMXBean();
+
+	private ThreadMXBean                 threadMBean                 = ManagementFactory.getThreadMXBean();
 
     private List<GarbageCollectorMXBean> garbageCollectorMXBeanList_ = ManagementFactory.getGarbageCollectorMXBeans();
 
@@ -141,4 +144,9 @@ public class VMStatusHelper
         return vmStatus;
     }
 
+    
+    public static String getProcessName()
+    {
+    	return runtimeMBean_.getName();
+    }
 }

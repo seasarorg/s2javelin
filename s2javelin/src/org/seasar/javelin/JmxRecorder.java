@@ -14,6 +14,7 @@ import org.seasar.javelin.bean.InvocationMBean;
 import org.seasar.javelin.bean.Statistics;
 import org.seasar.javelin.bean.StatisticsMBean;
 import org.seasar.javelin.communicate.JmxListener;
+import org.seasar.javelin.helper.VMStatusHelper;
 
 public class JmxRecorder
 {
@@ -135,9 +136,11 @@ public class JmxRecorder
 
             if (invocationBean == null)
             {
-                invocationBean = 
+                String processName = VMStatusHelper.getProcessName();
+				invocationBean = 
                 	new Invocation(
-                		objName
+                		processName
+                		, objName
                 		, componentName
                 		, className
                 		, methodName
