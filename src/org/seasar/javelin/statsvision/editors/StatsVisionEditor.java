@@ -1,6 +1,5 @@
 package org.seasar.javelin.statsvision.editors;
 
-import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.ui.IEditorPart;
 import org.seasar.javelin.statsvision.communicate.Telegram;
 import org.seasar.javelin.statsvision.editpart.ComponentEditPart;

@@ -12,15 +12,38 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.draw2d.LightweightSystem;
+import org.eclipse.draw2d.Viewport;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.draw2d.parts.ScrollableThumbnail;
+import org.eclipse.gef.GraphicalViewer;
+import org.eclipse.gef.LayerConstants;
+import org.eclipse.gef.editparts.ScalableRootEditPart;
+import org.eclipse.gef.editparts.ZoomManager;
+import org.eclipse.gef.ui.actions.ActionRegistry;
+import org.eclipse.gef.ui.actions.ZoomInAction;
+import org.eclipse.gef.ui.actions.ZoomOutAction;
 import org.eclipse.gef.ui.parts.GraphicalEditor;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.actions.ActionFactory;
+import org.eclipse.ui.part.IPageSite;
+import org.seasar.javelin.statsvision.editpart.StatsVisionEditPartFactory;
 import org.seasar.javelin.statsvision.model.ArrowConnectionModel;
 import org.seasar.javelin.statsvision.model.ComponentModel;
+import org.seasar.javelin.statsvision.model.ContentsModel;
 
-public abstract class AbstractStatsVisionEditor<T> extends GraphicalEditor implements
-        StatsVisionEditor
+public abstract class AbstractStatsVisionEditor<T> 
+    extends GraphicalEditor implements StatsVisionEditor
 {
     private String                       hostName_         = "";
 
@@ -37,12 +60,22 @@ public abstract class AbstractStatsVisionEditor<T> extends GraphicalEditor imple
     public String                        mode_             = "TCP";
 
     // Componentモデル設定用
-    private Map<T, ComponentModel>       componentMap      = new HashMap<T, ComponentModel>();
+    protected Map<T, ComponentModel>       componentMap      = new HashMap<T, ComponentModel>();
 
-    private Map<T, Point>                pointMap          = new HashMap<T, Point>();
+    private   Map<T, Point>                pointMap          = new HashMap<T, Point>();
 
-    private Map<ComponentModel, Integer> revRankMap        = new HashMap<ComponentModel, Integer>();
+    private   Map<ComponentModel, Integer> revRankMap        = new HashMap<ComponentModel, Integer>();
 
+    protected ContentsModel rootModel;
+
+    // ページをアウトラインとサムネイルに分離するコンポジット
+    private SashForm sash;
+    
+    // サムネイルを表示する為のフィギュア
+    private ScrollableThumbnail thumbnail;
+
+    private DisposeListener disposeListener;
+    
     /* (non-Javadoc)
      * @see org.seasar.javelin.statsvision.editors.StatsVisionEditor#doSave(org.eclipse.core.runtime.IProgressMonitor)
      */
@@ -135,6 +168,13 @@ public abstract class AbstractStatsVisionEditor<T> extends GraphicalEditor imple
 
                     Point point = new Point(x, y);
                     pointMap.put(getComponentKey(className), point);
+                    
+                    ComponentModel component = new ComponentModel();
+                    component.setClassName(className);
+                    component.setConstraint(new Rectangle(0, 0, -1, -1));
+                    rootModel.addChild(component);
+                    
+                    componentMap.put(getComponentKey(className), component);
                 }
 
                 line = bReader.readLine();
@@ -146,34 +186,116 @@ public abstract class AbstractStatsVisionEditor<T> extends GraphicalEditor imple
         }
     }
 
+    // オーバーライド
+    public void init(IPageSite pageSite) {
+//      super.init(pageSite);
+        // グラフィカル・エディタに登録されているアクションを取得
+        ActionRegistry registry = getActionRegistry();
+        // アウトライン・ページで有効にするアクション
+        IActionBars bars = pageSite.getActionBars();
+
+        String id = ActionFactory.UNDO.getId();
+        bars.setGlobalActionHandler(id, registry.getAction(id));
+
+        id = ActionFactory.REDO.getId();
+        bars.setGlobalActionHandler(id, registry.getAction(id));
+
+        id = ActionFactory.DELETE.getId();
+        bars.setGlobalActionHandler(id, registry.getAction(id));
+        bars.updateActionBars();
+    }
+    
+    public void createControl(Composite parent) {
+        sash = new SashForm(parent, SWT.VERTICAL);
+        
+        Canvas canvas = new Canvas(sash, SWT.BORDER);
+        
+        // サムネイル・フィギュアを配置する為の LightweightSystem
+        LightweightSystem lws = new LightweightSystem(canvas);
+
+        // RootEditPartのビューをソースとしてサムネイルを作成
+        thumbnail = new ScrollableThumbnail(
+            (Viewport) ((ScalableRootEditPart) getGraphicalViewer()
+                .getRootEditPart()).getFigure());
+        thumbnail.setSource(((ScalableRootEditPart) getGraphicalViewer()
+            .getRootEditPart())
+            .getLayer(LayerConstants.PRINTABLE_LAYERS));
+        
+        lws.setContents(thumbnail);
+
+        disposeListener = new DisposeListener() {
+          public void widgetDisposed(DisposeEvent e) {
+            // サムネイル・イメージの破棄
+            if (thumbnail != null) {
+              thumbnail.deactivate();
+              thumbnail = null;
+            }
+          }
+        };
+        
+        // グラフィカル・ビューワが破棄されるときにサムネイルも破棄する
+        getGraphicalViewer().getControl().addDisposeListener(
+            disposeListener);
+    }
+
+    // オーバーライド
+    public Control getControl() {
+      // アウトライン・ビューをアクティブにした時に
+      // フォーカスが設定されるコントロールを返す
+      return sash;
+    }
+    
+    // オーバーライド
+    public void dispose() {
+      if (getGraphicalViewer().getControl() != null
+          && !getGraphicalViewer().getControl().isDisposed())
+        getGraphicalViewer().getControl().removeDisposeListener(disposeListener);
+
+      super.dispose();
+    }
+    
+    protected void configureGraphicalViewer() {
+        super.configureGraphicalViewer();
+
+        GraphicalViewer viewer = getGraphicalViewer();
+        
+        // ズーム可能なビューを作成するRootEditPartの設定
+        ScalableRootEditPart rootEditPart = new ScalableRootEditPart();
+        viewer.setRootEditPart(rootEditPart);
+        
+        // ZoomManagerの取得
+        ZoomManager manager = rootEditPart.getZoomManager();
+        
+        // ズームレベルの設定
+        double[] zoomLevels = new double[] {
+          0.25,0.5,0.75,1.0,1.5,2.0,2.5,3.0,4.0,5.0,10.0,20.0
+        };
+        manager.setZoomLevels(zoomLevels);
+        
+        // ズーム レベル コントリビューションの設定
+        List<String> zoomContributions = new ArrayList<String>();
+        zoomContributions.add(ZoomManager.FIT_ALL);
+        zoomContributions.add(ZoomManager.FIT_HEIGHT);
+        zoomContributions.add(ZoomManager.FIT_WIDTH);
+        manager.setZoomLevelContributions(zoomContributions);
+        
+        // 拡大アクションの作成と登録
+        IAction action = new ZoomInAction(manager);
+        getActionRegistry().registerAction(action);
+        // 縮小アクションの作成と登録
+        action = new ZoomOutAction(manager);
+        getActionRegistry().registerAction(action);
+
+        // EditPartFactoryの作成と設定
+        viewer.setEditPartFactory(new StatsVisionEditPartFactory(this));
+    }
+
     protected abstract T getComponentKey(String className);
 
     protected void layoutModel(Map<T, ComponentModel> componentMap)
     {
 
         Map<Integer, List<ComponentModel>> rankMap = new HashMap<Integer, List<ComponentModel>>();
-
-        // 先ず、ルートモデルのRankを取る
-        for (ComponentModel component : componentMap.values())
-        {
-            String rootFlag = component.getClassName().substring(0, 5);
-            if (rootFlag.endsWith("ROOT-"))
-            {
-                component.setClassName(component.getClassName().substring(5));
-                int rank = getRank(0, component);
-                if (rankMap.containsKey(rank))
-                {
-                    rankMap.get(rank).add(component);
-                }
-                else
-                {
-                    List<ComponentModel> list = new ArrayList<ComponentModel>();
-                    list.add(component);
-                    rankMap.put(rank, list);
-                }
-                revRankMap.put(component, rank);
-            }
-        }
 
         // 全てのモデルのRANKを取る
         for (ComponentModel component : componentMap.values())
@@ -202,9 +324,7 @@ public abstract class AbstractStatsVisionEditor<T> extends GraphicalEditor imple
                 T key = null;
                 try
                 {
-                    key = getComponentKey(getDomain()
-                            + ".component:type=org.seasar.javelin.bean.ComponentMBean,class="
-                            + component.getClassName());
+                    key = getComponentKey(component.getClassName());
                 }
                 catch (Exception ex)
                 {

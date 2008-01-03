@@ -11,7 +11,6 @@ import org.seasar.javelin.statsvision.communicate.ResponseBody;
 import org.seasar.javelin.statsvision.communicate.TcpDataGetter;
 import org.seasar.javelin.statsvision.communicate.Telegram;
 import org.seasar.javelin.statsvision.editpart.ComponentEditPart;
-import org.seasar.javelin.statsvision.editpart.StatsVisionEditPartFactory;
 import org.seasar.javelin.statsvision.model.ArrowConnectionModel;
 import org.seasar.javelin.statsvision.model.ComponentModel;
 import org.seasar.javelin.statsvision.model.ContentsModel;
@@ -33,8 +32,6 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String> {
 	TcpDataGetter tcpDataGetter;
 
 	GraphicalViewer viewer;
-
-	ContentsModel rootModel;
 
 	/* (non-Javadoc)
 	 * @see org.seasar.javelin.statsvision.editors.StatsVisionEditor#connect()
@@ -78,6 +75,10 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String> {
 		
 		// 位置データの読み込み
 		load();
+		
+        layoutModel(componentMap);
+        
+        viewer.setContents(rootModel);
 	}
 
 	/* (non-Javadoc)
@@ -307,14 +308,6 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String> {
 
 	public TcpStatsVisionEditor() {
 		setEditDomain(new DefaultEditDomain(this));
-	}
-
-	protected void configureGraphicalViewer() {
-		super.configureGraphicalViewer();
-
-		GraphicalViewer viewer = getGraphicalViewer();
-		// EditPartFactoryの作成と設定
-		viewer.setEditPartFactory(new StatsVisionEditPartFactory(this));
 	}
 
 	/* (non-Javadoc)

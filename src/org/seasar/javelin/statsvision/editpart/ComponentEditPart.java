@@ -26,7 +26,8 @@ import org.seasar.javelin.statsvision.editors.EditPartWithListener;
 import org.seasar.javelin.statsvision.model.ComponentModel;
 import org.seasar.javelin.statsvision.model.InvocationModel;
 
-public class ComponentEditPart extends EditPartWithListener implements NodeEditPart
+public class ComponentEditPart
+    extends EditPartWithListener implements NodeEditPart
 {
     /** クラスの背景色。 */
     private static final Color YELLOW = new Color(null, 255, 255, 206);
@@ -37,6 +38,9 @@ public class ComponentEditPart extends EditPartWithListener implements NodeEditP
     /** マイナー警告色。 */
     private static final Color ORANGE = new Color(null, 224, 160, 0);
 
+    /** 有効色（呼び出されているクラス／メソッド）。 */
+    private static final Color BLACK   = ColorConstants.black;
+    
     /** 無効色（呼び出されていないクラス／メソッド）。 */
     private static final Color GRAY   = ColorConstants.gray;
 
@@ -46,16 +50,21 @@ public class ComponentEditPart extends EditPartWithListener implements NodeEditP
     /** メソッド名の最大長。これを越える部分は...で表示する。 */
     private static final int METHODNAME_MAXLENGTH    = 80;
 
-    public static HashMap<String, Label>           invocationLabelMap      = new HashMap<String, Label>();
+    private static HashMap<String, Label> invocationLabelMap
+        = new HashMap<String, Label>();
 
-    public static HashMap<String, InvocationModel> invocationMap           = new HashMap<String, InvocationModel>();
+    private static HashMap<String, InvocationModel> invocationMap
+        = new HashMap<String, InvocationModel>();
 
     protected IFigure createFigure()
     {
         ComponentModel model = (ComponentModel)getModel();
 
-        Layer layer = new Layer();
-        layer.setBorder(new LineBorder());
+        LineBorder border = new LineBorder();
+        border.setColor(BLACK);
+        
+        Layer      layer  = new Layer();
+        layer.setBorder(border);
         layer.setOpaque(true);
         layer.setBackgroundColor(YELLOW);
         layer.setLayoutManager(new ToolbarLayout());
@@ -80,7 +89,16 @@ public class ComponentEditPart extends EditPartWithListener implements NodeEditP
         {
             componentName = className.substring(className.lastIndexOf(".") + 1);
         }
-
+        
+        label.setForegroundColor(GRAY);
+        for (InvocationModel invocation : model.getInvocationList())
+        {
+            if (invocation.getMaximum() >= 0)
+            {
+                label.setForegroundColor(BLACK);
+            }
+        }
+        
         label.setText(toStr(componentName, COMPONENTNAME_MAXLENGTH));
         layer.add(label);
 
@@ -105,13 +123,13 @@ public class ComponentEditPart extends EditPartWithListener implements NodeEditP
                 invocationLabel.setForegroundColor(ORANGE);
             }
             else if (invocation.getMaximum() < 0
-                    && invocation.getAverage() < 0)
+                    && invocation.getAverage() == 0)
             {
                 invocationLabel.setForegroundColor(GRAY);
             }
             else
             {
-                invocationLabel.setForegroundColor(ColorConstants.black);
+                invocationLabel.setForegroundColor(BLACK);
             }
 
             // 「クラス名、メソッド名」でキーを設定する
@@ -133,8 +151,10 @@ public class ComponentEditPart extends EditPartWithListener implements NodeEditP
 
     private String createMethodLabelText(InvocationModel invocation)
     {
-        String        methodName = invocation.getMethodName();
-        StringBuilder builder    = new StringBuilder(methodName);
+        String methodName;
+        methodName = invocation.getMethodName();
+        methodName = toStr(methodName, METHODNAME_MAXLENGTH);
+        StringBuilder builder = new StringBuilder(methodName);
         
         builder.append("(");
         
@@ -142,21 +162,14 @@ public class ComponentEditPart extends EditPartWithListener implements NodeEditP
         if (max < 0)
         {
             builder.append("-");
-        }
-        else
-        {
-            builder.append(max);
-        }
-
-        builder.append(":");
-        
-        long avg = invocation.getAverage();
-        if (avg < 0)
-        {
+            builder.append(":");
             builder.append("-");
         }
         else
         {
+            builder.append(max);
+            builder.append(":");
+            long avg = invocation.getAverage();
             builder.append(avg);
         }
         

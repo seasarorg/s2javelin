@@ -23,7 +23,6 @@ import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.GraphicalViewer;
 import org.seasar.javelin.statsvision.communicate.Telegram;
 import org.seasar.javelin.statsvision.editpart.ComponentEditPart;
-import org.seasar.javelin.statsvision.editpart.StatsVisionEditPartFactory;
 import org.seasar.javelin.statsvision.model.ArrowConnectionModel;
 import org.seasar.javelin.statsvision.model.ComponentModel;
 import org.seasar.javelin.statsvision.model.ContentsModel;
@@ -37,16 +36,17 @@ public class JmxStatsVisionEditor extends AbstractStatsVisionEditor<ObjectName> 
 	public ComponentEditPart componentEditPart = null;
 
 	public void initializeGraphicalViewer() {
-		Map<ObjectName, ComponentModel> componentMap = new HashMap<ObjectName, ComponentModel>();
-
 		GraphicalViewer viewer = getGraphicalViewer();
-
-		// 最上位のモデルの設定
-		ContentsModel rootModel = new ContentsModel();
-
-		layoutModel(componentMap);
-
-		viewer.setContents(rootModel);
+		
+        // 最上位のモデルの設定
+        rootModel = new ContentsModel();
+        
+        // 位置データの読み込み
+        load();
+        
+        layoutModel(componentMap);
+        
+        viewer.setContents(rootModel);
 	}
 
 	public void doSaveAs() {
@@ -58,14 +58,6 @@ public class JmxStatsVisionEditor extends AbstractStatsVisionEditor<ObjectName> 
 
 	public JmxStatsVisionEditor() {
 		setEditDomain(new DefaultEditDomain(this));
-	}
-
-	protected void configureGraphicalViewer() {
-		super.configureGraphicalViewer();
-
-		GraphicalViewer viewer = getGraphicalViewer();
-		// EditPartFactoryの作成と設定
-		viewer.setEditPartFactory(new StatsVisionEditPartFactory(this));
 	}
 
 	public void setBlnReload(boolean blnReload) {
