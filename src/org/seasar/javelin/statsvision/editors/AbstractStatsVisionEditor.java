@@ -24,7 +24,9 @@ import org.eclipse.gef.editparts.ZoomManager;
 import org.eclipse.gef.ui.actions.ActionRegistry;
 import org.eclipse.gef.ui.actions.ZoomInAction;
 import org.eclipse.gef.ui.actions.ZoomOutAction;
+import org.eclipse.gef.ui.parts.ContentOutlinePage;
 import org.eclipse.gef.ui.parts.GraphicalEditor;
+import org.eclipse.gef.ui.parts.TreeViewer;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -37,7 +39,9 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.IPageSite;
+import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.seasar.javelin.statsvision.editpart.StatsVisionEditPartFactory;
+import org.seasar.javelin.statsvision.editpart.StatsVisionTreeEditPartFactory;
 import org.seasar.javelin.statsvision.model.ArrowConnectionModel;
 import org.seasar.javelin.statsvision.model.ComponentModel;
 import org.seasar.javelin.statsvision.model.ContentsModel;
@@ -73,13 +77,70 @@ public abstract class AbstractStatsVisionEditor<T>
 
     protected ContentsModel rootModel;
 
-    // ページをアウトラインとサムネイルに分離するコンポジット
-    private SashForm sash;
-    
-    // サムネイルを表示する為のフィギュア
-    private ScrollableThumbnail thumbnail;
+    // コンテンツ・アウトライナー・ページ
+    class MyContentOutlinePage extends ContentOutlinePage {
 
-    private DisposeListener disposeListener;
+        //ページをアウトラインとサムネイルに分離するコンポジット
+        private SashForm sash;
+
+        // サムネイルを表示する為のフィギュア
+        private ScrollableThumbnail thumbnail;
+
+        // Viewerの破棄と連携するためのリスナ。
+        private DisposeListener disposeListener;
+        
+        public MyContentOutlinePage() {
+          // GEFツリービューワを使用する
+          super(new TreeViewer());
+        }
+
+        // オーバーライド
+        public void createControl(Composite parent) {
+          this.sash = new SashForm(parent, SWT.VERTICAL);
+          
+          // コンストラクタで指定したビューワの作成
+          getViewer().createControl(sash);
+          
+          // エディット・ドメインの設定
+          getViewer().setEditDomain(getEditDomain());
+          // EditPartFactory の設定
+          getViewer().setEditPartFactory(new StatsVisionTreeEditPartFactory());
+          // グラフィカル・エディタのルート・モデルをツリー・ビューワにも設定
+          getViewer().setContents(rootModel);
+          // グラフィカル・エディタとツリー・ビューワとの間で選択を同期させる
+          getSelectionSynchronizer().addViewer(getViewer());
+        }
+
+        // オーバーライド
+        public Control getControl() {
+          // アウトライン・ビューをアクティブにした時に
+          // フォーカスが設定されるコントロールを返す
+          return sash;
+        }
+        
+        // オーバーライド
+        public void dispose() {
+          // SelectionSynchronizer からTreeViewerを削除
+          getSelectionSynchronizer().removeViewer(getViewer());
+
+          super.dispose();
+        }
+    }
+
+    public Object getAdapter(Class type) {
+        if (type == ZoomManager.class) {
+            return ((ScalableRootEditPart) getGraphicalViewer()
+                    .getRootEditPart()).getZoomManager();
+        }
+        
+        // IContentOutlinePage 型のアダプターの要求に対して
+        // コンテンツ・アウトライナー・ページを返す
+        if (type == IContentOutlinePage.class) {
+          return new MyContentOutlinePage();
+        }
+
+        return super.getAdapter(type);
+    }
     
     /* (non-Javadoc)
      * @see org.seasar.javelin.statsvision.editors.StatsVisionEditor#doSave(org.eclipse.core.runtime.IProgressMonitor)
@@ -263,74 +324,6 @@ public abstract class AbstractStatsVisionEditor<T>
         }
     }
 
-    // オーバーライド
-    public void init(IPageSite pageSite) {
-//      super.init(pageSite);
-        // グラフィカル・エディタに登録されているアクションを取得
-        ActionRegistry registry = getActionRegistry();
-        // アウトライン・ページで有効にするアクション
-        IActionBars bars = pageSite.getActionBars();
-
-        String id = ActionFactory.UNDO.getId();
-        bars.setGlobalActionHandler(id, registry.getAction(id));
-
-        id = ActionFactory.REDO.getId();
-        bars.setGlobalActionHandler(id, registry.getAction(id));
-
-        id = ActionFactory.DELETE.getId();
-        bars.setGlobalActionHandler(id, registry.getAction(id));
-        bars.updateActionBars();
-    }
-    
-    public void createControl(Composite parent) {
-        sash = new SashForm(parent, SWT.VERTICAL);
-        
-        Canvas canvas = new Canvas(sash, SWT.BORDER);
-        
-        // サムネイル・フィギュアを配置する為の LightweightSystem
-        LightweightSystem lws = new LightweightSystem(canvas);
-
-        // RootEditPartのビューをソースとしてサムネイルを作成
-        thumbnail = new ScrollableThumbnail(
-            (Viewport) ((ScalableRootEditPart) getGraphicalViewer()
-                .getRootEditPart()).getFigure());
-        thumbnail.setSource(((ScalableRootEditPart) getGraphicalViewer()
-            .getRootEditPart())
-            .getLayer(LayerConstants.PRINTABLE_LAYERS));
-        
-        lws.setContents(thumbnail);
-
-        disposeListener = new DisposeListener() {
-          public void widgetDisposed(DisposeEvent e) {
-            // サムネイル・イメージの破棄
-            if (thumbnail != null) {
-              thumbnail.deactivate();
-              thumbnail = null;
-            }
-          }
-        };
-        
-        // グラフィカル・ビューワが破棄されるときにサムネイルも破棄する
-        getGraphicalViewer().getControl().addDisposeListener(
-            disposeListener);
-    }
-
-    // オーバーライド
-    public Control getControl() {
-      // アウトライン・ビューをアクティブにした時に
-      // フォーカスが設定されるコントロールを返す
-      return sash;
-    }
-    
-    // オーバーライド
-    public void dispose() {
-      if (getGraphicalViewer().getControl() != null
-          && !getGraphicalViewer().getControl().isDisposed())
-        getGraphicalViewer().getControl().removeDisposeListener(disposeListener);
-
-      super.dispose();
-    }
-    
     protected void configureGraphicalViewer() {
         super.configureGraphicalViewer();
 
@@ -367,6 +360,12 @@ public abstract class AbstractStatsVisionEditor<T>
         viewer.setEditPartFactory(new StatsVisionEditPartFactory(this));
     }
 
+    public IAction getAction(String id)
+    {
+        IAction action = getActionRegistry().getAction(id);
+        return action;
+    }
+    
     protected abstract T getComponentKey(String className);
 
     protected void layoutModel(Map<T, ComponentModel> componentMap)

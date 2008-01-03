@@ -3,7 +3,7 @@ package org.seasar.javelin.statsvision.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ContentsModel {
+public class ContentsModel extends AbstractModel {
 	private List<ComponentModel> children = new ArrayList<ComponentModel>(); // 子モデルのリスト
 
 	public void addChild(ComponentModel child) {

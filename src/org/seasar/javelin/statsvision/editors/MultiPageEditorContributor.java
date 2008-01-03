@@ -1,10 +1,16 @@
 package org.seasar.javelin.statsvision.editors;
 
+import java.awt.font.ImageGraphicAttribute;
+
+import org.eclipse.gef.ui.actions.GEFActionConstants;
+import org.eclipse.gef.ui.parts.GraphicalEditor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IEditorActionBarContributor;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.part.MultiPageEditorActionBarContributor;
 import org.eclipse.ui.texteditor.ITextEditor;
 
@@ -19,12 +25,13 @@ public class MultiPageEditorContributor extends
 {
 	private IEditorPart activeEditorPart;
 
+	private IToolBarManager toolBarManager;
+	
 	/**
 	 * Creates a multi-page contributor.
 	 */
 	public MultiPageEditorContributor() {
 		super();
-		createActions();
 	}
 
 	/**
@@ -32,41 +39,37 @@ public class MultiPageEditorContributor extends
 	 * 
 	 * @return IAction or null if editor is null.
 	 */
-	protected IAction getAction(ITextEditor editor, String actionID)
+	protected IAction getAction(IEditorPart editor, String actionID)
 	{
-		return (editor == null ? null : editor.getAction(actionID));
+	    AbstractStatsVisionEditor statsEditor = (AbstractStatsVisionEditor)editor;
+		return (editor == null ? null : statsEditor.getAction(actionID));
 	}
 
 	/*
 	 * (non-JavaDoc) Method declared in
 	 * AbstractMultiPageEditorActionBarContributor.
 	 */
-
 	public void setActivePage(IEditorPart part)
 	{
-		if (activeEditorPart == part)
+		if (this.activeEditorPart == part)
 		{
             return;
 		}
 
-		activeEditorPart = part;
+		this.activeEditorPart = part;
+		
+		if (this.activeEditorPart instanceof StatsVisionEditor)
+        {
+	        this.toolBarManager.add(getAction(this.activeEditorPart, GEFActionConstants.ZOOM_IN));
+	        this.toolBarManager.add(getAction(this.activeEditorPart, GEFActionConstants.ZOOM_OUT));
+        }
 	}
 
-	private void createActions()
-	{
-        IActionBars actionBars = getActionBars();
-        if (actionBars != null)
-        {
-        }
- 	}
-
+	/**
+	 * 初回表示時に１度だけ呼び出される。
+	 */
 	public void contributeToToolBar(IToolBarManager toolBarManager)
 	{
-	    toolBarManager.add(new Separator());
-	    
-        IActionBars actionBars = getActionBars();
-        if (actionBars != null)
-        {
-        }
+        this.toolBarManager = toolBarManager;
 	}
 }
