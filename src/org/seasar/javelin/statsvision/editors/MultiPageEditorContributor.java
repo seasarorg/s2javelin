@@ -61,8 +61,8 @@ public class MultiPageEditorContributor extends
 		    this.isInitialized = true;
 		    
             this.toolBarManager.add(new Separator());
-            this.toolBarManager.add(getAction(this.activeEditorPart, GEFActionConstants.ZOOM_IN));
-	        this.toolBarManager.add(getAction(this.activeEditorPart, GEFActionConstants.ZOOM_OUT));
+//            this.toolBarManager.add(getAction(this.activeEditorPart, GEFActionConstants.ZOOM_IN));
+//            this.toolBarManager.add(getAction(this.activeEditorPart, GEFActionConstants.ZOOM_OUT));
 	        
 	        // 倍率を直接指定するコンボ・ボックスの追加
 	        this.toolBarManager.add(new ZoomComboContributionItem(getPage()));      
