@@ -8,5 +8,8 @@
 	<classpathentry kind="lib" path="lib/s2-framework-2.4.17.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api.jar"/>
 	<classpathentry kind="lib" path="lib/mx4j-tools.jar"/>
+	<classpathentry kind="lib" path="lib/activation.jar"/>
+	<classpathentry kind="lib" path="lib/mail.jar"/>
+	<classpathentry kind="lib" path="lib/SNMP4J.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
