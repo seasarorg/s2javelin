@@ -19,7 +19,6 @@ import org.eclipse.draw2d.SWTGraphics;
 import org.eclipse.gef.LayerConstants;
 import org.eclipse.gef.editparts.ScalableRootEditPart;
 import org.eclipse.gef.print.PrintGraphicalViewerOperation;
-import org.eclipse.gef.ui.actions.Clipboard;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -168,29 +167,43 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
      */
     void createPage1()
     {
-
-        Label spacerLabel;
-        GridData spacerGrid;
-
-        Composite composite = new Composite(getContainer(), SWT.NONE);
-        GridLayout layout = new GridLayout(12, true);
+        Composite  composite = new Composite(getContainer(), SWT.NONE);
+        GridLayout layout    = new GridLayout(12, true);
         composite.setLayout(layout);
 
-        // ------------------------------------------------------------
-        this.hostLabel_ = new Label(composite, SWT.NONE);
-        this.hostLabel_.setText("Host:");
-        GridData hostGrid = new GridData(GridData.BEGINNING);
-        hostGrid.horizontalSpan = 2;
-        this.hostLabel_.setLayoutData(hostGrid);
+        this.hostLabel_ = createLabel(composite, "Host:");
+        this.hostText_ = createText(composite, 6, this.host_);
+        createSpacer(composite, 4);
+        
+        this.portLabel_ = createLabel(composite, "Port:");
+        this.portText_ = createText(composite, 6, Integer.toString(this.port_));
+        createSpacer(composite, 4);
+        
+        this.domainLabel_ = createLabel(composite, "Domain:");
+        this.domainText_ = createText(composite, 10, this.domain_);
+        
+        this.warningLabel_ = createLabel(composite, "Warning:");
+        this.warningText_ = createText(composite, 6, Long.toString(this.warningThreshold_));
+        createSpacer(composite, 4);
+        
+        this.alarmLabel_ = createLabel(composite, "Alarm:");
+        this.alarmText_ = createText(composite, 6, Long.toString(this.alarmThreshold_));
+        createSpacer(composite, 4);
+        
+        this.modeLabel_ = createLabel(composite, "Mode:");
+        this.modeText_ = createText(composite, 4, this.mode_);
+        createSpacer(composite, 6);
 
+        this.reloadButton_ = createButton(composite, "Reload", false);
+        this.resetButton_ = createButton(composite, "Reset", false);
+        this.startButton_ = createButton(composite, "Start", true);
+        this.stopButton_ = createButton(composite, "Stop", false);
+        createSpacer(composite, 4);
+        
+        this.printButton_ = createButton(composite, "Print", true);
+        this.copyButton_ = createButton(composite, "Copy", true);
         // ------------------------------------------------------------
-        this.hostText_ = new Text(composite, SWT.SINGLE | SWT.BORDER);
-        this.hostText_.setText(this.host_);
-        hostGrid = new GridData(GridData.BEGINNING);
-        hostGrid.horizontalSpan = 6;
-        hostGrid.horizontalAlignment = GridData.FILL;
-        this.hostText_.setLayoutData(hostGrid);
-
+        
         this.hostText_.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e)
             {
@@ -199,27 +212,6 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
             }
         });
 
-        // ============================================================
-        spacerLabel = new Label(composite, SWT.NONE);
-        spacerGrid = new GridData(GridData.BEGINNING);
-        spacerGrid.horizontalSpan = 4;
-        spacerLabel.setLayoutData(spacerGrid);
-        // ============================================================
-
-        // ------------------------------------------------------------
-        this.portLabel_ = new Label(composite, SWT.NONE);
-        this.portLabel_.setText("Port:");
-        GridData portGrid = new GridData(GridData.BEGINNING);
-        portGrid.horizontalSpan = 2;
-        this.portLabel_.setLayoutData(portGrid);
-
-        // ------------------------------------------------------------
-        this.portText_ = new Text(composite, SWT.SINGLE | SWT.BORDER);
-        this.portText_.setText(Integer.toString(this.port_));
-        portGrid = new GridData(GridData.BEGINNING);
-        portGrid.horizontalSpan = 6;
-        portGrid.horizontalAlignment = GridData.FILL;
-        this.portText_.setLayoutData(portGrid);
 
         this.portText_.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e)
@@ -230,28 +222,6 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
             }
         });
 
-        // ============================================================
-        spacerLabel = new Label(composite, SWT.NONE);
-        spacerGrid = new GridData(GridData.BEGINNING);
-        spacerGrid.horizontalSpan = 4;
-        spacerLabel.setLayoutData(spacerGrid);
-        // ============================================================
-
-        // ------------------------------------------------------------
-        this.domainLabel_ = new Label(composite, SWT.NONE);
-        this.domainLabel_.setText("Domain:");
-        GridData domainGrid = new GridData(GridData.BEGINNING);
-        domainGrid.horizontalSpan = 2;
-        this.domainLabel_.setLayoutData(domainGrid);
-
-        // ------------------------------------------------------------
-        this.domainText_ = new Text(composite, SWT.SINGLE | SWT.BORDER);
-        this.domainText_.setText(domain_);
-        domainGrid = new GridData(GridData.BEGINNING);
-        domainGrid.horizontalSpan = 10;
-        domainGrid.horizontalAlignment = GridData.FILL;
-        this.domainText_.setLayoutData(domainGrid);
-
         this.domainText_.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e)
             {
@@ -259,21 +229,6 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
                 editor.setDirty(true);
             }
         });
-
-        // ------------------------------------------------------------
-        this.warningLabel_ = new Label(composite, SWT.NONE);
-        this.warningLabel_.setText("Warning:");
-        GridData warningGrid = new GridData(GridData.BEGINNING);
-        warningGrid.horizontalSpan = 2;
-        this.warningLabel_.setLayoutData(warningGrid);
-
-        // ------------------------------------------------------------
-        this.warningText_ = new Text(composite, SWT.SINGLE | SWT.BORDER);
-        this.warningText_.setText(Long.toString(warningThreshold_));
-        warningGrid = new GridData(GridData.BEGINNING);
-        warningGrid.horizontalSpan = 6;
-        warningGrid.horizontalAlignment = GridData.FILL;
-        this.warningText_.setLayoutData(warningGrid);
 
         this.warningText_.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e)
@@ -284,28 +239,6 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
             }
         });
 
-        // ============================================================
-        spacerLabel = new Label(composite, SWT.NONE);
-        spacerGrid = new GridData(GridData.BEGINNING);
-        spacerGrid.horizontalSpan = 4;
-        spacerLabel.setLayoutData(spacerGrid);
-        // ============================================================
-
-        // ------------------------------------------------------------
-        this.alarmLabel_ = new Label(composite, SWT.NONE);
-        this.alarmLabel_.setText("Alarm:");
-        GridData alarmGrid = new GridData(GridData.BEGINNING);
-        alarmGrid.horizontalSpan = 2;
-        this.alarmLabel_.setLayoutData(alarmGrid);
-
-        // ------------------------------------------------------------
-        this.alarmText_ = new Text(composite, SWT.SINGLE | SWT.BORDER);
-        this.alarmText_.setText(Long.toString(this.alarmThreshold_));
-        alarmGrid = new GridData(GridData.BEGINNING);
-        alarmGrid.horizontalSpan = 6;
-        alarmGrid.horizontalAlignment = GridData.FILL;
-        this.alarmText_.setLayoutData(alarmGrid);
-
         this.alarmText_.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e)
             {
@@ -315,28 +248,6 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
             }
         });
 
-        // ============================================================
-        spacerLabel = new Label(composite, SWT.NONE);
-        spacerGrid = new GridData(GridData.BEGINNING);
-        spacerGrid.horizontalSpan = 4;
-        spacerLabel.setLayoutData(spacerGrid);
-        // ============================================================
-
-        // ------------------------------------------------------------
-        this.modeLabel_ = new Label(composite, SWT.NONE);
-        this.modeLabel_.setText("Mode:");
-        GridData modeGrid = new GridData(GridData.BEGINNING);
-        modeGrid.horizontalSpan = 2;
-        this.modeLabel_.setLayoutData(modeGrid);
-
-        // ------------------------------------------------------------
-        this.modeText_ = new Text(composite, SWT.SINGLE | SWT.BORDER);
-        this.modeText_.setText(this.mode_);
-        modeGrid = new GridData(GridData.BEGINNING);
-        modeGrid.horizontalSpan = 4;
-        modeGrid.horizontalAlignment = GridData.FILL;
-        this.modeText_.setLayoutData(modeGrid);
-
         this.modeText_.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e)
             {
@@ -345,22 +256,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
             }
         });
 
-        // ============================================================
-        spacerLabel = new Label(composite, SWT.NONE);
-        spacerGrid = new GridData(GridData.BEGINNING);
-        spacerGrid.horizontalSpan = 6;
-        spacerLabel.setLayoutData(spacerGrid);
-        // ============================================================
-
         // ------------------------------------------------------------
-        this.reloadButton_ = new Button(composite, SWT.NONE);
-        GridData reloadGrid = new GridData(GridData.BEGINNING);
-        reloadGrid.horizontalSpan = 2;
-        reloadGrid.horizontalAlignment = GridData.FILL;
-        this.reloadButton_.setEnabled(false);
-        this.reloadButton_.setLayoutData(reloadGrid);
-        this.reloadButton_.setText("Reload");
-
         this.reloadButton_.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event)
             {
@@ -376,14 +272,6 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         });
 
         // ------------------------------------------------------------
-        this.resetButton_ = new Button(composite, SWT.NONE);
-        GridData resetGrid = new GridData(GridData.BEGINNING);
-        resetGrid.horizontalSpan = 2;
-        resetGrid.horizontalAlignment = GridData.FILL;
-        this.resetButton_.setEnabled(false);
-        this.resetButton_.setLayoutData(resetGrid);
-        this.resetButton_.setText("Reset");
-
         this.resetButton_.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event)
             {
@@ -400,13 +288,6 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         });
 
         // ------------------------------------------------------------
-        this.startButton_ = new Button(composite, SWT.NONE);
-        GridData startGrid = new GridData(GridData.BEGINNING);
-        startGrid.horizontalSpan = 2;
-        startGrid.horizontalAlignment = GridData.FILL;
-        this.startButton_.setLayoutData(startGrid);
-        this.startButton_.setText("Start");
-
         this.startButton_.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event)
             {
@@ -425,18 +306,9 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         });
 
         // ------------------------------------------------------------
-        this.stopButton_ = new Button(composite, SWT.NONE);
-        GridData stopGrid = new GridData(GridData.BEGINNING);
-        stopGrid.horizontalSpan = 2;
-        stopGrid.horizontalAlignment = GridData.FILL;
-        this.stopButton_.setEnabled(false);
-        this.stopButton_.setLayoutData(stopGrid);
-        this.stopButton_.setText("Stop");
-
         this.stopButton_.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event)
             {
-                // TODO: TANIMOTO ブリンク停止
                 startButton_.setEnabled(true);
                 stopButton_.setEnabled(false);
                 resetButton_.setEnabled(false);
@@ -451,27 +323,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
             }
         });
 
-        if (MODE_JMX.equalsIgnoreCase(this.mode_))
-        {
-            this.stopButton_.setEnabled(false);
-        }
-
-        // ============================================================
-        spacerLabel = new Label(composite, SWT.NONE);
-        spacerGrid = new GridData(GridData.BEGINNING);
-        spacerGrid.horizontalSpan = 4;
-        spacerLabel.setLayoutData(spacerGrid);
-        // ============================================================
-        
         // ------------------------------------------------------------
-        this.printButton_ = new Button(composite, SWT.NONE);
-        GridData printGrid = new GridData(GridData.BEGINNING);
-        printGrid.horizontalSpan = 2;
-        printGrid.horizontalAlignment = GridData.FILL;
-        this.printButton_.setEnabled(true);
-        this.printButton_.setLayoutData(printGrid);
-        this.printButton_.setText("Print");
-
         this.printButton_.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event)
             {
@@ -490,14 +342,6 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         });
         
         // ------------------------------------------------------------
-        this.copyButton_ = new Button(composite, SWT.NONE);
-        GridData copyGrid = new GridData(GridData.BEGINNING);
-        copyGrid.horizontalSpan = 2;
-        copyGrid.horizontalAlignment = GridData.FILL;
-        this.copyButton_.setEnabled(true);
-        this.copyButton_.setLayoutData(copyGrid);
-        this.copyButton_.setText("Copy");
-
         this.copyButton_.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event)
             {
@@ -721,5 +565,59 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
             System.err.println("[StatsVision]不正な値が入力されました。デフォルト値:" + defaultValue + "を使用します。");
             return defaultValue;
         }
+    }
+    
+    /** 設定画面用のラベルを生成する。 */
+    private Label createLabel(Composite composite, String text)
+    {
+        GridData grid = new GridData(GridData.BEGINNING);
+        grid.horizontalSpan = 2;
+        
+        Label label = new Label(composite, SWT.NONE);
+        label.setText(text);
+        label.setLayoutData(grid);
+
+        return label;
+    }
+    
+    /** 設定画面用のテキストフィールドを生成する。 */
+    private Text createText(Composite composite, int span, String value)
+    {
+        GridData grid = new GridData(GridData.BEGINNING);
+        grid.horizontalSpan = span;
+        grid.horizontalAlignment = GridData.FILL;
+        
+        Text text = new Text(composite, SWT.SINGLE | SWT.BORDER);
+        text.setText(value);
+        text.setLayoutData(grid);
+        
+        return text;
+    }
+    
+    /** 設定画面用のボタンを生成する。 */
+    private Button createButton(Composite composite, String text, boolean isEnabled)
+    {
+        GridData grid = new GridData(GridData.BEGINNING);
+        grid.horizontalSpan      = 2;
+        grid.horizontalAlignment = GridData.FILL;
+        
+        Button button = new Button(composite, SWT.NONE);
+        button.setEnabled(isEnabled);
+        button.setLayoutData(grid);
+        button.setText(text);
+        
+        return button;
+    }
+
+    /** 設定画面用のスペーサを生成する。 */
+    private void createSpacer(Composite composite, int space)
+    {
+        GridData spacerGrid;
+        spacerGrid = new GridData(GridData.BEGINNING);
+        spacerGrid.horizontalSpan = space;
+        
+        Label    spacerLabel;
+        spacerLabel = new Label(composite, SWT.NONE);
+        spacerLabel.setLayoutData(spacerGrid);
     }
 }
