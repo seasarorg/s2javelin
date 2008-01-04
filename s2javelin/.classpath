@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="src" output="classes" path="src"/>
 	<classpathentry kind="src" output="classes_core" path="src_core"/>
+	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/aopalliance.jar"/>
 	<classpathentry kind="lib" path="lib/mx4j.jar"/>
