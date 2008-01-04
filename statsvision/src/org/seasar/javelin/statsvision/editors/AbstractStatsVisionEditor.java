@@ -54,31 +54,36 @@ public abstract class AbstractStatsVisionEditor<T>
 
     private static final String END_OF_METHOD = "<END-OF-METHOD>";
     
-    private String                       hostName_         = "";
+    private String           hostName_         = "";
 
-    private int                          portNum_          = 0;
+    private int              portNum_          = 0;
 
-    private String                       domain_           = "";
+    private String           domain_           = "";
 
-    private boolean                      isDirty_          = false;
+    private boolean          isDirty_          = false;
 
-    public long                          warningThreshold_ = Long.MAX_VALUE;
+    public long              warningThreshold_ = Long.MAX_VALUE;
 
-    public long                          alarmThreshold_   = Long.MAX_VALUE;
+    public long              alarmThreshold_   = Long.MAX_VALUE;
 
-    public String                        mode_             = "TCP";
+    public String            mode_             = "TCP";
 
     // Componentモデル設定用
-    protected Map<T, ComponentModel>       componentMap      = new HashMap<T, ComponentModel>();
+    protected Map<T, ComponentModel> componentMap      
+        = new HashMap<T, ComponentModel>();
 
-    private   Map<T, Point>                pointMap          = new HashMap<T, Point>();
+    /** ファイルから読み込み時にクラス位置を保存するためのマップ。 */
+    private   Map<T, Point> pointMap = new HashMap<T, Point>();
 
-    private   Map<ComponentModel, Integer> revRankMap        = new HashMap<ComponentModel, Integer>();
+    /** コンポーネントの自動配置位置を決めるためのランク記憶用マップ。 */
+    private   Map<ComponentModel, Integer> revRankMap
+        = new HashMap<ComponentModel, Integer>();
 
+    /** コンテンツのルートモデル。 */
     protected ContentsModel rootModel;
 
     // コンテンツ・アウトライナー・ページ
-    class MyContentOutlinePage extends ContentOutlinePage {
+    class StatsVisionContentOutlinePage extends ContentOutlinePage {
 
         //ページをアウトラインとサムネイルに分離するコンポジット
         private SashForm sash;
@@ -89,7 +94,7 @@ public abstract class AbstractStatsVisionEditor<T>
         // Viewerの破棄と連携するためのリスナ。
         private DisposeListener disposeListener;
         
-        public MyContentOutlinePage() {
+        public StatsVisionContentOutlinePage() {
           // GEFツリービューワを使用する
           super(new TreeViewer());
         }
@@ -109,6 +114,33 @@ public abstract class AbstractStatsVisionEditor<T>
           getViewer().setContents(rootModel);
           // グラフィカル・エディタとツリー・ビューワとの間で選択を同期させる
           getSelectionSynchronizer().addViewer(getViewer());
+
+          Canvas canvas = new Canvas(sash, SWT.BORDER);
+          // サムネイル・フィギュアを配置する為の LightweightSystem
+          LightweightSystem lws = new LightweightSystem(canvas);
+
+          // RootEditPartのビューをソースとしてサムネイルを作成
+          thumbnail = new ScrollableThumbnail(
+              (Viewport) ((ScalableRootEditPart) getGraphicalViewer()
+                  .getRootEditPart()).getFigure());
+          thumbnail.setSource(((ScalableRootEditPart) getGraphicalViewer()
+              .getRootEditPart())
+              .getLayer(LayerConstants.PRINTABLE_LAYERS));
+          
+          lws.setContents(thumbnail);
+
+          disposeListener = new DisposeListener() {
+            public void widgetDisposed(DisposeEvent e) {
+              // サムネイル・イメージの破棄
+              if (thumbnail != null) {
+                thumbnail.deactivate();
+                thumbnail = null;
+              }
+            }
+          };
+          // グラフィカル・ビューワが破棄されるときにサムネイルも破棄する
+          getGraphicalViewer().getControl().addDisposeListener(
+              disposeListener);
         }
 
         // オーバーライド
@@ -123,7 +155,11 @@ public abstract class AbstractStatsVisionEditor<T>
           // SelectionSynchronizer からTreeViewerを削除
           getSelectionSynchronizer().removeViewer(getViewer());
 
-          super.dispose();
+          if (getGraphicalViewer().getControl() != null
+                  && !getGraphicalViewer().getControl().isDisposed())
+                getGraphicalViewer().getControl().removeDisposeListener(disposeListener);
+
+              super.dispose();
         }
     }
 
@@ -136,7 +172,7 @@ public abstract class AbstractStatsVisionEditor<T>
         // IContentOutlinePage 型のアダプターの要求に対して
         // コンテンツ・アウトライナー・ページを返す
         if (type == IContentOutlinePage.class) {
-          return new MyContentOutlinePage();
+          return new StatsVisionContentOutlinePage();
         }
 
         return super.getAdapter(type);

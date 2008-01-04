@@ -3,6 +3,7 @@ package org.seasar.javelin.statsvision.editors;
 import java.awt.font.ImageGraphicAttribute;
 
 import org.eclipse.gef.ui.actions.GEFActionConstants;
+import org.eclipse.gef.ui.actions.ZoomComboContributionItem;
 import org.eclipse.gef.ui.parts.GraphicalEditor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
@@ -58,13 +59,21 @@ public class MultiPageEditorContributor extends
 
 		this.activeEditorPart = part;
 		
-		if (this.activeEditorPart instanceof StatsVisionEditor)
+		if (this.activeEditorPart instanceof StatsVisionEditor 
+		        && !isInitialized)
         {
+		    isInitialized = true;
+		    
 	        this.toolBarManager.add(getAction(this.activeEditorPart, GEFActionConstants.ZOOM_IN));
 	        this.toolBarManager.add(getAction(this.activeEditorPart, GEFActionConstants.ZOOM_OUT));
-        }
+	        
+	        // 倍率を直接指定するコンボ・ボックスの追加
+	        this.toolBarManager.add(new ZoomComboContributionItem(getPage()));      
+	    }
 	}
 
+	private boolean isInitialized = false;
+	
 	/**
 	 * 初回表示時に１度だけ呼び出される。
 	 */
