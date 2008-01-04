@@ -627,7 +627,7 @@ public class S2StatsJavelinRecorder
 
     private static void sendExceedThresholdAlarm(CallTreeNode node)
     {
-        sendExceedThreasholdAlarmImpl(node);
+        sendExceedThresholdAlarmImpl(node);
 
         List children = node.getChildren();
         for (int index = 0; index < children.size(); index++)
@@ -637,7 +637,7 @@ public class S2StatsJavelinRecorder
         }
     }
 
-    private static void sendExceedThreasholdAlarmImpl(CallTreeNode node)
+    private static void sendExceedThresholdAlarmImpl(CallTreeNode node)
     {
         Invocation invocation = node.getInvocation();
 
