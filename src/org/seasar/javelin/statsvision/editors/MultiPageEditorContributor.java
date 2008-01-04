@@ -1,19 +1,13 @@
 package org.seasar.javelin.statsvision.editors;
 
-import java.awt.font.ImageGraphicAttribute;
-
 import org.eclipse.gef.ui.actions.GEFActionConstants;
 import org.eclipse.gef.ui.actions.ZoomComboContributionItem;
-import org.eclipse.gef.ui.parts.GraphicalEditor;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.IEditorActionBarContributor;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.part.MultiPageEditorActionBarContributor;
-import org.eclipse.ui.texteditor.ITextEditor;
 
 /**
  * Manages the installation/deinstallation of global actions for multi-page
@@ -27,6 +21,8 @@ public class MultiPageEditorContributor extends
 	private IEditorPart activeEditorPart;
 
 	private IToolBarManager toolBarManager;
+	
+	private IMenuManager    menuManager;
 	
 	/**
 	 * Creates a multi-page contributor.
@@ -60,15 +56,18 @@ public class MultiPageEditorContributor extends
 		this.activeEditorPart = part;
 		
 		if (this.activeEditorPart instanceof StatsVisionEditor 
-		        && !isInitialized)
+		        && !this.isInitialized)
         {
-		    isInitialized = true;
+		    this.isInitialized = true;
 		    
-	        this.toolBarManager.add(getAction(this.activeEditorPart, GEFActionConstants.ZOOM_IN));
+            this.toolBarManager.add(new Separator());
+            this.toolBarManager.add(getAction(this.activeEditorPart, GEFActionConstants.ZOOM_IN));
 	        this.toolBarManager.add(getAction(this.activeEditorPart, GEFActionConstants.ZOOM_OUT));
 	        
 	        // 倍率を直接指定するコンボ・ボックスの追加
 	        this.toolBarManager.add(new ZoomComboContributionItem(getPage()));      
+	        
+//	        this.menuManager.add(new PrintAction(activeEditorPart));
 	    }
 	}
 
@@ -79,6 +78,14 @@ public class MultiPageEditorContributor extends
 	 */
 	public void contributeToToolBar(IToolBarManager toolBarManager)
 	{
+	    super.contributeToToolBar(toolBarManager);
         this.toolBarManager = toolBarManager;
 	}
+
+    @Override
+    public void contributeToMenu(IMenuManager menuManager)
+    {
+        super.contributeToMenu(menuManager);
+        this.menuManager = menuManager;
+    }
 }

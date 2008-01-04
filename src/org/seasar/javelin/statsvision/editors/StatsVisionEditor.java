@@ -1,5 +1,6 @@
 package org.seasar.javelin.statsvision.editors;
 
+import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.ui.IEditorPart;
 import org.seasar.javelin.statsvision.communicate.Telegram;
 import org.seasar.javelin.statsvision.editpart.ComponentEditPart;
@@ -54,4 +55,6 @@ public interface StatsVisionEditor extends IEditorPart {
 	void setComponentEditPart(ComponentEditPart componentPart);
 	
 	void setDirty(boolean isDirty);
+	
+	GraphicalViewer getGraphicalViewer();
 }

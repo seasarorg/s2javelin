@@ -273,7 +273,7 @@ public class ComponentEditPart
                                         getFgColor(invocation), getBgColor(invocation));
         Thread blinker = new Thread(blinkJob);
         blinker.start();
-
+        
         ((ComponentModel)getModel()).setExceededThresholdAlarm(null);
     }
 

@@ -90,6 +90,8 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String> {
 
 		// 要求の送信
 		tcpDataGetter.request();
+		
+		setDirty(true);
 	}
 
 	/* (non-Javadoc)
@@ -232,13 +234,14 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String> {
 		// InvocationMapに、該当InvocationModelを設定する
 		InvocationModel[] invocations = InvocationModel
 				.createFromTelegram(telegram,this.alarmThreshold_, this.warningThreshold_);
+		
 		// TODO ハードコーディング
 		InvocationModel invocation = invocations[0];
 		MainCtrl.getInstance().addInvocationModel(invocation);
 		MainCtrl.getInstance().notifyDataChangeListener(invocation);
 
 		// 「クラス名、メソッド名」で赤くブリンクメソッドのキーを取得する
-		StringBuffer strKeyTemp = new StringBuffer();
+		StringBuilder strKeyTemp = new StringBuilder();
 		strKeyTemp.append(invocation.getClassName());
 		strKeyTemp.append(invocation.getMethodName());
 		String strExceededThresholdMethodName = strKeyTemp.toString();
@@ -247,10 +250,8 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String> {
 		if (rootFlag.endsWith("ROOT-")) {
 			strExceededThresholdMethodName = strExceededThresholdMethodName.substring(5);
 		}
+		
 		intExceededThresholdMethodCounter++;
-		System.out.println("●赤くブリンク●べきなメソッド『"
-				+ intExceededThresholdMethodCounter + "』は："
-				+ strExceededThresholdMethodName);
 
 		// 赤くブリンクで表示する
 		if (componentEditPart != null) {
