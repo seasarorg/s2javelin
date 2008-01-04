@@ -21,7 +21,6 @@ import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.LayerConstants;
 import org.eclipse.gef.editparts.ScalableRootEditPart;
 import org.eclipse.gef.editparts.ZoomManager;
-import org.eclipse.gef.ui.actions.ActionRegistry;
 import org.eclipse.gef.ui.actions.ZoomInAction;
 import org.eclipse.gef.ui.actions.ZoomOutAction;
 import org.eclipse.gef.ui.parts.ContentOutlinePage;
@@ -35,10 +34,7 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IFileEditorInput;
-import org.eclipse.ui.actions.ActionFactory;
-import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.seasar.javelin.statsvision.editpart.StatsVisionEditPartFactory;
 import org.seasar.javelin.statsvision.editpart.StatsVisionTreeEditPartFactory;
@@ -53,6 +49,10 @@ public abstract class AbstractStatsVisionEditor<T>
     private static final String START_OF_METHOD = "<START-OF-METHOD>";
 
     private static final String END_OF_METHOD = "<END-OF-METHOD>";
+    
+    private static final String START_OF_RELATION = "<START-OF-RELATION>";
+
+    private static final String END_OF_RELATION = "<END-OF-RELATION>";
     
     private String           hostName_         = "";
 
@@ -224,11 +224,30 @@ public abstract class AbstractStatsVisionEditor<T>
                         data.append(",");
                         data.append(invocation.getThrowableCount());
                         data.append(",");
+                        data.append(invocation.getWarningThreshold());
+                        data.append(",");
+                        data.append(invocation.getAlarmThreshold());
+                        data.append(",");
                         data.append(invocation.getMethodName());
                         data.append(lineSeparator);
                     }
                     
                     data.append(END_OF_METHOD).append(lineSeparator);
+
+                    data.append(START_OF_RELATION).append(lineSeparator);
+                    
+                    List targetList = component.getModelSourceConnections();
+                    for (int index = 0; index < targetList.size(); index++)
+                    {
+                        ArrowConnectionModel connectionModel 
+                            = (ArrowConnectionModel)(targetList.get(index));
+                        
+                        ComponentModel targetModel = connectionModel.getTarget();
+                        data.append(targetModel.getClassName());
+                        data.append(lineSeparator);
+                    }
+                    
+                    data.append(END_OF_RELATION).append(lineSeparator);
                 }
 
                 for (T key : pointMap.keySet())
@@ -293,14 +312,17 @@ public abstract class AbstractStatsVisionEditor<T>
                     Point point = new Point(x, y);
                     pointMap.put(getComponentKey(className), point);
                     
-                    component = new ComponentModel();
-                    component.setClassName(className);
-                    component.setConstraint(new Rectangle(0, 0, -1, -1));
-                    rootModel.addChild(component);
+                    component = componentMap.get(getComponentKey(className));
                     
-                    componentMap.put(getComponentKey(className), component);
-                    
-                    
+                    if (component == null)
+                    {
+                        component = new ComponentModel();
+                        component.setClassName(className);
+                        component.setConstraint(new Rectangle(0, 0, -1, -1));
+                        rootModel.addChild(component);
+                        
+                        componentMap.put(getComponentKey(className), component);
+                    }
                 }
 
                 line = bReader.readLine();
@@ -337,6 +359,16 @@ public abstract class AbstractStatsVisionEditor<T>
                     long err = Long.parseLong(value);
                     
                     from = to + 1;
+                    to = line.indexOf(",", from);
+                    value = line.substring(from, to);
+                    long warn = Long.parseLong(value);
+                    
+                    from = to + 1;
+                    to = line.indexOf(",", from);
+                    value = line.substring(from, to);
+                    long alarm = Long.parseLong(value);
+                    
+                    from = to + 1;
                     value = line.substring(from);
                     
                     InvocationModel invocation = new InvocationModel();
@@ -345,8 +377,45 @@ public abstract class AbstractStatsVisionEditor<T>
                     invocation.setMaximum(max);
                     invocation.setMinimum(min);
                     invocation.setThrowableCount(err);
+                    invocation.setWarningThreshold(warn);
+                    invocation.setAlarmThreshold(alarm);
                     
                     component.addInvocation(invocation);
+                    
+                    line = bReader.readLine();
+                }
+
+                line = bReader.readLine();
+                while(line != null && !line.equals(START_OF_RELATION))
+                {
+                    line = bReader.readLine();
+                }
+                
+                // 関連情報を読み込む。
+                line = bReader.readLine();
+                while(line != null && !line.equals(END_OF_RELATION))
+                {
+                    ArrowConnectionModel arrow = new ArrowConnectionModel();
+                    component.addSourceConnection(arrow);
+                    arrow.setSource(component);
+                    
+                    String className = line;
+                    
+                    ComponentModel target 
+                        = componentMap.get(getComponentKey(className));
+                    
+                    if (target == null)
+                    {
+                        target = new ComponentModel();
+                        target.setClassName(className);
+                        target.setConstraint(new Rectangle(0, 0, -1, -1));
+                        rootModel.addChild(target);
+                        
+                        componentMap.put(getComponentKey(className), target);
+                    }
+                    
+                    target.addTargetConnection(arrow);
+                    arrow.setTarget(target);
                     
                     line = bReader.readLine();
                 }
@@ -365,6 +434,8 @@ public abstract class AbstractStatsVisionEditor<T>
 
         GraphicalViewer viewer = getGraphicalViewer();
         
+        IAction action;
+
         // ズーム可能なビューを作成するRootEditPartの設定
         ScalableRootEditPart rootEditPart = new ScalableRootEditPart();
         viewer.setRootEditPart(rootEditPart);
@@ -386,12 +457,12 @@ public abstract class AbstractStatsVisionEditor<T>
         manager.setZoomLevelContributions(zoomContributions);
         
         // 拡大アクションの作成と登録
-        IAction action = new ZoomInAction(manager);
+        action = new ZoomInAction(manager);
         getActionRegistry().registerAction(action);
         // 縮小アクションの作成と登録
         action = new ZoomOutAction(manager);
         getActionRegistry().registerAction(action);
-
+        
         // EditPartFactoryの作成と設定
         viewer.setEditPartFactory(new StatsVisionEditPartFactory(this));
     }
@@ -592,5 +663,10 @@ public abstract class AbstractStatsVisionEditor<T>
     public void setComponentMap(Map<T, ComponentModel> componentMap)
     {
         this.componentMap = componentMap;
+    }
+    
+    public GraphicalViewer getGraphicalViewer()
+    {
+        return super.getGraphicalViewer();
     }
 }

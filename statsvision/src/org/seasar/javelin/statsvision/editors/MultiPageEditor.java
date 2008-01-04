@@ -11,6 +11,12 @@ import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.draw2d.IFigure;
+import org.eclipse.draw2d.PrintFigureOperation;
+import org.eclipse.gef.LayerConstants;
+import org.eclipse.gef.editparts.ScalableRootEditPart;
+import org.eclipse.gef.print.PrintGraphicalViewerOperation;
+import org.eclipse.gef.ui.actions.Clipboard;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -19,6 +25,9 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.printing.PrintDialog;
+import org.eclipse.swt.printing.Printer;
+import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -128,6 +137,10 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 
     private Button reloadButton_;
 
+    private Button printButton_;
+
+//    private Button copyButton_;
+    
     private String host_   = "";
 
     private int    port_;
@@ -435,6 +448,64 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
             this.stopButton_.setEnabled(false);
         }
 
+        // ------------------------------------------------------------
+        this.printButton_ = new Button(composite, SWT.NONE);
+        GridData printGrid = new GridData(GridData.BEGINNING);
+        printGrid.horizontalSpan = 2;
+        printGrid.horizontalAlignment = GridData.FILL;
+        this.printButton_.setEnabled(true);
+        this.printButton_.setLayoutData(printGrid);
+        this.printButton_.setText("Print");
+
+        this.printButton_.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent event)
+            {
+                PrintDialog dialog = new PrintDialog(getSite().getShell(), SWT.NULL);
+                PrinterData data = dialog.open();
+                if (data != null) {
+                    Printer printer = new Printer(data);
+                    PrintGraphicalViewerOperation op 
+                        = new PrintGraphicalViewerOperation(
+                                  printer
+                                  , editor.getGraphicalViewer());
+                    op.setPrintMode(PrintFigureOperation.FIT_PAGE);
+                    op.run("StatVision - "+ getTitle());
+                }
+            }
+        });
+        
+        // ------------------------------------------------------------
+//        this.copyButton_ = new Button(composite, SWT.NONE);
+//        GridData copyGrid = new GridData(GridData.BEGINNING);
+//        copyGrid.horizontalSpan = 2;
+//        copyGrid.horizontalAlignment = GridData.FILL;
+//        this.copyButton_.setEnabled(true);
+//        this.copyButton_.setLayoutData(copyGrid);
+//        this.copyButton_.setText("Copy");
+//
+//        this.copyButton_.addSelectionListener(new SelectionAdapter() {
+//            public void widgetSelected(SelectionEvent event)
+//            {
+//                ScalableRootEditPart part 
+//                    = (ScalableRootEditPart)
+//                          (editor.getGraphicalViewer().getRootEditPart());
+//                IFigure layer = part.getLayer(LayerConstants.PRINTABLE_LAYERS);
+//
+//                Clipboard.getDefault().setContents(layer);
+//                PrintDialog dialog = new PrintDialog(getSite().getShell(), SWT.NULL);
+//                PrinterData data = dialog.open();
+//                if (data != null) {
+//                    Printer printer = new Printer(data);
+//                    PrintGraphicalViewerOperation op 
+//                        = new PrintGraphicalViewerOperation(
+//                                  printer
+//                                  , editor.getGraphicalViewer());
+//                    op.setPrintMode(PrintFigureOperation.FIT_PAGE);
+//                    op.run("StatVision - "+ getTitle());
+//                }
+//            }
+//        });
+        
         int index = addPage(composite);
         setPageText(index, "Settings");
     }
