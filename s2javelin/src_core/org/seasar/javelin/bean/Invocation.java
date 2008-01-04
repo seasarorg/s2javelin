@@ -30,11 +30,11 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
 
     private long              maximum_           = INITIAL;
 
-    private LinkedList        intervalList_      = new LinkedList();
+    private LinkedList<Long>        intervalList_      = new LinkedList<Long>();
 
-    private LinkedList        throwableList_     = new LinkedList();
+    private LinkedList<Throwable>        throwableList_     = new LinkedList<Throwable>();
 
-    private Set               callerSet_         = new HashSet();
+    private Set<Invocation>               callerSet_         = new HashSet<Invocation>();
 
     private boolean           isFieldAccess_     = false;
 
@@ -108,12 +108,12 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
 
     public synchronized long getAverage()
     {
-        if (intervalList_.size() == 0)
+        if (count_ == 0)
         {
             return 0;
         }
 
-        return intervalSum_ / intervalList_.size();
+        return intervalSum_ / count_;
     }
 
     public List getIntervalList()
@@ -159,8 +159,7 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
         intervalList_.add(new Long(interval));
         while (intervalList_.size() > intervalMax_)
         {
-            Long firstLong = (Long)intervalList_.removeFirst();
-            intervalSum_ -= firstLong.longValue();
+            intervalList_.removeFirst();
         }
 
         if (interval < minimum_ || minimum_ == INITIAL)
