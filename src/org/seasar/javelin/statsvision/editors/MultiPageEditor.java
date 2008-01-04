@@ -1,6 +1,8 @@
 package org.seasar.javelin.statsvision.editors;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -13,6 +15,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.PrintFigureOperation;
+import org.eclipse.draw2d.SWTGraphics;
 import org.eclipse.gef.LayerConstants;
 import org.eclipse.gef.editparts.ScalableRootEditPart;
 import org.eclipse.gef.print.PrintGraphicalViewerOperation;
@@ -23,6 +26,10 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.printing.PrintDialog;
@@ -31,6 +38,7 @@ import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
@@ -139,7 +147,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 
     private Button printButton_;
 
-//    private Button copyButton_;
+    private Button copyButton_;
     
     private String host_   = "";
 
@@ -448,6 +456,13 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
             this.stopButton_.setEnabled(false);
         }
 
+        // ============================================================
+        spacerLabel = new Label(composite, SWT.NONE);
+        spacerGrid = new GridData(GridData.BEGINNING);
+        spacerGrid.horizontalSpan = 4;
+        spacerLabel.setLayoutData(spacerGrid);
+        // ============================================================
+        
         // ------------------------------------------------------------
         this.printButton_ = new Button(composite, SWT.NONE);
         GridData printGrid = new GridData(GridData.BEGINNING);
@@ -475,36 +490,65 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         });
         
         // ------------------------------------------------------------
-//        this.copyButton_ = new Button(composite, SWT.NONE);
-//        GridData copyGrid = new GridData(GridData.BEGINNING);
-//        copyGrid.horizontalSpan = 2;
-//        copyGrid.horizontalAlignment = GridData.FILL;
-//        this.copyButton_.setEnabled(true);
-//        this.copyButton_.setLayoutData(copyGrid);
-//        this.copyButton_.setText("Copy");
-//
-//        this.copyButton_.addSelectionListener(new SelectionAdapter() {
-//            public void widgetSelected(SelectionEvent event)
-//            {
-//                ScalableRootEditPart part 
-//                    = (ScalableRootEditPart)
-//                          (editor.getGraphicalViewer().getRootEditPart());
-//                IFigure layer = part.getLayer(LayerConstants.PRINTABLE_LAYERS);
-//
-//                Clipboard.getDefault().setContents(layer);
-//                PrintDialog dialog = new PrintDialog(getSite().getShell(), SWT.NULL);
-//                PrinterData data = dialog.open();
-//                if (data != null) {
-//                    Printer printer = new Printer(data);
-//                    PrintGraphicalViewerOperation op 
-//                        = new PrintGraphicalViewerOperation(
-//                                  printer
-//                                  , editor.getGraphicalViewer());
-//                    op.setPrintMode(PrintFigureOperation.FIT_PAGE);
-//                    op.run("StatVision - "+ getTitle());
-//                }
-//            }
-//        });
+        this.copyButton_ = new Button(composite, SWT.NONE);
+        GridData copyGrid = new GridData(GridData.BEGINNING);
+        copyGrid.horizontalSpan = 2;
+        copyGrid.horizontalAlignment = GridData.FILL;
+        this.copyButton_.setEnabled(true);
+        this.copyButton_.setLayoutData(copyGrid);
+        this.copyButton_.setText("Copy");
+
+        this.copyButton_.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent event)
+            {
+                ScalableRootEditPart part 
+                    = (ScalableRootEditPart)
+                          (editor.getGraphicalViewer().getRootEditPart());
+                
+                FileDialog dialog = new FileDialog(editor.getEditorSite().getShell(), SWT.SAVE);
+                dialog.setFilterExtensions(new String[]{"bmp"});
+                dialog.setFileName(getTitle());
+                if (dialog.open() == null)
+                {
+                    return;
+                }
+                
+                IFigure layer = part.getLayer(LayerConstants.PRINTABLE_LAYERS);
+
+                try {
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    int w = layer.getSize().width;
+                    int h = layer.getSize().height;
+                    Image image = new Image(Display.getDefault(), w, h);
+                    GC gc = new GC(image);
+                    SWTGraphics graphics = new SWTGraphics(gc);
+                    layer.paint(graphics);
+                    graphics.dispose();
+                    gc.dispose();
+
+                    ImageLoader imageLoader = new ImageLoader();
+                    imageLoader.data = new ImageData[] { image.getImageData() };
+                    imageLoader.save(out, SWT.IMAGE_BMP);
+                    byte[] buffer = out.toByteArray();
+                    out.close();
+
+                    String filename = 
+                        dialog.getFilterPath() 
+                        +  "/" + dialog.getFileName();
+                    
+                    if (!filename.endsWith(".bmp"))
+                    {
+                        filename = filename + ".bmp";
+                    }
+
+                    FileOutputStream fos = new FileOutputStream(filename);
+                    fos.write(buffer);
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
         
         int index = addPage(composite);
         setPageText(index, "Settings");
