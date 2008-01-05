@@ -117,7 +117,7 @@ public class S2StatsJavelinRecorder
 		        if (listener instanceof AlarmListener)
 		        {
 		            addListener((AlarmListener) listener);
-			        JavelinErrorLogger.getInstance().log(alarmListenerName + "‚ğAlarmListner‚Æ‚µ‚Ä“o˜^‚µ‚Ü‚µ‚½B");
+			        JavelinErrorLogger.getInstance().log(alarmListenerName + "‚ğAlarmListener‚Æ‚µ‚Ä“o˜^‚µ‚Ü‚µ‚½B");
 		        }
 		        else
 		        {
