@@ -260,11 +260,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         this.reloadButton_.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event)
             {
-                editor.setHostName(hostText_.getText());
-                editor.setPortNum(Integer.parseInt(portText_.getText()));
-                editor.setDomain(domainText_.getText());
-                editor.setWarningThreshold(warningThreshold_);
-                editor.setAlarmThreshold(alarmThreshold_);
+                applyInputToEditor();
 
                 editor.setBlnReload(true);
                 editor.start();
@@ -277,6 +273,8 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
             {
                 try
                 {
+                    applyInputToEditor();
+
                     // リセットを行う。
                     editor.reset();
                 }
@@ -291,7 +289,9 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         this.startButton_.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event)
             {
-                startButton_.setEnabled(false);
+                applyInputToEditor();
+
+            	startButton_.setEnabled(false);
                 stopButton_.setEnabled(true);
                 resetButton_.setEnabled(true);
                 reloadButton_.setEnabled(true);
@@ -423,8 +423,18 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
      */
     public void doSave(IProgressMonitor monitor)
     {
+        applyInputToEditor();
+
         getEditor(0).doSave(monitor);
     }
+
+	private void applyInputToEditor() {
+		editor.setHostName(hostText_.getText());
+        editor.setPortNum(Integer.parseInt(portText_.getText()));
+        editor.setDomain(domainText_.getText());
+        editor.setWarningThreshold(warningThreshold_);
+        editor.setAlarmThreshold(alarmThreshold_);
+	}
 
     /**
      * Saves the multi-page editor's document as another file. Also updates the

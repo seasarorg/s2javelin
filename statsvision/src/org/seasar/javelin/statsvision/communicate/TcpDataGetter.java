@@ -70,12 +70,22 @@ public class TcpDataGetter {
 	 * サーバに接続を除く
 	 */
 	public void close() {
-		try {
+		if(telegramReader != null)
+		{
 			telegramReader.setRunning(false);
+		}
 
-			// 使用した通信対象をクリアする
+		// 使用した通信対象をクリアする
+		if(objPrintStream != null)
+		{
 			objPrintStream.close();
-			socketChannel.close();
+		}
+
+		try {
+			if(socketChannel != null)
+			{
+				socketChannel.close();
+			}
 			
 			System.out.println("サーバと通信が終了されました。");
 		} catch (IOException objIOException) {
@@ -104,8 +114,11 @@ public class TcpDataGetter {
 		byteOutputArr = TelegramUtil.createTelegram(objOutputTelegram);
 
 		try {
-			// 出力流を出力する
-			objPrintStream.write(byteOutputArr);
+			if(objPrintStream != null)
+			{
+				// 出力流を出力する
+				objPrintStream.write(byteOutputArr);
+			}
 		} catch (IOException objIOException) {
 			// エラーメッセージを出す
 			objIOException.printStackTrace();
@@ -134,7 +147,10 @@ public class TcpDataGetter {
 
 		try {
 			// 出力流を出力する
-			objPrintStream.write(byteOutputArr);
+			if(objPrintStream != null)
+			{
+				objPrintStream.write(byteOutputArr);
+			}
 		} catch (IOException objIOException) {
 			// エラーメッセージを出す
 			objIOException.printStackTrace();
