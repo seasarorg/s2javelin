@@ -53,22 +53,25 @@ public class SnmpConfig extends S2JavelinConfig
     public static final String OID_ALARM_THRESHOLD        = OID_JAVELIN_MIB_OBJECTS + ".16";
     
     /** SNMP系パラメータの接頭辞 */
-    public static final String  SNMP_PREFIX              = JAVELIN_PREFIX + "snmp.";
+    public static final String  SNMP_PREFIX               = JAVELIN_PREFIX + "snmp.";
     
     /** SNMPTrapを送信するかどうか(true=送信する、false=送信しない)。デフォルトはfalse(=送信しない) */
-    public static final String  SEND_TRAP_KEY            = SNMP_PREFIX + "sendTrap";
+    public static final String  SEND_TRAP_KEY             = SNMP_PREFIX + "sendTrap";
 
     /** マネージャリスト。カンマ区切りで複数指定可能。デフォルトはlocalhost */
-    public static final String  MANAGERS_KEY             = SNMP_PREFIX + "managers";
+    public static final String  MANAGERS_KEY              = SNMP_PREFIX + "managers";
 
     /** SNMP Trapポート番号。デフォルトは162 */
-    public static final String  TRAP_PORT_KEY            = SNMP_PREFIX + "trapPort";
+    public static final String  TRAP_PORT_KEY             = SNMP_PREFIX + "trapPort";
 
     /** Trapコミュニティ名。デフォルトはpublic */
-    public static final String  TRAP_COMMUNITY_KEY       = SNMP_PREFIX + "trapCommunity";
+    public static final String  TRAP_COMMUNITY_KEY        = SNMP_PREFIX + "trapCommunity";
 
-    /** SNMP Version。v2cのみ指定可能。デフォルトはv2c */
-    public static final String  VERSION_KEY              = SNMP_PREFIX + "version";
+    /** SNMP Version。デフォルトはv2c */
+    public static final String  VERSION_KEY               = SNMP_PREFIX + "version";
+
+    /** SNMP v3利用時のセキュリティレベル */
+    public static final String  SECURITY_LEVEL_KEY        = SNMP_PREFIX + "securityLevel";
 
     /** SNMPTrapを送信するかどうかのデフォルト値false(=送信しない) */
     private static final boolean DEFAULT_SEND_TRAP        = false;
@@ -93,6 +96,18 @@ public class SnmpConfig extends S2JavelinConfig
 
     /** SNMP Versionのデフォルト値v2c */
     private static final String  DEFAULT_VERSION          = VERSION_V2C;
+
+    /** SNMP v3利用時のセキュリティレベル: NOAUTH_NOPRIV(認証も暗号化も行わない) */
+//    public static final String  SECURITY_LEVEL_NOAUTH_NOPRIV = "NOAUTH_NOPRIV";
+
+    /** SNMP v3利用時のセキュリティレベル: AUTH_NOPRIV(認証するが、暗号化は行わない) */
+//    public static final String  SECURITY_LEVEL_AUTH_NOPRIV   = "AUTH_NOPRIV";
+
+    /** SNMP v3利用時のセキュリティレベル: AUTH_PRIV(認証、暗号化を行う) */
+//    public static final String  SECURITY_LEVEL_AUTH_PRIV     = "AUTH_PRIV";
+
+    /** SNMP v3利用時のセキュリティレベルのデフォルト値NOAUTH_NOPRIV */
+//    private static final String DEFAULT_SECURITY_LEVEL       = SECURITY_LEVEL_NOAUTH_NOPRIV;
 
     /**
      * SNMPTrapを送信するかどうかを返す。
@@ -148,4 +163,17 @@ public class SnmpConfig extends S2JavelinConfig
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         return configUtil.getString(VERSION_KEY, DEFAULT_VERSION);
     }
+
+    /**
+     * SNMP v3利用時のセキュリティレベルを返す。
+     *
+     * @return SNMP Version
+     */
+/**
+    public String getSecurityLevel()
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        return configUtil.getString(SECURITY_LEVEL_KEY, DEFAULT_SECURITY_LEVEL);
+    }
+*/
 }

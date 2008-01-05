@@ -73,7 +73,7 @@ public class TrapListener implements AlarmListener
             }
             catch (Exception ex)
             {
-                JavelinErrorLogger.getInstance().log("電文受信中に予期せぬエラーが発生しました。", ex);
+                JavelinErrorLogger.getInstance().log("電文送信中に予期せぬエラーが発生しました。", ex);
             }
         }
     }
@@ -122,13 +122,13 @@ public class TrapListener implements AlarmListener
         else if (SnmpConfig.VERSION_V3.equals(this.version) == true)
         {
             // v3の場合
-            // TODO 未実装
-            return;
+            // TODO 未実装のため、Trap送信しない
+            JavelinErrorLogger.getInstance().log(SnmpConfig.VERSION_KEY + "=" + this.version + "は未対応であるため、Trapを送信しませんでした。");
         }
         else
         {
             // versionが無効値のため、Trap送信しない
-            JavelinErrorLogger.getInstance().log(SnmpConfig.VERSION_KEY + "の値(" + this.version + ")は無効値であるため、Trapを送信しませんでした。");
+            JavelinErrorLogger.getInstance().log(SnmpConfig.VERSION_KEY + "=" + this.version + "は無効値であるため、Trapを送信しませんでした。");
         }
     }
     
@@ -170,6 +170,27 @@ public class TrapListener implements AlarmListener
         // 詳細パラメータを設定する
         return createVariableBindings(pdu, invocation);
     }
+
+    /**
+     * 呼び出し情報を元に送信するTrapの内容を設定する(v3)
+     * @param invocation 呼び出し情報
+     * @return 送信Trap
+     */
+/**
+    private PDU createV3Trap(Invocation invocation)
+    {
+        // v3 Trapのヘッダを設定する
+        PDU pdu = new ScopedPDU();
+        pdu.setType(PDU.NOTIFICATION);
+        
+        // Trap OIDを設定する
+        pdu.add(new VariableBinding(new OID(SnmpConstants.snmpTrapOID),
+                                    new OID(SnmpConfig.OID_EXCEED_AlARM_THRESHOLD)));
+        
+        // 詳細パラメータを設定する
+        return createVariableBindings(pdu, invocation);
+    }
+*/
     
     /**
      * 指定されたTrap情報に詳細パラメータを設定する
@@ -179,28 +200,55 @@ public class TrapListener implements AlarmListener
      */
     private PDU createVariableBindings(PDU pdu, Invocation invocation)
     {
+        // EventTime
         pdu.add(new VariableBinding(new OID(SnmpConfig.OID_EVENT_TIME),
                                     new Counter64(System.currentTimeMillis())));
+        // ProcessName
+        String processName = "";
+        if (invocation.getProcessName() != null)
+        {
+            processName = invocation.getProcessName();
+        }
         pdu.add(new VariableBinding(new OID(SnmpConfig.OID_PROCESS_NAME),
-                                    new OctetString(invocation.getProcessName())));
+                                    new OctetString(processName)));
+        // ClassName
+        String className = "";
+        if (invocation.getClassName() != null)
+        {
+            className = invocation.getClassName();
+        }
         pdu.add(new VariableBinding(new OID(SnmpConfig.OID_CLASS_NAME),
-                                    new OctetString(invocation.getClassName())));
+                                    new OctetString(className)));
+        // MethodName
+        String methodName = "";
+        if (invocation.getMethodName() != null)
+        {
+            methodName = invocation.getMethodName();
+        }
         pdu.add(new VariableBinding(new OID(SnmpConfig.OID_METHOD_NAME),
-                                    new OctetString(invocation.getMethodName())));
+                                    new OctetString(methodName)));
+        // Count
         pdu.add(new VariableBinding(new OID(SnmpConfig.OID_COUNT),
                                     new Counter64(invocation.getCount())));
+        // Minimum
         pdu.add(new VariableBinding(new OID(SnmpConfig.OID_MINIMUM),
                                     new Counter64(invocation.getMinimum())));
+        // Maximum
         pdu.add(new VariableBinding(new OID(SnmpConfig.OID_MAXIMUM),
                                     new Counter64(invocation.getMaximum())));
+        // IntervalList(Average)
         pdu.add(new VariableBinding(new OID(SnmpConfig.OID_INTERVAL_LIST),
                                     new Counter64(invocation.getAverage())));
+        // ThrowableList(ThrowableCount)
         pdu.add(new VariableBinding(new OID(SnmpConfig.OID_THROWABLE_LIST),
                                     new Counter64(invocation.getThrowableCount())));
+        // CallerSet(CallerSetString)
         pdu.add(new VariableBinding(new OID(SnmpConfig.OID_CALLER_SET),
                                     new OctetString(buildCallerSetString(invocation.getAllCallerInvocation()))));
+        // RecordThreshold
         pdu.add(new VariableBinding(new OID(SnmpConfig.OID_RECORD_THRESHOLD),
                                     new Counter64(invocation.getRecordThreshold())));
+        // AlarmThreshold()
         pdu.add(new VariableBinding(new OID(SnmpConfig.OID_ALARM_THRESHOLD),
                                     new Counter64(invocation.getAlarmThreshold())));
         return pdu;
@@ -209,6 +257,7 @@ public class TrapListener implements AlarmListener
     /**
      * CallerとなるInvocationの配列を文字列化する。<br>
      * 各Invocationオブジェクトは、"クラス名#メソッド名"の形で文字列化する。
+     * 配列の要素は","で区切りで並べる。
      * 
      * @param callerSet CallerとなるInvocation配列。
      * @return 各Invocationオブジェクトを文字列化した結果。
@@ -223,9 +272,15 @@ public class TrapListener implements AlarmListener
             {
                 buf.append(",");
             }
-            buf.append(invocation.getClassName());
+            if (invocation.getClassName() != null)
+            {
+                buf.append(invocation.getClassName());
+            }
             buf.append("#");
-            buf.append(invocation.getMethodName());
+            if (invocation.getMethodName() != null)
+            {
+                buf.append(invocation.getMethodName());
+            }
         }
         
         return buf.toString();
