@@ -15,7 +15,6 @@ import org.seasar.javelin.bean.Invocation;
 import org.seasar.javelin.bean.InvocationMBean;
 import org.seasar.javelin.communicate.AlarmListener;
 import org.seasar.javelin.communicate.JavelinAcceptThread;
-import org.seasar.javelin.communicate.JmxListener;
 import org.seasar.javelin.helper.VMStatusHelper;
 import org.seasar.javelin.log.S2StatsJavelinFileGenerator;
 import org.seasar.javelin.util.ObjectNameUtil;
@@ -55,7 +54,9 @@ public class S2StatsJavelinRecorder
     private static VMStatusHelper         vmStatusHelper__ = new VMStatusHelper();
 
     /**
-     * 初期化処理。 MBeanServerへのContainerMBeanの登録を行う。
+     * 初期化処理。 
+     * AlarmListenerの登録を行う。
+     * MBeanServerへのContainerMBeanの登録を行う。
      * 公開用HTTPポートが指定されていた場合は、HttpAdaptorの生成と登録も行う。
      */
     private static void javelinInit(S2JavelinConfig config, MBeanServer server)
@@ -65,6 +66,10 @@ public class S2StatsJavelinRecorder
             // エラーロガーを初期化する。
             JavelinErrorLogger.initErrorLog(config);
 
+            // AlarmListenerを登録する
+            registerAlarmListeners(config);
+            
+            // MBeanを登録する
             server = ManagementFactory.getPlatformMBeanServer();
 
             ContainerMBean container;
@@ -89,6 +94,71 @@ public class S2StatsJavelinRecorder
             ex.printStackTrace();
         }
     }
+
+    /**
+     * AlarmListenerのクラスをJavelin設定から読み込み、登録する。
+     * クラスのロードは、以下の順でクラスローダでのロードを試みる。
+     * <ol>
+     * <li>S2StatsJavelinRecorderをロードしたクラスローダ</li>
+     * <li>コンテキストクラスローダ</li>
+     * </ol>
+     * 
+     * @param config
+     */
+	private static void registerAlarmListeners(S2JavelinConfig config)
+	{
+		String[] alarmListeners = config.getAlarmListeners().split(",");
+		for (String alarmListenerName : alarmListeners)
+		{
+		    try
+		    {
+		        Class<?> alarmListenerClass = loadClass(alarmListenerName);
+				Object listener = alarmListenerClass.newInstance();
+		        if (listener instanceof AlarmListener)
+		        {
+		            addListener((AlarmListener) listener);
+			        JavelinErrorLogger.getInstance().log(alarmListenerName + "をAlarmListnerとして登録しました。");
+		        }
+		        else
+		        {
+		            JavelinErrorLogger.getInstance().log(alarmListenerName + "はAlarmListenerを実装していないため、Alarm通知に利用しません。");
+		        }
+		    }
+		    catch (Exception ex)
+		    {
+		        JavelinErrorLogger.getInstance().log(alarmListenerName + "の登録に失敗したため、Alarm通知に利用しません。", ex);
+		    }
+		}
+	}
+
+	/**
+	 * クラスをロードする。
+     * 以下の順でクラスローダでのロードを試みる。
+     * <ol>
+     * <li>S2StatsJavelinRecorderをロードしたクラスローダ</li>
+     * <li>コンテキストクラスローダ</li>
+     * </ol>
+	 * 
+	 * @param className ロードするクラスの名前。
+	 * @return ロードしたクラス。
+	 * @throws ClassNotFoundException 全てのクラスローダでクラスが見つからない場合
+	 */
+	private static Class<?> loadClass(String className)
+			throws ClassNotFoundException {
+		
+		Class<?> clazz;
+		try
+		{
+			clazz = Class.forName(className);
+		}
+		catch(ClassNotFoundException cnfe)
+		{
+	        JavelinErrorLogger.getInstance().log(className + "のロードに失敗したため、コンテキストクラスローダからのロードを行います。");
+			clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
+		}
+		
+		return clazz;
+	}
 
     /**
      * MBeanに登録する文字列を生成する
@@ -652,13 +722,11 @@ public class S2StatsJavelinRecorder
     }
 
     private static final List<AlarmListener> alarListenerList__ = new ArrayList<AlarmListener>();
-    static
-    {
-        JmxListener jmxListener = new JmxListener();
-        addListener(jmxListener);
 
-    }
-
+    /**
+     * Alarm通知に利用するAlarmListenerを登録する
+     * @param alarmListener Alarm通知に利用するAlarmListener
+     */
     public static void addListener(AlarmListener alarmListener)
     {
         synchronized (alarListenerList__)

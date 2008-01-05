@@ -75,6 +75,9 @@ public class S2JavelinConfig
     /** エラーログファイルのプロパティ名 */
     public static final String   ERRORLOG_KEY                = JAVELIN_PREFIX + "error.log";
 
+    /** 利用するAlarmListener名 */
+    private static final String  ALARM_LISTENERS_KEY         = JAVELIN_PREFIX + "alarmListeners";
+    
     private static final int     DEFAULT_INTERVALMAX         = 1000;
 
     private static final int     DEFAULT_THROWABLEMAX        = 1000;
@@ -125,6 +128,9 @@ public class S2JavelinConfig
 
     /** Javelin実行エラーメッセージの出力先パスのデフォルト値 */
     public static final String   DEFAULT_ERRORLOG            = "log/error.log";
+
+    /** デフォルトで利用するAlarmListener名 */
+    private static final String  DEFAULT_ALARM_LISTENERS     = "org.seasar.javelin.communicate.JmxListener";
 
     /**
      * S2StatsJavelinの設定を保持するオブジェクトを作成する。
@@ -809,5 +815,39 @@ public class S2JavelinConfig
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         return configUtil.getString(ERRORLOG_KEY, DEFAULT_ERRORLOG);
+    }
+
+    /**
+     * 利用するAlarmListener名を返す。
+     * ","区切りで複数指定することができる。
+     *
+     * @return 利用するAlarmListener名
+     */
+    public String getAlarmListeners()
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        return configUtil.getString(ALARM_LISTENERS_KEY, DEFAULT_ALARM_LISTENERS);
+    }
+
+    /**
+     * 利用するAlarmListener名が設定されているかどうかを調べる。
+     *
+     * @return 設定されていればtrue
+     */
+    public boolean isSetAlarmListeners()
+    {
+        return isKeyExist(ALARM_LISTENERS_KEY);
+    }
+
+    /**
+     * 利用するAlarmListener名をセットする。
+     * ","区切りで複数指定することができる。
+     *
+     * @param alarmListeners 利用するAlarmListener名
+     */
+    public void setAlarmListeners(String alarmListeners)
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        configUtil.setString(ALARM_LISTENERS_KEY, alarmListeners);
     }
 }
