@@ -709,8 +709,6 @@ public class S2StatsJavelinRecorder
 
     private static void sendExceedThresholdAlarmImpl(CallTreeNode node)
     {
-        Invocation invocation = node.getInvocation();
-
         synchronized (alarmListenerList__)
         {
             for (AlarmListener alarmListener : alarmListenerList__)
@@ -723,7 +721,9 @@ public class S2StatsJavelinRecorder
                     continue;
                 }
                 
-                alarmListener.sendExceedThresholdAlarm(invocation);
+                // AlarmListenerにはCallTreeNodeをそのまま渡す
+                // →アラーム通知で累積時間を使用するものがある為
+                alarmListener.sendExceedThresholdAlarm(node);
             }
         }
 

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
+import org.seasar.javelin.CallTreeNode;
 import org.seasar.javelin.JavelinErrorLogger;
 import org.seasar.javelin.S2StatsJavelinRecorder;
 import org.seasar.javelin.bean.Invocation;
@@ -177,8 +177,9 @@ public class JavelinAcceptThread implements Runnable, AlarmListener
         return size;
     }
 
-    public void sendExceedThresholdAlarm(Invocation invocation)
+    public void sendExceedThresholdAlarm(CallTreeNode node)
     {
+        Invocation invocation = node.getInvocation();
         Telegram objTelegram = TelegramUtil.create(
                                                    Arrays.asList(new Object[]{invocation}),
                                                    Common.BYTE_TELEGRAM_KIND_ALERT,
@@ -203,7 +204,10 @@ public class JavelinAcceptThread implements Runnable, AlarmListener
         this.isRunning = false;
     }
 
-    /* (non-Javadoc)
+    /**
+     * このAlarmListenerがルートノードのみを処理するかどうかを返す。
+     * ※このクラスでは、常にfalseを返す。
+     * 
      * @see org.seasar.javelin.communicate.AlarmListener#isSendingRootOnly()
      */
     public boolean isSendingRootOnly()

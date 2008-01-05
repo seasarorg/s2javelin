@@ -223,7 +223,7 @@ public class JmxRecorder
         if (invocation != null)
         {
             JmxListener jmxListener = new JmxListener();
-            jmxListener.sendExceedThresholdAlarm(invocation);
+            jmxListener.sendExceedThresholdAlarm(node);
         }
         
         List children = node.getChildren();

@@ -2,12 +2,15 @@ package org.seasar.javelin.communicate;
 
 import javax.management.AttributeChangeNotification;
 
+import org.seasar.javelin.CallTreeNode;
 import org.seasar.javelin.bean.Invocation;
 
 public class JmxListener implements AlarmListener
 {
-    public void sendExceedThresholdAlarm(Invocation invocation)
+    public void sendExceedThresholdAlarm(CallTreeNode node)
     {
+        Invocation invocation = node.getInvocation();
+        
         synchronized (invocation)
         {
             // メッセージ
@@ -30,7 +33,10 @@ public class JmxListener implements AlarmListener
         }
     }
 
-    /* (non-Javadoc)
+    /**
+     * このAlarmListenerがルートノードのみを処理するかどうかを返す。
+     * ※このクラスでは、常にfalseを返す。
+     * 
      * @see org.seasar.javelin.communicate.AlarmListener#isSendingRootOnly()
      */
     public boolean isSendingRootOnly()
