@@ -29,4 +29,12 @@ public class JmxListener implements AlarmListener
             invocation.sendNotification(notification);
         }
     }
+
+    /* (non-Javadoc)
+     * @see org.seasar.javelin.communicate.AlarmListener#isSendingRootOnly()
+     */
+    public boolean isSendingRootOnly()
+    {
+        return false;
+    }
 }

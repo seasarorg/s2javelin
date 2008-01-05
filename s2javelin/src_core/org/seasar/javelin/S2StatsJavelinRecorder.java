@@ -711,17 +711,25 @@ public class S2StatsJavelinRecorder
     {
         Invocation invocation = node.getInvocation();
 
-        synchronized (alarListenerList__)
+        synchronized (alarmListenerList__)
         {
-            for (AlarmListener alarmListener : alarListenerList__)
+            for (AlarmListener alarmListener : alarmListenerList__)
             {
+                // ルートノードのみAlarmを送信するAlarmListenerは、
+                // 親を持つノードを無視する。
+                boolean sendingRootOnly = alarmListener.isSendingRootOnly();
+                if (sendingRootOnly == true && node.getParent() != null)
+                {
+                    continue;
+                }
+                
                 alarmListener.sendExceedThresholdAlarm(invocation);
             }
         }
 
     }
 
-    private static final List<AlarmListener> alarListenerList__ = new ArrayList<AlarmListener>();
+    private static final List<AlarmListener> alarmListenerList__ = new ArrayList<AlarmListener>();
 
     /**
      * Alarm通知に利用するAlarmListenerを登録する
@@ -729,9 +737,9 @@ public class S2StatsJavelinRecorder
      */
     public static void addListener(AlarmListener alarmListener)
     {
-        synchronized (alarListenerList__)
+        synchronized (alarmListenerList__)
         {
-            alarListenerList__.add(alarmListener);
+            alarmListenerList__.add(alarmListener);
         }
     }
 

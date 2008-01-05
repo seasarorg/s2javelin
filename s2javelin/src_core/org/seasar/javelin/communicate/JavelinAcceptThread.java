@@ -202,4 +202,12 @@ public class JavelinAcceptThread implements Runnable, AlarmListener
     {
         this.isRunning = false;
     }
+
+    /* (non-Javadoc)
+     * @see org.seasar.javelin.communicate.AlarmListener#isSendingRootOnly()
+     */
+    public boolean isSendingRootOnly()
+    {
+        return false;
+    }
 }
