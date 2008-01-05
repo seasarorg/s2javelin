@@ -15,6 +15,7 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.seasar.javelin.JavelinErrorLogger;
 import org.seasar.javelin.bean.Invocation;
 import org.seasar.javelin.communicate.AlarmListener;
 import org.seasar.javelin.util.KeywordConverter;
@@ -105,6 +106,12 @@ public class SMTPListener implements AlarmListener
             // メール送信しない場合は何もせずに終了する
             return;
         }
+        
+        if (invocation == null)
+        {
+            JavelinErrorLogger.getInstance().log("sendExceedThresholdAlarm: 呼び出し元情報がありません。");
+            return;
+        }
 
         try
         {
@@ -116,22 +123,28 @@ public class SMTPListener implements AlarmListener
         }
         catch (MessagingException exception)
         {
-            exception.printStackTrace();
+            JavelinErrorLogger.getInstance().log("メール送信中に予期せぬエラーが発生しました。", exception);
         }
     }
 
     /**
-     * Mailオブジェクトを作成する。
+     * メールを作成する。
      * 
      * @return 作成したメッセージ。
      * @throws MessagingException メッセージ作成中にエラーが発生した場合。
      */
-    private MimeMessage createMailMessage(SMTPConfig config, Invocation invocation)
+    protected MimeMessage createMailMessage(SMTPConfig config, Invocation invocation)
         throws MessagingException
     {
         // JavaMailに渡すプロパティを設定する
         Properties props = System.getProperties();
-        props.setProperty(SMTP_HOST_KEY, config.getSmtpServer());
+        String smtpServer = config.getSmtpServer();
+        if (smtpServer == null || smtpServer.length() == 0)
+        {
+            JavelinErrorLogger.getInstance().log("createMailMessage: SMTPサーバが指定されていません。");
+            throw new MessagingException("SMTPサーバが指定されていません。");
+        }
+        props.setProperty(SMTP_HOST_KEY, smtpServer);
 
         // メールサーバに対するセッションキーとなるオブジェクトを作成する
         Session session = Session.getDefaultInstance(props);
@@ -147,12 +160,12 @@ public class SMTPListener implements AlarmListener
         message.setHeader("Content-Type", "text/plain; charset=\"" + encoding + "\"");
         message.setSentDate(date_);
         
-        // :FROM
+        // :from
         String from = config.getMailFrom();
         InternetAddress fromAddr = new InternetAddress(from);
         message.setFrom(fromAddr);
         
-        // :TO
+        // :to
         String[] recipients = config.getMailTo();
         for (String toStr : recipients)
         {
@@ -160,22 +173,25 @@ public class SMTPListener implements AlarmListener
             message.addRecipient(Message.RecipientType.TO, toAddr);
         }
 
+        // body, subject
+        String subject;
         String body;
         try
         {
-            body = createBody(config, invocation);
-            
-            String subject = createSubject(config, invocation);
-            message.setSubject(subject, encoding);
+            subject = createSubject(config, invocation);
+            body    = createBody(config, invocation);
         }
         catch (IOException exception)
         {
-            message.setSubject("Javelin alart");
+            JavelinErrorLogger.getInstance().log("createMailMessage: メールテンプレートの読み込みに失敗しました。デフォルト形式のメールを送信します。");
+            
+            subject = "Javelin alert";
             body = "*** Failed read mail template: " + config.getMailTemplate() + " ***"
                    + LS + LS
                    + createDefaultBody(invocation);
         }
         
+        message.setSubject(subject, encoding);
         message.setText(body, encoding);
 
         return message;
@@ -233,7 +249,6 @@ public class SMTPListener implements AlarmListener
         conv.addConverter(KEYWORD_RECORD_THRESHOLD, invocation.getRecordThreshold());
         conv.addConverter(KEYWORD_ALARM_THRESHOLD, invocation.getAlarmThreshold());
         conv.addConverter(KEYWORD_PROCESS_NAME, invocation.getProcessName());
-        //conv.addConverter(KEYWORD_PROCESS_NAME, "ProcessName");
         conv.addConverter(KEYWORD_CALLER_SET,
                           buildCallerSetString(invocation.getAllCallerInvocation()));
         conv.addConverter(KEYWORD_DATE, dateFormatter_.format(date_));
@@ -256,7 +271,6 @@ public class SMTPListener implements AlarmListener
         buf.append(KEYWORD_DATE             + " = " + dateFormatter_.format(date_) + " ");
         buf.append(millisFormatter_.format(date_) + LS);
         buf.append(KEYWORD_PROCESS_NAME     + " = " + invocation.getProcessName() + "\n");
-        //buf.append(KEYWORD_PROCESS_NAME     + " = " + "ProcessName" + LS);
         buf.append(KEYWORD_CLASS_NAME       + " = " + invocation.getClassName() + LS);
         buf.append(KEYWORD_METHOD_NAME      + " = " + invocation.getMethodName() + LS);
         buf.append(LS);

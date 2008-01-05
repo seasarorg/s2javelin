@@ -7,7 +7,7 @@ import java.util.Set;
 
 /**
  * 文字列に含まれるキーワードを変換するクラス。</br>
- * キーワードのPrefix、Surfixを指定することができる。
+ * キーワードのPrefix、Suffixを指定することができる。
  * addConverterメソッドを利用してキーワードの置換文字列を指定し、
  * convertメソッドで置換する。
  * 
@@ -18,31 +18,31 @@ public class KeywordConverter
     /** キーワードのPrefix */
     private final String        keywordPrefix;
 
-    /** キーワードのSurfix */
-    private final String        keywordSurfix;
+    /** キーワードのSuffix */
+    private final String        keywordSuffix;
 
     /** キーワードを変換する文字列を定義したリスト */
     private Map<String, String> converterMap = new LinkedHashMap<String, String>();
 
     /**
-     * Prefix、Surfixなしの変換クラスを生成する。</br>
+     * Prefix、Suffixなしの変換クラスを生成する。</br>
      */
     public KeywordConverter()
     {
         this.keywordPrefix = "";
-        this.keywordSurfix = "";
+        this.keywordSuffix = "";
     }
 
     /**
-     * Prefix、Surfixを指定して変換クラスを生成する。</br>
+     * Prefix、Suffixを指定して変換クラスを生成する。</br>
      * 
      * @param keywordPrefix キーワードのPrefix
-     * @param keywordSurfix キーワードのSurfix
+     * @param keywordSuffix キーワードのSuffix
      */
-    public KeywordConverter(String keywordPrefix, String keywordSurfix)
+    public KeywordConverter(String keywordPrefix, String keywordSuffix)
     {
         this.keywordPrefix = keywordPrefix;
-        this.keywordSurfix = keywordSurfix;
+        this.keywordSuffix = keywordSuffix;
     }
 
     /**
@@ -53,7 +53,7 @@ public class KeywordConverter
      */
     public void addConverter(String keyword, String convertedString)
     {
-        converterMap.put(keywordPrefix + keyword + keywordSurfix,
+        converterMap.put(keywordPrefix + keyword + keywordSuffix,
                          convertedString);
     }
     
@@ -108,7 +108,14 @@ public class KeywordConverter
         Set<Map.Entry<String, String>> entries = converterMap.entrySet();
         for (Map.Entry<String, String> entry : entries)
         {
-            retValue = retValue.replace(entry.getKey(), entry.getValue());
+            if (entry.getValue() == null)
+            {
+                retValue = retValue.replace(entry.getKey(), "null");
+            }
+            else
+            {
+                retValue = retValue.replace(entry.getKey(), entry.getValue());
+            }
         }
 
         // 置換後の文字列を返す

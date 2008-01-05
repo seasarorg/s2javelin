@@ -103,7 +103,14 @@ public class SMTPConfig extends S2JavelinConfig
     public void setSmtpServer(String server)
     {
         JavelinConfigUtil util = JavelinConfigUtil.getInstance();
-        util.setString(SMTP_SERVER_KEY, server);
+        if (server == null)
+        {
+            util.setString(SMTP_SERVER_KEY, "");
+        }
+        else
+        {
+            util.setString(SMTP_SERVER_KEY, server);
+        }
     }
 
     /**
@@ -124,7 +131,14 @@ public class SMTPConfig extends S2JavelinConfig
     public void setMailFrom(String from)
     {
         JavelinConfigUtil util = JavelinConfigUtil.getInstance();
-        util.setString(SMTP_FROM_KEY, from);
+        if (from == null)
+        {
+            util.setString(SMTP_FROM_KEY, "");
+        }
+        else
+        {
+            util.setString(SMTP_FROM_KEY, from);
+        }
     }
 
     /**
@@ -149,6 +163,7 @@ public class SMTPConfig extends S2JavelinConfig
         if (to == null)
         {
             util.setString(SMTP_TO_KEY, "");
+            return;
         }
         
         StringBuilder buf = new StringBuilder();
@@ -182,7 +197,14 @@ public class SMTPConfig extends S2JavelinConfig
     public void setMailTemplate(String template)
     {
         JavelinConfigUtil util = JavelinConfigUtil.getInstance();
-        util.setString(SMTP_TEMPLATE_KEY, template);
+        if (template == null)
+        {
+            util.setString(SMTP_TEMPLATE_KEY, "");
+        }
+        else
+        {
+            util.setString(SMTP_TEMPLATE_KEY, template);
+        }
     }
 
     /**
@@ -203,7 +225,14 @@ public class SMTPConfig extends S2JavelinConfig
     public void setMailEncoding(String encoding)
     {
         JavelinConfigUtil util = JavelinConfigUtil.getInstance();
-        util.setString(SMTP_ENCODING_KEY, encoding);
+        if (encoding == null)
+        {
+            util.setString(SMTP_ENCODING_KEY, "");
+        }
+        else
+        {
+            util.setString(SMTP_ENCODING_KEY, encoding);
+        }
     }
     
     /**
@@ -224,6 +253,13 @@ public class SMTPConfig extends S2JavelinConfig
     public void setMailSubject(String subject)
     {
         JavelinConfigUtil util = JavelinConfigUtil.getInstance();
-        util.setString(SMTP_SUBJECT_KEY, subject);
+        if (subject == null)
+        {
+            util.setString(SMTP_SUBJECT_KEY, "");
+        }
+        else
+        {
+            util.setString(SMTP_SUBJECT_KEY, subject);
+        }
     }
 }
