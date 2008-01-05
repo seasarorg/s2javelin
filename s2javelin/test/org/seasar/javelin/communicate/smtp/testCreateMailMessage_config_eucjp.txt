@@ -1,2 +1,0 @@
-このメールはテスト用です。
-ProcessName=${processName}
