@@ -11,6 +11,9 @@ public class ComponentTreeEditPart extends StatsVisionTreeEditPart
       ComponentModel model = (ComponentModel)getModel();
       // ツリー・アイテムのテキストとしてモデルのテキストを設定
       setWidgetText(model.getClassName());
+      
+      // TODO:アウトラインにアイコンを表示する。
+//      setWidgetImage(image);
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
