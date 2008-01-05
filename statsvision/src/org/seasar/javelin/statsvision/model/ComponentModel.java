@@ -11,6 +11,9 @@ import org.seasar.javelin.statsvision.editpart.ComponentEditPart;
 
 public class ComponentModel extends AbstractModel
 {
+    /**
+     * コンストラクタ。
+     */
 	public ComponentModel()
 	{
 		super();

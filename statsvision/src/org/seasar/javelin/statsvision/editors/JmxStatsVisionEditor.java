@@ -40,6 +40,7 @@ public class JmxStatsVisionEditor extends AbstractStatsVisionEditor<ObjectName> 
 		
         // 最上位のモデルの設定
         rootModel = new ContentsModel();
+        rootModel.setContentsName(getTitle());
         
         // 位置データの読み込み
         load();
@@ -72,6 +73,7 @@ public class JmxStatsVisionEditor extends AbstractStatsVisionEditor<ObjectName> 
 
 		// 最上位のモデルの設定
 		ContentsModel rootModel = new ContentsModel();
+        rootModel.setContentsName(getTitle());
 
 		try {
 			JMXServiceURL url = new JMXServiceURL(

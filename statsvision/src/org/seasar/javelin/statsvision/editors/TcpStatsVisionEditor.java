@@ -72,6 +72,7 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String> {
 
 		// 最上位のモデルの設定
 		rootModel = new ContentsModel();
+        rootModel.setContentsName(getTitle());
 		
 		// 位置データの読み込み
 		load();
