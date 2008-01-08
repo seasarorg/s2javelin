@@ -580,6 +580,13 @@ public abstract class AbstractStatsVisionEditor<T>
         return newRank;
     }
 
+    @Override
+    public void dispose()
+    {
+        super.dispose();
+        stop();
+    }
+
     public boolean isDirty()
     {
         return isDirty_;
