@@ -7,7 +7,7 @@ public enum ComponentType {
 	public static ComponentType getComponentType(String className) {
 		if (className.startsWith("/")) {
 			return WEB;
-		} else if (className.contains("@")) {
+		} else if (className.startsWith("jdbc:")) {
 			return DATABASE;
 		} else {
 			return CLASS;
