@@ -43,6 +43,8 @@ public class ComponentModel extends AbstractModel
 
 	private Rectangle constraint_; // 制約
 
+	private ComponentType componentType_;
+
 	// 以下IPropertySourceインターフェイスの
 	// メソッドの一部をオーバーライドした部分
 	public IPropertyDescriptor[] getPropertyDescriptors()
@@ -115,6 +117,7 @@ public class ComponentModel extends AbstractModel
 	public void setClassName(String className)
 	{
 		className_ = className;
+		componentType_ = ComponentType.getComponentType(className);
 	    firePropertyChange(P_CLASS_NAME, null, className_);
 	}
 
@@ -223,5 +226,9 @@ public class ComponentModel extends AbstractModel
         this.firePropertyChange(
                 P_EXCEEDED_THRESHOLD_ALARM, oldMethodName, this.exceededThresholdMethodName_);
     }
+
+	public ComponentType getComponentType() {
+		return componentType_;
+	}
     
 }
