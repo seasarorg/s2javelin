@@ -250,5 +250,4 @@ public class JmxStatsVisionEditor extends AbstractStatsVisionEditor<ObjectName> 
 			throw new IllegalArgumentException(ex);
 		}
 	}
-
 }

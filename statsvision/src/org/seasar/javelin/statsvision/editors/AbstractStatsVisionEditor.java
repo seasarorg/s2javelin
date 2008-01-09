@@ -68,6 +68,8 @@ public abstract class AbstractStatsVisionEditor<T>
 
     public String            mode_             = "TCP";
 
+    public String            lineStyle_        = "NORMAL";
+    
     // ComponentÉÇÉfÉãê›íËóp
     protected Map<T, ComponentModel> componentMap      
         = new HashMap<T, ComponentModel>();
@@ -194,6 +196,7 @@ public abstract class AbstractStatsVisionEditor<T>
             data.append(getWarningThreshold()).append(lineSeparator);
             data.append(getAlarmThreshold()).append(lineSeparator);
             data.append(getMode()).append(lineSeparator);
+            data.append(getLineStyle()).append(lineSeparator);
 
             if (getComponentMap() != null)
             {
@@ -290,7 +293,7 @@ public abstract class AbstractStatsVisionEditor<T>
 
             String line = bReader.readLine();
 
-            for (int index = 0; index < 6; index++)
+            for (int index = 0; index < 7; index++)
             {
                 line = bReader.readLine();
             }
@@ -662,6 +665,16 @@ public abstract class AbstractStatsVisionEditor<T>
         mode_ = mode;
     }
 
+    public String getLineStyle()
+    {
+        return lineStyle_;
+    }
+
+    public void setLineStyle(String lineStyle)
+    {
+        lineStyle_ = lineStyle;
+    }
+    
     public Map<T, ComponentModel> getComponentMap()
     {
         return componentMap;
