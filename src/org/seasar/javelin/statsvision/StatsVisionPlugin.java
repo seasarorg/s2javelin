@@ -49,6 +49,6 @@ public class StatsVisionPlugin extends AbstractUIPlugin {
 	 * @return the image descriptor
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
-		return AbstractUIPlugin.imageDescriptorFromPlugin("S2ManagementPrototype", path);
+		return AbstractUIPlugin.imageDescriptorFromPlugin("org.seasar.javelin.statsvision", path);
 	}
 }
