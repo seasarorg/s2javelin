@@ -9,6 +9,20 @@ import org.seasar.javelin.statsvision.model.ComponentModel;
 import org.seasar.javelin.statsvision.model.ComponentType;
 
 public class ComponentTreeEditPart extends StatsVisionTreeEditPart {
+	private Image webImage_;
+	private Image classImage_;
+	private Image dbImage_;
+
+	public ComponentTreeEditPart() {
+		super();
+		this.webImage_ = StatsVisionPlugin
+				.getImageDescriptor("icons/outline_web.gif").createImage();
+		this.dbImage_ = StatsVisionPlugin
+				.getImageDescriptor("icons/outline_db.gif").createImage();
+		this.classImage_ = StatsVisionPlugin
+				.getImageDescriptor("icons/outline_class.gif").createImage();
+	}
+
 	// オーバーライド
 	protected void refreshVisuals() {
 		ComponentModel model = (ComponentModel) getModel();
@@ -24,10 +38,11 @@ public class ComponentTreeEditPart extends StatsVisionTreeEditPart {
 	}
 
 	/**
-	 * ImageDescriptorから、modelに対応するアイコンを生成する。<br>
-	 * ComponentType毎に、WEB、データベース、クラスのアイコンを生成する。
+	 * ImageDescriptorから、modelに対応するアイコンを取得する。<br>
+	 * ComponentType毎に、WEB、データベース、クラスのアイコンを取得する。
 	 * 
-	 * @param model アイコンを作成するモデル。
+	 * @param model
+	 *            アイコンを作成するモデル。
 	 * @return アイコン
 	 */
 	private Image createImage(ComponentModel model) {
@@ -35,23 +50,14 @@ public class ComponentTreeEditPart extends StatsVisionTreeEditPart {
 			return null;
 		}
 
-		ImageDescriptor imageDescriptor = null;
+		Image image;
 		if (model.getComponentType() == ComponentType.WEB) {
-			imageDescriptor = StatsVisionPlugin
-					.getImageDescriptor("icons/outline_web.gif");
+			image = this.webImage_;
 		} else if (model.getComponentType() == ComponentType.DATABASE) {
-			imageDescriptor = StatsVisionPlugin
-					.getImageDescriptor("icons/outline_db.gif");
+			image = this.dbImage_;
 		} else {
-			imageDescriptor = StatsVisionPlugin
-					.getImageDescriptor("icons/outline_class.gif");
+			image = this.classImage_;
 		}
-
-		if (imageDescriptor == null) {
-			return null;
-		}
-
-		Image image = imageDescriptor.createImage();
 		return image;
 	}
 
