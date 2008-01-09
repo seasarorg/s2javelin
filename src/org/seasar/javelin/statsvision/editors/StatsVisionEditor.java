@@ -34,13 +34,18 @@ public interface StatsVisionEditor extends IEditorPart {
 
 	void setMode(String mode);
 	
+    void setLineStyle(String text);
+    
 	// サーバIPを取得する
 	String getHostName();
 
 	// サーバPortを取得する
 	int getPortNum();
 
-	void setWarningThreshold(long warningThreshold);
+	// ラインスタイルを取得する。
+    String getLineStyle();
+
+    void setWarningThreshold(long warningThreshold);
 
 	void setAlarmThreshold(long alarmThreshold);
 

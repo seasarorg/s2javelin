@@ -35,6 +35,7 @@ import org.eclipse.swt.printing.PrintDialog;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
@@ -66,6 +67,14 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 
     private static final String MODE_TCP = "TCP";
 
+    public static final String LINE_STYLE_NORMAL = "NORMAL";
+    
+    public static final String LINE_STYLE_SHORTEST = "SHORTEST";
+    
+    public static final String LINE_STYLE_FAN = "FAN";
+    
+    public static final String LINE_STYLE_MANHATTAN = "MANHATTAN";
+    
     /** The text editor used in page 0. */
     private StatsVisionEditor   editor;
 
@@ -100,6 +109,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
             this.editor.setWarningThreshold(this.warningThreshold_);
             this.editor.setAlarmThreshold(this.alarmThreshold_);
             this.editor.setMode(this.mode_);
+            this.editor.setLineStyle(this.lineStyle_);
 
             int index = addPage(this.editor, getEditorInput());
             setPageText(index, "View");
@@ -124,6 +134,8 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 
     private Label  modeLabel_;
 
+    private Label  lineStyleLabel_;
+    
     private Text   hostText_;
 
     private Text   portText_;
@@ -134,7 +146,9 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 
     private Text   alarmText_;
 
-    private Text   modeText_;
+    private Combo  modeCombo_;
+    
+    private Combo  lineStyleCombo_;
 
     private Button startButton_;
 
@@ -161,6 +175,9 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
     /** モード */
     String         mode_   = MODE_TCP;
 
+    /** ラインスタイル */
+    String         lineStyle_   = LINE_STYLE_NORMAL;
+    
     /**
      * Creates page 1 of the multi-page editor, which allows you to change the
      * font used in page 2.
@@ -190,8 +207,17 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         this.alarmText_ = createText(composite, 6, Long.toString(this.alarmThreshold_));
         createSpacer(composite, 4);
         
+        String[] values;
+        values = new String[]{MODE_TCP, MODE_JMX};
+        
         this.modeLabel_ = createLabel(composite, "Mode:");
-        this.modeText_ = createText(composite, 4, this.mode_);
+        this.modeCombo_ = createCombo(composite, 4, values, this.mode_);
+        createSpacer(composite, 6);
+
+        values = new String[]{LINE_STYLE_NORMAL, LINE_STYLE_SHORTEST, LINE_STYLE_FAN, LINE_STYLE_MANHATTAN};
+        
+        this.lineStyleLabel_ = createLabel(composite, "Style:");
+        this.lineStyleCombo_ = createCombo(composite, 4, values, this.lineStyle_);
         createSpacer(composite, 6);
 
         this.reloadButton_ = createButton(composite, "Reload", false);
@@ -225,7 +251,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         this.domainText_.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e)
             {
-                editor.setMode(domainText_.getText());
+                editor.setDomain(domainText_.getText());
                 editor.setDirty(true);
             }
         });
@@ -248,10 +274,18 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
             }
         });
 
-        this.modeText_.addModifyListener(new ModifyListener() {
+        this.modeCombo_.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e)
             {
-                editor.setMode(modeText_.getText());
+                editor.setMode(modeCombo_.getText());
+                editor.setDirty(true);
+            }
+        });
+
+        this.lineStyleCombo_.addModifyListener(new ModifyListener() {
+            public void modifyText(ModifyEvent e)
+            {
+                editor.setLineStyle(lineStyleCombo_.getText());
                 editor.setDirty(true);
             }
         });
@@ -300,7 +334,8 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
                 domainText_.setEnabled(false);
                 warningText_.setEnabled(false);
                 alarmText_.setEnabled(false);
-                modeText_.setEnabled(false);
+                modeCombo_.setEnabled(false);
+                lineStyleCombo_.setEnabled(false);
                 editor.start();
             }
         });
@@ -318,7 +353,8 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
                 domainText_.setEnabled(true);
                 warningText_.setEnabled(true);
                 alarmText_.setEnabled(true);
-                modeText_.setEnabled(true);
+                modeCombo_.setEnabled(true);
+                lineStyleCombo_.setEnabled(true);
                 editor.stop();
             }
         });
@@ -434,6 +470,8 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         editor.setDomain(domainText_.getText());
         editor.setWarningThreshold(warningThreshold_);
         editor.setAlarmThreshold(alarmThreshold_);
+        editor.setMode(modeCombo_.getText());
+        editor.setLineStyle(lineStyleCombo_.getText());
 	}
 
     /**
@@ -485,6 +523,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
             this.warningThreshold_ = setInteger(bufferedReader.readLine(), 0);
             this.alarmThreshold_ = setInteger(bufferedReader.readLine(), 0);
             this.mode_ = bufferedReader.readLine();
+            this.lineStyle_ = bufferedReader.readLine();
         }
         catch (CoreException e)
         {
@@ -617,6 +656,24 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         button.setText(text);
         
         return button;
+    }
+
+    private Combo createCombo(Composite composite, int span, String[] values, String value)
+    {
+        GridData grid = new GridData(GridData.BEGINNING);
+        grid.horizontalSpan      = span;
+        grid.horizontalAlignment = GridData.FILL;
+        
+        Combo combo = new Combo(composite, SWT.READ_ONLY);
+        combo.setLayoutData(grid);
+        
+        for (String item : values)
+        {
+            combo.add(item);
+        }
+        combo.setText(value);
+        
+        return combo;
     }
 
     /** 設定画面用のスペーサを生成する。 */
