@@ -27,6 +27,7 @@ public class NewFileWizardPage extends WizardPage
     private Text warnText;
     private Text alarmText;
     private Combo modeCombo;
+    private Combo lineStyleCombo;
 
     public NewFileWizardPage()
     {
@@ -89,6 +90,15 @@ public class NewFileWizardPage extends WizardPage
         modeCombo.add("TCP");
         modeCombo.add("JMX");
         modeCombo.setText("TCP");
+
+        label = new Label(composite, SWT.NULL);
+        label.setText("Style:");
+        lineStyleCombo = new Combo(composite, SWT.READ_ONLY);
+        lineStyleCombo.add("NORMAL");
+        lineStyleCombo.add("SHORTEST");
+        lineStyleCombo.add("FAN");
+        lineStyleCombo.add("MANHATTAN");
+        lineStyleCombo.setText("NORMAL");
 
         doValidate();
         setControl(composite);
@@ -177,6 +187,7 @@ public class NewFileWizardPage extends WizardPage
         data.append(warnText.getText()).append(lineSeparator);
         data.append(alarmText.getText()).append(lineSeparator);
         data.append(modeCombo.getText()).append(lineSeparator);
+        data.append(lineStyleCombo.getText()).append(lineSeparator);
         
         InputStream stream = new ByteArrayInputStream(data.toString().getBytes());
         file.setContents(stream, true, false, null);
