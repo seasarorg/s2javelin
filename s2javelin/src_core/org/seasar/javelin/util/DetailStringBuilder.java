@@ -354,6 +354,11 @@ public class DetailStringBuilder
      */
     protected static boolean isPrintable(Object object)
     {
+    	if(object == null)
+    	{
+    		return true;
+    	}
+    	
         // Fieldオブジェクトの場合、インナークラス、transientフィールド、staticフィールド
         // の時には出力を行わない。
         if (object instanceof Field)
