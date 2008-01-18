@@ -171,7 +171,9 @@ public class S2StatsJavelinRecorder
     public static void preProcess(String className, String methodName, Object[] args,
             StackTraceElement[] stacktrace, S2JavelinConfig config)
     {
-    	synchronized (S2StatsJavelinRecorder.class)
+        JmxRecorder.preProcess(className, methodName, config);
+
+        synchronized (S2StatsJavelinRecorder.class)
         {
             // 初期化処理
             if (isInitialized == false)
@@ -369,6 +371,7 @@ public class S2StatsJavelinRecorder
      */
     public static void postProcess(Object returnValue, S2JavelinConfig config)
     {
+        JmxRecorder.postProcess(config);
         try
         {
             // 呼び出し元情報取得。
@@ -445,6 +448,8 @@ public class S2StatsJavelinRecorder
      */
     public static void postProcess(Throwable cause, S2JavelinConfig config)
     {
+        JmxRecorder.postProcess(cause);
+        
         try
         {
             // 呼び出し元情報取得。

@@ -71,6 +71,11 @@ public class JmxRecorder
     		, String methodName
     		, S2JavelinConfig config)
     {
+    	if(config.isRecordJMX() == false)
+    	{
+    		return;
+    	}
+    		
         synchronized (JmxRecorder.class)
         {
             if (!isInitialized_)
@@ -133,11 +138,17 @@ public class JmxRecorder
 
     /**
      * 後処理（本処理成功時）。
+     * @param config 
      * @param spent
      */
-    public static void postProcess()
+    public static void postProcess(S2JavelinConfig config)
     {
-        try
+    	if(config.isRecordJMX() == false)
+    	{
+    		return;
+    	}
+
+    	try
         {
             // 呼び出し元情報取得。
             CallTreeNode node = S2StatsJavelinRecorder.callerNode_.get();
@@ -192,10 +203,10 @@ public class JmxRecorder
             jmxListener.sendExceedThresholdAlarm(node);
         }
         
-        List children = node.getChildren();
+        List<CallTreeNode> children = node.getChildren();
 		for (int index = 0; index <  children.size(); index++)
         {
-			CallTreeNode child = (CallTreeNode) children.get(index);
+			CallTreeNode child = children.get(index);
         	sendExceedThresholdAlarm(child);
         }
 	}

@@ -273,7 +273,6 @@ public class S2JavelinFilter implements Filter
             	stacktrace = Thread.currentThread().getStackTrace();
             }
 
-            JmxRecorder.preProcess(contextPath, servletPath, this.config_);
             S2StatsJavelinRecorder.preProcess(contextPath, servletPath, args, stacktrace, this.config_);
             S2StatsJavelinRecorder.preProcessField(contextPath, servletPath, config_);
         }
@@ -291,28 +290,24 @@ public class S2JavelinFilter implements Filter
         }
         catch (IOException ex)
         {
-            JmxRecorder.postProcess(ex);
             S2StatsJavelinRecorder.postProcessField(config_);
             S2StatsJavelinRecorder.postProcess(ex, this.config_);
             throw ex;
         }
         catch (ServletException ex)
         {
-            JmxRecorder.postProcess(ex);
             S2StatsJavelinRecorder.postProcessField(config_);
             S2StatsJavelinRecorder.postProcess(ex, this.config_);
             throw ex;
         }
         catch (RuntimeException ex)
         {
-            JmxRecorder.postProcess(ex);
             S2StatsJavelinRecorder.postProcessField(config_);
             S2StatsJavelinRecorder.postProcess(ex, this.config_);
             throw ex;
         }
         catch (Error error)
         {
-            JmxRecorder.postProcess(error);
             S2StatsJavelinRecorder.postProcessField(config_);
             S2StatsJavelinRecorder.postProcess(error, this.config_);
             throw error;
@@ -328,7 +323,6 @@ public class S2JavelinFilter implements Filter
             }
             
 
-            JmxRecorder.postProcess();
             S2StatsJavelinRecorder.postProcessField(config_);
             S2StatsJavelinRecorder.postProcess(returnValue, this.config_);
         }
@@ -387,6 +381,7 @@ public class S2JavelinFilter implements Filter
         out.println("\tjavelin.javelinEnable           : " + this.config_.isJavelinEnable());
         out.println("\tjavelin.stringLimitLength       : " + this.config_.getStringLimitLength());
         out.println("\tjavelin.error.log               : " + this.config_.getErrorLog());
+        out.println("\tjavelin.record.jmx              : " + this.config_.isRecordJMX());
         out.println("<<<<");
     }
 

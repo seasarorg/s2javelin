@@ -77,6 +77,9 @@ public class S2JavelinConfig
 
     /** 利用するAlarmListener名 */
     private static final String  ALARM_LISTENERS_KEY         = JAVELIN_PREFIX + "alarmListeners";
+
+    /** JMX通信による情報公開を行うかどうかを表すプロパティ名 */
+    private static final String  RECORD_JMX_KEY           = JAVELIN_PREFIX + "record.jmx";
     
     private static final int     DEFAULT_INTERVALMAX         = 1000;
 
@@ -132,6 +135,9 @@ public class S2JavelinConfig
     /** デフォルトで利用するAlarmListener名 */
     private static final String  DEFAULT_ALARM_LISTENERS     = "org.seasar.javelin.communicate.JmxListener";
 
+    /** デフォルトでJMX通信による情報公開を行うかどうか */
+    private static final boolean  DEFAULT_RECORD_JMX     = true;
+        
     /**
      * S2StatsJavelinの設定を保持するオブジェクトを作成する。
      */
@@ -170,6 +176,28 @@ public class S2JavelinConfig
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         configUtil.setLong(ALARMTHRESHOLD_KEY, alarmThreshold);
+    }
+
+    /**
+     * JMX通信による情報公開を行うかどうかの設定を返す。
+     *
+     * @return JMX通信による情報公開を行うならtrue
+     */
+    public boolean isRecordJMX()
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        return configUtil.getBoolean(RECORD_JMX_KEY, DEFAULT_RECORD_JMX);
+    }
+
+    /**
+     * JMX通信による情報公開を行うかどうかを設定する。
+     *
+     * @param  JMX通信による情報公開を行うならtrue
+     */
+    public void setRecordJMX(boolean isLogStacktrace)
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        configUtil.setBoolean(LOG_STACKTRACE_KEY, isLogStacktrace);
     }
 
     /**

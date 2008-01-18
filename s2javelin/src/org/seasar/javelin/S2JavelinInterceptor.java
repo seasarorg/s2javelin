@@ -192,21 +192,7 @@ public class S2JavelinInterceptor extends AbstractInterceptor
                 printConfigValue();
             }
             
-            if(isInitialized_ == false)
-            {
-	            if (this.config_.getHttpPort() != 0)
-	            {
-	            	try
-	            	{
-						Mx4JLauncher.execute(this.config_.getHttpPort());
-	            	}
-	            	catch(Exception ex)
-	            	{
-	            		ex.printStackTrace();
-	            	}
-	            }
-            }
-
+            initialize();
         }
 
         // 呼び出し先情報取得。
@@ -225,7 +211,6 @@ public class S2JavelinInterceptor extends AbstractInterceptor
             	stacktrace = Thread.currentThread().getStackTrace();
             }
             
-            JmxRecorder.preProcess(className, methodName, this.config_);
             S2StatsJavelinRecorder.preProcess(className, methodName,
                                               invocation.getArguments(), stacktrace, this.config_);
         }
@@ -299,7 +284,6 @@ public class S2JavelinInterceptor extends AbstractInterceptor
         }
         catch (Throwable cause)
         {
-            JmxRecorder.postProcess(cause);
             S2StatsJavelinRecorder.postProcess(cause, this.config_);
 
             if (config_.isJavelinEnable())
@@ -349,7 +333,6 @@ public class S2JavelinInterceptor extends AbstractInterceptor
 
         try
         {
-            JmxRecorder.postProcess();
             S2StatsJavelinRecorder.postProcess(ret, this.config_);
         }
         catch(Throwable th)
@@ -360,6 +343,24 @@ public class S2JavelinInterceptor extends AbstractInterceptor
         //invocationを実行した際の戻り値を返す。
         return ret;
     }
+
+	private void initialize() {
+		if(isInitialized_ == false)
+		{
+		    if (this.config_.getHttpPort() != 0)
+		    {
+		    	try
+		    	{
+					Mx4JLauncher.execute(this.config_.getHttpPort());
+		    	}
+		    	catch(Exception ex)
+		    	{
+		    		ex.printStackTrace();
+		    	}
+		    }
+			isInitialized_ =  true;
+		}
+	}
 
     /**
      * メソッド呼び出し（識別子Call）の詳細なログを生成する。
