@@ -283,7 +283,7 @@ public abstract class AbstractStatsVisionEditor<T>
 
     public void reset()
     {
-        for (ComponentModel component : componentMap.values())
+        for (ComponentModel component : this.componentMap.values())
         {
             for (InvocationModel invocation : component.getInvocationList())
             {
