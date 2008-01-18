@@ -3,6 +3,10 @@ package org.seasar.javelin.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.seasar.javelin.S2JavelinConfig;
+import org.seasar.javelin.bean.ComponentMBean;
+import org.seasar.javelin.bean.InvocationMBean;
+
 public class ObjectNameUtil
 {
     private static final String       INVALID_OBJECTNAME = "[\\*\\?=:,\n\r]";
@@ -51,5 +55,30 @@ public class ObjectNameUtil
         }
         return decodedStr;
     }
+
+	/**
+	 * MBeanに登録する文字列を生成する
+	 * 
+	 * @param className
+	 *            クラス名
+	 * @param methodName
+	 *            メソッド名
+	 * @param config
+	 *            設定ファイルから読み込んだ設定値
+	 * @return 登録する文字列
+	 */
+	public static String createInvocationBeanName(String className, String methodName,
+	        S2JavelinConfig config)
+	{
+	    return config.getDomain() + ".invocation:type=" + InvocationMBean.class.getName()
+	            + ",class=" + encode(className) + ",method="
+	            + encode(methodName);
+	}
+
+	public static String createComponentBeanName(String className, S2JavelinConfig config)
+	{
+	    return config.getDomain() + ".component:type=" + ComponentMBean.class.getName() + ",class="
+	            + encode(className);
+	}
 
 }

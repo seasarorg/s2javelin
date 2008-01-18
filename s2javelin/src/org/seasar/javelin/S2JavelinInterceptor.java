@@ -160,6 +160,8 @@ public class S2JavelinInterceptor extends AbstractInterceptor
 
     /** 設定値を標準出力に出力したらtrue */
     private boolean isPrintConfig_ = false;
+
+	private boolean isInitialized_ = false;
     
     /**
      * Javelinログ出力用のinvokeメソッド。
@@ -189,6 +191,22 @@ public class S2JavelinInterceptor extends AbstractInterceptor
                 isPrintConfig_ = true;
                 printConfigValue();
             }
+            
+            if(isInitialized_ == false)
+            {
+	            if (this.config_.getHttpPort() != 0)
+	            {
+	            	try
+	            	{
+						Mx4JLauncher.execute(this.config_.getHttpPort());
+	            	}
+	            	catch(Exception ex)
+	            	{
+	            		ex.printStackTrace();
+	            	}
+	            }
+            }
+
         }
 
         // 呼び出し先情報取得。

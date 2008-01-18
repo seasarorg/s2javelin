@@ -2,24 +2,24 @@ package org.seasar.javelin;
 
 import java.lang.management.ManagementFactory;
 import java.util.List;
+
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import org.seasar.javelin.bean.Component;
-import org.seasar.javelin.bean.ComponentMBean;
 import org.seasar.javelin.bean.Container;
 import org.seasar.javelin.bean.ContainerMBean;
 import org.seasar.javelin.bean.Invocation;
-import org.seasar.javelin.bean.InvocationMBean;
 import org.seasar.javelin.bean.Statistics;
 import org.seasar.javelin.bean.StatisticsMBean;
 import org.seasar.javelin.communicate.JmxListener;
 import org.seasar.javelin.helper.VMStatusHelper;
+import org.seasar.javelin.util.ObjectNameUtil;
 
 public class JmxRecorder
 {
     /** プラットフォームMBeanサーバ */
-    private static MBeanServer               server_     = ManagementFactory.getPlatformMBeanServer();
+    private static MBeanServer               server_;
 
     /** 初期化フラグ。初期化済みの場合はtrue。 */
     private static boolean     isInitialized_   = false;
@@ -35,31 +35,10 @@ public class JmxRecorder
         {
             server_ = ManagementFactory.getPlatformMBeanServer();
 
-            if (config.getHttpPort() != 0)
-            {
-            	try
-            	{
-                	Mx4JLauncher.execute(server_, config.getHttpPort());
-            	}
-            	catch(Exception ex)
-            	{
-            		ex.printStackTrace();
-            	}
-            }
-
             ContainerMBean container;
             ObjectName containerName = new ObjectName(config.getDomain()
                     + ".container:type=" + ContainerMBean.class.getName());
-            if (server_.isRegistered(containerName))
-            {
-/*                Set beanSet = server_.queryMBeans(containerName, null);
-                if (beanSet.size() > 0)
-                {
-                    ContainerMBean[] containers = (ContainerMBean[])beanSet.toArray(new ContainerMBean[beanSet.size()]);
-                    container = containers[0];
-                }*/
-            }
-            else
+            if (server_.isRegistered(containerName) == false)
             {
                 container = new Container();
                 server_.registerMBean(container, containerName);
@@ -68,16 +47,7 @@ public class JmxRecorder
             StatisticsMBean statistics;
             ObjectName statisticsName = new ObjectName(config.getDomain()
                     + ".statistics:type=" + StatisticsMBean.class.getName());
-            if (server_.isRegistered(statisticsName))
-            {
-/*                Set beanSet = server_.queryMBeans(statisticsName, null);
-                if (beanSet.size() > 0)
-                {
-                    StatisticsMBean[] statisticses = (StatisticsMBean[])beanSet.toArray(new StatisticsMBean[beanSet.size()]);
-                    statistics = statisticses[0];
-                }*/
-            }
-            else
+            if (server_.isRegistered(statisticsName) == false)
             {
                 statistics = new Statistics();
                 server_.registerMBean(statistics, statisticsName);
@@ -113,8 +83,7 @@ public class JmxRecorder
         try
         {
             Component componentBean = MBeanManager.getComponent(className);
-            String name = config.getDomain() + ".component:type="
-                    + ComponentMBean.class.getName() + ",class=" + className;
+            String name = ObjectNameUtil.createComponentBeanName(className, config);
             ObjectName componentName = new ObjectName(name);
             if (componentBean == null)
             {
@@ -129,9 +98,7 @@ public class JmxRecorder
             }
 
             Invocation invocationBean = componentBean.getInvocation(methodName);
-            name = config.getDomain() + ".invocation:type="
-                    + InvocationMBean.class.getName() + ",class=" + className
-                    + ",method=" + methodName;
+            name = ObjectNameUtil.createInvocationBeanName(className, methodName, config);
             ObjectName objName = new ObjectName(name);
 
             if (invocationBean == null)
@@ -148,7 +115,6 @@ public class JmxRecorder
                 		, config.getThrowableMax()
                 		, config.getRecordThreshold()
                 		, config.getAlarmThreshold());
-
                 componentBean.addInvocation(invocationBean);
                 if (server_.isRegistered(objName))
                 {

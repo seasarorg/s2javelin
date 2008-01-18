@@ -3,6 +3,7 @@ package org.seasar.javelin;
 import java.io.IOException;
 import java.io.PrintStream;
 
+import javax.management.MBeanServer;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -271,10 +272,9 @@ public class S2JavelinFilter implements Filter
             {
             	stacktrace = Thread.currentThread().getStackTrace();
             }
-            
+
             JmxRecorder.preProcess(contextPath, servletPath, this.config_);
             S2StatsJavelinRecorder.preProcess(contextPath, servletPath, args, stacktrace, this.config_);
-            
             S2StatsJavelinRecorder.preProcessField(contextPath, servletPath, config_);
         }
         catch (Throwable th)

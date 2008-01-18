@@ -1,18 +1,13 @@
 package org.seasar.javelin;
 
-import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.seasar.javelin.bean.Component;
-import org.seasar.javelin.bean.ComponentMBean;
-import org.seasar.javelin.bean.Container;
-import org.seasar.javelin.bean.ContainerMBean;
 import org.seasar.javelin.bean.Invocation;
-import org.seasar.javelin.bean.InvocationMBean;
 import org.seasar.javelin.communicate.AlarmListener;
 import org.seasar.javelin.communicate.JavelinAcceptThread;
 import org.seasar.javelin.helper.VMStatusHelper;
@@ -27,9 +22,6 @@ public class S2StatsJavelinRecorder
 {
     /** 初期化判定フラグ */
     private static boolean                  isInitialized;
-
-    /** プラットフォームMBeanServer */
-    private static MBeanServer              server_     = ManagementFactory.getPlatformMBeanServer();
 
     /**
      * メソッドコールツリーの記録用オブジェクト。
@@ -59,7 +51,7 @@ public class S2StatsJavelinRecorder
      * MBeanServerへのContainerMBeanの登録を行う。
      * 公開用HTTPポートが指定されていた場合は、HttpAdaptorの生成と登録も行う。
      */
-    private static void javelinInit(S2JavelinConfig config, MBeanServer server)
+    private static void javelinInit(S2JavelinConfig config)
     {
         try
         {
@@ -69,18 +61,6 @@ public class S2StatsJavelinRecorder
             // AlarmListenerを登録する
             registerAlarmListeners(config);
             
-            // MBeanを登録する
-            server = ManagementFactory.getPlatformMBeanServer();
-
-            ContainerMBean container;
-            ObjectName containerName = new ObjectName(config.getDomain() + ".container:type="
-                    + ContainerMBean.class.getName());
-            if (server.isRegistered(containerName) == false)
-            {
-                container = new Container();
-                server.registerMBean(container, containerName);
-            }
-
             // スレッドの監視を開始する。
             vmStatusHelper__.init();
 
@@ -161,31 +141,6 @@ public class S2StatsJavelinRecorder
 	}
 
     /**
-     * MBeanに登録する文字列を生成する
-     * 
-     * @param className
-     *            クラス名
-     * @param methodName
-     *            メソッド名
-     * @param config
-     *            設定ファイルから読み込んだ設定値
-     * @return 登録する文字列
-     */
-    private static String createInvocationBeanName(String className, String methodName,
-            S2JavelinConfig config)
-    {
-        return config.getDomain() + ".invocation:type=" + InvocationMBean.class.getName()
-                + ",class=" + ObjectNameUtil.encode(className) + ",method="
-                + ObjectNameUtil.encode(methodName);
-    }
-
-    private static String createComponentBeanName(String className, S2JavelinConfig config)
-    {
-        return config.getDomain() + ".component:type=" + ComponentMBean.class.getName() + ",class="
-                + ObjectNameUtil.encode(className);
-    }
-
-    /**
      * JavelinRecorder, JDBCJavelinRecorderから呼び出したときの前処理。
      * 
      * @param className
@@ -196,80 +151,7 @@ public class S2StatsJavelinRecorder
     public static void preProcess(String className, String methodName, Object[] args,
             S2JavelinConfig config)
     {
-        synchronized (S2StatsJavelinRecorder.class)
-        {
-            // 初期化処理
-            if (isInitialized == false)
-            {
-                javelinInit(config, server_);
-                isInitialized = true;
-            }
-        }
-
-        VMStatus vmStatus = vmStatusHelper__.createVMStatus();
-
-        try
-        {
-            // ルートクラス名を作る
-            StringBuffer buffer = new StringBuffer();
-            buffer.append(className);
-            String rootClassName = buffer.toString();
-
-            Component componentBeanRoot = MBeanManager.getComponent(rootClassName);
-
-            String name = createComponentBeanName(className, config);
-            ObjectName componentName = new ObjectName(name);
-
-            // ルートクラス場合、ルートクラス名を設定する
-            CallTreeNode node = S2StatsJavelinRecorder.callerNode_.get();
-            if ((node == null) || !(componentBeanRoot == null))
-            {
-                className = rootClassName;
-            }
-
-            Component componentBean = MBeanManager.getComponent(className);
-            if (componentBean == null)
-            {
-                componentBean = new Component(componentName, className);
-                if (server_.isRegistered(componentName))
-                {
-                    server_.unregisterMBean(componentName);
-                }
-                server_.registerMBean(componentBean, componentName);
-
-                MBeanManager.setComponent(className, componentBean);
-            }
-
-            Invocation invocation = componentBean.getInvocation(methodName);
-            name = createInvocationBeanName(className, methodName, config);
-            ObjectName objName = new ObjectName(name);
-
-            if (invocation == null)
-            {
-                String processName = VMStatusHelper.getProcessName();
-            	invocation = new Invocation(processName, objName, componentName, className, methodName,
-                                            config.getIntervalMax(), config.getThrowableMax(),
-                                            config.getRecordThreshold(), config.getAlarmThreshold());
-
-                componentBean.addInvocation(invocation);
-
-                if (server_.isRegistered(objName))
-                {
-                    server_.unregisterMBean(objName);
-                }
-                server_.registerMBean(invocation, objName);
-            }
-
-            // 初回呼び出し時はコールツリーを初期化する。
-            CallTree tree = callTree_.get();
-
-            setNode(node, tree, null, args, invocation, vmStatus, config);
-        }
-        catch (Exception ex)
-        {
-            ex.printStackTrace();
-        }
-
+    	preProcess(className, methodName, args, null, config);
     }
 
     /**
@@ -289,12 +171,12 @@ public class S2StatsJavelinRecorder
     public static void preProcess(String className, String methodName, Object[] args,
             StackTraceElement[] stacktrace, S2JavelinConfig config)
     {
-        synchronized (S2StatsJavelinRecorder.class)
+    	synchronized (S2StatsJavelinRecorder.class)
         {
             // 初期化処理
             if (isInitialized == false)
             {
-                javelinInit(config, server_);
+                javelinInit(config);
                 isInitialized = true;
             }
         }
@@ -302,7 +184,58 @@ public class S2StatsJavelinRecorder
         VMStatus vmStatus = vmStatusHelper__.createVMStatus();
 
         Component component = MBeanManager.getComponent(className);
+        ObjectName componentName = null;
+        if (component == null)
+        {
+            String name = ObjectNameUtil.createComponentBeanName(className, config);
+            try
+            {
+                componentName = new ObjectName(name);
+                component = new Component(componentName, className);
+
+                MBeanManager.setComponent(className, component);
+            }
+            catch (MalformedObjectNameException ex)
+            {
+                // TODO 自動生成された catch ブロック
+                ex.printStackTrace();
+            }
+            catch (NullPointerException ex)
+            {
+                // TODO 自動生成された catch ブロック
+                ex.printStackTrace();
+            }
+        }
+        if(component == null)
+        {
+            return;
+        }
         Invocation invocation = component.getInvocation(methodName);
+        if (invocation == null)
+        {
+            String name = ObjectNameUtil.createInvocationBeanName(className, methodName, config);
+            ObjectName objName;
+            try
+            {
+                objName = new ObjectName(name);
+                String processName = VMStatusHelper.getProcessName();
+                invocation = new Invocation(processName, objName, componentName, className, methodName,
+                                            config.getIntervalMax(), config.getThrowableMax(),
+                                            config.getRecordThreshold(), config.getAlarmThreshold());
+
+                component.addInvocation(invocation);
+            }
+            catch (MalformedObjectNameException ex)
+            {
+                // TODO 自動生成された catch ブロック
+                ex.printStackTrace();
+            }
+            catch (NullPointerException ex)
+            {
+                // TODO 自動生成された catch ブロック
+                ex.printStackTrace();
+            }
+        }
 
         try
         {
@@ -597,7 +530,7 @@ public class S2StatsJavelinRecorder
             // 初期化処理
             if (isInitialized == false)
             {
-                javelinInit(config, server_);
+                javelinInit(config);
                 isInitialized = true;
             }
         }
@@ -687,7 +620,7 @@ public class S2StatsJavelinRecorder
             }
         }
 
-        List children = node.getChildren();
+        List<CallTreeNode> children = node.getChildren();
         for (int index = 0; index < children.size(); index++)
         {
             CallTreeNode child = (CallTreeNode)children.get(index);
@@ -699,7 +632,7 @@ public class S2StatsJavelinRecorder
     {
         sendExceedThresholdAlarmImpl(node);
 
-        List children = node.getChildren();
+        List<CallTreeNode> children = node.getChildren();
         for (int index = 0; index < children.size(); index++)
         {
             CallTreeNode child = (CallTreeNode)children.get(index);

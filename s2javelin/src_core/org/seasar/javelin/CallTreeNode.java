@@ -87,7 +87,7 @@ public class CallTreeNode {
 		parent_ = parent;
 	}
 
-	public List getChildren() {
+	public List<CallTreeNode> getChildren() {
 		return children_;
 	}
 
