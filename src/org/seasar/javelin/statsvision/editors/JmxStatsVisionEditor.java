@@ -213,6 +213,8 @@ public class JmxStatsVisionEditor extends AbstractStatsVisionEditor<ObjectName> 
 	}
 
 	public void reset() {
+        super.reset();
+        
 		try {
 			JMXServiceURL url = new JMXServiceURL(
 					"service:jmx:rmi:///jndi/rmi://" + getHostName() + ":"

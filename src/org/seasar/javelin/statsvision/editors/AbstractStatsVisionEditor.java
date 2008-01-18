@@ -281,6 +281,21 @@ public abstract class AbstractStatsVisionEditor<T>
         }
     }
 
+    public void reset()
+    {
+        for (ComponentModel component : componentMap.values())
+        {
+            for (InvocationModel invocation : component.getInvocationList())
+            {
+                invocation.setAverage(0);
+                invocation.setMaximum(-1);
+                invocation.setMinimum(-1);
+                invocation.setCount(0);
+                invocation.setThrowableCount(0);
+            }
+        }
+    }
+
     protected void load()
     {
         try
