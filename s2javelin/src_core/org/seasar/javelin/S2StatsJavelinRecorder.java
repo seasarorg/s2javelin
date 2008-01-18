@@ -516,8 +516,8 @@ public class S2StatsJavelinRecorder
     public static void dumpJavelinLog(S2JavelinConfig config)
     {
         // Javelinログファイルを出力する。
-        S2StatsJavelinFileGenerator generator = new S2StatsJavelinFileGenerator(
-                                                                                config.getJavelinFileDir());
+        S2StatsJavelinFileGenerator generator = 
+        	new S2StatsJavelinFileGenerator(config.getJavelinFileDir());
 
         CallTree callTree = callTree_.get();
         CallTreeNode root = callTree.getRootNode();
