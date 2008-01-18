@@ -244,7 +244,7 @@ public class JmxStatsVisionEditor extends AbstractStatsVisionEditor<ObjectName> 
 	{
 		try
 		{
-			return new ObjectName(className);
+			return new ObjectName("component:type=" + className);
 		}
 		catch (Exception ex)
 		{
