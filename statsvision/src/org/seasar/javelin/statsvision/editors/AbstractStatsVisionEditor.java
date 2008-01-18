@@ -2,6 +2,7 @@ package org.seasar.javelin.statsvision.editors;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -187,86 +188,7 @@ public abstract class AbstractStatsVisionEditor<T>
     {
         try
         {
-            String lineSeparator = System.getProperty("line.separator");
-
-            StringBuilder data = new StringBuilder(1024);
-            data.append(getHostName()).append(lineSeparator);
-            data.append(getPortNum()).append(lineSeparator);
-            data.append(getDomain()).append(lineSeparator);
-            data.append(getWarningThreshold()).append(lineSeparator);
-            data.append(getAlarmThreshold()).append(lineSeparator);
-            data.append(getMode()).append(lineSeparator);
-            data.append(getLineStyle()).append(lineSeparator);
-
-            if (getComponentMap() != null)
-            {
-                Collection<ComponentModel> values = getComponentMap().values();
-                for (ComponentModel component : values)
-                {
-                    String className = component.getClassName();
-                    int x = component.getConstraint().x;
-                    int y = component.getConstraint().y;
-
-                    String componentInfo = className + "=" + x + "," + y;
-                    data.append(componentInfo).append(lineSeparator);
-                    Point point = new Point();
-                    point.x = x;
-                    point.y = y;
-                    pointMap.put(getComponentKey(className), point);
-
-                    // メソッド情報を保存する。
-                    data.append(START_OF_METHOD).append(lineSeparator);
-                    
-                    for (InvocationModel invocation : component.getInvocationList())
-                    {
-                        data.append(invocation.getAverage());
-                        data.append(",");
-                        data.append(invocation.getMaximum());
-                        data.append(",");
-                        data.append(invocation.getMinimum());
-                        data.append(",");
-                        data.append(invocation.getThrowableCount());
-                        data.append(",");
-                        data.append(invocation.getWarningThreshold());
-                        data.append(",");
-                        data.append(invocation.getAlarmThreshold());
-                        data.append(",");
-                        data.append(invocation.getMethodName());
-                        data.append(lineSeparator);
-                    }
-                    
-                    data.append(END_OF_METHOD).append(lineSeparator);
-
-                    data.append(START_OF_RELATION).append(lineSeparator);
-                    
-                    List targetList = component.getModelSourceConnections();
-                    for (int index = 0; index < targetList.size(); index++)
-                    {
-                        ArrowConnectionModel connectionModel 
-                            = (ArrowConnectionModel)(targetList.get(index));
-                        
-                        ComponentModel targetModel = connectionModel.getTarget();
-                        data.append(targetModel.getClassName());
-                        data.append(lineSeparator);
-                    }
-                    
-                    data.append(END_OF_RELATION).append(lineSeparator);
-                }
-
-                for (T key : pointMap.keySet())
-                {
-                    if (!getComponentMap().containsKey(key))
-                    {
-                        Point point = pointMap.get(key);
-                        String className = key.toString();
-                        int x = point.x;
-                        int y = point.y;
-
-                        String componentInfo = className + "=" + x + "," + y;
-                        data.append(componentInfo).append(lineSeparator);
-                    }
-                }
-            }
+            String data = createContent();
 
             IFile file = ((IFileEditorInput)getEditorInput()).getFile();
             InputStream stream = new ByteArrayInputStream(data.toString().getBytes());
@@ -280,6 +202,90 @@ public abstract class AbstractStatsVisionEditor<T>
             ex.printStackTrace();
         }
     }
+
+	protected String createContent() {
+		String lineSeparator = System.getProperty("line.separator");
+
+		StringBuilder data = new StringBuilder(1024);
+		data.append(getHostName()).append(lineSeparator);
+		data.append(getPortNum()).append(lineSeparator);
+		data.append(getDomain()).append(lineSeparator);
+		data.append(getWarningThreshold()).append(lineSeparator);
+		data.append(getAlarmThreshold()).append(lineSeparator);
+		data.append(getMode()).append(lineSeparator);
+		data.append(getLineStyle()).append(lineSeparator);
+
+		if (getComponentMap() != null)
+		{
+		    Collection<ComponentModel> values = getComponentMap().values();
+		    for (ComponentModel component : values)
+		    {
+		        String className = component.getClassName();
+		        int x = component.getConstraint().x;
+		        int y = component.getConstraint().y;
+
+		        String componentInfo = className + "=" + x + "," + y;
+		        data.append(componentInfo).append(lineSeparator);
+		        Point point = new Point();
+		        point.x = x;
+		        point.y = y;
+		        pointMap.put(getComponentKey(className), point);
+
+		        // メソッド情報を保存する。
+		        data.append(START_OF_METHOD).append(lineSeparator);
+		        
+		        for (InvocationModel invocation : component.getInvocationList())
+		        {
+		            data.append(invocation.getAverage());
+		            data.append(",");
+		            data.append(invocation.getMaximum());
+		            data.append(",");
+		            data.append(invocation.getMinimum());
+		            data.append(",");
+		            data.append(invocation.getThrowableCount());
+		            data.append(",");
+		            data.append(invocation.getWarningThreshold());
+		            data.append(",");
+		            data.append(invocation.getAlarmThreshold());
+		            data.append(",");
+		            data.append(invocation.getMethodName());
+		            data.append(lineSeparator);
+		        }
+		        
+		        data.append(END_OF_METHOD).append(lineSeparator);
+
+		        data.append(START_OF_RELATION).append(lineSeparator);
+		        
+		        List targetList = component.getModelSourceConnections();
+		        for (int index = 0; index < targetList.size(); index++)
+		        {
+		            ArrowConnectionModel connectionModel 
+		                = (ArrowConnectionModel)(targetList.get(index));
+		            
+		            ComponentModel targetModel = connectionModel.getTarget();
+		            data.append(targetModel.getClassName());
+		            data.append(lineSeparator);
+		        }
+		        
+		        data.append(END_OF_RELATION).append(lineSeparator);
+		    }
+
+		    for (T key : pointMap.keySet())
+		    {
+		        if (!getComponentMap().containsKey(key))
+		        {
+		            Point point = pointMap.get(key);
+		            String className = key.toString();
+		            int x = point.x;
+		            int y = point.y;
+
+		            String componentInfo = className + "=" + x + "," + y;
+		            data.append(componentInfo).append(lineSeparator);
+		        }
+		    }
+		}
+		return new String(data);
+	}
 
     public void reset()
     {
@@ -306,146 +312,150 @@ public abstract class AbstractStatsVisionEditor<T>
             InputStreamReader reader = new InputStreamReader(stream);
             BufferedReader bReader = new BufferedReader(reader);
 
-            String line = bReader.readLine();
-
-            for (int index = 0; index < 7; index++)
-            {
-                line = bReader.readLine();
-            }
-
-            // クラス情報を読み込む。
-            while (line != null)
-            {
-                ComponentModel component = null;
-                
-                int index = line.lastIndexOf("=");
-                if (index > 0)
-                {
-                    String className = line.substring(0, index);
-
-                    int xyIndex = line.lastIndexOf(",");
-                    int x = Integer.parseInt(line.substring(index + 1, xyIndex));
-                    int y = Integer.parseInt(line.substring(xyIndex + 1));
-
-                    Point point = new Point(x, y);
-                    pointMap.put(getComponentKey(className), point);
-                    
-                    component = componentMap.get(getComponentKey(className));
-                    
-                    if (component == null)
-                    {
-                        component = new ComponentModel();
-                        component.setClassName(className);
-                        component.setConstraint(new Rectangle(0, 0, -1, -1));
-                        rootModel.addChild(component);
-                        
-                        componentMap.put(getComponentKey(className), component);
-                    }
-                }
-
-                line = bReader.readLine();
-                while(line != null && !line.equals(START_OF_METHOD))
-                {
-                    line = bReader.readLine();
-                }
-                
-                // メソッド情報を読み込む。
-                line = bReader.readLine();
-                while(line != null && !line.equals(END_OF_METHOD))
-                {
-                    int    from = 0;
-                    int    to;
-                    String value;
-
-                    to = line.indexOf(",", from);
-                    value = line.substring(from, to);
-                    long avg = Long.parseLong(value);
-
-                    from = to + 1;
-                    to = line.indexOf(",", from);
-                    value = line.substring(from, to);
-                    long max = Long.parseLong(value);
-
-                    from = to + 1;
-                    to = line.indexOf(",", from);
-                    value = line.substring(from, to);
-                    long min = Long.parseLong(value);
-
-                    from = to + 1;
-                    to = line.indexOf(",", from);
-                    value = line.substring(from, to);
-                    long err = Long.parseLong(value);
-                    
-                    from = to + 1;
-                    to = line.indexOf(",", from);
-                    value = line.substring(from, to);
-                    long warn = Long.parseLong(value);
-                    
-                    from = to + 1;
-                    to = line.indexOf(",", from);
-                    value = line.substring(from, to);
-                    long alarm = Long.parseLong(value);
-                    
-                    from = to + 1;
-                    value = line.substring(from);
-                    
-                    InvocationModel invocation = new InvocationModel();
-                    invocation.setMethodName(value);
-                    invocation.setAverage(avg);
-                    invocation.setMaximum(max);
-                    invocation.setMinimum(min);
-                    invocation.setThrowableCount(err);
-                    invocation.setWarningThreshold(warn);
-                    invocation.setAlarmThreshold(alarm);
-                    
-                    component.addInvocation(invocation);
-                    
-                    line = bReader.readLine();
-                }
-
-                line = bReader.readLine();
-                while(line != null && !line.equals(START_OF_RELATION))
-                {
-                    line = bReader.readLine();
-                }
-                
-                // 関連情報を読み込む。
-                line = bReader.readLine();
-                while(line != null && !line.equals(END_OF_RELATION))
-                {
-                    ArrowConnectionModel arrow = new ArrowConnectionModel();
-                    component.addSourceConnection(arrow);
-                    arrow.setSource(component);
-                    
-                    String className = line;
-                    
-                    ComponentModel target 
-                        = componentMap.get(getComponentKey(className));
-                    
-                    if (target == null)
-                    {
-                        target = new ComponentModel();
-                        target.setClassName(className);
-                        target.setConstraint(new Rectangle(0, 0, -1, -1));
-                        rootModel.addChild(target);
-                        
-                        componentMap.put(getComponentKey(className), target);
-                    }
-                    
-                    target.addTargetConnection(arrow);
-                    arrow.setTarget(target);
-                    
-                    line = bReader.readLine();
-                }
-                
-                line = bReader.readLine();
-            }
+            loadContent(bReader);
         }
         catch (Exception ex)
         {
             ex.printStackTrace();
         }
     }
+
+	protected void loadContent(BufferedReader reader) throws IOException {
+		String line = reader.readLine();
+
+		for (int index = 0; index < 7; index++)
+		{
+		    line = reader.readLine();
+		}
+
+		// クラス情報を読み込む。
+		while (line != null)
+		{
+		    ComponentModel component = null;
+		    
+		    int index = line.lastIndexOf("=");
+		    if (index > 0)
+		    {
+		        String className = line.substring(0, index);
+
+		        int xyIndex = line.lastIndexOf(",");
+		        int x = Integer.parseInt(line.substring(index + 1, xyIndex));
+		        int y = Integer.parseInt(line.substring(xyIndex + 1));
+
+		        Point point = new Point(x, y);
+		        pointMap.put(getComponentKey(className), point);
+		        
+		        component = componentMap.get(getComponentKey(className));
+		        
+		        if (component == null)
+		        {
+		            component = new ComponentModel();
+		            component.setClassName(className);
+		            component.setConstraint(new Rectangle(0, 0, -1, -1));
+		            rootModel.addChild(component);
+		            
+		            componentMap.put(getComponentKey(className), component);
+		        }
+		    }
+
+		    line = reader.readLine();
+		    while(line != null && !line.equals(START_OF_METHOD))
+		    {
+		        line = reader.readLine();
+		    }
+		    
+		    // メソッド情報を読み込む。
+		    line = reader.readLine();
+		    while(line != null && !line.equals(END_OF_METHOD))
+		    {
+		        int    from = 0;
+		        int    to;
+		        String value;
+
+		        to = line.indexOf(",", from);
+		        value = line.substring(from, to);
+		        long avg = Long.parseLong(value);
+
+		        from = to + 1;
+		        to = line.indexOf(",", from);
+		        value = line.substring(from, to);
+		        long max = Long.parseLong(value);
+
+		        from = to + 1;
+		        to = line.indexOf(",", from);
+		        value = line.substring(from, to);
+		        long min = Long.parseLong(value);
+
+		        from = to + 1;
+		        to = line.indexOf(",", from);
+		        value = line.substring(from, to);
+		        long err = Long.parseLong(value);
+		        
+		        from = to + 1;
+		        to = line.indexOf(",", from);
+		        value = line.substring(from, to);
+		        long warn = Long.parseLong(value);
+		        
+		        from = to + 1;
+		        to = line.indexOf(",", from);
+		        value = line.substring(from, to);
+		        long alarm = Long.parseLong(value);
+		        
+		        from = to + 1;
+		        value = line.substring(from);
+		        
+		        InvocationModel invocation = new InvocationModel();
+		        invocation.setMethodName(value);
+		        invocation.setAverage(avg);
+		        invocation.setMaximum(max);
+		        invocation.setMinimum(min);
+		        invocation.setThrowableCount(err);
+		        invocation.setWarningThreshold(warn);
+		        invocation.setAlarmThreshold(alarm);
+		        
+		        component.addInvocation(invocation);
+		        
+		        line = reader.readLine();
+		    }
+
+		    line = reader.readLine();
+		    while(line != null && !line.equals(START_OF_RELATION))
+		    {
+		        line = reader.readLine();
+		    }
+		    
+		    // 関連情報を読み込む。
+		    line = reader.readLine();
+		    while(line != null && !line.equals(END_OF_RELATION))
+		    {
+		        ArrowConnectionModel arrow = new ArrowConnectionModel();
+		        component.addSourceConnection(arrow);
+		        arrow.setSource(component);
+		        
+		        String className = line;
+		        
+		        ComponentModel target 
+		            = componentMap.get(getComponentKey(className));
+		        
+		        if (target == null)
+		        {
+		            target = new ComponentModel();
+		            target.setClassName(className);
+		            target.setConstraint(new Rectangle(0, 0, -1, -1));
+		            rootModel.addChild(target);
+		            
+		            componentMap.put(getComponentKey(className), target);
+		        }
+		        
+		        target.addTargetConnection(arrow);
+		        arrow.setTarget(target);
+		        
+		        line = reader.readLine();
+		    }
+		    
+		    line = reader.readLine();
+		}
+	}
 
     protected void configureGraphicalViewer() {
         super.configureGraphicalViewer();
