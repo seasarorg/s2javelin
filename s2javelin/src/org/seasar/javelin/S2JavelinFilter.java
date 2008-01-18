@@ -3,7 +3,6 @@ package org.seasar.javelin;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import javax.management.MBeanServer;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
