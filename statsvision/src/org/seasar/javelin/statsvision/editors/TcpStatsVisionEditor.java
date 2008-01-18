@@ -322,6 +322,7 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String> {
 	 * @see org.seasar.javelin.statsvision.editors.StatsVisionEditor#reset()
 	 */
 	public void reset() {
+        super.reset();
 		tcpDataGetter.sendReset();
 		tcpDataGetter.request();
 	}
