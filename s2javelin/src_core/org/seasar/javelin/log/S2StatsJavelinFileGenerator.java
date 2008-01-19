@@ -210,7 +210,7 @@ public class S2StatsJavelinFileGenerator
     	public LoggerThread()
     	{
     		super();
-    		setName("LoggerThread<S2Javelin>-" + getId());
+    		setName("S2Javelin-LoggerThread-" + getId());
     		setDaemon(true);
     	}
     	
