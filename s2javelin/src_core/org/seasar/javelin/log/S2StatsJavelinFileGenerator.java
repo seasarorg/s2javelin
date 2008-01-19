@@ -13,11 +13,11 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
-import java.text.SimpleDateFormat;
+import java.text.DecimalFormat;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.zip.GZIPOutputStream;
@@ -215,6 +215,10 @@ public class S2StatsJavelinFileGenerator
     {
     	private static final String EXTENTION_JVN = ".jvn";
 
+    	/** jvnファイル名のフォーマット(日付フォーマット(ミリ(sec)まで表示) */
+        private static final String JVN_FILE_FORMAT = "{0}" + File.separator
+                            + "javelin_{1,date,yyyyMMddHHmmssSSS}_{2,number,00000}" + EXTENTION_JVN;
+
         public LoggerThread()
     	{
     		super();
@@ -280,14 +284,9 @@ public class S2StatsJavelinFileGenerator
          */
         private String createJvnFileDir(Date date)
         {
-            /** 日付フォーマット(ミリ(sec)まで表示) */
-            SimpleDateFormat jvnFileFormat = 
-            	new SimpleDateFormat("yyyyMMddHHmmssSSS");
-            
             String fileName;
-            fileName = javelinFileDir_ + File.separator + "javelin_"
-                    + jvnFileFormat.format(date) + "_"
-                    + (sequenceNumber++) + EXTENTION_JVN;
+            fileName = MessageFormat.format(JVN_FILE_FORMAT,
+                                            javelinFileDir_, date, (sequenceNumber++));
 
             return fileName;
         }
