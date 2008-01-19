@@ -7,14 +7,20 @@ import static org.seasar.javelin.JavelinConstants.ID_RETURN;
 import static org.seasar.javelin.JavelinConstants.ID_THROW;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.zip.GZIPOutputStream;
 
 import org.seasar.javelin.CallTree;
 import org.seasar.javelin.CallTreeNode;
@@ -207,7 +213,9 @@ public class S2StatsJavelinFileGenerator
     
     static class LoggerThread extends Thread
     {
-    	public LoggerThread()
+    	private static final String EXTENTION_JVN = ".jvn";
+
+        public LoggerThread()
     	{
     		super();
     		setName("S2Javelin-LoggerThread-" + getId());
@@ -231,6 +239,11 @@ public class S2StatsJavelinFileGenerator
 					continue;
 				}
     			
+				if(sequenceNumber % 20 == 0)
+				{
+				    removeLogFiles(10, javelinFileDir_, EXTENTION_JVN);
+				}
+				
                 try
                 {
                     String jvnFileName = createJvnFileDir(task.getDate());
@@ -274,10 +287,51 @@ public class S2StatsJavelinFileGenerator
             String fileName;
             fileName = javelinFileDir_ + File.separator + "javelin_"
                     + jvnFileFormat.format(date) + "_"
-                    + (sequenceNumber++) + ".jvn";
+                    + (sequenceNumber++) + EXTENTION_JVN;
 
             return fileName;
         }
 
+        private void removeLogFiles(int maxFileCount, String dirName, final String extention)
+        {
+            File dir = new File(dirName);
+            File[] files = dir.listFiles(new FilenameFilter(){
+                public boolean accept(File dir, String name)
+                {
+                    if(name != null && name.endsWith(extention))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }}
+            );
+            if (files == null)
+            {
+                return;
+            }
+            Arrays.sort(files);
+            
+            for (int index = files.length; index > maxFileCount; index--)
+            {
+                files[files.length - index].delete();
+                JavelinErrorLogger.getInstance().log("Remove file name = " + files[files.length - index].getName());
+            }
+        }
+
+        private void monitor() throws Exception{
+            
+            String fileName = "";
+            FileOutputStream fStream = new FileOutputStream(fileName);
+            GZIPOutputStream zStream = new GZIPOutputStream(fStream);
+            PrintStream      pStream = new PrintStream(zStream);
+                
+           pStream.print(":");
+                
+            pStream.close();
+        }
     }
+
 }
