@@ -211,6 +211,7 @@ public class S2StatsJavelinFileGenerator
     	{
     		super();
     		setName("LoggerThread<S2Javelin>-" + getId());
+    		setDaemon(true);
     	}
     	
     	public void run()
