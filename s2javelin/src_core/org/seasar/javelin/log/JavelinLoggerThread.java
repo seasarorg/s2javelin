@@ -82,6 +82,20 @@ class JavelinLoggerThread extends Thread
                 continue;
             }
 
+            // ログのzip圧縮、ファイル数制限を行う。
+            if (sequenceNumber % jvnFileMax == 0)
+            {
+                if (isZipFileMax)
+                {
+                    zipAndDeleteLogFiles(jvnFileMax, javelinFileDir, EXTENTION_JVN);
+                    removeLogFiles(zipFileMax, javelinFileDir, EXTENTION_ZIP);
+                }
+                else
+                {
+                    removeLogFiles(jvnFileMax, javelinFileDir, EXTENTION_JVN);
+                }
+            }
+            
             try
             {
                 String jvnFileName = createJvnFileName(task.getDate());
@@ -107,20 +121,6 @@ class JavelinLoggerThread extends Thread
                     {
                         JavelinErrorLogger.getInstance().log(ioEx);
                     }
-                }
-            }
-
-            // ログのzip圧縮、ファイル数制限を行う。
-            if (sequenceNumber % jvnFileMax == 1)
-            {
-                if (isZipFileMax)
-                {
-                    zipAndDeleteLogFiles(jvnFileMax, javelinFileDir, EXTENTION_JVN);
-                    removeLogFiles(zipFileMax, javelinFileDir, EXTENTION_ZIP);
-                }
-                else
-                {
-                    removeLogFiles(jvnFileMax, javelinFileDir, EXTENTION_JVN);
                 }
             }
         }
@@ -171,7 +171,7 @@ class JavelinLoggerThread extends Thread
             fileOutputStream = new FileOutputStream(fileName);
             zStream = new ZipOutputStream(fileOutputStream);
 
-            for (int index = 0; index < files.length - 1; index++)
+            for (int index = 0; index < files.length; index++)
             {
                 File file = files[index];
                 zipFile(zStream, file);
