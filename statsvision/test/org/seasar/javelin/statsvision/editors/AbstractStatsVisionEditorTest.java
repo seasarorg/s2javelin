@@ -30,17 +30,17 @@ public class AbstractStatsVisionEditorTest extends TestCase {
 
 	public void testCreateContent_None() {
 		// create expect data
-		StringBuilder expect = new StringBuilder();
-		expect.append("").append(LB);
-		expect.append(0).append(LB);
-		expect.append("").append(LB);
-		expect.append(Long.MAX_VALUE).append(LB);
-		expect.append(Long.MAX_VALUE).append(LB);
-		expect.append("TCP").append(LB);
-		expect.append("NORMAL").append(LB);
+		StringBuilder expected = new StringBuilder();
+		expected.append("").append(LB);
+		expected.append(0).append(LB);
+		expected.append("").append(LB);
+		expected.append(Long.MAX_VALUE).append(LB);
+		expected.append(Long.MAX_VALUE).append(LB);
+		expected.append("TCP").append(LB);
+		expected.append("NORMAL").append(LB);
 
 		// assert
-		assertEquals(expect.toString(), editor.createContent());
+		assertEquals(expected.toString(), editor.createContent());
 	}
 
 	public void testCreateContent1() {
@@ -82,29 +82,29 @@ public class AbstractStatsVisionEditorTest extends TestCase {
 		component1.addInvocation(invocation);
 
 		// create expect data
-		StringBuilder expect = new StringBuilder();
-		expect.append("localhost").append(LB);
-		expect.append(18000).append(LB);
-		expect.append("domain").append(LB);
-		expect.append(1000).append(LB);
-		expect.append(5000).append(LB);
-		expect.append("JMX").append(LB);
-		expect.append("SHORT").append(LB);
-		expect.append("Class1=10,20").append(LB);
-		expect.append("<START-OF-METHOD>").append(LB);
-		expect.append("100,500,10,5,1100,5500,method1-1").append(LB);
-		expect.append("200,600,20,10,2200,6600,method1-2").append(LB);
-		expect.append("<END-OF-METHOD>").append(LB);
-		expect.append("<START-OF-RELATION>").append(LB);
-		expect.append("Class2").append(LB);
-		expect.append("<END-OF-RELATION>").append(LB);
-		expect.append("Class2=20,40").append(LB);
-		expect.append("<START-OF-METHOD>").append(LB);
-		expect.append("<END-OF-METHOD>").append(LB);
-		expect.append("<START-OF-RELATION>").append(LB);
-		expect.append("<END-OF-RELATION>").append(LB);
-		expect.append("Class2=20,40").append(LB);
-		expect.append("Class1=10,20").append(LB);
+		StringBuilder expected = new StringBuilder();
+		expected.append("localhost").append(LB);
+		expected.append(18000).append(LB);
+		expected.append("domain").append(LB);
+		expected.append(1000).append(LB);
+		expected.append(5000).append(LB);
+		expected.append("JMX").append(LB);
+		expected.append("SHORT").append(LB);
+		expected.append("Class1=10,20").append(LB);
+		expected.append("<START-OF-METHOD>").append(LB);
+		expected.append("100,500,10,5,1100,5500,method1-1").append(LB);
+		expected.append("200,600,20,10,2200,6600,method1-2").append(LB);
+		expected.append("<END-OF-METHOD>").append(LB);
+		expected.append("<START-OF-RELATION>").append(LB);
+		expected.append("Class2").append(LB);
+		expected.append("<END-OF-RELATION>").append(LB);
+		expected.append("Class2=20,40").append(LB);
+		expected.append("<START-OF-METHOD>").append(LB);
+		expected.append("<END-OF-METHOD>").append(LB);
+		expected.append("<START-OF-RELATION>").append(LB);
+		expected.append("<END-OF-RELATION>").append(LB);
+		expected.append("Class2=20,40").append(LB);
+		expected.append("Class1=10,20").append(LB);
 
 		ArrowConnectionModel connection = new ArrowConnectionModel();
 		component1.addSourceConnection(connection);
@@ -120,7 +120,7 @@ public class AbstractStatsVisionEditorTest extends TestCase {
 		connection.setTarget(component1);
 
 		// assert
-		assertEquals(expect.toString(), editor.createContent());
+		assertEquals(expected.toString(), editor.createContent());
 	}
 
 	public void testLoadContent() throws Exception {
@@ -132,12 +132,14 @@ public class AbstractStatsVisionEditorTest extends TestCase {
 				.getResourceAsStream("AbstractStatsVisionEditorTest_testLoadContent1.txt");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
+		// execute
 		try {
 			editor.loadContent(reader);
 		} finally {
 			reader.close();
 		}
 
+		// assert
 		assertEquals(2, editor.rootModel.getChildren().size());
 		ComponentModel model1 = editor.rootModel.getChildren().get(0);
 		ComponentModel model2 = editor.rootModel.getChildren().get(1);
