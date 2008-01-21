@@ -26,7 +26,7 @@ public class S2StatsJavelinRecorder
     /**
      * メソッドコールツリーの記録用オブジェクト。
      */
-    public static ThreadLocal<CallTree>     callTree_   = new ThreadLocal<CallTree>() {
+    public static final ThreadLocal<CallTree>     callTree_   = new ThreadLocal<CallTree>() {
                                                             protected synchronized CallTree initialValue()
                                                             {
                                                                 return null;
@@ -36,7 +36,7 @@ public class S2StatsJavelinRecorder
     /**
      * メソッドの呼び出し元オブジェクト。
      */
-    public static ThreadLocal<CallTreeNode> callerNode_ = new ThreadLocal<CallTreeNode>() {
+    public static final ThreadLocal<CallTreeNode> callerNode_ = new ThreadLocal<CallTreeNode>() {
                                                             protected synchronized CallTreeNode initialValue()
                                                             {
                                                                 return null;
@@ -419,7 +419,7 @@ public class S2StatsJavelinRecorder
                 if (node.getAccumulatedTime() >= node.getInvocation().getRecordThreshold())
                 {
                     S2StatsJavelinFileGenerator generator = new S2StatsJavelinFileGenerator(
-                                                                                            config.getJavelinFileDir());
+                                                                                            config);
                     generator.generateJaveinFile(callTree_.get(), node);
                 }
 
@@ -483,7 +483,7 @@ public class S2StatsJavelinRecorder
 
                 // Javelinログファイルを出力する。
                 S2StatsJavelinFileGenerator generator = new S2StatsJavelinFileGenerator(
-                                                                                        config.getJavelinFileDir());
+                                                                                        config);
                 CallTreeNode callTreeNode = callerNode_.get();
                 CallTree callTree = callTree_.get();
                 generator.generateJaveinFile(callTree, callTreeNode);
@@ -517,11 +517,16 @@ public class S2StatsJavelinRecorder
     {
         // Javelinログファイルを出力する。
         S2StatsJavelinFileGenerator generator = 
-        	new S2StatsJavelinFileGenerator(config.getJavelinFileDir());
+        	new S2StatsJavelinFileGenerator(config);
 
         CallTree callTree = callTree_.get();
+        if(callTree == null)
+        {
+            return;
+        }
+        
         CallTreeNode root = callTree.getRootNode();
-        if (root != null && callTree != null)
+        if (root != null)
         {
             generator.generateJaveinFile(callTree, root);
 
@@ -565,9 +570,12 @@ public class S2StatsJavelinRecorder
             node.setStartTime(System.currentTimeMillis());
             node.setStartVmStatus(vmStatusHelper__.createVMStatus());
             node.setFieldAccess(true);
-            Invocation invocation = parent.getInvocation();
-            node.setInvocation(invocation);
-            parent.addChild(node);
+            if(parent != null)
+            {
+                Invocation invocation = parent.getInvocation();
+                node.setInvocation(invocation);
+                parent.addChild(node);
+            }
             // 呼び出し先を、次回ログ出力時の呼び出し元として使用するために保存する。
             callerNode_.set(node);
         }
