@@ -3,11 +3,13 @@ package org.seasar.javelin.statsvision.editors;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
 
+import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.seasar.javelin.statsvision.communicate.Telegram;
 import org.seasar.javelin.statsvision.editpart.ComponentEditPart;
@@ -18,6 +20,13 @@ import org.seasar.javelin.statsvision.model.InvocationModel;
 
 public class AbstractStatsVisionEditorTest extends TestCase {
 	private String LB = System.getProperty("line.separator");
+
+	private Field pointMap;
+
+	public AbstractStatsVisionEditorTest() throws NoSuchFieldException {
+		pointMap = AbstractStatsVisionEditor.class.getDeclaredField("pointMap");
+		pointMap.setAccessible(true);
+	}
 
 	public void testCreateContent_None() {
 		// create expect data
@@ -129,6 +138,50 @@ public class AbstractStatsVisionEditorTest extends TestCase {
 			reader.close();
 		}
 
+		assertEquals(2, editor.rootModel.getChildren().size());
+		ComponentModel model1 = editor.rootModel.getChildren().get(0);
+		ComponentModel model2 = editor.rootModel.getChildren().get(1);
+
+		assertEquals("Class1", model1.getClassName());
+
+		InvocationModel method = model1.getInvocationList().get(0);
+		assertEquals("method1-1", method.getMethodName());
+		assertEquals(100, method.getAverage());
+		assertEquals(500, method.getMaximum());
+		assertEquals(10, method.getMinimum());
+		assertEquals(5, method.getThrowableCount());
+		assertEquals(1100, method.getWarningThreshold());
+		assertEquals(5500, method.getAlarmThreshold());
+
+		method = model1.getInvocationList().get(1);
+		assertEquals("method1-2", method.getMethodName());
+		assertEquals(200, method.getAverage());
+		assertEquals(600, method.getMaximum());
+		assertEquals(20, method.getMinimum());
+		assertEquals(10, method.getThrowableCount());
+		assertEquals(2200, method.getWarningThreshold());
+		assertEquals(6600, method.getAlarmThreshold());
+
+		Map<Object, Point> pointMap = getPointMap(editor);
+		assertEquals(10, pointMap.get("Class1").x);
+		assertEquals(20, pointMap.get("Class1").y);
+
+		ArrowConnectionModel arrow = (ArrowConnectionModel) model1
+				.getModelSourceConnections().get(0);
+		assertTrue(arrow == model2.getModelTargetConnections().get(0));
+
+		assertTrue(arrow.getSource() == model1);
+		assertTrue(arrow.getTarget() == model2);
+
+		assertEquals("Class2", model2.getClassName());
+
+		assertEquals(0, model2.getInvocationList().size());
+	}
+
+	private Map<Object, Point> getPointMap(
+			AbstractStatsVisionEditor<Object> editor)
+			throws IllegalArgumentException, IllegalAccessException {
+		return (Map<Object, Point>) pointMap.get(editor);
 	}
 
 	private AbstractStatsVisionEditor<Object> editor = new AbstractStatsVisionEditor<Object>() {
