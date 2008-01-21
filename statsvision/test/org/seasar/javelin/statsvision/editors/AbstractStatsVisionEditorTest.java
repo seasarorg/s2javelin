@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -51,13 +51,13 @@ public class AbstractStatsVisionEditorTest extends TestCase {
 		editor.setWarningThreshold(1000);
 		editor.setAlarmThreshold(5000);
 		editor.setMode("JMX");
-		editor.setLineStyle("SHORT");
+		editor.setLineStyle("MANHATTAN");
 
-		Map<Object, ComponentModel> map = new HashMap<Object, ComponentModel>();
+		Map<Object, ComponentModel> map = new LinkedHashMap<Object, ComponentModel>();
 		editor.setComponentMap(map);
 
 		ComponentModel component1 = new ComponentModel();
-		map.put(1, component1);
+		map.put("Class1", component1);
 		component1.setClassName("Class1");
 		component1.setConstraint(new Rectangle(10, 20, 30, 40));
 
@@ -81,6 +81,17 @@ public class AbstractStatsVisionEditorTest extends TestCase {
 		invocation.setMethodName("method1-2");
 		component1.addInvocation(invocation);
 
+		ComponentModel component2 = new ComponentModel();
+		map.put("Class2", component2);
+		component2.setClassName("Class2");
+		component2.setConstraint(new Rectangle(20, 40, 60, 80));
+
+		ArrowConnectionModel connection = new ArrowConnectionModel();
+		connection.setSource(component1);
+		connection.setTarget(component2);
+		component1.addSourceConnection(connection);
+		component2.addTargetConnection(connection);
+
 		// create expect data
 		StringBuilder expected = new StringBuilder();
 		expected.append("localhost").append(LB);
@@ -89,7 +100,7 @@ public class AbstractStatsVisionEditorTest extends TestCase {
 		expected.append(1000).append(LB);
 		expected.append(5000).append(LB);
 		expected.append("JMX").append(LB);
-		expected.append("SHORT").append(LB);
+		expected.append("MANHATTAN").append(LB);
 		expected.append("Class1=10,20").append(LB);
 		expected.append("<START-OF-METHOD>").append(LB);
 		expected.append("100,500,10,5,1100,5500,method1-1").append(LB);
@@ -103,21 +114,6 @@ public class AbstractStatsVisionEditorTest extends TestCase {
 		expected.append("<END-OF-METHOD>").append(LB);
 		expected.append("<START-OF-RELATION>").append(LB);
 		expected.append("<END-OF-RELATION>").append(LB);
-		expected.append("Class2=20,40").append(LB);
-		expected.append("Class1=10,20").append(LB);
-
-		ArrowConnectionModel connection = new ArrowConnectionModel();
-		component1.addSourceConnection(connection);
-
-		ComponentModel component2 = new ComponentModel();
-		map.put(2, component2);
-		connection.setTarget(component2);
-		component2.setClassName("Class2");
-		component2.setConstraint(new Rectangle(20, 40, 60, 80));
-
-		connection = new ArrowConnectionModel();
-		component2.addTargetConnection(connection);
-		connection.setTarget(component1);
 
 		// assert
 		assertEquals(expected.toString(), editor.createContent());
@@ -175,9 +171,11 @@ public class AbstractStatsVisionEditorTest extends TestCase {
 		assertTrue(arrow.getSource() == model1);
 		assertTrue(arrow.getTarget() == model2);
 
-		assertEquals("Class2", model2.getClassName());
-
 		assertEquals(0, model2.getInvocationList().size());
+
+		assertEquals("Class2", model2.getClassName());
+		assertEquals(40, pointMap.get("Class2").x);
+		assertEquals(100, pointMap.get("Class2").y);
 	}
 
 	private Map<Object, Point> getPointMap(
