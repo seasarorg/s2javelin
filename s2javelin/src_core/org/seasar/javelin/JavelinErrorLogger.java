@@ -26,7 +26,7 @@ public class JavelinErrorLogger
     /**
      * エラーログ出力日時のフォーマット。
      */
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private static final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
 
     /**
      * JavelinErrorLoggerのインスタンス。
@@ -89,7 +89,7 @@ public class JavelinErrorLogger
      */
     public void log(String message, Throwable throwable)
     {
-        SimpleDateFormat dateFormat = DATE_FORMAT;
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         String dateMessage = dateFormat.format(new Date());
 
         this.errorOut_.print(dateMessage);
