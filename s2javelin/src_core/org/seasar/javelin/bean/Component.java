@@ -5,68 +5,68 @@ import java.util.Map;
 
 import javax.management.ObjectName;
 
-public class Component implements ComponentMBean {
-	private String className_;
+public class Component implements ComponentMBean
+{
+    private String                  className_;
 
-	private ObjectName objName_;
-	private Map invocationMap_ = new HashMap();
+    private ObjectName              objName_;
 
-	public Component(ObjectName objName, String className)
-	{
-		objName_   = objName;
-		className_ = className;
-	}
+    private Map<String, Invocation> invocationMap_ = new HashMap<String, Invocation>();
 
-	public ObjectName getObjectName()
-	{
-		return objName_;
-	}
-	
-	public String getClassName()
-	{
-		return className_;
-	}
+    public Component(ObjectName objName, String className)
+    {
+        objName_ = objName;
+        className_ = className;
+    }
 
-	public synchronized ObjectName[] getAllInvocationObjectName()
-	{
-		int size = invocationMap_.values().size();
-		Invocation[] invocations = 
-			(Invocation[]) invocationMap_.values().toArray(new Invocation[size]);
-		ObjectName[] objNames = new ObjectName[invocations.length];
+    public ObjectName getObjectName()
+    {
+        return objName_;
+    }
 
-		for (int index = 0; index < invocations.length; index++) 
-		{
-			objNames[index] = invocations[index].getObjectName();
-		}
+    public String getClassName()
+    {
+        return className_;
+    }
 
-		return objNames;
-	}
+    public synchronized ObjectName[] getAllInvocationObjectName()
+    {
+        int size = invocationMap_.values().size();
+        Invocation[] invocations = invocationMap_.values().toArray(new Invocation[size]);
+        ObjectName[] objNames = new ObjectName[invocations.length];
 
-	public synchronized Invocation[] getAllInvocation() 
-	{
-		int size = invocationMap_.values().size();
-		Invocation[] invocations = (Invocation[]) invocationMap_.values()
-				.toArray(new Invocation[size]);
-		return invocations;
-	}
+        for (int index = 0; index < invocations.length; index++)
+        {
+            objNames[index] = invocations[index].getObjectName();
+        }
 
-	public synchronized void addInvocation(Invocation invocation) 
-	{
-		invocationMap_.put(invocation.getMethodName(), invocation);
-	}
+        return objNames;
+    }
 
-	public synchronized Invocation getInvocation(String methodName)
-	{
-		return (Invocation) invocationMap_.get(methodName);
-	}
+    public synchronized Invocation[] getAllInvocation()
+    {
+        int size = invocationMap_.values().size();
+        Invocation[] invocations = invocationMap_.values().toArray(new Invocation[size]);
+        return invocations;
+    }
 
-	public synchronized void reset()
-	{
-		Invocation[] invocations = (Invocation[]) invocationMap_.values()
-				.toArray(new Invocation[0]);
-		for (int index = 0; index < invocations.length; index++) {
-			invocations[index].reset();
-		}
-	}
+    public synchronized void addInvocation(Invocation invocation)
+    {
+        invocationMap_.put(invocation.getMethodName(), invocation);
+    }
 
+    public synchronized Invocation getInvocation(String methodName)
+    {
+        return invocationMap_.get(methodName);
+    }
+
+    public synchronized void reset()
+    {
+        int size = invocationMap_.values().size();
+        Invocation[] invocations = invocationMap_.values().toArray(new Invocation[size]);
+        for (int index = 0; index < invocations.length; index++)
+        {
+            invocations[index].reset();
+        }
+    }
 }

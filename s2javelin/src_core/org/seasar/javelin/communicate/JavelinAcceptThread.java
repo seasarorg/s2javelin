@@ -24,7 +24,7 @@ public class JavelinAcceptThread implements Runnable, AlarmListener
 
     Socket                     clientSocket    = null;
 
-    List                       clientList      = new ArrayList();
+    List<JavelinClientThread>  clientList      = new ArrayList<JavelinClientThread>();
 
     boolean                    isRunning       = false;
 
@@ -40,11 +40,11 @@ public class JavelinAcceptThread implements Runnable, AlarmListener
 
     public void start(int port)
     {
-        if(this.objServerSocket != null)
+        if (this.objServerSocket != null)
         {
             return;
         }
-        
+
         try
         {
             this.objServerSocket = new ServerSocket(port);
@@ -89,7 +89,7 @@ public class JavelinAcceptThread implements Runnable, AlarmListener
         {
             for (int index = clientList.size() - 1; index >= 0; index--)
             {
-                JavelinClientThread client = (JavelinClientThread)clientList.get(index);
+                JavelinClientThread client = clientList.get(index);
                 client.stop();
             }
         }
@@ -165,7 +165,7 @@ public class JavelinAcceptThread implements Runnable, AlarmListener
         {
             for (int index = clientList.size() - 1; index >= 0; index--)
             {
-                JavelinClientThread client = (JavelinClientThread)clientList.get(index);
+                JavelinClientThread client = clientList.get(index);
                 if (client.isClosed())
                 {
                     clientList.remove(index);
@@ -180,8 +180,7 @@ public class JavelinAcceptThread implements Runnable, AlarmListener
     public void sendExceedThresholdAlarm(CallTreeNode node)
     {
         Invocation invocation = node.getInvocation();
-        Telegram objTelegram = TelegramUtil.create(
-                                                   Arrays.asList(new Object[]{invocation}),
+        Telegram objTelegram = TelegramUtil.create(Arrays.asList(new Object[]{invocation}),
                                                    Common.BYTE_TELEGRAM_KIND_ALERT,
                                                    Common.BYTE_REQUEST_KIND_NOTIFY);
 
@@ -193,7 +192,7 @@ public class JavelinAcceptThread implements Runnable, AlarmListener
         {
             for (int index = clientList.size() - 1; index >= 0; index--)
             {
-                JavelinClientThread client = (JavelinClientThread)clientList.get(index);
+                JavelinClientThread client = clientList.get(index);
                 client.sendAlarm(byteExceedThresholdAlarmArr);
             }
         }

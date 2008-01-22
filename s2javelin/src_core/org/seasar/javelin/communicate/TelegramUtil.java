@@ -315,52 +315,6 @@ public final class TelegramUtil extends Common {
 		return result;
 	}
 
-	// public static byte[] createAll() {
-	// // 電文データを取る
-	// Component[] objComponentArr = MBeanManager.getAllComponents();
-	// Invocation[] objInvocationArr;
-	//
-	// // 電文数を統計する
-	// int intTelegramCount = 0;
-	// for (int i = 0; i < objComponentArr.length; i++) {
-	// objInvocationArr = objComponentArr[i].getAllInvocation();
-	// for (int j = 0; j < objInvocationArr.length; j++) {
-	// intTelegramCount++;
-	// }
-	// }
-	//
-	// // 電文リストを作る
-	// Telegram[] objTelegramArr = new Telegram[intTelegramCount];
-	//
-	// // 電文データを設定する
-	// int intTelegramIndex = 0;
-	// for (int i = 0; i < objComponentArr.length; i++) {
-	// objInvocationArr = objComponentArr[i].getAllInvocation();
-	// for (int j = 0; j < objInvocationArr.length; j++) {
-	// Invocation invocation = objInvocationArr[j];
-	//
-	// Telegram objTelegram = TelegramUtil.create(invocation,
-	// Common.BYTE_TELEGRAM_KIND_GET,
-	// Common.BYTE_REQUEST_KIND_RESPONSE);
-	// objTelegramArr[intTelegramIndex] = objTelegram;
-	// intTelegramIndex++;
-	// }
-	// }
-	//
-	// // 電文は、object ⇒ byte[] に変換する
-	// ByteArrayOutputStream byteArrayOutputStream = new
-	// ByteArrayOutputStream();
-	// try {
-	// for (int i = 0; i < objTelegramArr.length; i++) {
-	// byteArrayOutputStream.write(createTelegram(objTelegramArr[i]));
-	// }
-	// } catch (IOException e) {
-	// // 発生しない。
-	// }
-	//
-	// // 返却する
-	// return byteArrayOutputStream.toByteArray();
-	// }
 	static Telegram create(List invocations, byte telegramKind, byte requestKind) {
 		// 電文頭部を作る【とりあえず、電文長を設定しない】
 		Header objHeader = new Header();

@@ -116,7 +116,7 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
         return intervalSum_ / count_;
     }
 
-    public List getIntervalList()
+    public List<Long> getIntervalList()
     {
         return intervalList_;
     }
@@ -126,7 +126,7 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
         return throwableList_.size();
     }
 
-    public List getThrowableList()
+    public List<Throwable> getThrowableList()
     {
         return throwableList_;
     }
@@ -156,7 +156,7 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
         count_++;
 
         intervalSum_ += interval;
-        intervalList_.add(new Long(interval));
+        intervalList_.add(Long.valueOf(interval));
         while (intervalList_.size() > intervalMax_)
         {
             intervalList_.removeFirst();

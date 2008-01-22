@@ -145,10 +145,10 @@ public class S2JavelinConfig
     private static final boolean DEFAULT_RECORD_JMX          = true;
 
     /** jvnログファイルの最大数のデフォルト */
-    private static final int     DEFAULT_LOG_JVN_MAX         = 1024;
+    private static final int     DEFAULT_LOG_JVN_MAX         = 256;
 
     /** jvnログファイルを圧縮したzipファイルの最大数のデフォルト */
-    private static final int     DEFAULT_LOG_ZIP_MAX         = 1024;
+    private static final int     DEFAULT_LOG_ZIP_MAX         = 256;
 
     /**
      * S2StatsJavelinの設定を保持するオブジェクトを作成する。

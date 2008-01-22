@@ -16,7 +16,7 @@ public interface InvocationMBean {
 	long getMaximum();
 	long getAverage();
 	long getThrowableCount();
-	List getThrowableList();
+	List<Throwable> getThrowableList();
 	ObjectName[] getAllCallerObjectName();
 
 	long getRecordThreshold();
