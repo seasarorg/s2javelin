@@ -265,14 +265,7 @@ public class JavelinLogMaker
     {
         jvnBuffer.append(JAVELIN_RETURN_START);
         jvnBuffer.append(NEW_LINE);
-        if (isReturnDetail)
-        {
-            jvnBuffer.append(StatsUtil.toStr(returnValue, stringLimitLength));
-        }
-        else
-        {
-            jvnBuffer.append(StatsUtil.toStr(returnValue, stringLimitLength));
-        }
+        jvnBuffer.append(StatsUtil.toStr(returnValue, stringLimitLength));
         jvnBuffer.append(NEW_LINE);
         jvnBuffer.append(JAVELIN_RETURN_END);
         jvnBuffer.append(NEW_LINE);
