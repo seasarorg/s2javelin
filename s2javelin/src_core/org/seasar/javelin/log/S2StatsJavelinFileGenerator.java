@@ -44,7 +44,7 @@ public class S2StatsJavelinFileGenerator
     private static BlockingQueue<JavelinLogTask> queue_         = new ArrayBlockingQueue<JavelinLogTask>(
                                                                                                          1000);
 
-    private boolean                              isInitialized_ = false;
+    private static boolean                              isInitialized_ = false;
 
     /**
      * Javelinのログファイルを保存するディレクトリ名を設定する
