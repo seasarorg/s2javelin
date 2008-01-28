@@ -40,7 +40,7 @@
             icon="icons/file.gif"
             class="org.seasar.javelin.statsvision.views.JournalView"
             category="org.seasar.javelin.statsvision.views"
-            name="Jurnal"
+            name="Journal"
             id="org.seasar.javelin.statsvision.views.JournalView"/>
    </extension>
    <extension
