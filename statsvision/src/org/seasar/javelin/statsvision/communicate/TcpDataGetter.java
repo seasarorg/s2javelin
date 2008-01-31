@@ -36,7 +36,7 @@ public class TcpDataGetter {
 	/**
 	 * サーバに接続する。
 	 */
-	public void open() {
+	public boolean open() {
 		try {
 			// サーバに接続する
 			SocketAddress remote = new InetSocketAddress(statsJavelinEditor.getHostName(),
@@ -49,12 +49,12 @@ public class TcpDataGetter {
 			// エラーメッセージを出す
 			System.out.println(
 					"サーバに接続するのは失敗しました。サーバアドレス、ポートを通りに設定していることを確認ください。");
-			return;
+			return false;
 		} catch (IOException objIOException) {
 			// エラーメッセージを出す
 			System.out.println(
 					"サーバに接続するのは失敗しました。サーバアドレス、ポートを通りに設定していることを確認ください。");
-			return;
+			return false;
 		}
 
 		try {
@@ -63,7 +63,10 @@ public class TcpDataGetter {
 		} catch (IOException objIOException) {
 			// エラーメッセージを出す
 			objIOException.printStackTrace();
+	        return false;
 		}
+		
+		return true;
 	}
 
 	/**

@@ -45,8 +45,11 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String> {
 			this.tcpDataGetter.setStatsJavelinEditor(this);
 
 			// 表示用データを取得する
-			tcpDataGetter.open();
-			tcpDataGetter.startRead();
+			boolean result = tcpDataGetter.open();
+			if(result == true)
+			{
+			    tcpDataGetter.startRead();
+			}
 
 		} catch (Exception objException) {
 			// 異常があったら、エラーメッセージを表示する
