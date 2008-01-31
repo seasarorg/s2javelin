@@ -228,7 +228,10 @@ public class S2JavelinFilter implements Filter
         {
         	// ThreadLocalから取得したCallTreeに対して呼び出し構造を保存する。
             CallTree callTree = S2JavelinCommonPool.getCallTree();
-            S2StatsJavelinRecorder.initCallTree(callTree);
+            if(callTree != null)
+            {
+                S2StatsJavelinRecorder.initCallTree(callTree);
+            }
 
             /**
         	 * ThreadLocalからクラス名、メソッド名を呼び出す。
