@@ -49,6 +49,10 @@ public class ContentsEditPart extends AbstractGraphicalEditPart
         {
             connectionLayer.setConnectionRouter(new ManhattanConnectionRouter());
         }
+        else
+        {
+            connectionLayer.setConnectionRouter(null);
+        }
 	    
 	    return figure;
 	}
