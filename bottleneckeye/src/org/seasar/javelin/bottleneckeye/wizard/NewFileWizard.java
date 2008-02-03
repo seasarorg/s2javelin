@@ -10,7 +10,7 @@ import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
 
 public class NewFileWizard extends Wizard implements INewWizard
 {
-    private static final String TITLE = "New StatsVision File";
+    private static final String TITLE = "New Bottleneck Eye File";
 
     private WizardNewFileCreationPage creationPage;
 
@@ -31,9 +31,18 @@ public class NewFileWizard extends Wizard implements INewWizard
     public void addPages()
     {
         creationPage = new WizardNewFileCreationPage("", selection);
-        creationPage.setTitle("StatsVision");
-        creationPage.setDescription("Create new StatsVision file.");
-        creationPage.setFileExtension("jview");
+        creationPage.setTitle("Bottleneck Eye");
+        creationPage.setDescription("Create new Bottleneck Eye file.");
+        
+        try
+        {
+            creationPage.setFileExtension("beye");
+        }
+        catch(Exception ex)
+        {
+        	// Eclipse 3.2—p
+        	;
+        }
 
         modifyPage = new NewFileWizardPage();
 

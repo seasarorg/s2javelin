@@ -18,7 +18,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class NewFileWizardPage extends WizardPage
 {
-    private static final String TITLE = "StatsVision";
+    private static final String TITLE = "Bottleneck Eye";
     private static final String DESC  = "Modify values.";
     
     private Text hostNameText;
@@ -31,7 +31,7 @@ public class NewFileWizardPage extends WizardPage
 
     public NewFileWizardPage()
     {
-        super("Create new StatsVision file.");
+        super("Create new Bottleneck Eye file.");
         setTitle(TITLE);
         setDescription(DESC);
     }
