@@ -4,7 +4,7 @@
    id="org.seasar.javelin.statsvision"
    name="%pluginName"
    version="1.0.0"
-   class="org.seasar.javelin.statsvision.StatsVisionPlugin"
+   class="org.seasar.javelin.bottleneckeye.StatsVisionPlugin"
    provider-name="%providerName">
    <requires>
       <import plugin="org.eclipse.ui"/>
@@ -23,8 +23,8 @@
   <extension
      point="org.eclipse.ui.editors">
 	  <editor
-	        class="org.seasar.javelin.statsvision.editors.MultiPageEditor"
-	        contributorClass="org.seasar.javelin.statsvision.editors.MultiPageEditorContributor"
+	        class="org.seasar.javelin.bottleneckeye.editors.MultiPageEditor"
+	        contributorClass="org.seasar.javelin.bottleneckeye.editors.MultiPageEditorContributor"
 	        extensions="beye"
 	        icon="icons/bottleneckeye.gif"
 	        id="org.seasar.javelin.statsvision.viewer.editors.MultiPageEditor"
@@ -38,7 +38,7 @@
             id="org.seasar.javelin.statsvision.views"/>
       <view
             icon="icons/file.gif"
-            class="org.seasar.javelin.statsvision.views.JournalView"
+            class="org.seasar.javelin.bottleneckeye.views.JournalView"
             category="org.seasar.javelin.statsvision.views"
             name="Journal"
             id="org.seasar.javelin.statsvision.views.JournalView"/>
@@ -51,7 +51,7 @@
       </category>
       <wizard
             category="org.seasar.javelin.statvision.wizard"
-            class="org.seasar.javelin.statsvision.wizard.NewFileWizard"
+            class="org.seasar.javelin.bottleneckeye.wizard.NewFileWizard"
             icon="icons/bottleneckeye.gif"
             id="org.seasar.javelin.statvision.wizard.newFileWizard"
             name="File">

@@ -4,7 +4,7 @@ Bundle-Name: Bottleneck Eye
 Bundle-SymbolicName: org.seasar.javelin.bottleneckeye;singleton:=true
 Bundle-ClassPath: statsvision.jar
 Bundle-Version: 1.0.1
-Bundle-Activator: org.seasar.javelin.statsvision.StatsVisionPlugin
+Bundle-Activator: org.seasar.javelin.bottleneckeye.StatsVisionPlugin
 Bundle-Vendor: seasar.org
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
