@@ -25,16 +25,16 @@
 	  <editor
 	        class="org.seasar.javelin.statsvision.editors.MultiPageEditor"
 	        contributorClass="org.seasar.javelin.statsvision.editors.MultiPageEditorContributor"
-	        extensions="jview"
-	        icon="icons/statsvision.gif"
+	        extensions="beye"
+	        icon="icons/bottleneckeye.gif"
 	        id="org.seasar.javelin.statsvision.viewer.editors.MultiPageEditor"
-	        name="StatsVision"/>
+	        name="Bottleneck Eye"/>
    </extension>
 
    <extension
          point="org.eclipse.ui.views">
        <category
-            name="StatsVision"
+            name="Bottleneck Eye"
             id="org.seasar.javelin.statsvision.views"/>
       <view
             icon="icons/file.gif"
@@ -47,12 +47,12 @@
          point="org.eclipse.ui.newWizards">
       <category
             id="org.seasar.javelin.statvision.wizard"
-            name="StatsVision">
+            name="Bottleneck Eye">
       </category>
       <wizard
             category="org.seasar.javelin.statvision.wizard"
             class="org.seasar.javelin.statsvision.wizard.NewFileWizard"
-            icon="icons/statsvision.gif"
+            icon="icons/bottleneckeye.gif"
             id="org.seasar.javelin.statvision.wizard.newFileWizard"
             name="File">
       </wizard>
