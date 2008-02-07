@@ -2,7 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bottleneck Eye
 Bundle-SymbolicName: org.seasar.javelin.bottleneckeye;singleton:=true
-Bundle-ClassPath: statsvision.jar
+Bundle-ClassPath: statsvision.jar,
+ lib/jcommon-1.0.9.jar,
+ lib/jfreechart-1.0.5.jar
 Bundle-Version: 1.0.1
 Bundle-Activator: org.seasar.javelin.bottleneckeye.StatsVisionPlugin
 Bundle-Vendor: seasar.org
