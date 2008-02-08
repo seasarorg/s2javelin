@@ -1,17 +1,11 @@
 package org.seasar.javelin.bottleneckeye.editors;
 
-import java.awt.Frame;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResourceChangeEvent;
@@ -27,7 +21,6 @@ import org.eclipse.gef.editparts.ScalableRootEditPart;
 import org.eclipse.gef.print.PrintGraphicalViewerOperation;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -57,13 +50,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
-import org.jfree.chart.ChartPanel;
-import org.seasar.javelin.bottleneckeye.editors.timeseries.ChartType;
-import org.seasar.javelin.bottleneckeye.editors.timeseries.CpuRateTimeSeriesChartView;
-import org.seasar.javelin.bottleneckeye.editors.timeseries.HeapMemoryTimeSeriesChartView;
-import org.seasar.javelin.bottleneckeye.editors.timeseries.NonHeapMemoryTimeSeriesChartView;
-import org.seasar.javelin.bottleneckeye.editors.timeseries.TimeSeriesChartView;
-import org.seasar.javelin.bottleneckeye.editors.timeseries.TimeSeriesChartViewFactory;
 
 /**
  * An example showing how to create a multi-page editor. This example has 3
@@ -88,15 +74,9 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
     public static final String LINE_STYLE_FAN = "FAN";
     
     public static final String LINE_STYLE_MANHATTAN = "MANHATTAN";
-
-    /** 時系列データ表示タブでの、グラフ同士の間隔 */
-    private static final int TIMESERIESVIEW_GRID_INTERVAL = 4;
     
     /** The text editor used in page 0. */
     private StatsVisionEditor   editor;
-
-    /** 時系列データを表示するグラフのマップ */
-    private Map<ChartType, TimeSeriesChartView> chartMap_;
 
     /**
      * Creates a multi-page editor example.
@@ -105,7 +85,6 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
     {
         super();
         ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
-        this.chartMap_ = new HashMap<ChartType, TimeSeriesChartView>();
     }
 
     /**
@@ -346,7 +325,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
             {
                 applyInputToEditor();
 
-            	startButton_.setEnabled(false);
+                startButton_.setEnabled(false);
                 stopButton_.setEnabled(true);
                 resetButton_.setEnabled(true);
                 reloadButton_.setEnabled(true);
@@ -456,44 +435,12 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
     }
 
     /**
-     * ３番目のタブを作成します。
-     */
-    void createPage2()
-    {
-        Composite composite = new Composite(getContainer(), SWT.EMBEDDED);
-
-        // 時系列ビューを作成する
-        this.chartMap_.put(ChartType.CPU_RATE,
-                           TimeSeriesChartViewFactory.createTimeSeriesChartView(ChartType.CPU_RATE));
-        this.chartMap_.put(ChartType.HEAP_MEMORY,
-                           TimeSeriesChartViewFactory.createTimeSeriesChartView(ChartType.HEAP_MEMORY));
-        this.chartMap_.put(ChartType.NONHEAP_MEMORY,
-                           TimeSeriesChartViewFactory.createTimeSeriesChartView(ChartType.NONHEAP_MEMORY));
-
-        // 作成した時系列ビューをパネルに配置する
-        JPanel chartsPanel = new JPanel();
-        chartsPanel.setLayout(new java.awt.GridLayout(0, 1, TIMESERIESVIEW_GRID_INTERVAL, TIMESERIESVIEW_GRID_INTERVAL));
-        for (TimeSeriesChartView chartView : this.chartMap_.values())
-        {
-            chartsPanel.add(new ChartPanel(chartView.getChart()));
-        }
-
-        JScrollPane scrollPane = new JScrollPane(chartsPanel);
-        Frame frame = SWT_AWT.new_Frame(composite);
-        frame.add(scrollPane);
-
-        int index = addPage(composite);
-        setPageText(index, "Graph");
-    }
-
-    /**
      * Creates the pages of the multi-page editor.
      */
     protected void createPages()
     {
         createPage0();
         createPage1();
-        createPage2();
     }
 
     /**
@@ -517,15 +464,15 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         getEditor(0).doSave(monitor);
     }
 
-	private void applyInputToEditor() {
-		editor.setHostName(hostText_.getText());
+    private void applyInputToEditor() {
+        editor.setHostName(hostText_.getText());
         editor.setPortNum(Integer.parseInt(portText_.getText()));
         editor.setDomain(domainText_.getText());
         editor.setWarningThreshold(warningThreshold_);
         editor.setAlarmThreshold(alarmThreshold_);
         editor.setMode(modeCombo_.getText());
         editor.setLineStyle(lineStyleCombo_.getText());
-	}
+    }
 
     /**
      * Saves the multi-page editor's document as another file. Also updates the
