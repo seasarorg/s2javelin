@@ -437,6 +437,12 @@ public class S2StatsJavelinRecorder
                     sendExceedThresholdAlarm(node);
                 }
 
+                CallTree tree = callTree_.get();
+                if (tree != null)
+                {
+                    tree.executeCallback();
+                }
+                
                 callerNode_.set(null);
             }
         }
