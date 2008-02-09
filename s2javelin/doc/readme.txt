@@ -225,6 +225,8 @@
         <<<<    
 
 ３．使用方法(ArrowVision)
+    ArrowVisionは、Eclipseプラグインです。
+    媒体を展開してできたディレクトリをEclipseのpluginsディレクトリに配置してください。
 
     (1) 対象のSeasarアプリケーションを起動し動作させる。
         ⇒「２．インストール」の「Javelin設定ファイルの変更」及び
@@ -235,6 +237,8 @@
         ⇒SQLの呼び出しも含めた、動作シーケンスが表示されます。
 
 ４．使用方法(BottleneckEye)
+    BottleneckEyeは、Eclipseプラグインです。
+    Eclipseのpluginsディレクトリに配置してください。
 
     (1) 対象のSeasarアプリケーションを起動し動作させる。
 
