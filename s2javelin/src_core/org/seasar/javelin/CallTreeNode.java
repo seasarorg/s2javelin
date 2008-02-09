@@ -20,14 +20,6 @@ public class CallTreeNode {
 
 	private long accumulatedTime_;
 
-	/** accumulatedTime_の最大値。
-	 * {@link #setEndTime}の中でaccumulatedTime_と共に更新判定を行う。
-	 */
-	private long maxAccumulatedTime_;
-
-	/** maxAccumulatedTime_の更新回数 */
-	private long maxAccumulatedTimeUpdateCount_;
-
 	private VMStatus startVmStatus_;
 
     private VMStatus endVmStatus_;
@@ -73,23 +65,11 @@ public class CallTreeNode {
 	public void setEndTime(long endTime) {
 		endTime_ = endTime;
 		accumulatedTime_ = endTime_ - startTime_;
-		if (accumulatedTime_ > maxAccumulatedTime_)
-		{
-			maxAccumulatedTime_ = accumulatedTime_;
-			maxAccumulatedTimeUpdateCount_++;
-		}
+		invocation_.setAccumulatedTime(accumulatedTime_);
 	}
 
 	public long getAccumulatedTime() {
 		return accumulatedTime_;
-	}
-
-	public long getMaxAccumulatedTime() {
-		return maxAccumulatedTime_;
-	}
-
-	public long getMaxAccumulatedTimeUpdateCount() {
-		return maxAccumulatedTimeUpdateCount_;
 	}
 
 	public StackTraceElement[] getStacktrace() {

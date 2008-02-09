@@ -42,6 +42,17 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
 
     private long intervalSum_ = 0;
 
+	private long accumulatedTime_;
+
+	/**
+	 * accumulatedTime_の最大値。
+	 * {@link #setAccumulatedTime}の中でaccumulatedTime_と共に更新判定を行う。
+	 */
+	private long maxAccumulatedTime_;
+
+	/** maxAccumulatedTime_の更新回数 */
+	private long maxAccumulatedTimeUpdateCount_;
+
     /**
      * 呼び出し情報を記録する際の閾値。 
      * 値（ミリ秒）を下回る処理時間の呼び出し情報は記録しない。
@@ -283,5 +294,26 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
 
 	public String getProcessName() {
 		return processName_;
+	}
+	
+	public long getAccumulatedTime() {
+		return accumulatedTime_;
+	}
+
+	public void setAccumulatedTime(long accumulatedTime) {
+		accumulatedTime_ = accumulatedTime;
+		if (accumulatedTime_ > maxAccumulatedTime_)
+		{
+			maxAccumulatedTime_ = accumulatedTime_;
+			maxAccumulatedTimeUpdateCount_++;
+		}
+	}
+	
+	public long getMaxAccumulatedTime() {
+		return maxAccumulatedTime_;
+	}
+
+	public long getMaxAccumulatedTimeUpdateCount() {
+		return maxAccumulatedTimeUpdateCount_;
 	}
 }

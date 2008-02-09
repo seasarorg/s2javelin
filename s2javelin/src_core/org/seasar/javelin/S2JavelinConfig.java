@@ -154,7 +154,7 @@ public class S2JavelinConfig
     private static final int     DEFAULT_LOG_ZIP_MAX         = 256;
 
     /** 記録条件判定クラスのデフォルト */
-    private static final String  DEFAULT_RECORDSTRATEGY      = "org.seasar.javelin.DefaultStrategy";
+    private static final String  DEFAULT_RECORDSTRATEGY      = "org.seasar.javelin.DefaultRecordStrategy";
     
     /**
      * S2StatsJavelinの設定を保持するオブジェクトを作成する。
