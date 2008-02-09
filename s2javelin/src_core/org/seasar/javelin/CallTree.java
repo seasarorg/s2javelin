@@ -92,6 +92,8 @@ public class CallTree
 				JavelinErrorLogger.getInstance().log(ex);
 			}
 		}
+		
+		callbackList_.clear();
 	}
 	
 	public boolean set(Object flag)
