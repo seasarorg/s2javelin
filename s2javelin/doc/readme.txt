@@ -38,7 +38,7 @@
         zipを展開してできた、以下のディレクトリ階層を、
         インストール先に配置します。
 
-        Javelin
+        .
         │  readme.txt
         │  SEASAR-LICENSE.TXT
         │      

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Shift_JIS" ?>
 <project name="S2Javelin" default="dist" basedir=".">
 	<!-- このビルド用のグローバルプロパティを設定する -->
-	<property name="version" value="1.0.0" />
+	<property name="version" value="1.0.1" />
 	<property name="dist.zip.name" value="S2Javelin-V${version}.zip" />
 	<property name="dist.zip.dir"  value="s2javelin-${version}" />
 
@@ -72,7 +72,7 @@
 		<mkdir dir="${tmp_s2jvn}" />
 		<mkdir dir="${tmp_s2jvn}/${conf}" />
 		<mkdir dir="${tmp_s2jvn}/lib" />
-		<mkdir dir="${tmp_s2jvn}/src" />
+		<mkdir dir="${tmp_s2jvn}/logs" />
 
 		<!-- jarを作成する -->
 		<jar jarfile="${tmp_s2jvn}/lib/s2javelin.jar" basedir="${classes}" />
@@ -94,9 +94,12 @@
 			</fileset>
 		</copy>
 
-		<!-- ソースファイルをzipにする -->
-		<zip destfile="${tmp_s2jvn}/src/src.zip"      basedir="${src}"/>
-		<zip destfile="${tmp_s2jvn}/src/src_core.zip" basedir="${src_core}"/>
+		<!-- ダミーファイルをコピーする -->
+		<copy todir="${tmp_s2jvn}/logs">
+			<fileset dir="logs">
+				<include name="deleteme.txt"/>
+			</fileset>
+		</copy>
 
 		<!-- zipを生成する -->
 		<zip destfile="${dist}/${dist.zip.name}" basedir="${tmp}">
