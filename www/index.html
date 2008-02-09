@@ -87,6 +87,8 @@
 						</UL>
 
 			            <H1><A name=new></A>更新履歴</H1>
+							<u><h5>2008/02/10 : Ver1.0.1リリース</h5></u>
+								Ver1.0.1を公開しました。<br>
 							<u><h5>2007/11/12 : Ver1.0.0リリース</h5></u>
 								Ver1.0.0を公開しました。<br>
 								S2JmxJavelinとS2Javelinを統合し、S2Javelinとしました。<br>
@@ -119,7 +121,14 @@
 
 						<H1><A name=download></A>ダウンロード</H1>
 
-						<u>最新版</u>(2007/11/12更新)<br>
+						<u>最新版</u>(2008/02/10更新)<br>
+
+						<UL>
+							<LI>S2Javelin Ver1.0.0 : <A href="S2Javelin-V1.0.1.zip"> S2Javelin-V1.0.1.zip (88KB)</A>
+							<LI>StatsVision Ver1.0.0 : <A href="org.seasar.javelin.bottleneckeye_1.0.1.jar"> org.seasar.javelin.bottleneckeye_1.0.1.jar (96KB)</A>
+						</UL>
+
+						<u>旧版</u>(2007/11/12更新)<br>
 						
 
 						<UL>
@@ -140,167 +149,15 @@
 						</UL>
 
 						<H1><A name=setup>インストール方法</A></H1>
+						インストール方法は、媒体に同梱のreadme.txtを参照してください。
 
-						<H2><A name=setup_lib></A>1.ライブラリの配置</H2>
-						s2javelin.jarを、解析対象アプリケーションのクラスパスに含めます。
-						<H2><A name=setup_dicon></A>2.diconの設定</H2>
+						<H1><A name=usage></A>スクリーンショット</H1>
 
-						<p>diconにInterceptorの定義を追加します。</p>
-						<p>S2Javelinの本体は、ログを独自の形式で出力するInterceptorである"JavelinTraceInterceptor"です。
-						このJavelinTraceInterceptorをログ出力対象クラスに適用するために、diconへの追記が必要になります。</p>
-						<p>まず、添付のjavelin.diconをコピーして、アプリケーションに含ませてください。</p>
-						<p>下はjavelin.diconの内容です。javelinTraceInterceptorの宣言を行っています。</p>
-						<pre> &lt;components namespace=&quot;javelin&quot;&gt;
-     &lt;component name=&quot;javelinTraceInterceptor&quot;
-         class=&quot;org.seasar.javelin.JavelinTraceInterceptor&quot;&gt;
-             &lt;property name=&quot;logArgs&quot;&gt;true&lt;/property&gt;
-             &lt;property name=&quot;logReturn&quot;&gt;true&lt;/property&gt;
-             &lt;property name=&quot;logStackTrace&quot;&gt;false&lt;/property&gt;
-     &lt;/component&gt;
- &lt;/components&gt;</pre>
-						<p>JavelinTraceInterceptorの３つのプロパティの意味は次の通りです。
-						(全てboolean型のプロパティです）</p>
-						<p>
-						<TABLE border=1>
-							<COLGROUP>
-								<COL span=3 align=left>
-							<TBODY>
-								<TR>
-									<TH>名前</TH>
-									<TH>デフォルト</TH>
-									<TH>意味</TH>
-								</TR>
+						<center><img src="bottleneckeye_00.png" alt="スクリーンショット"  vspace="5"></center>
 
-								<TR>
-									<TD>logArgs</TD>
-									<TD>true</TD>
-									<TD>trueなら、メソッドの引数値をログに出力します 。</TD>
-								</TR>
-								<TR>
-									<TD>logReturn</TD>
-									<TD>true</TD>
-									<TD>trueなら、メソッドの戻り値をログに出力します。</TD>
-								</TR>
-								<TR>
-									<TD>logStackTrace</TD>
-									<TD>false</TD>
-									<TD>trueなら、メソッドが呼び出されるまでのスタックトレースをログ出力します。</TD>
-								</TR>
-							</TBODY>
-						</TABLE>
+						<center><img src="bottleneckeye_01.png" alt="スクリーンショット"  vspace="5"></center>
 
 
-						<p>※logStackTraceをtrueにすると、ログの量が極端に多くなりますので、注意が必要です。</p>
-						<p>
-						あとは、aspectとしてjavelinTraceInterceptorをログ対象のクラスに適用します。下はArrayListクラスのメソッド呼び出しをログに出力するための設定例です。
-						</p>
-
-						<pre> &lt;components&gt;
-     &lt;!-- [1] javelin.diconを含ませる --&gt;
-     &lt;include path=&quot;javelin.dicon&quot;/&gt;
- 
-     （略)
- 
-     &lt;!-- [2] S2JavelinをArrayListクラスに適用 --&gt;
-     &lt;component class=&quot;java.util.ArrayList&gt;
-         &lt;aspect&gt;javelin.javelinTraceInterceptor&lt;/aspect&gt;
-     &lt;/component&gt;</pre>
-
-						<p>InterceptorChainが既にログ出力対象クラスへ設定されている場合は、S2Javelinの適用も簡単になります。</p>
-						<p>
-						"sampleInterceptorChain"というInterceptorChainが定義されていた場合の設定例を示します。</p>
-
-						<pre> &lt;components&gt;
-     &lt;!-- [1] javelin.diconを含ませる --&gt;
-     &lt;include path=&quot;javelin.dicon&quot;/&gt;
- 
-     &lt;!-- sampleInterceptorChainの定義 --&gt;
-     &lt;component name=&quot;sampleInterceptorChain&quot;
-             class=&quot;org.seasar.framework.aop.interceptors.InterceptorChain&quot;&gt;
- 
-         &lt;!-- [2] S2JavelinをChainに追加する --&gt;
-         &lt;initMethod name=&quot;add&quot;&gt;
-             &lt;arg&gt;javelin.javelinTraceInterceptor&lt;/arg&gt;
-         &lt;/initMethod&gt;
- 
-         （略）
-   
-     &lt;/component&gt;</pre>
-
-
-						<p>
-						この追記によって、sampleInterceptorChainが設定されている全クラスについて、ログが出力されるようになります。</p>
-						<p>また、Seasar
-						Ver2.3で追加されたアスペクトの自動登録機能を用いると、パッケージ単位などでの、ログ出力対象クラスの一括指定が可能になります。
-						</p>
-						<p>下は、examples.di.impl以下の全パッケージについて、名前がImplで終わるクラスを指定した例です。</p>
-
-						<pre> &lt;components&gt;
-     &lt;!-- [1] javelin.diconを含ませる --&gt;
-     &lt;include path=&quot;javelin.dicon&quot;/&gt;
- 
-     &lt;!-- [2] S2JavelinをAspectAutoRegisterに追加する --&gt;
-     &lt;component class=&quot;org.seasar.framework.container.autoregister.AspectAutoRegister&quot;&gt;
-         &lt;property name=&quot;interceptor&quot;&gt;
-             javelin.javelinTraceInterceptor
-         &lt;/property&gt;
-         &lt;!-- [3] ログ出力の対象を指定する --&gt;
-         &lt;initMethod name=&quot;addClassPattern&quot;&gt;
-             &lt;!-- 1つ目はパッケージの指定 --&gt;
-             &lt;arg&gt;&quot;examples.di.impl&quot;&lt;/arg&gt;
-             &lt;!-- 2つ目はクラス名の正規表現 --&gt;
-             &lt;arg&gt;&quot;.*Impl&quot;&lt;/arg&gt;
-         &lt;/initMethod&gt;
- 
-         &lt;!-- 次の指定は、Seasar Ver2.3.0では&quot;registAll&quot;と書くこと。
-              また、Ver2.3.2以降では書く必要はない。 --&gt;
-         &lt;initMethod name=&quot;registerAll&quot;/&gt;
- 
-     &lt;/component&gt;</pre>
-
-						<p>その他にも、登録したくないクラスパターンを指定するなどの、詳細な記述が可能です。詳しくは、こちらを参照してください。</p>
-
-						<ul>
-							<li><a
-								href="http://s2container.seasar.org/ja/DIContainer.html#AspectAutoRegister">S2Containerリファレンス：「アスペクトの自動登録」</a>
-							</li>
-						</ul>
-
-						<H2><A name=setup_log4j></A>3.log4jプロパティの修正</H2>
-
-						<p>log4j.propertiesに、次を追記します。
-						(添付のlog4j.propertiesファイルが、下と同じ内容のファイルになっています）</p>
-						<pre> #S2Javelin Logger
- log4j.category.org.seasar.javelin.JavelinTraceInterceptor=DEBUG, Javelin
- log4j.appender.Javelin=org.apache.log4j.FileAppender
- #S2Javelin log file
- log4j.appender.Javelin.File=c:\\temp\\s2javelin.jvn ←★ログの出力先★
- log4j.appender.Javelin.layout=org.apache.log4j.PatternLayout
- log4j.appender.Javelin.layout.ConversionPattern=%m%n
- log4j.additivity.org.seasar=false
- 
- # SQL Logger
- log4j.category.org.seasar.extension.jdbc.impl=DEBUG, DaoSql
- log4j.category.org.seasar.dao=DEBUG, DaoSql
- log4j.appender.DaoSql=org.apache.log4j.FileAppender
- #SQL log file
- log4j.appender.DaoSql.File=c:\\temp\\s2javelin.jvn ←★ログの出力先★
- log4j.appender.DaoSql.layout=org.apache.log4j.PatternLayout
- log4j.appender.DaoSql.layout.ConversionPattern=Write ,%d{yyyy/MM/dd 
- HH:mm:ss.SSS},,DaoSQL,0,%M,%C,0,public,%t%n&lt;&lt;jave lin.FieldValue_START&gt;&gt;
- %n%m%n&lt;&lt;javelin.FieldValue_END&gt;&gt;%n%n</pre>
-						<p>★ログの出力先★で示した部分に、ログ出力するファイルのフルパスを指定して ください。</p>
-
-
-
-						<H1><A name=usage></A>使用方法</H1>
-
-						<ol>
-							<li>インストールが完了したら、対象のSeasarアプリケーションを起動します。<br />
-							⇒「インストール」の「log4jプロパティの修正」で指定した場所に、ログファイルが生成されます。</li>
-							<li>1で生成されたログファイルを、そのままArrowVisionの画面上にドラッグ＆ドロップしてください。<br />
-							⇒SQLの呼び出しも含めた、動作シーケンスが表示されます。</li>
-						</ol>
 						<H1><A name=arrowvision></A>ArrowVisionについて</H1>
 
 						<p>S2Javelinのログファイルをビジュアルに表示するためにはArrowVisionという表示用ツールが必要になります。</p>
