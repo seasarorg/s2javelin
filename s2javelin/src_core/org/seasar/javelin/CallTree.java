@@ -103,4 +103,9 @@ public class CallTree
 	{
 		return flagSet_.contains(flag);
 	}
+	
+	public boolean remove(Object flag)
+	{
+		return flagSet_.remove(flag);
+	}
 }
