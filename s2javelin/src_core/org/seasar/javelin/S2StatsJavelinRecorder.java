@@ -45,9 +45,13 @@ public class S2StatsJavelinRecorder
 
     private static VMStatusHelper         vmStatusHelper__ = new VMStatusHelper();
 
+    /** 記録条件判定クラス */
+    private static RecordStrategy recordStrategy_;
+    
     /**
      * 初期化処理。 
      * AlarmListenerの登録を行う。
+     * RecordStrategyを初期化する。
      * MBeanServerへのContainerMBeanの登録を行う。
      * 公開用HTTPポートが指定されていた場合は、HttpAdaptorの生成と登録も行う。
      */
@@ -60,6 +64,10 @@ public class S2StatsJavelinRecorder
 
             // AlarmListenerを登録する
             registerAlarmListeners(config);
+            
+            // RecordStrategyを初期化する
+            String strategyName = config.getRecordStrategy();
+            recordStrategy_ = (RecordStrategy) Class.forName(strategyName).newInstance();
             
             // スレッドの監視を開始する。
             vmStatusHelper__.init();
@@ -416,7 +424,7 @@ public class S2StatsJavelinRecorder
                 }
 
                 // ファイル出力の閾値を超えていた場合に、Javelinログをファイルに出力する。
-                if (node.getAccumulatedTime() >= node.getInvocation().getRecordThreshold())
+                if (recordStrategy_.judgeGenerateJaveinFile(node) == true)
                 {
                     S2StatsJavelinFileGenerator generator = new S2StatsJavelinFileGenerator(
                                                                                             config);
@@ -424,7 +432,7 @@ public class S2StatsJavelinRecorder
                 }
 
                 // アラームの閾値を超えていた場合に、アラームを通知する。
-                if (node.getAccumulatedTime() >= node.getInvocation().getAlarmThreshold())
+                if (recordStrategy_.judgeSendExceedThresholdAlarm(node) == true)
                 {
                     sendExceedThresholdAlarm(node);
                 }

@@ -87,6 +87,9 @@ public class S2JavelinConfig
     /** jvnログファイルを圧縮したzipファイルの最大数を表すプロパティ名 */
     private static final String  LOG_ZIP_MAX_KEY             = JAVELIN_PREFIX + "log.zip.max";
 
+    /** 記録条件判定クラス */
+    private static final String  RECORDSTRATEGY_KEY         = JAVELIN_PREFIX + "recordStrategy";
+
     private static final int     DEFAULT_INTERVALMAX         = 1000;
 
     private static final int     DEFAULT_THROWABLEMAX        = 1000;
@@ -150,6 +153,9 @@ public class S2JavelinConfig
     /** jvnログファイルを圧縮したzipファイルの最大数のデフォルト */
     private static final int     DEFAULT_LOG_ZIP_MAX         = 256;
 
+    /** 記録条件判定クラスのデフォルト */
+    private static final String  DEFAULT_RECORDSTRATEGY      = "org.seasar.javelin.DefaultStrategy";
+    
     /**
      * S2StatsJavelinの設定を保持するオブジェクトを作成する。
      */
@@ -906,5 +912,26 @@ public class S2JavelinConfig
     public boolean isLogZipMax()
     {
         return isKeyExist(LOG_ZIP_MAX_KEY);
+    }
+    
+    /**
+     * 記録条件判定クラス名を返す
+     *
+     * @return クラス名
+     */
+    public String getRecordStrategy()
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        return configUtil.getString(RECORDSTRATEGY_KEY, DEFAULT_RECORDSTRATEGY);
+    }
+    
+    /**
+     * 記録条件判定クラス名が設定されているかどうかを調べる。
+     *
+     * @return 設定されていればtrue
+     */
+    public boolean isRecordStrategy()
+    {
+        return isKeyExist(RECORDSTRATEGY_KEY);
     }
 }
