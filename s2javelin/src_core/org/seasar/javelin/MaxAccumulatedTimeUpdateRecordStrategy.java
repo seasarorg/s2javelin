@@ -4,7 +4,6 @@ public class MaxAccumulatedTimeUpdateRecordStrategy implements RecordStrategy
 {
 	private int ignoreUpdateCount = 3;
 	
-	@Override
 	public boolean judgeGenerateJaveinFile(CallTreeNode node)
 	{
 		if (   node.getAccumulatedTime() >= node.getMaxAccumulatedTime()
@@ -18,7 +17,6 @@ public class MaxAccumulatedTimeUpdateRecordStrategy implements RecordStrategy
 		}
 	}
 
-	@Override
 	public boolean judgeSendExceedThresholdAlarm(CallTreeNode node)
 	{
 		return judgeGenerateJaveinFile(node);
