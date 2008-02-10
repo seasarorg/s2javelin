@@ -11,7 +11,8 @@ class JavelinLogTask {
 	private CallTreeNode node_;
 	private String jvnFileName_;
 
-	public JavelinLogTask(Date date, String jvnFileName, CallTree tree, CallTreeNode node) {
+	public JavelinLogTask(Date date, String jvnFileName, CallTree tree,
+			CallTreeNode node) {
 		date_ = date;
 		jvnFileName_ = jvnFileName;
 		tree_ = tree;
