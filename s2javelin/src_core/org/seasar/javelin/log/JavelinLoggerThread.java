@@ -98,7 +98,7 @@ class JavelinLoggerThread extends Thread
             
             try
             {
-                String jvnFileName = createJvnFileName(task.getDate());
+                String jvnFileName = task.getJvnFileName();
                 writer = new FileWriter(jvnFileName, true);
 
                 // 再帰的にwriterに書き込みを行う。
@@ -131,7 +131,7 @@ class JavelinLoggerThread extends Thread
      * 
      * @return jvnファイル名
      */
-    private String createJvnFileName(Date date)
+    public static String createJvnFileName(S2JavelinConfig javelinConfig, Date date)
     {
         String fileName;
         fileName = MessageFormat.format(JVN_FILE_FORMAT, javelinConfig.getJavelinFileDir(), date,

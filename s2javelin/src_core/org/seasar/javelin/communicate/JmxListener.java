@@ -7,7 +7,7 @@ import org.seasar.javelin.bean.Invocation;
 
 public class JmxListener implements AlarmListener
 {
-    public void sendExceedThresholdAlarm(CallTreeNode node)
+    public void sendExceedThresholdAlarm(String jvnFileName, CallTreeNode node)
     {
         Invocation invocation = node.getInvocation();
         

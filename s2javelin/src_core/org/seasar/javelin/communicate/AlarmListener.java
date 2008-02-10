@@ -10,9 +10,10 @@ public interface AlarmListener
     /**
      * しきい値超過のアラームを通知する際に使用する。
      * 
+     * @param jvnFileName 
      * @param node しきい値超過した呼び出しの情報。
      */
-    void sendExceedThresholdAlarm(CallTreeNode node);
+    void sendExceedThresholdAlarm(String jvnFileName, CallTreeNode node);
     
     /**
      * ルートノード(コールツリーの頂点)のみをAlarmの対象とするかどうかを指定する。
