@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.seasar.javelin.JavelinErrorLogger;
+
 /**
  * パラメータ詳細化を行うクラス。
  * 
@@ -388,13 +390,17 @@ public class DetailStringBuilder
             return true;
         }
 
+        try
+        {
         String className = clazz.getSimpleName();
-
         if (PRINT_CLASS_SET.contains(className))
         {
             return true;
         }
-
+        } catch(Exception ex)
+        {
+        	JavelinErrorLogger.getInstance().log(ex);
+        }
         return false;
     }
 
