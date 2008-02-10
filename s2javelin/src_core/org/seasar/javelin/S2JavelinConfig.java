@@ -20,75 +20,78 @@ public class S2JavelinConfig
     /** Javelin系パラメータの接頭辞 */
     public static final String   JAVELIN_PREFIX              = "javelin.";
 
-    private static final String  INTERVALMAX_KEY             = JAVELIN_PREFIX + "intervalMax";
+    public static final String  INTERVALMAX_KEY             = JAVELIN_PREFIX + "intervalMax";
 
-    private static final String  THROWABLEMAX_KEY            = JAVELIN_PREFIX + "throwableMax";
+    public static final String  THROWABLEMAX_KEY            = JAVELIN_PREFIX + "throwableMax";
 
-    private static final String  STATISTICSTHRESHOLD_KEY     = JAVELIN_PREFIX
+    public static final String  STATISTICSTHRESHOLD_KEY     = JAVELIN_PREFIX
                                                                      + "statisticsThreshold";
 
-    private static final String  RECORDTHRESHOLD_KEY         = JAVELIN_PREFIX + "recordThreshold";
+    public static final String  RECORDTHRESHOLD_KEY         = JAVELIN_PREFIX + "recordThreshold";
 
-    private static final String  ALARMTHRESHOLD_KEY          = JAVELIN_PREFIX + "alarmThreshold";
+    public static final String  ALARMTHRESHOLD_KEY          = JAVELIN_PREFIX + "alarmThreshold";
 
-    private static final String  JAVELINFILEDIR_KEY          = JAVELIN_PREFIX + "javelinFileDir";
+    public static final String  JAVELINFILEDIR_KEY          = JAVELIN_PREFIX + "javelinFileDir";
 
-    private static final String  DOMAIN_KEY                  = JAVELIN_PREFIX + "domain";
+    public static final String  DOMAIN_KEY                  = JAVELIN_PREFIX + "domain";
 
-    private static final String  LOG_STACKTRACE_KEY          = JAVELIN_PREFIX + "log.stacktrace";
+    public static final String  LOG_STACKTRACE_KEY          = JAVELIN_PREFIX + "log.stacktrace";
 
-    private static final String  LOG_ARGS_KEY                = JAVELIN_PREFIX + "log.args";
+    public static final String  LOG_ARGS_KEY                = JAVELIN_PREFIX + "log.args";
 
-    private static final String  LOG_JMXNFO_KEY              = JAVELIN_PREFIX + "log.jmxinfo";
+    public static final String  LOG_JMXNFO_KEY              = JAVELIN_PREFIX + "log.jmxinfo";
 
-    private static final String  LOG_RETURN_KEY              = JAVELIN_PREFIX + "log.return";
+    public static final String  LOG_RETURN_KEY              = JAVELIN_PREFIX + "log.return";
 
-    private static final String  ARGS_DETAIL_KEY             = JAVELIN_PREFIX + "log.args.detail";
+    public static final String  ARGS_DETAIL_KEY             = JAVELIN_PREFIX + "log.args.detail";
 
-    private static final String  RETURN_DETAIL_KEY           = JAVELIN_PREFIX + "log.return.detail";
+    public static final String  RETURN_DETAIL_KEY           = JAVELIN_PREFIX + "log.return.detail";
 
-    private static final String  ARGS_DETAIL_DEPTH_KEY       = JAVELIN_PREFIX
+    public static final String  ARGS_DETAIL_DEPTH_KEY       = JAVELIN_PREFIX
                                                                      + "log.args.detail.depth";
 
-    private static final String  RETURN_DETAIL_DEPTH_KEY     = JAVELIN_PREFIX
+    public static final String  RETURN_DETAIL_DEPTH_KEY     = JAVELIN_PREFIX
                                                                      + "log.return.detail.depth";
 
-    private static final String  ROOTCALLERNAME_KEY          = JAVELIN_PREFIX + "rootCallerName";
+    public static final String  ROOTCALLERNAME_KEY          = JAVELIN_PREFIX + "rootCallerName";
 
-    private static final String  ENDCALLEENAME_KEY           = JAVELIN_PREFIX + "endCalleeName";
+    public static final String  ENDCALLEENAME_KEY           = JAVELIN_PREFIX + "endCalleeName";
 
-    private static final String  THREADMODEL_KEY             = JAVELIN_PREFIX + "threadModel";
+    public static final String  THREADMODEL_KEY             = JAVELIN_PREFIX + "threadModel";
 
-    private static final String  HTTPPORT_KEY                = JAVELIN_PREFIX + "httpPort";
+    public static final String  HTTPPORT_KEY                = JAVELIN_PREFIX + "httpPort";
 
-    private static final String  DEBUG_KEY                   = JAVELIN_PREFIX + "debug";
+    public static final String  DEBUG_KEY                   = JAVELIN_PREFIX + "debug";
 
     /** StatsJavelinの待ちうけポートのプロパティ名 */
     public static final String   ACCEPTPORT_KEY              = JAVELIN_PREFIX + "acceptPort";
 
     /** Javelinのログ出力ON/OFF切替フラグのプロパティ名 */
-    private static final String  JAVELINENABLE_KEY           = JAVELIN_PREFIX + "javelinEnable";
+    public static final String  JAVELINENABLE_KEY           = JAVELIN_PREFIX + "javelinEnable";
 
     /** 属性、戻り値情報の文字列長 */
-    private static final String  STRINGLIMITLENGTH_KEY       = JAVELIN_PREFIX + "stringLimitLength";
+    public static final String  STRINGLIMITLENGTH_KEY       = JAVELIN_PREFIX + "stringLimitLength";
 
     /** エラーログファイルのプロパティ名 */
     public static final String   ERRORLOG_KEY                = JAVELIN_PREFIX + "error.log";
 
     /** 利用するAlarmListener名 */
-    private static final String  ALARM_LISTENERS_KEY         = JAVELIN_PREFIX + "alarmListeners";
+    public static final String  ALARM_LISTENERS_KEY         = JAVELIN_PREFIX + "alarmListeners";
 
     /** JMX通信による情報公開を行うかどうかを表すプロパティ名 */
-    private static final String  RECORD_JMX_KEY              = JAVELIN_PREFIX + "record.jmx";
+    public static final String  RECORD_JMX_KEY              = JAVELIN_PREFIX + "record.jmx";
 
     /** jvnログファイルの最大数を表すプロパティ名 */
-    private static final String  LOG_JVN_MAX_KEY             = JAVELIN_PREFIX + "log.jvn.max";
+    public static final String  LOG_JVN_MAX_KEY             = JAVELIN_PREFIX + "log.jvn.max";
 
     /** jvnログファイルを圧縮したzipファイルの最大数を表すプロパティ名 */
-    private static final String  LOG_ZIP_MAX_KEY             = JAVELIN_PREFIX + "log.zip.max";
+    public static final String  LOG_ZIP_MAX_KEY             = JAVELIN_PREFIX + "log.zip.max";
 
     /** 記録条件判定クラス */
-    private static final String  RECORDSTRATEGY_KEY         = JAVELIN_PREFIX + "recordStrategy";
+    public static final String  RECORDSTRATEGY_KEY         = JAVELIN_PREFIX + "recordStrategy";
+
+    /** 利用するTelegramListener名 */
+    public static final String  TELERAM_LISTENERS_KEY         = JAVELIN_PREFIX + "telegramListeners";
 
     private static final int     DEFAULT_INTERVALMAX         = 1000;
 
@@ -156,6 +159,11 @@ public class S2JavelinConfig
     /** 記録条件判定クラスのデフォルト */
     private static final String  DEFAULT_RECORDSTRATEGY      = "org.seasar.javelin.DefaultRecordStrategy";
     
+    /** デフォルトで利用するTelegramListener名 */
+    private static final String  DEFAULT_TELEGEAM_LISTENERS
+        = "org.seasar.javelin.communicate.GetRequestTelegramListener,"
+    	+ "org.seasar.javelin.communicate.ResetRequestTelegramListener";
+
     /**
      * S2StatsJavelinの設定を保持するオブジェクトを作成する。
      */
@@ -933,5 +941,27 @@ public class S2JavelinConfig
     public boolean isRecordStrategy()
     {
         return isKeyExist(RECORDSTRATEGY_KEY);
+    }
+    
+    /**
+     * 利用するTelegramListener名を返す。
+     * ","区切りで複数指定することができる。
+     *
+     * @return 利用するTelegramListener名
+     */
+    public String getTelegramListeners()
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        return configUtil.getString(TELERAM_LISTENERS_KEY, DEFAULT_TELEGEAM_LISTENERS);
+    }
+
+    /**
+     * 利用するTelegramListener名が設定されているかどうかを調べる。
+     *
+     * @return 設定されていればtrue
+     */
+    public boolean isSetTelegramListener()
+    {
+        return isKeyExist(TELERAM_LISTENERS_KEY);
     }
 }

@@ -6,9 +6,10 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.seasar.javelin.JavelinErrorLogger;
-import org.seasar.javelin.MBeanManager;
 import org.seasar.javelin.S2JavelinConfig;
 import org.seasar.javelin.communicate.entity.Header;
 import org.seasar.javelin.communicate.entity.Telegram;
@@ -25,6 +26,11 @@ public class JavelinClientThread implements Runnable {
 	BufferedOutputStream outputStream_ = null;
 
 	private boolean isRunning;
+	
+	/** 電文処理クラスのリスト */
+	private List<TelegramListener> telegramListenerList_
+	    = new ArrayList<TelegramListener>();
+	
 
 	public JavelinClientThread(Socket objSocket) throws IOException {
 		this.clientSocket = objSocket;
@@ -37,54 +43,51 @@ public class JavelinClientThread implements Runnable {
 			close();
 			throw ioe;
 		}
+		
+		// 電文処理クラスを登録する
+		registerTelegramListeners(new S2JavelinConfig());
 	}
 
-	public void run() {
-		try {
+	public void run()
+	{
+		try
+		{
 			this.isRunning = true;
-			while (this.isRunning) {
+			while (this.isRunning)
+			{
 				// 要求を受信する。
 				byte[] byteInputArr = null;
-				try {
-					byteInputArr = recvRequest();
-				} catch (IOException ioe) {
-					JavelinErrorLogger.getInstance().log("応答受信中に例外が発生しました。",
-							ioe);
-					break;
-				}
+				byteInputArr = recvRequest();
 
 				// byte列をTelegramに変換する。
-				Telegram requestTelegram = TelegramUtil
+				Telegram request = TelegramUtil
 						.recoveryTelegram(byteInputArr);
 
-				byte byteTelegramKind = requestTelegram.getObjHeader()
-						.getByteTelegramKind();
-				byte byteRequestKind = requestTelegram.getObjHeader()
-						.getByteRequestKind();
-				if (byteTelegramKind == Common.BYTE_TELEGRAM_KIND_GET
-						&& byteRequestKind == Common.BYTE_REQUEST_KIND_REQUEST) {
-					try {
-						// 応答を送信する。
-						sendResponse(requestTelegram);
-					} catch (IOException ioe) {
-						JavelinErrorLogger.getInstance().log(
-								"応答送信中に例外が発生しました。", ioe);
-						break;
+				// 各TelegramListenerで処理を行う
+				for (TelegramListener listener : this.telegramListenerList_)
+				{
+					Telegram response = listener.receiveTelegram(request);
+					
+					// 応答電文がある場合のみ、応答を返す
+					if (response != null)
+					{
+						byte[] byteOutputArr = TelegramUtil.createTelegram(response);
+						synchronized (outputStream_)
+						{
+							outputStream_.write(byteOutputArr);
+							outputStream_.flush();
+						}
 					}
-				} else if (byteTelegramKind == Common.BYTE_TELEGRAM_KIND_RESET) {
-					// リセットする。
-					MBeanManager.reset();
-				} else {
-					String telegramStr = TelegramUtil.printTelegram(0,
-							requestTelegram);
-					JavelinErrorLogger.getInstance().log(
-							"クライアントから受信した電文が不正なため、処理しません。[" + clientIP + "]\n"
-									+ telegramStr);
-
 				}
-
 			}
-		} finally {
+		}
+		catch (Exception exception)
+		{
+			JavelinErrorLogger.getInstance().log("受信電文処理中に例外が発生しました。",
+				exception);
+		}
+		finally
+		{
 			this.isRunning = false;
 			close();
 		}
@@ -114,6 +117,11 @@ public class JavelinClientThread implements Runnable {
 		}
 	}
 
+	/**
+	 * 受信電文のbyte配列を返す。
+	 * @return byte配列
+	 * @throws IOException
+	 */
 	byte[] recvRequest() throws IOException {
 		byte[] header = new byte[Header.HEADER_LENGTH];
 
@@ -160,7 +168,6 @@ public class JavelinClientThread implements Runnable {
 			JavelinErrorLogger.getInstance().log("閾値超過通知電文の送信に失敗しました。", ioe);
 			this.close();
 		}
-
 	}
 
 	public boolean isClosed() {
@@ -169,5 +176,76 @@ public class JavelinClientThread implements Runnable {
 
 	public void stop() {
 		this.isRunning = false;
+	}
+	
+
+	/**
+	 * TelegramListenerのクラスをJavelin設定から読み込み、登録する。 クラスのロードは、以下の順でクラスローダでのロードを試みる。
+	 * <ol>
+	 * <li>JavelinClientThreadをロードしたクラスローダ</li>
+	 * <li>コンテキストクラスローダ</li>
+	 * </ol>
+	 * 
+	 * @param config
+	 */
+	private void registerTelegramListeners(S2JavelinConfig config) {
+		String[] listeners = config.getTelegramListeners().split(",");
+		for (String listenerName : listeners) {
+			try {
+				Class<?> listenerClass = loadClass(listenerName);
+				Object listener = listenerClass.newInstance();
+				if (listener instanceof TelegramListener) {
+					addListener((TelegramListener) listener);
+					JavelinErrorLogger.getInstance().log(
+						listenerName + "をTelegramListenerとして登録しました。");
+				} else {
+					JavelinErrorLogger.getInstance().log(
+						listenerName + "はTelegramListenerを実装していないため、電文処理に利用しません。");
+				}
+			} catch (Exception ex) {
+				JavelinErrorLogger.getInstance().log(
+					listenerName + "の登録に失敗したため、電文処理に利用しません。", ex);
+			}
+		}
+	}
+	
+	/**
+	 * クラスをロードする。 以下の順でクラスローダでのロードを試みる。
+	 * <ol>
+	 * <li>JavelinClientThreadをロードしたクラスローダ</li>
+	 * <li>コンテキストクラスローダ</li>
+	 * </ol>
+	 * 
+	 * @param className
+	 *            ロードするクラスの名前。
+	 * @return ロードしたクラス。
+	 * @throws ClassNotFoundException
+	 *             全てのクラスローダでクラスが見つからない場合
+	 */
+	private Class<?> loadClass(String className)
+			throws ClassNotFoundException {
+
+		Class<?> clazz;
+		try {
+			clazz = Class.forName(className);
+		} catch (ClassNotFoundException cnfe) {
+			JavelinErrorLogger.getInstance().log(
+					className + "のロードに失敗したため、コンテキストクラスローダからのロードを行います。");
+			clazz = Thread.currentThread().getContextClassLoader().loadClass(
+					className);
+		}
+
+		return clazz;
+	}
+	
+	/**
+	 * 電文処理に利用するTelegramListenerを登録する
+	 * 
+	 * @param listener 電文処理に利用するTelegramListener
+	 */
+	public void addListener(TelegramListener listener) {
+		synchronized (telegramListenerList_) {
+			telegramListenerList_.add(listener);
+		}
 	}
 }
