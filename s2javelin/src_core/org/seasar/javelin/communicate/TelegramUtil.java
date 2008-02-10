@@ -15,13 +15,12 @@ import org.seasar.javelin.communicate.entity.Header;
 import org.seasar.javelin.communicate.entity.ResponseBody;
 import org.seasar.javelin.communicate.entity.Telegram;
 
-
 /**
  * 基本的な共通機能を提供する
  */
 public final class TelegramUtil extends Common {
 	private static final String CLASSMETHOD_SEPARATOR = "###CLASSMETHOD_SEPARATOR###";
-    private static final int TELEGRAM_ITEM_COUNT = 6;
+	private static final int TELEGRAM_ITEM_COUNT = 6;
 
 	/**
 	 * String ⇒ byte[size,data] に転換する
@@ -119,11 +118,17 @@ public final class TelegramUtil extends Common {
 						.getObjItemValueArr();
 				if (objItemValueArrTemp != null) {
 					for (int j = 0; j < objItemValueArrTemp.length; j++) {
-						if (responseBody.getByteItemMode() == 6) {
+						if (responseBody.getByteItemMode() == Common.BYTE_ITEMMODE_KIND_STRING) {
 							byte[] byteItemValueArr;
+							String strValue = "";
+							if (objItemValueArrTemp[j] instanceof Invocation) {
+								strValue = ((Invocation) objItemValueArrTemp[j])
+										.getClassName();
+							} else if (objItemValueArrTemp[j] instanceof String) {
+								strValue = (String) objItemValueArrTemp[j];
+							}
 							byteItemValueArr = TelegramUtil
-									.strToByteArr(((Invocation) objItemValueArrTemp[j])
-											.getClassName());
+									.strToByteArr(strValue);
 							byteArrayOutputStream.write(byteItemValueArr);
 						} else {
 							ByteBuffer objByteBufferItemValue = ByteBuffer
@@ -242,9 +247,8 @@ public final class TelegramUtil extends Common {
 	public static String printTelegram(int intCounter, Telegram objInputTelegram) {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("\n***** " + intCounter + "番目電文開始 *****\n");
-		buffer
-				.append("#ヘッダ電文長 : "
-						+ objInputTelegram.getObjHeader().getIntSize());
+		buffer.append("#ヘッダ電文長 : "
+				+ objInputTelegram.getObjHeader().getIntSize());
 		buffer.append("\n");
 		buffer.append("#ヘッダ電文種別 : "
 				+ objInputTelegram.getObjHeader().getByteTelegramKind());
@@ -333,74 +337,95 @@ public final class TelegramUtil extends Common {
 			strObjName.append(invocation.getClassName());
 			strObjName.append(CLASSMETHOD_SEPARATOR);
 			strObjName.append(invocation.getMethodName());
+			String objName = strObjName.toString();
+
 			// 項目説明を置けるリスト
 			Object[] objItemValueArr = null;
 			int bodyIndex = index * TELEGRAM_ITEM_COUNT;
 			// 呼び出し回数
-			bodies[bodyIndex + 0] = new ResponseBody();
-			bodies[bodyIndex + 0].setStrObjName(strObjName.toString());
-			bodies[bodyIndex + 0].setStrItemName("callCount");
-			bodies[bodyIndex + 0]
-					.setByteItemMode(Common.BYTE_ITEMMODE_KIND_8BYTE_INT);
-			bodies[bodyIndex + 0].setIntLoopCount(Common.INT_LOOP_COUNT_SINGLE);
 			objItemValueArr = new Long[1];
 			objItemValueArr[0] = Long.valueOf(invocation.getCount());
-			bodies[bodyIndex + 0].setObjItemValueArr(objItemValueArr);
+			bodies[bodyIndex + 0] = createResponseBody(objName, "callCount",
+					Common.BYTE_ITEMMODE_KIND_8BYTE_INT, objItemValueArr);
+
 			// 平均時間
-			bodies[bodyIndex + 1] = new ResponseBody();
-			bodies[bodyIndex + 1].setStrObjName(strObjName.toString());
-			bodies[bodyIndex + 1].setStrItemName("averageInterval");
-			bodies[bodyIndex + 1]
-					.setByteItemMode(Common.BYTE_ITEMMODE_KIND_8BYTE_INT);
-			bodies[bodyIndex + 1].setIntLoopCount(Common.INT_LOOP_COUNT_SINGLE);
 			objItemValueArr = new Long[1];
 			objItemValueArr[0] = Long.valueOf(invocation.getAverage());
-			bodies[bodyIndex + 1].setObjItemValueArr(objItemValueArr);
+			bodies[bodyIndex + 1] = createResponseBody(objName,
+					"averageInterval", Common.BYTE_ITEMMODE_KIND_8BYTE_INT,
+					objItemValueArr);
+
 			// 最大処理時間
-			bodies[bodyIndex + 2] = new ResponseBody();
-			bodies[bodyIndex + 2].setStrObjName(strObjName.toString());
-			bodies[bodyIndex + 2].setStrItemName("maximumInterval");
-			bodies[bodyIndex + 2]
-					.setByteItemMode(Common.BYTE_ITEMMODE_KIND_8BYTE_INT);
-			bodies[2].setIntLoopCount(Common.INT_LOOP_COUNT_SINGLE);
 			objItemValueArr = new Long[1];
 			objItemValueArr[0] = Long.valueOf(invocation.getMaximum());
-			bodies[bodyIndex + 2].setObjItemValueArr(objItemValueArr);
+			bodies[bodyIndex + 2] = createResponseBody(objName,
+					"maximumInterval", Common.BYTE_ITEMMODE_KIND_8BYTE_INT,
+					objItemValueArr);
+
 			// 最小処理時間
-			bodies[bodyIndex + 3] = new ResponseBody();
-			bodies[bodyIndex + 3].setStrObjName(strObjName.toString());
-			bodies[bodyIndex + 3].setStrItemName("minimumInterval");
-			bodies[bodyIndex + 3]
-					.setByteItemMode(Common.BYTE_ITEMMODE_KIND_8BYTE_INT);
-			bodies[bodyIndex + 3].setIntLoopCount(Common.INT_LOOP_COUNT_SINGLE);
 			objItemValueArr = new Long[1];
 			objItemValueArr[0] = Long.valueOf(invocation.getMinimum());
-			bodies[bodyIndex + 3].setObjItemValueArr(objItemValueArr);
+			bodies[bodyIndex + 3] = createResponseBody(objName,
+					"minimumInterval", Common.BYTE_ITEMMODE_KIND_8BYTE_INT,
+					objItemValueArr);
+
 			// 例外発生回数
-			bodies[bodyIndex + 4] = new ResponseBody();
-			bodies[bodyIndex + 4].setStrObjName(strObjName.toString());
-			bodies[bodyIndex + 4].setStrItemName("throwableCount");
-			bodies[bodyIndex + 4]
-					.setByteItemMode(Common.BYTE_ITEMMODE_KIND_8BYTE_INT);
-			bodies[bodyIndex + 4].setIntLoopCount(Common.INT_LOOP_COUNT_SINGLE);
 			objItemValueArr = new Long[1];
 			objItemValueArr[0] = Long.valueOf(invocation.getThrowableCount());
-			bodies[bodyIndex + 4].setObjItemValueArr(objItemValueArr);
+			bodies[bodyIndex + 4] = createResponseBody(objName,
+					"throwableCount", Common.BYTE_ITEMMODE_KIND_8BYTE_INT,
+					objItemValueArr);
+
 			// メソッドの呼び出し元 クラス名
-			bodies[bodyIndex + 5] = new ResponseBody();
-			bodies[bodyIndex + 5].setStrObjName(strObjName.toString());
-			bodies[bodyIndex + 5].setStrItemName("allCallerNames");
-			bodies[bodyIndex + 5]
-					.setByteItemMode(Common.BYTE_ITEMMODE_KIND_STRING);
 			objItemValueArr = invocation.getAllCallerInvocation();
-			bodies[bodyIndex + 5].setIntLoopCount(objItemValueArr.length);
-			bodies[bodyIndex + 5].setObjItemValueArr(objItemValueArr);
+			bodies[bodyIndex + 5] = createResponseBody(objName,
+					"allCallerNames", Common.BYTE_ITEMMODE_KIND_STRING,
+					objItemValueArr);
+
 		}
 
 		// 電文オブジェクトを設定する
 		Telegram objTelegram = new Telegram();
 		objTelegram.setObjHeader(objHeader);
 		objTelegram.setObjBody(bodies);
+		return objTelegram;
+	}
+
+	private static ResponseBody createResponseBody(String objName,
+			String itemName, byte itemMode, Object[] objItemValueArr) {
+		ResponseBody body = new ResponseBody();
+		body.setStrObjName(objName);
+		body.setStrItemName(itemName);
+		body.setByteItemMode(itemMode);
+		body.setIntLoopCount(objItemValueArr.length);
+		body.setObjItemValueArr(objItemValueArr);
+
+		return body;
+	}
+
+	public static Telegram createJvnLogTelegram(byte telegramKind, String jvnFileName,
+			String jvnFileContent) {
+		// 電文ヘッダを作る
+		Header objHeader = new Header();
+		objHeader.setByteRequestKind(Common.BYTE_TELEGRAM_KIND_JVN_FILE);
+		objHeader.setByteTelegramKind(telegramKind);
+
+		// 電文本体を作る
+		ResponseBody bodyJvnFileName = createResponseBody("jvnFile",
+				"jvnFileName", Common.BYTE_ITEMMODE_KIND_STRING,
+				new String[] { jvnFileName });
+
+		ResponseBody bodyJvnFileContent = createResponseBody("jvnFile",
+				"jvnFileContent", Common.BYTE_ITEMMODE_KIND_STRING,
+				new String[] { jvnFileContent });
+
+		// 電文オブジェクトを設定する
+		Telegram objTelegram = new Telegram();
+		objTelegram.setObjHeader(objHeader);
+		objTelegram.setObjBody(new ResponseBody[] { // 
+				bodyJvnFileName, bodyJvnFileContent //
+				});
+
 		return objTelegram;
 	}
 }

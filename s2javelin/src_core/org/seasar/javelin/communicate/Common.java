@@ -31,6 +31,27 @@ public class Common
 	 */
 	public static final byte BYTE_TELEGRAM_KIND_RESET = 2;
 
+
+	/**
+	 * 電文種別（リソース通知）
+	 */
+    public static final byte BYTE_TELEGRAM_KIND_RESOURCENOTIFY = 3;
+
+    /**
+     * 電文種別（設定変更）
+     */
+    public static final byte BYTE_TELEGRAM_KIND_CONFIGCHANGE = 4;
+
+    /**
+     * 電文種別（機能呼び出し）
+     */
+    public static final byte BYTE_TELEGRAM_KIND_FUNCTIONCALL = 5;
+    
+    /**
+	 * 電文種別(JVNログ出力通知)
+	 */
+	public static final byte BYTE_TELEGRAM_KIND_JVN_FILE = 6;
+
 	/**
 	 * 要求応答種別(通知)
 	 */
