@@ -60,10 +60,8 @@ public class S2StatsJavelinFileGenerator {
 		}
 
 		Date date = new Date();
-		String jvnFileName = JavelinLoggerThread.createJvnFileName(
-				javelinConfig_, date);
-		JavelinLogTask task = new JavelinLogTask(date, jvnFileName, tree,
-				node);
+		String jvnFileName = JavelinLoggerThread.createJvnFileName(date);
+		JavelinLogTask task = new JavelinLogTask(date, jvnFileName, tree, node);
 
 		// キューにタスクを追加する。
 		boolean result = queue_.offer(task);
