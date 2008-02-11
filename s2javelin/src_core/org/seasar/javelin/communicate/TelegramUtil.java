@@ -9,7 +9,6 @@ import java.util.List;
 import org.seasar.javelin.MBeanManager;
 import org.seasar.javelin.bean.Component;
 import org.seasar.javelin.bean.Invocation;
-import org.seasar.javelin.bottleneckeye.communicate.Common;
 import org.seasar.javelin.communicate.entity.Body;
 import org.seasar.javelin.communicate.entity.Header;
 import org.seasar.javelin.communicate.entity.ResponseBody;
