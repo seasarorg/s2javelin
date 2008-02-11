@@ -632,8 +632,8 @@ public final class TelegramUtil extends Common {
 			String jvnFileContent) {
 		// 電文ヘッダを作る
 		Header objHeader = new Header();
-		objHeader.setByteRequestKind(Common.BYTE_TELEGRAM_KIND_JVN_FILE);
-		objHeader.setByteTelegramKind(telegramKind);
+		objHeader.setByteRequestKind(telegramKind);
+		objHeader.setByteTelegramKind(Common.BYTE_TELEGRAM_KIND_JVN_FILE);
 
 		// 電文本体を作る
 		ResponseBody bodyJvnFileName = createResponseBody("jvnFile",
