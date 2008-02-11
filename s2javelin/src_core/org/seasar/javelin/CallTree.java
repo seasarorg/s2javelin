@@ -2,12 +2,11 @@ package org.seasar.javelin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
-import org.seasar.javelin.CallTreeNode;
 import org.seasar.javelin.util.StatsUtil;
 
 /**
@@ -27,7 +26,10 @@ public class CallTree
 
     private List<Callback> callbackList_ = new ArrayList<Callback>();
 
-    private Map<String, Object> flagSet_ = new HashMap<String, Object>();
+    private Map<String, Object> flagMap_ = new HashMap<String, Object>();
+    
+    private Map<String, Object> loggingValueMap_ = 
+    	new TreeMap<String, Object>();
     
     public CallTree()
     {
@@ -100,21 +102,39 @@ public class CallTree
 	
 	public boolean setFlag(String flag, Object value)
 	{
-		return (flagSet_.put(flag, value) != null);
+		return (flagMap_.put(flag, value) != null);
 	}
 	
 	public Object getFlag(String flag)
 	{
-		return flagSet_.get(flag);
+		return flagMap_.get(flag);
 	}
 	
 	public boolean containsFlag(String flag)
 	{
-		return flagSet_.containsKey(flag);
+		return flagMap_.containsKey(flag);
 	}
 	
 	public boolean removeFlag(String flag)
 	{
-		return (flagSet_.remove(flag) != null);
+		return (flagMap_.remove(flag) != null);
+	}
+	
+	public void setLoggingValue(String key, Object value)
+	{
+		loggingValueMap_.put(key, value);
+	}
+	
+	public String[] getLoggingKeys()
+	{
+		Set<String> keySet = loggingValueMap_.keySet();
+		String[] keys = keySet.toArray(new String[keySet.size()]);
+		
+		return keys;
+	}
+	
+	public Object getLoggingValue(String key)
+	{
+		return loggingValueMap_.get(key);
 	}
 }

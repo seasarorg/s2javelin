@@ -225,16 +225,11 @@ public class S2StatsJavelinRecorder {
 		try {
 			// 呼び出し元情報取得。
 			CallTreeNode node = callerNode_.get();
-			CallTree tree = null;
+			CallTree     tree = callTree_.get();
 
 			if (node == null) {
+				vmStatusHelper__.resetPeakMemoryUsage();
 				// 初回呼び出し時はコールツリーを初期化する。
-				tree = callTree_.get();
-				if (tree == null) {
-					tree = new CallTree();
-					callTree_.set(tree);
-					vmStatusHelper__.resetPeakMemoryUsage();
-				}
 				tree.setRootCallerName(config.getRootCallerName());
 				tree.setEndCalleeName(config.getEndCalleeName());
 
@@ -269,14 +264,11 @@ public class S2StatsJavelinRecorder {
 			Invocation invocation, VMStatus vmStatus, S2JavelinConfig config) {
 		try {
 			if (node == null) {
+				vmStatusHelper__.resetPeakMemoryUsage();
+				
 				// 初回呼び出し時はコールツリーを初期化する。
-				if (tree == null) {
-					tree = new CallTree();
-					tree.setRootCallerName(config.getRootCallerName());
-					tree.setEndCalleeName(config.getEndCalleeName());
-					callTree_.set(tree);
-					vmStatusHelper__.resetPeakMemoryUsage();
-				}
+				tree.setRootCallerName(config.getRootCallerName());
+				tree.setEndCalleeName(config.getEndCalleeName());
 
 				node = new CallTreeNode();
 				node.setStartTime(System.currentTimeMillis());
@@ -391,8 +383,9 @@ public class S2StatsJavelinRecorder {
 				if (tree != null) {
 					tree.executeCallback();
 				}
-
+				
 				callerNode_.set(null);
+				callTree_.set(new CallTree());
 			}
 		} catch (Exception ex) {
 			// 想定外の例外が発生した場合は標準エラー出力に出力しておく。
@@ -446,7 +439,12 @@ public class S2StatsJavelinRecorder {
 				// アラームを送信する。
 				sendExceedThresholdAlarm(jvnLogFileName, node);
 
+				if (callTree != null) {
+					callTree.executeCallback();
+				}
+				
 				callerNode_.set(null);
+				callTree_.set(new CallTree());
 			}
 
 			if (cause_ == cause) {

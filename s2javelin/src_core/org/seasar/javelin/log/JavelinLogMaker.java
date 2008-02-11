@@ -201,6 +201,12 @@ public class JavelinLogMaker
                 // diff
                 jvnBuffer.append(JAVELIN_JMXINFO_END);
                 jvnBuffer.append(NEW_LINE);
+                
+                //
+                jvnBuffer.append(JAVELIN_JMXINFO_START);
+                jvnBuffer.append(NEW_LINE);
+                jvnBuffer.append(JAVELIN_JMXINFO_START);
+                jvnBuffer.append(NEW_LINE);
             }
         }
 
@@ -212,6 +218,15 @@ public class JavelinLogMaker
             long duration = node.getAccumulatedTime();
             addParam(jvnBuffer, EXTRAPARAM_DURATION, duration);
 
+            if (node.getParent() == null)
+            {
+                for (String key : tree.getLoggingKeys())
+                {
+                	Object value = tree.getLoggingValue(key);
+                    addParam(jvnBuffer, key, value.toString());
+                }
+            }
+            
             jvnBuffer.append(JAVELIN_EXTRAINFO_END);
             jvnBuffer.append(NEW_LINE);
         }
@@ -336,12 +351,22 @@ public class JavelinLogMaker
                       endStatus.getPeakMamoryUsage() - startStatus.getPeakMamoryUsage());
     }
 
-    private static void addParamDelta(StringBuffer jvnBuffer, String paramName, long paramValue)
+    private static void addParamDelta(
+    		StringBuffer jvnBuffer, String paramName, long paramValue)
     {
         if (paramValue == 0)
         {
             return;
         }
+        jvnBuffer.append(paramName);
+        jvnBuffer.append(" = ");
+        jvnBuffer.append(paramValue);
+        jvnBuffer.append(NEW_LINE);
+    }
+
+    private static void addParam(
+    		StringBuffer jvnBuffer, String paramName, String paramValue)
+    {
         jvnBuffer.append(paramName);
         jvnBuffer.append(" = ");
         jvnBuffer.append(paramValue);
