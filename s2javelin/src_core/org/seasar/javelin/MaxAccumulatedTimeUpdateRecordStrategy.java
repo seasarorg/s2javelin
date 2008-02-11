@@ -1,5 +1,6 @@
 package org.seasar.javelin;
 
+import org.seasar.javelin.log.JavelinLogCallback;
 import org.seasar.javelin.util.JavelinConfigUtil;
 
 /**
@@ -12,40 +13,49 @@ import org.seasar.javelin.util.JavelinConfigUtil;
  */
 public class MaxAccumulatedTimeUpdateRecordStrategy implements RecordStrategy
 {
-	/** 更新回数を無視する閾値 */
-	private int ignoreUpdateCount_;
-	
-	/** 更新回数を無視する閾値を表すプロパティ名 */
-	private static final String IGNOREUPDATECOUNT_KEY
-	    = S2JavelinConfig.JAVELIN_PREFIX + "maxAccumulatedTimeUpdate.ignoreUpdateCount";
-	
-	/** 更新回数を無視する閾値のデフォルト */
-	private static final int DEFAULT_IGNOREUPDATECOUNT = 3;
-	
-	/**
-	 * プロパティからignoreUpdateCountを読み込む。
-	 */
-	public MaxAccumulatedTimeUpdateRecordStrategy()
-	{
+    /** 更新回数を無視する閾値 */
+    private int                 ignoreUpdateCount_;
+
+    /** 更新回数を無視する閾値を表すプロパティ名 */
+    private static final String IGNOREUPDATECOUNT_KEY     = S2JavelinConfig.JAVELIN_PREFIX
+                                                                  + "maxAccumulatedTimeUpdate.ignoreUpdateCount";
+
+    /** 更新回数を無視する閾値のデフォルト */
+    private static final int    DEFAULT_IGNOREUPDATECOUNT = 3;
+
+    /**
+     * プロパティからignoreUpdateCountを読み込む。
+     */
+    public MaxAccumulatedTimeUpdateRecordStrategy()
+    {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         ignoreUpdateCount_ = configUtil.getInteger(IGNOREUPDATECOUNT_KEY, DEFAULT_IGNOREUPDATECOUNT);
-	}
-	
-	public boolean judgeGenerateJaveinFile(CallTreeNode node)
-	{
-		if (   node.getAccumulatedTime() >= node.getInvocation().getMaxAccumulatedTime()
-			&& node.getInvocation().getMaxAccumulatedTimeUpdateCount() > ignoreUpdateCount_)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
+    }
 
-	public boolean judgeSendExceedThresholdAlarm(CallTreeNode node)
-	{
-		return judgeGenerateJaveinFile(node);
-	}
+    public boolean judgeGenerateJaveinFile(CallTreeNode node)
+    {
+        if (node.getAccumulatedTime() >= node.getInvocation().getMaxAccumulatedTime()
+                && node.getInvocation().getMaxAccumulatedTimeUpdateCount() > ignoreUpdateCount_)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public boolean judgeSendExceedThresholdAlarm(CallTreeNode node)
+    {
+        return judgeGenerateJaveinFile(node);
+    }
+
+    /**
+     * 何もしない。
+     */
+    public JavelinLogCallback createCallback(CallTreeNode node)
+    {
+        // Do Nothing
+        return null;
+    }
 }

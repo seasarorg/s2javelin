@@ -62,7 +62,7 @@ public class S2StatsJavelinRecorder {
 
 			// RecordStrategyを初期化する
 			String strategyName = config.getRecordStrategy();
-			recordStrategy_ = (RecordStrategy) Class.forName(strategyName)
+			recordStrategy_ = (RecordStrategy) loadClass(strategyName)
 					.newInstance();
 
 			// スレッドの監視を開始する。
@@ -371,7 +371,7 @@ public class S2StatsJavelinRecorder {
 					S2StatsJavelinFileGenerator generator = new S2StatsJavelinFileGenerator(
 							config);
 					jvnLogFileName = generator.generateJaveinFile(callTree_
-							.get(), node);
+							.get(), node, recordStrategy_.createCallback(node));
 				}
 
 				// アラームの閾値を超えていた場合に、アラームを通知する。
@@ -434,7 +434,7 @@ public class S2StatsJavelinRecorder {
 				CallTreeNode callTreeNode = callerNode_.get();
 				CallTree callTree = callTree_.get();
 				String jvnLogFileName = generator.generateJaveinFile(callTree,
-						callTreeNode);
+						callTreeNode, recordStrategy_.createCallback(node));
 
 				// アラームを送信する。
 				sendExceedThresholdAlarm(jvnLogFileName, node);
@@ -475,7 +475,7 @@ public class S2StatsJavelinRecorder {
 
 		CallTreeNode root = callTree.getRootNode();
 		if (root != null) {
-			generator.generateJaveinFile(callTree, root);
+			generator.generateJaveinFile(callTree, root, recordStrategy_.createCallback(root));
 
 		}
 	}

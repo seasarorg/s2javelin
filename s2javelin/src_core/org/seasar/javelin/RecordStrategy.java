@@ -1,5 +1,7 @@
 package org.seasar.javelin;
 
+import org.seasar.javelin.log.JavelinLogCallback;
+
 /**
  * S2StatsJavelinRecorderで以下の処理を行うかどうか判定するStrategyインタフｪｰｽ。</br>
  * <li>Javelinログ</li>
@@ -22,4 +24,14 @@ public interface RecordStrategy
 	 * @return true:通知する、false:通知しない
 	 */
 	public boolean judgeSendExceedThresholdAlarm(CallTreeNode node);
+	
+	/**
+	 * コールバックオブジェクトを返す。
+	 * 
+	 * @param Javelinログファイル名。
+	 * @param node
+	 * 
+	 * @return コールバックオブジェクト。
+	 */
+	public JavelinLogCallback createCallback(CallTreeNode node);
 }

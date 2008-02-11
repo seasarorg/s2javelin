@@ -7,8 +7,6 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Writer;
 import java.text.MessageFormat;
 import java.util.Arrays;
@@ -19,6 +17,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.seasar.javelin.JavelinErrorLogger;
 import org.seasar.javelin.S2JavelinConfig;
+import org.seasar.javelin.util.IOUtil;
 
 class JavelinLoggerThread extends Thread {
 	/** ファイルにつけるシーケンスナンバー */
@@ -39,8 +38,6 @@ class JavelinLoggerThread extends Thread {
 	private static final String ZIP_FILE_FORMAT = "{0}" + File.separator
 			+ "javelin_{1,date,yyyyMMddHHmmssSSS}_{2,number,00000}"
 			+ EXTENTION_ZIP;
-
-	private static final int BUFFER_SIZE = 1024;
 
 	private S2JavelinConfig javelinConfig;
 
@@ -85,13 +82,28 @@ class JavelinLoggerThread extends Thread {
 			}
 
 			try {
-				String jvnFileName = javelinConfig.getJavelinFileDir()
-						+ File.separator + task.getJvnFileName();
+                String jvnFileDir = javelinConfig.getJavelinFileDir();
+				String jvnFileName = jvnFileDir + File.separator + task.getJvnFileName();
 				writer = new FileWriter(jvnFileName, true);
 
 				// 再帰的にwriterに書き込みを行う。
 				S2StatsJavelinFileGenerator.generateJavelinFileImpl(writer,
 						task.getTree(), task.getNode());
+				
+				writer.flush();
+
+	            JavelinLogCallback callback = task.getJavelinLogCallback();
+	            if(callback != null)
+	            {
+	                try
+	                {
+	                    callback.execute(task.getJvnFileName());
+	                }
+	                catch(Exception ex)
+	                {
+	                    JavelinErrorLogger.getInstance().log(ex);
+	                }
+	            }
 			} catch (IOException ioEx) {
 				JavelinErrorLogger.getInstance().log(ioEx);
 			} finally {
@@ -218,7 +230,7 @@ class JavelinLoggerThread extends Thread {
 			fileInputStream = new FileInputStream(file);
 			ZipEntry target = new ZipEntry(file.getName());
 			zStream.putNextEntry(target);
-			copy(fileInputStream, zStream);
+			IOUtil.copy(fileInputStream, zStream);
 			zStream.closeEntry();
 		} catch (FileNotFoundException fnfe) {
 			JavelinErrorLogger.getInstance().log(fnfe);
@@ -235,15 +247,4 @@ class JavelinLoggerThread extends Thread {
 		}
 	}
 
-	private long copy(InputStream input, OutputStream output)
-			throws IOException {
-		byte[] buffer = new byte[BUFFER_SIZE];
-		long count = 0;
-		int n = 0;
-		while (-1 != (n = input.read(buffer))) {
-			output.write(buffer, 0, n);
-			count += n;
-		}
-		return count;
-	}
 }

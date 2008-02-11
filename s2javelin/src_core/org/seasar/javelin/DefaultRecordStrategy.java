@@ -1,5 +1,7 @@
 package org.seasar.javelin;
 
+import org.seasar.javelin.log.JavelinLogCallback;
+
 public class DefaultRecordStrategy implements RecordStrategy
 {
 	/**
@@ -33,4 +35,13 @@ public class DefaultRecordStrategy implements RecordStrategy
 			return false;
 		}
 	}
+
+	/**
+	 * âΩÇ‡ÇµÇ»Ç¢ÅB
+	 */
+    public JavelinLogCallback createCallback(CallTreeNode node)
+    {
+        // Do Nothing
+        return null;
+    }
 }

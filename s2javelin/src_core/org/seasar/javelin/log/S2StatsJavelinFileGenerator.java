@@ -49,7 +49,7 @@ public class S2StatsJavelinFileGenerator {
 	 * @param tree
 	 * @param node
 	 */
-	public String generateJaveinFile(CallTree tree, CallTreeNode node) {
+	public String generateJaveinFile(CallTree tree, CallTreeNode node, JavelinLogCallback callback) {
 		synchronized (S2StatsJavelinFileGenerator.class) {
 			if (isInitialized_ == false) {
 				JavelinLoggerThread thread = new JavelinLoggerThread(
@@ -61,7 +61,7 @@ public class S2StatsJavelinFileGenerator {
 
 		Date date = new Date();
 		String jvnFileName = JavelinLoggerThread.createJvnFileName(date);
-		JavelinLogTask task = new JavelinLogTask(date, jvnFileName, tree, node);
+        JavelinLogTask task = new JavelinLogTask(date, jvnFileName, tree, node, callback);
 
 		// キューにタスクを追加する。
 		boolean result = queue_.offer(task);
