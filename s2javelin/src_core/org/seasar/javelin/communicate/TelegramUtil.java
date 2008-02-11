@@ -571,10 +571,16 @@ public final class TelegramUtil extends Common {
 					objItemValueArr);
 
 			// メソッドの呼び出し元 クラス名
-			objItemValueArr = invocation.getAllCallerInvocation();
+            Invocation[] callerInvocations = invocation.getAllCallerInvocation();
+            String[] callerNames = new String[callerInvocations.length];
+            for (int callerIndex = 0; callerIndex < callerInvocations.length; callerIndex++)
+            {
+                callerNames[callerIndex] = callerInvocations[callerIndex].getClassName();
+            }
+			
 			bodies[bodyIndex + 5] = createResponseBody(objName,
 					"allCallerNames", Common.BYTE_ITEMMODE_KIND_STRING,
-					objItemValueArr);
+					callerNames);
 
 		}
 
@@ -585,7 +591,16 @@ public final class TelegramUtil extends Common {
 		return objTelegram;
 	}
 
-	private static ResponseBody createResponseBody(String objName,
+	/**
+	 * ReponseBodyを作成する。
+	 * 
+	 * @param objName
+	 * @param itemName
+	 * @param itemMode
+	 * @param objItemValueArr
+	 * @return ReponseBody。
+	 */
+	public static ResponseBody createResponseBody(String objName,
 			String itemName, byte itemMode, Object[] objItemValueArr) {
 		ResponseBody body = new ResponseBody();
 		body.setStrObjName(objName);
