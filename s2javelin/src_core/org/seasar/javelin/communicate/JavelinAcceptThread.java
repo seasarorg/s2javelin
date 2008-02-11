@@ -1,5 +1,6 @@
 package org.seasar.javelin.communicate;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -13,6 +14,7 @@ import org.seasar.javelin.JavelinErrorLogger;
 import org.seasar.javelin.S2StatsJavelinRecorder;
 import org.seasar.javelin.bean.Invocation;
 import org.seasar.javelin.communicate.entity.Telegram;
+import org.seasar.javelin.util.IOUtil;
 
 public class JavelinAcceptThread implements Runnable, AlarmListener {
 	private static final int MAX_SOCKET = 30;
@@ -129,7 +131,6 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 			JavelinErrorLogger.getInstance()
 					.log("クライアント通信スレッドの生成に失敗しました。", ioe);
 		}
-
 	}
 
 	private int sweepClient() {
@@ -154,15 +155,26 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 				Common.BYTE_TELEGRAM_KIND_ALERT,
 				Common.BYTE_REQUEST_KIND_NOTIFY);
 
-		// 赤くブリンクデータを取る
-		byte[] byteExceedThresholdAlarmArr = TelegramUtil
-				.createTelegram(objTelegram);
+		// アラームを送信する。
+		sendTelegram(objTelegram);
+	}
 
-		// 赤くブリンクデータを送る
+	/**
+	 * クライアントにTelegramを送信する。
+	 * 
+	 * @param telegram
+	 *            送信する電文。
+	 */
+	public void sendTelegram(Telegram telegram) {
+		if (telegram == null) {
+			return;
+		}
+
+		byte[] bytes = TelegramUtil.createTelegram(telegram);
 		synchronized (clientList) {
 			for (int index = clientList.size() - 1; index >= 0; index--) {
 				JavelinClientThread client = clientList.get(index);
-				client.sendAlarm(byteExceedThresholdAlarmArr);
+				client.sendAlarm(bytes);
 			}
 		}
 	}
