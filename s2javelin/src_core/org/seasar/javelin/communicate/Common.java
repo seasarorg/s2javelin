@@ -57,7 +57,12 @@ public class Common
 
     /** 電文種別(サーバプロパティ更新) */
 	public static final byte BYTE_TELEGRAM_KIND_UPDATE_PROPERTY = 8;
-
+    
+    /**
+     * 電文種別(JVNログ出力通知)
+     */
+    public static final byte BYTE_TELEGRAM_KIND_JVN_FILE_LIST = 9;
+    
 	/**
 	 * 要求応答種別(通知)
 	 */
