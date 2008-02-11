@@ -1,8 +1,10 @@
 package org.seasar.javelin;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.seasar.javelin.CallTreeNode;
@@ -25,7 +27,7 @@ public class CallTree
 
     private List<Callback> callbackList_ = new ArrayList<Callback>();
 
-    private Set<Object> flagSet_ = new HashSet<Object>();
+    private Map<String, Object> flagSet_ = new HashMap<String, Object>();
     
     public CallTree()
     {
@@ -96,18 +98,23 @@ public class CallTree
 		callbackList_.clear();
 	}
 	
-	public boolean set(Object flag)
+	public boolean setFlag(String flag, Object value)
 	{
-		return flagSet_.add(flag);
+		return (flagSet_.put(flag, value) != null);
 	}
 	
-	public boolean contains(Object flag)
+	public Object getFlag(String flag)
 	{
-		return flagSet_.contains(flag);
+		return flagSet_.get(flag);
 	}
 	
-	public boolean remove(Object flag)
+	public boolean containsFlag(String flag)
 	{
-		return flagSet_.remove(flag);
+		return flagSet_.containsKey(flag);
+	}
+	
+	public boolean removeFlag(String flag)
+	{
+		return (flagSet_.remove(flag) != null);
 	}
 }
