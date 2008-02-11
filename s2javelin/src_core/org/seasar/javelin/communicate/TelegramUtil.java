@@ -11,6 +11,7 @@ import org.seasar.javelin.bean.Component;
 import org.seasar.javelin.bean.Invocation;
 import org.seasar.javelin.communicate.entity.Body;
 import org.seasar.javelin.communicate.entity.Header;
+import org.seasar.javelin.communicate.entity.RequestBody;
 import org.seasar.javelin.communicate.entity.ResponseBody;
 import org.seasar.javelin.communicate.entity.Telegram;
 
@@ -271,34 +272,30 @@ public final class TelegramUtil extends Common {
         objHeader.setByteTelegramKind(telegramBuffer.get());
         objHeader.setByteRequestKind(telegramBuffer.get());
 
+        boolean isResponseBody = (objHeader.getByteRequestKind() == Common.BYTE_REQUEST_KIND_RESPONSE
+                    || objHeader.getByteRequestKind() == Common.BYTE_REQUEST_KIND_NOTIFY);
+
         List<Body> bodyList = new ArrayList<Body>();
 
         // 本体を取得する
         while (telegramBuffer.remaining() > 0)
         {
-            // 一つ本体対象を作る
-            ResponseBody body = new ResponseBody();
-
-            // オブジェクト名設定
-            body.setStrObjName(byteArrayToString(telegramBuffer));
-
-            // 項目名設定
-            body.setStrItemName(byteArrayToString(telegramBuffer));
-
-            if (objHeader.getByteRequestKind() == Common.BYTE_REQUEST_KIND_RESPONSE
-                    || objHeader.getByteRequestKind() == Common.BYTE_REQUEST_KIND_NOTIFY)
+            Body body;
+            if (isResponseBody)
             {
+                ResponseBody responseBody = new ResponseBody();
+
                 // 項目型設定
-                body.setByteItemMode(telegramBuffer.get());
+                responseBody.setByteItemMode(telegramBuffer.get());
 
                 // 繰り返し回数設定
-                body.setIntLoopCount(telegramBuffer.getInt());
+                responseBody.setIntLoopCount(telegramBuffer.getInt());
 
                 // 値設定
-                Object[] values = new Object[body.getIntLoopCount()];
+                Object[] values = new Object[responseBody.getIntLoopCount()];
                 for (int index = 0; index < values.length; index++)
                 {
-                    switch (body.getByteItemMode())
+                    switch (responseBody.getByteItemMode())
                     {
                         case ITEMTYPE_BYTE:
                             values[index] = telegramBuffer.get();
@@ -325,13 +322,29 @@ public final class TelegramUtil extends Common {
                             return null;
                     }
                 }
-                body.setObjItemValueArr(values);
-                bodyList.add(body);
+                responseBody.setObjItemValueArr(values);
+                body = responseBody;
             }
+            else
+            {
+                body = new RequestBody();
+            }
+
+            body.setStrObjName(byteArrayToString(telegramBuffer));
+            body.setStrItemName(byteArrayToString(telegramBuffer));
+            bodyList.add(body);
         }
 
         // 本体リストを作る
-        Body[] objBodyArr = bodyList.toArray(new Body[0]);
+        Body[] objBodyArr;
+        if (isResponseBody)
+        {
+            objBodyArr = bodyList.toArray(new ResponseBody[bodyList.size()]);
+        }
+        else
+        {
+            objBodyArr = bodyList.toArray(new Body[bodyList.size()]);
+        }
 
         // 回復したヘッダと本体を電文に設定する
         objTelegram.setObjHeader(objHeader);
