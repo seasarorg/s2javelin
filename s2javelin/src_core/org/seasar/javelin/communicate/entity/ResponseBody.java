@@ -14,7 +14,7 @@ public class ResponseBody extends Body
 	/**
 	 * ŒJ‚è•Ô‚µ‰ñ”
 	 */
-	private int intLoopCount_ = 1;
+	private int intLoopCount_ = 0;
 
 	/**
 	 * à–¾
