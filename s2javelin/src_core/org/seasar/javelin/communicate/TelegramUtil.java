@@ -281,6 +281,8 @@ public final class TelegramUtil extends Common {
         while (telegramBuffer.remaining() > 0)
         {
             Body body;
+            String objectName = byteArrayToString(telegramBuffer);
+            String itemName = byteArrayToString(telegramBuffer);
             if (isResponseBody)
             {
                 ResponseBody responseBody = new ResponseBody();
@@ -330,8 +332,8 @@ public final class TelegramUtil extends Common {
                 body = new RequestBody();
             }
 
-            body.setStrObjName(byteArrayToString(telegramBuffer));
-            body.setStrItemName(byteArrayToString(telegramBuffer));
+            body.setStrObjName(objectName);
+            body.setStrItemName(itemName);
             bodyList.add(body);
         }
 
