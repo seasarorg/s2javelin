@@ -25,16 +25,18 @@ public class S2StatsJavelinRecorder {
 	/**
 	 * メソッドコールツリーの記録用オブジェクト。
 	 */
-	public static final ThreadLocal<CallTree> callTree_ = new ThreadLocal<CallTree>() {
+	public static final ThreadLocal<CallTree> callTree_ = 
+		new ThreadLocal<CallTree>() {
 		protected synchronized CallTree initialValue() {
-			return null;
+			return new CallTree();
 		}
 	};
 
 	/**
 	 * メソッドの呼び出し元オブジェクト。
 	 */
-	public static final ThreadLocal<CallTreeNode> callerNode_ = new ThreadLocal<CallTreeNode>() {
+	public static final ThreadLocal<CallTreeNode> callerNode_ = 
+		new ThreadLocal<CallTreeNode>() {
 		protected synchronized CallTreeNode initialValue() {
 			return null;
 		}
@@ -129,7 +131,8 @@ public class S2StatsJavelinRecorder {
 			clazz = Class.forName(className);
 		} catch (ClassNotFoundException cnfe) {
 			JavelinErrorLogger.getInstance().log(
-					className + "のロードに失敗したため、コンテキストクラスローダからのロードを行います。");
+					className + 
+					"のロードに失敗したため、コンテキストクラスローダからのロードを行います。");
 			clazz = Thread.currentThread().getContextClassLoader().loadClass(
 					className);
 		}
@@ -190,10 +193,8 @@ public class S2StatsJavelinRecorder {
 
 				MBeanManager.setComponent(className, component);
 			} catch (MalformedObjectNameException ex) {
-				// TODO 自動生成された catch ブロック
 				ex.printStackTrace();
 			} catch (NullPointerException ex) {
-				// TODO 自動生成された catch ブロック
 				ex.printStackTrace();
 			}
 		}
@@ -215,10 +216,8 @@ public class S2StatsJavelinRecorder {
 
 				component.addInvocation(invocation);
 			} catch (MalformedObjectNameException ex) {
-				// TODO 自動生成された catch ブロック
 				ex.printStackTrace();
 			} catch (NullPointerException ex) {
-				// TODO 自動生成された catch ブロック
 				ex.printStackTrace();
 			}
 		}
