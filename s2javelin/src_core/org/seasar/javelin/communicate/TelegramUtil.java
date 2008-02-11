@@ -627,30 +627,4 @@ public final class TelegramUtil extends Common {
 
 		return body;
 	}
-
-	public static Telegram createJvnLogTelegram(byte telegramKind, String jvnFileName,
-			String jvnFileContent) {
-		// 電文ヘッダを作る
-		Header objHeader = new Header();
-		objHeader.setByteRequestKind(telegramKind);
-		objHeader.setByteTelegramKind(Common.BYTE_TELEGRAM_KIND_JVN_FILE);
-
-		// 電文本体を作る
-		ResponseBody bodyJvnFileName = createResponseBody("jvnFile",
-				"jvnFileName", Common.BYTE_ITEMMODE_KIND_STRING,
-				new String[] { jvnFileName });
-
-		ResponseBody bodyJvnFileContent = createResponseBody("jvnFile",
-				"jvnFileContent", Common.BYTE_ITEMMODE_KIND_STRING,
-				new String[] { jvnFileContent });
-
-		// 電文オブジェクトを設定する
-		Telegram objTelegram = new Telegram();
-		objTelegram.setObjHeader(objHeader);
-		objTelegram.setObjBody(new ResponseBody[] { // 
-				bodyJvnFileName, bodyJvnFileContent //
-				});
-
-		return objTelegram;
-	}
 }
