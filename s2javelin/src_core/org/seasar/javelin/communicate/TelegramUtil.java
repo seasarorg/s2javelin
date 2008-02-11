@@ -1,7 +1,5 @@
 package org.seasar.javelin.communicate;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -11,6 +9,8 @@ import java.util.List;
 import org.seasar.javelin.MBeanManager;
 import org.seasar.javelin.bean.Component;
 import org.seasar.javelin.bean.Invocation;
+import org.seasar.javelin.bottleneckeye.communicate.Common;
+import org.seasar.javelin.communicate.entity.Body;
 import org.seasar.javelin.communicate.entity.Header;
 import org.seasar.javelin.communicate.entity.ResponseBody;
 import org.seasar.javelin.communicate.entity.Telegram;
@@ -22,224 +22,419 @@ public final class TelegramUtil extends Common {
 	private static final String CLASSMETHOD_SEPARATOR = "###CLASSMETHOD_SEPARATOR###";
 	private static final int TELEGRAM_ITEM_COUNT = 6;
 
-	/**
-	 * String ⇒ byte[size,data] に転換する
-	 */
-	public static byte[] strToByteArr(String strBodyData) {
-		// String ⇒ byte[data] に転換する
-		byte[] byteBodyDataArr;
-		try {
-			byteBodyDataArr = strBodyData.getBytes("UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			return new byte[0];
-		}
 
-		ByteBuffer buffer = ByteBuffer.allocate(byteBodyDataArr.length
-				+ INT_BYTE_SWITCH_LENGTH);
-		buffer.putInt(byteBodyDataArr.length);
-		buffer.put(byteBodyDataArr);
 
-		return buffer.array();
-	}
+    /** shortからbyte配列への変換時に必要なバイト数 */
+    private static final int SHORT_BYTE_SWITCH_LENGTH  = 2;
 
-	/**
-	 * byte[size,data] ⇒ String に転換する
-	 */
-	public static String byteArrToStr(ByteBuffer buffer) {
-		// 返却する用
-		String strResult = "";
+    /** intからbyte配列への変換時に必要なバイト数 */
+    private static final int INT_BYTE_SWITCH_LENGTH    = 4;
 
-		// size を取得する
-		int intbyteArrLength = buffer.getInt();
+    /** longからbyte配列への変換時に必要なバイト数 */
+    private static final int LONG_BYTE_SWITCH_LENGTH   = 8;
 
-		try {
-			byte[] byteSoruceArr = new byte[intbyteArrLength];
-			buffer.get(byteSoruceArr);
+    /** floatからbyte配列への変換時に必要なバイト数 */
+    private static final int FLOAT_BYTE_SWITCH_LENGTH  = 4;
 
-			// byte[data] を String に変換する
-			strResult = new String(byteSoruceArr, 0, intbyteArrLength, "UTF-8");
-		} catch (UnsupportedEncodingException uee) {
-			return "";
-		}
+    /** doubleからbyte配列への変換時に必要なバイト数 */
+    private static final int DOUBLE_BYTE_SWITCH_LENGTH = 8;
 
-		// 返却する
-		return strResult;
-	}
+    /** ヘッダの長さ */
+    private static final int TELEGRAM_HEADER_LENGTH = 6;
+    private static final byte ITEMTYPE_BYTE = 0;
+    private static final byte ITEMTYPE_INT16 = 1;
+    private static final byte ITEMTYPE_INT32 = 2;
+    private static final byte ITEMTYPE_INT64 = 3;
+    private static final byte ITEMTYPE_FLOAT = 4;
+    private static final byte ITEMTYPE_DOUBLE = 5;
+    private static final byte ITEMTYPE_STRING = 6;
 
-	/**
-	 * 電文は、object ⇒ byte[] に変換する
-	 */
-	public static byte[] createTelegram(Telegram telegram) {
-		// 頭部データを出力流に設定する
-		byte[] byteHeadArr = new byte[6];
-		byteHeadArr[TelegramUtil.INT_BYTE_SWITCH_LENGTH] = telegram
-				.getObjHeader().getByteTelegramKind();
-		byteHeadArr[TelegramUtil.INT_BYTE_SWITCH_LENGTH + 1] = telegram
-				.getObjHeader().getByteRequestKind();
 
-		if (telegram.getObjBody() == null) {
-			setLength(byteHeadArr);
-			return byteHeadArr;
-		}
+    /**
+     * 文字列をバイト配列（４バイト文字列長＋UTF8）に変換する。
+     *
+     * @param text 文字列
+     * @return バイト配列
+     */
+    private static byte[] stringToByteArray(String text)
+    {
+        byte[] textArray = text.getBytes();
+        byte[] lengthArray = intToByteArray(textArray.length);
 
-		// 本体データを作る
-		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-		try {
-			byteArrayOutputStream.write(byteHeadArr);
+        // 文字列長と文字列を結合する
+        return combineTwoByteArray(lengthArray, textArray);
+    }
 
-			for (int i = 0; i < telegram.getObjBody().length; i++) {
-				ResponseBody responseBody = (ResponseBody) telegram
-						.getObjBody()[i];
-				// オブジェクト名 を byte[size,data] に転換する
-				byte[] byteBodyObjNameArr = TelegramUtil
-						.strToByteArr(responseBody.getStrObjName());
-				byteArrayOutputStream.write(byteBodyObjNameArr);
+    /**
+     * 4バイトの文字列長＋UTF8のバイト配列から文字列を作成する。
+     *
+     * @param buffer バイト配列
+     * @return 文字列
+     */
+    private static String byteArrayToString(ByteBuffer buffer)
+    {
+        String strResult = "";
 
-				// 項目名 を byte[size,data] に転換する
-				byte[] byteBodyItemNameArr = TelegramUtil
-						.strToByteArr(responseBody.getStrItemName());
-				byteArrayOutputStream.write(byteBodyItemNameArr);
+        // 文字列長を取得する
+        int intbyteArrLength = buffer.getInt();
 
-				// 項目型 を byte[size,data] に転換する
-				byte[] byteBodyItemModeArr = new byte[1];
-				byteBodyItemModeArr[0] = responseBody.getByteItemMode();
-				byteArrayOutputStream.write(byteBodyItemModeArr);
+        try
+        {
+            byte[] byteSoruceArr = new byte[intbyteArrLength];
+            buffer.get(byteSoruceArr);
+            strResult = new String(byteSoruceArr, 0, intbyteArrLength, "UTF-8");
+        }
+        catch (UnsupportedEncodingException uee)
+        {
+            // 何もしない
+        }
 
-				// 繰り返し回数 を byte[size,data] に転換する
-				ByteBuffer objByteBufferBodyLoopCount = ByteBuffer
-						.allocate(INT_BYTE_SWITCH_LENGTH);
-				objByteBufferBodyLoopCount.putInt(responseBody
-						.getIntLoopCount());
-				byte[] byteBodyLoopCount = objByteBufferBodyLoopCount.array();
-				byteArrayOutputStream.write(byteBodyLoopCount);
+        return strResult;
+    }
 
-				// 説明 を byte[size,data] に転換する
-				Object[] objItemValueArrTemp = (responseBody)
-						.getObjItemValueArr();
-				if (objItemValueArrTemp != null) {
-					for (int j = 0; j < objItemValueArrTemp.length; j++) {
-						if (responseBody.getByteItemMode() == Common.BYTE_ITEMMODE_KIND_STRING) {
-							byte[] byteItemValueArr;
-							String strValue = "";
-							if (objItemValueArrTemp[j] instanceof Invocation) {
-								strValue = ((Invocation) objItemValueArrTemp[j])
-										.getClassName();
-							} else if (objItemValueArrTemp[j] instanceof String) {
-								strValue = (String) objItemValueArrTemp[j];
-							}
-							byteItemValueArr = TelegramUtil
-									.strToByteArr(strValue);
-							byteArrayOutputStream.write(byteItemValueArr);
-						} else {
-							ByteBuffer objByteBufferItemValue = ByteBuffer
-									.allocate(LONG_BYTE_SWITCH_LENGTH);
-							objByteBufferItemValue
-									.putLong(((Long) objItemValueArrTemp[j])
-											.longValue());
-							byte[] byteItemValueArr = objByteBufferItemValue
-									.array();
-							byteArrayOutputStream.write(byteItemValueArr);
-						}
-					}
+    /**
+     * ２バイト符号付整数をバイト配列に変換する。
+     *
+     * @param value 値
+     * @return バイト配列
+     */
+    private static byte[] shortToByteArray(short value)
+    {
+        ByteBuffer buffer = ByteBuffer.allocate(SHORT_BYTE_SWITCH_LENGTH);
+        buffer.putShort(value);
+        return buffer.array();
+    }
 
-				}
-			}
-		} catch (IOException ioe) {
-			// 発生しない。
-		}
-		byte[] byteOutputArr = byteArrayOutputStream.toByteArray();
-		setLength(byteOutputArr);
+    /**
+     * ４バイト符号付整数をバイト配列に変換する。
+     *
+     * @param value 値
+     * @return バイト配列
+     */
+    private static byte[] intToByteArray(int value)
+    {
+        ByteBuffer buffer = ByteBuffer.allocate(INT_BYTE_SWITCH_LENGTH);
+        buffer.putInt(value);
+        return buffer.array();
+    }
 
-		// 返却する
-		return byteOutputArr;
-	}
+    /**
+     * ８バイト符号付整数をバイト配列に変換する。
+     *
+     * @param value 値
+     * @return バイト配列
+     */
+    private static byte[] longToByteArray(long value)
+    {
+        ByteBuffer buffer = ByteBuffer.allocate(LONG_BYTE_SWITCH_LENGTH);
+        buffer.putLong(value);
+        return buffer.array();
+    }
 
-	private static void setLength(byte[] byteOutputArr) {
-		// 変換クラスを使う
-		ByteBuffer objByteBuffer = ByteBuffer.allocate(INT_BYTE_SWITCH_LENGTH);
-		objByteBuffer.putInt(byteOutputArr.length);
+    /**
+     * ４バイト符号付小数をバイト配列に変換する。
+     *
+     * @param value 値
+     * @return バイト配列
+     */
+    private static byte[] floatToByteArray(float value)
+    {
+        ByteBuffer buffer = ByteBuffer.allocate(FLOAT_BYTE_SWITCH_LENGTH);
+        buffer.putFloat(value);
+        return buffer.array();
+    }
 
-		// 電文総サイズを取得して、出力流の最初ところに設定する
-		byte[] byteHeadSizeArr = objByteBuffer.array();
-		for (int i = 0; i < byteHeadSizeArr.length; i++) {
-			byteOutputArr[i] = byteHeadSizeArr[i];
-		}
-	}
+    /**
+     * ８バイト符号付小数をバイト配列に変換する。
+     *
+     * @param value 値
+     * @return バイト配列
+     */
+    private static byte[] doubleToByteArray(double value)
+    {
+        ByteBuffer buffer = ByteBuffer.allocate(DOUBLE_BYTE_SWITCH_LENGTH);
+        buffer.putDouble(value);
+        return buffer.array();
+    }
 
-	/**
-	 * 電文は、byte[] ⇒ object に回復する TODO ERIGUCHI 全電文種別には対応していない。
-	 */
-	public static Telegram recoveryTelegram(byte[] byteTelegramArr) {
-		// 返却する用
-		Telegram objTelegram = new Telegram();
+    /**
+     * 電文オブジェクトをバイト配列に変換する。
+     *
+     * @param objTelegram 電文オブジェクト
+     * @return バイト配列
+     */
+    public static byte[] createTelegram(Telegram objTelegram)
+    {
+        Header header = objTelegram.getObjHeader();
 
-		if (byteTelegramArr == null)
-			return null;
+        // 本体データを作る
+        byte[] bytesBody = null;
 
-		ByteBuffer telegramBuffer = ByteBuffer.wrap(byteTelegramArr);
+        if (objTelegram.getObjBody() != null)
+        {
+            for (Body body : objTelegram.getObjBody())
+            {
+                byte[] bytesObjName = stringToByteArray(body.getStrObjName());
+                byte[] bytesItemName = stringToByteArray(body.getStrItemName());
+                byte[] bytesBodyNames = combineTwoByteArray(bytesObjName, bytesItemName);
+                // 本体データに設定する
+                bytesBody = combineTwoByteArray(bytesBody, bytesBodyNames);
 
-		// まず、Header分が取得する
-		Header objHeader = new Header();
-		objHeader.setIntSize(telegramBuffer.getInt());
-		objHeader.setByteTelegramKind(telegramBuffer.get());
-		objHeader.setByteRequestKind(telegramBuffer.get());
+                if (header.getByteRequestKind() == Common.BYTE_REQUEST_KIND_RESPONSE)
+                {
+                    // 応答データなら、項目型、ループ回数、値を変換する
+                    ResponseBody responseBody = (ResponseBody)body;
+                    byte itemType = responseBody.getByteItemMode();
+                    int loopCount = responseBody.getIntLoopCount();
+                    byte[] itemModeArray = new byte[]{itemType};
+                    byte[] loopCountArray = intToByteArray(loopCount);
+                    bytesBody = combineTwoByteArray(bytesBody, itemModeArray);
+                    bytesBody = combineTwoByteArray(bytesBody, loopCountArray);
+                    for (int index = 0; index < loopCount; index++)
+                    {
+                        Object obj = responseBody.getObjItemValueArr()[index];
+                        byte[] value = null;
+                        switch (itemType)
+                        {
+                            case ITEMTYPE_BYTE:
+                                value = new byte[]{ ((Byte)obj).byteValue() };
+                                break;
+                            case ITEMTYPE_INT16:
+                                value = shortToByteArray((Short)obj);
+                                break;
+                            case ITEMTYPE_INT32:
+                                value = intToByteArray((Integer)obj);
+                                break;
+                            case ITEMTYPE_INT64:
+                                value = longToByteArray((Long)obj);
+                                break;
+                            case ITEMTYPE_FLOAT:
+                                value = floatToByteArray((Float)obj);
+                                break;
+                            case ITEMTYPE_DOUBLE:
+                                value = doubleToByteArray((Double)obj);
+                                break;
+                            case ITEMTYPE_STRING:
+                                value = stringToByteArray((String)obj);
+                                break;
+                            default:
+                                return null;
+                        }
+                        bytesBody = combineTwoByteArray(bytesBody, value);
+                    }
+                }
+            }
+        }
 
-		// 一つ電文に置いて最大は六つ本体がある
-		ResponseBody[] objResponseBodyArrTemp = new ResponseBody[6];
-		// 本電文の中で実際本体数統計
-		int intBodyCounter = 0;
+        int telegramLength = TELEGRAM_HEADER_LENGTH;
+        if (bytesBody != null)
+        {
+            telegramLength += bytesBody.length;
+        }
 
-		// 本体を取得する
-		while (telegramBuffer.remaining() > 0) {
-			// 一つ本体対象を作る
-			objResponseBodyArrTemp[intBodyCounter] = new ResponseBody();
+        ByteBuffer outputBuffer = ByteBuffer.allocate(telegramLength);
 
-			// オブジェクト名設定
-			objResponseBodyArrTemp[intBodyCounter]
-					.setStrObjName(byteArrToStr(telegramBuffer));
+        // ヘッダを変換する
+        outputBuffer.putInt(telegramLength);
+        outputBuffer.put(header.getByteTelegramKind());
+        outputBuffer.put(header.getByteRequestKind());
 
-			// 項目名設定
-			objResponseBodyArrTemp[intBodyCounter]
-					.setStrItemName(byteArrToStr(telegramBuffer));
+        if (bytesBody != null)
+        {
+            outputBuffer.put(bytesBody);
+        }
 
-			// 項目型設定
-			objResponseBodyArrTemp[intBodyCounter]
-					.setByteItemMode(telegramBuffer.get());
+        return outputBuffer.array();
+    }
 
-			// 繰り返し回数設定
-			objResponseBodyArrTemp[intBodyCounter]
-					.setIntLoopCount(telegramBuffer.getInt());
+    /**
+     * バイト配列を電文オブジェクトに変換する。
+     *
+     * @param byteTelegramArr バイト配列
+     * @return 電文オブジェクト
+     */
+    public static Telegram recoveryTelegram(byte[] byteTelegramArr)
+    {
+        // 返却する用
+        Telegram objTelegram = new Telegram();
 
-			// 説明設定
-			Object[] values = new Object[objResponseBodyArrTemp[intBodyCounter]
-					.getIntLoopCount()];
-			for (int index = 0; index < values.length; index++) {
-				if (objResponseBodyArrTemp[intBodyCounter].getByteItemMode() == BYTE_ITEMMODE_KIND_STRING) {
-					// 項目型がBYTE_ITEMMODE_KIND_STRINGの場合、String[] を取得する
-					values[index] = byteArrToStr(telegramBuffer);
-				} else {
-					// 項目型がBYTE_ITEMMODE_KIND_STRING以外の場合、Long を取得する
-					values[index] = Long.valueOf(telegramBuffer.getLong());
-				}
-			}
+        if (byteTelegramArr == null)
+        {
+            return null;
+        }
 
-			objResponseBodyArrTemp[intBodyCounter].setObjItemValueArr(values);
-			// 本体数を記録する
-			intBodyCounter++;
-		}
+        ByteBuffer telegramBuffer = ByteBuffer.wrap(byteTelegramArr);
 
-		// 本体リストを作る
-		ResponseBody[] objResponseBodyArr = new ResponseBody[intBodyCounter];
-		System.arraycopy(objResponseBodyArrTemp, 0, objResponseBodyArr, 0,
-				intBodyCounter);
+        // まず、Header分を取得する
+        Header objHeader = new Header();
+        objHeader.setIntSize(telegramBuffer.getInt());
+        objHeader.setByteTelegramKind(telegramBuffer.get());
+        objHeader.setByteRequestKind(telegramBuffer.get());
 
-		// 回復した頭部と本体を電文に設定する
-		objTelegram.setObjHeader(objHeader);
-		objTelegram.setObjBody(objResponseBodyArr);
+        List<Body> bodyList = new ArrayList<Body>();
 
-		// 返却する
-		return objTelegram;
-	}
+        // 本体を取得する
+        while (telegramBuffer.remaining() > 0)
+        {
+            // 一つ本体対象を作る
+            ResponseBody body = new ResponseBody();
+
+            // オブジェクト名設定
+            body.setStrObjName(byteArrayToString(telegramBuffer));
+
+            // 項目名設定
+            body.setStrItemName(byteArrayToString(telegramBuffer));
+
+            if (objHeader.getByteRequestKind() == Common.BYTE_REQUEST_KIND_RESPONSE
+                    || objHeader.getByteRequestKind() == Common.BYTE_REQUEST_KIND_NOTIFY)
+            {
+                // 項目型設定
+                body.setByteItemMode(telegramBuffer.get());
+
+                // 繰り返し回数設定
+                body.setIntLoopCount(telegramBuffer.getInt());
+
+                // 値設定
+                Object[] values = new Object[body.getIntLoopCount()];
+                for (int index = 0; index < values.length; index++)
+                {
+                    switch (body.getByteItemMode())
+                    {
+                        case ITEMTYPE_BYTE:
+                            values[index] = telegramBuffer.get();
+                            break;
+                        case ITEMTYPE_INT16:
+                            values[index] = telegramBuffer.getShort();
+                            break;
+                        case ITEMTYPE_INT32:
+                            values[index] = telegramBuffer.getInt();
+                            break;
+                        case ITEMTYPE_INT64:
+                            values[index] = telegramBuffer.getLong();
+                            break;
+                        case ITEMTYPE_FLOAT:
+                            values[index] = telegramBuffer.getFloat();
+                            break;
+                        case ITEMTYPE_DOUBLE:
+                            values[index] = telegramBuffer.getDouble();
+                            break;
+                        case ITEMTYPE_STRING:
+                            values[index] = byteArrayToString(telegramBuffer);
+                            break;
+                        default:
+                            return null;
+                    }
+                }
+                body.setObjItemValueArr(values);
+                bodyList.add(body);
+            }
+        }
+
+        // 本体リストを作る
+        Body[] objBodyArr = bodyList.toArray(new Body[0]);
+
+        // 回復したヘッダと本体を電文に設定する
+        objTelegram.setObjHeader(objHeader);
+        objTelegram.setObjBody(objBodyArr);
+
+        return objTelegram;
+    }
+
+    /**
+     * 指定された種類の電文を作成する。
+     *
+     * @param telegramKind 電文種別
+     * @param requestKind 要求応答種別
+     * @param objectName オブジェクト名
+     * @param itemName 項目名
+     * @param itemType 項目型
+     * @param value 値
+     * @return 電文
+     */
+    public static Telegram createSingleTelegram(byte telegramKind, byte requestKind,
+            String objectName, String itemName, byte itemType, Object value)
+    {
+        Header header = new Header();
+        header.setByteTelegramKind(Common.BYTE_TELEGRAM_KIND_CONFIGCHANGE);
+        header.setByteRequestKind(Common.BYTE_REQUEST_KIND_NOTIFY);
+
+        ResponseBody responseBody = createSingleResponseBody(objectName, itemName, itemType, value);
+
+        Telegram telegram = new Telegram();
+        telegram.setObjHeader(header);
+        telegram.setObjBody(new Body[]{responseBody});
+        return telegram;
+    }
+
+    /**
+     * 指定された種類の応答を作成する。
+     *
+     * @param objectName オブジェクト名
+     * @param itemName 項目名
+     * @param itemType 項目型
+     * @param value 値
+     * @return 応答
+     */
+    public static ResponseBody createSingleResponseBody(String objectName, String itemName,
+            byte itemType, Object value)
+    {
+        ResponseBody responseBody = new ResponseBody();
+        responseBody.setStrObjName(objectName);
+        responseBody.setStrItemName(itemName);
+        responseBody.setByteItemMode(itemType);
+        responseBody.setIntLoopCount(1);
+        responseBody.setObjItemValueArr(new Object[]{value});
+        return responseBody;
+    }
+
+    /**
+     * ２つのバイト配列を結合する。
+     *
+     * @param bytesFirst 最初のバイト配列
+     * @param bytesSecond 後ろにつなげるバイト配列
+     * @return ２つのバイト配列をつなげたバイトは零つ
+     */
+    private static byte[] combineTwoByteArray(byte[] bytesFirst, byte[] bytesSecond)
+    {
+        // 返却用
+        byte[] bytesResult = null;
+
+        int byteBeforeArrLength = 0;
+        int byteAfterArrLength = 0;
+
+        // 前分　byte[]　のサイズを取得
+        if (bytesFirst != null)
+        {
+            byteBeforeArrLength = bytesFirst.length;
+        }
+
+        // 後分　byte[]　のサイズを取得
+        if (bytesSecond != null)
+        {
+            byteAfterArrLength = bytesSecond.length;
+        }
+
+        // 返却用　byte[]　を作る
+        if (byteBeforeArrLength + byteAfterArrLength > 0)
+        {
+            bytesResult = new byte[byteBeforeArrLength + byteAfterArrLength];
+        }
+
+        // 前分　byte[]　を返却用　byte[]　に設定する
+        if (byteBeforeArrLength > 0)
+        {
+            System.arraycopy(bytesFirst, 0, bytesResult, 0, byteBeforeArrLength);
+        }
+
+        // 後分　byte[]　を返却用　byte[]　に設定する
+        if (byteAfterArrLength > 0)
+        {
+            System.arraycopy(bytesSecond, 0, bytesResult, byteBeforeArrLength, byteAfterArrLength);
+        }
+
+        // 返却する
+        return bytesResult;
+    }
 
 	/**
 	 * 電文を出力する
