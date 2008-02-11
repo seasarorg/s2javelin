@@ -179,7 +179,8 @@ public final class TelegramUtil extends Common {
                 // 本体データに設定する
                 bytesBody = combineTwoByteArray(bytesBody, bytesBodyNames);
 
-                if (header.getByteRequestKind() == Common.BYTE_REQUEST_KIND_RESPONSE)
+                if (header.getByteRequestKind() == Common.BYTE_REQUEST_KIND_RESPONSE
+                        || header.getByteRequestKind() == Common.BYTE_REQUEST_KIND_NOTIFY)
                 {
                     // 応答データなら、項目型、ループ回数、値を変換する
                     ResponseBody responseBody = (ResponseBody)body;
