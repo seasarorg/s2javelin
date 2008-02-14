@@ -180,49 +180,45 @@ public final class TelegramUtil extends Common {
                 // 本体データに設定する
                 bytesBody = combineTwoByteArray(bytesBody, bytesBodyNames);
 
-                if (header.getByteRequestKind() == Common.BYTE_REQUEST_KIND_RESPONSE
-                        || header.getByteRequestKind() == Common.BYTE_REQUEST_KIND_NOTIFY)
+                // 項目型、ループ回数、値を変換する
+                Body responseBody = body;
+                byte itemType = responseBody.getByteItemMode();
+                int loopCount = responseBody.getIntLoopCount();
+                byte[] itemModeArray = new byte[]{itemType};
+                byte[] loopCountArray = intToByteArray(loopCount);
+                bytesBody = combineTwoByteArray(bytesBody, itemModeArray);
+                bytesBody = combineTwoByteArray(bytesBody, loopCountArray);
+                for (int index = 0; index < loopCount; index++)
                 {
-                    // 応答データなら、項目型、ループ回数、値を変換する
-                    ResponseBody responseBody = (ResponseBody)body;
-                    byte itemType = responseBody.getByteItemMode();
-                    int loopCount = responseBody.getIntLoopCount();
-                    byte[] itemModeArray = new byte[]{itemType};
-                    byte[] loopCountArray = intToByteArray(loopCount);
-                    bytesBody = combineTwoByteArray(bytesBody, itemModeArray);
-                    bytesBody = combineTwoByteArray(bytesBody, loopCountArray);
-                    for (int index = 0; index < loopCount; index++)
+                    Object obj = responseBody.getObjItemValueArr()[index];
+                    byte[] value = null;
+                    switch (itemType)
                     {
-                        Object obj = responseBody.getObjItemValueArr()[index];
-                        byte[] value = null;
-                        switch (itemType)
-                        {
-                            case ITEMTYPE_BYTE:
-                                value = new byte[]{ ((Byte)obj).byteValue() };
-                                break;
-                            case ITEMTYPE_INT16:
-                                value = shortToByteArray((Short)obj);
-                                break;
-                            case ITEMTYPE_INT32:
-                                value = intToByteArray((Integer)obj);
-                                break;
-                            case ITEMTYPE_INT64:
-                                value = longToByteArray((Long)obj);
-                                break;
-                            case ITEMTYPE_FLOAT:
-                                value = floatToByteArray((Float)obj);
-                                break;
-                            case ITEMTYPE_DOUBLE:
-                                value = doubleToByteArray((Double)obj);
-                                break;
-                            case ITEMTYPE_STRING:
-                                value = stringToByteArray((String)obj);
-                                break;
-                            default:
-                                return null;
-                        }
-                        bytesBody = combineTwoByteArray(bytesBody, value);
+                        case ITEMTYPE_BYTE:
+                            value = new byte[]{ ((Byte)obj).byteValue() };
+                            break;
+                        case ITEMTYPE_INT16:
+                            value = shortToByteArray((Short)obj);
+                            break;
+                        case ITEMTYPE_INT32:
+                            value = intToByteArray((Integer)obj);
+                            break;
+                        case ITEMTYPE_INT64:
+                            value = longToByteArray((Long)obj);
+                            break;
+                        case ITEMTYPE_FLOAT:
+                            value = floatToByteArray((Float)obj);
+                            break;
+                        case ITEMTYPE_DOUBLE:
+                            value = doubleToByteArray((Double)obj);
+                            break;
+                        case ITEMTYPE_STRING:
+                            value = stringToByteArray((String)obj);
+                            break;
+                        default:
+                            return null;
                     }
+                    bytesBody = combineTwoByteArray(bytesBody, value);
                 }
             }
         }
@@ -285,53 +281,53 @@ public final class TelegramUtil extends Common {
             String itemName = byteArrayToString(telegramBuffer);
             if (isResponseBody)
             {
-                ResponseBody responseBody = new ResponseBody();
-
-                // 項目型設定
-                responseBody.setByteItemMode(telegramBuffer.get());
-
-                // 繰り返し回数設定
-                responseBody.setIntLoopCount(telegramBuffer.getInt());
-
-                // 値設定
-                Object[] values = new Object[responseBody.getIntLoopCount()];
-                for (int index = 0; index < values.length; index++)
-                {
-                    switch (responseBody.getByteItemMode())
-                    {
-                        case ITEMTYPE_BYTE:
-                            values[index] = telegramBuffer.get();
-                            break;
-                        case ITEMTYPE_INT16:
-                            values[index] = telegramBuffer.getShort();
-                            break;
-                        case ITEMTYPE_INT32:
-                            values[index] = telegramBuffer.getInt();
-                            break;
-                        case ITEMTYPE_INT64:
-                            values[index] = telegramBuffer.getLong();
-                            break;
-                        case ITEMTYPE_FLOAT:
-                            values[index] = telegramBuffer.getFloat();
-                            break;
-                        case ITEMTYPE_DOUBLE:
-                            values[index] = telegramBuffer.getDouble();
-                            break;
-                        case ITEMTYPE_STRING:
-                            values[index] = byteArrayToString(telegramBuffer);
-                            break;
-                        default:
-                            return null;
-                    }
-                }
-                responseBody.setObjItemValueArr(values);
-                body = responseBody;
+                body = new ResponseBody();
             }
             else
             {
                 body = new RequestBody();
             }
 
+
+            // 項目型設定
+            body.setByteItemMode(telegramBuffer.get());
+
+            // 繰り返し回数設定
+            body.setIntLoopCount(telegramBuffer.getInt());
+
+            // 値設定
+            Object[] values = new Object[body.getIntLoopCount()];
+            for (int index = 0; index < values.length; index++)
+            {
+                switch (body.getByteItemMode())
+                {
+                    case ITEMTYPE_BYTE:
+                        values[index] = telegramBuffer.get();
+                        break;
+                    case ITEMTYPE_INT16:
+                        values[index] = telegramBuffer.getShort();
+                        break;
+                    case ITEMTYPE_INT32:
+                        values[index] = telegramBuffer.getInt();
+                        break;
+                    case ITEMTYPE_INT64:
+                        values[index] = telegramBuffer.getLong();
+                        break;
+                    case ITEMTYPE_FLOAT:
+                        values[index] = telegramBuffer.getFloat();
+                        break;
+                    case ITEMTYPE_DOUBLE:
+                        values[index] = telegramBuffer.getDouble();
+                        break;
+                    case ITEMTYPE_STRING:
+                        values[index] = byteArrayToString(telegramBuffer);
+                        break;
+                    default:
+                        return null;
+                }
+            }
+            body.setObjItemValueArr(values);
+            
             body.setStrObjName(objectName);
             body.setStrItemName(itemName);
             bodyList.add(body);
