@@ -393,8 +393,22 @@ public final class TelegramUtil extends Common {
         responseBody.setStrObjName(objectName);
         responseBody.setStrItemName(itemName);
         responseBody.setByteItemMode(itemType);
-        responseBody.setIntLoopCount(1);
-        responseBody.setObjItemValueArr(new Object[]{value});
+        Object[] itemValues;
+        if (value instanceof List)
+        {
+            List valueList = (List)value;
+            itemValues = new Object[valueList.size()];
+            for (int index = 0; index < valueList.size(); index++)
+            {
+                itemValues[index] = valueList.get(index);
+            }
+        }
+        else
+        {
+            itemValues = new Object[]{value};
+        }            
+        responseBody.setIntLoopCount(itemValues.length);
+        responseBody.setObjItemValueArr(itemValues);
         return responseBody;
     }
 
