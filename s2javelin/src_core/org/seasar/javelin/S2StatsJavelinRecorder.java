@@ -301,9 +301,10 @@ public class S2StatsJavelinRecorder {
 						argStrings[index] = StatsUtil.buildDetailString(
 								args[index], argsDetailDepth);
 					}
-
-					argStrings[index] = StatsUtil.toStr(args[index], config
-							.getStringLimitLength());
+					else {
+    					argStrings[index] = StatsUtil.toStr(args[index], config
+    							.getStringLimitLength());
+					}
 				}
 				node.setArgs(argStrings);
 			}
