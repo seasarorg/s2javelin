@@ -191,4 +191,15 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 	public boolean isSendingRootOnly() {
 		return false;
 	}
+	
+	/**
+	 * クライアントを持っているかどうか。
+	 * @return
+	 */
+	public boolean hasClient() {
+	    synchronized(clientList)
+	    {
+	        return (clientList.size() > 0);
+	    }
+	}
 }
