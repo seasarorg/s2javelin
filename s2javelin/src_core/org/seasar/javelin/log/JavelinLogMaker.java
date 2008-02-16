@@ -201,12 +201,6 @@ public class JavelinLogMaker
                 // diff
                 jvnBuffer.append(JAVELIN_JMXINFO_END);
                 jvnBuffer.append(NEW_LINE);
-                
-                //
-                jvnBuffer.append(JAVELIN_JMXINFO_START);
-                jvnBuffer.append(NEW_LINE);
-                jvnBuffer.append(JAVELIN_JMXINFO_START);
-                jvnBuffer.append(NEW_LINE);
             }
         }
 
