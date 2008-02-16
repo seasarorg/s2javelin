@@ -39,16 +39,15 @@ public class JournalView extends ViewPart implements DataChangeListener
     /** このビューで保持するイベントの最大数。これを超えると、最も古いイベントから削除される。 */
     private static final int JOURNAL_MAX = 1000;
 
+    /** メインコントロール。 */
     private MainCtrl         main_;
 
     /**
-     * ビューを生成しする。
-     * またコンテキストメニュー、ツールバー、
-     * ダブルクリック時のアクションなどを初期化する。
-     * 
-     * @param parent 親のウィジット
-     * @see org.eclipse.ui.IWorkbenchPart#createPartControl(org.eclipse.swt.widgets.Composite)
+     * {@inheritDoc}<br>
+     * ビューを生成する。<br>
+     * またコンテキストメニュー、ツールバー、ダブルクリック時のアクションなどを初期化する。
      */
+    @Override
     public void createPartControl(Composite parent)
     {
         this.viewer_ = createComposite(parent);
@@ -72,7 +71,9 @@ public class JournalView extends ViewPart implements DataChangeListener
         menuMgr.setRemoveAllWhenShown(true);
         menuMgr.addMenuListener(new IMenuListener() {
             public void menuAboutToShow(IMenuManager manager)
-            {}
+            {
+                // Do Nothing.
+            }
         });
 
         Menu menu = menuMgr.createContextMenu(this.viewer_);
@@ -91,43 +92,59 @@ public class JournalView extends ViewPart implements DataChangeListener
         this.main_ = MainCtrl.getInstance();
 
         //テーブルのビューアを生成する。
-        tbv = new TableViewer(parent, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI
+        this.tbv_ = new TableViewer(parent, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI
         /*| SWT.VIRTUAL*/);
 
         //コンテンツプロバイダをセットする。
-        tbv.setContentProvider(new TableContentProvider());
+        this.tbv_.setContentProvider(new TableContentProvider());
 
         //ラベルプロバイダをセットする。
-        tbv.setLabelProvider(getLabelProvider());
+        this.tbv_.setLabelProvider(getLabelProvider());
 
         //テーブルヘッダを初期化する。
-        initTableHeader(tbv);
+        initTableHeader(this.tbv_);
 
         //テーブルに表示する対象となる要素を取得し、ビューアにセットする。
         Object inputElement = getInputElement(this.main_);
-        tbv.setInput(inputElement);
+        this.tbv_.setInput(inputElement);
 
-        return this.tbv.getControl();
+        return this.tbv_.getControl();
     }
 
-    private TableViewer         tbv;
+    /** テーブルビューワ */
+    private TableViewer         tbv_;
 
-    static final private String COLMUN_TIME     = "Time";
+    /** Timeカラム */
+    private static final String COLMUN_TIME     = "Time";
 
-    static final private String COLMUN_NODE     = "Node";
+    /** Nodeカラム */
+    private static final String COLMUN_NODE     = "Node";
 
-    static final private String COLMUN_NAME     = "Name";
+    /** Nameカラム */
+    private static final String COLMUN_NAME     = "Name";
 
-    static final private String COLMUN_DURATION = "Duration";
+    /** Durationカラム */
+    private static final String COLMUN_DURATION = "Duration";
 
+    /**
+     * デフォルトコンストラクタ。
+     */
     public JournalView()
-    {}
+    {
+        // Do Nothing.
+    }
 
-    protected void init()
+    /**
+     * クラスの初期化を行う。
+     */
+    private void init()
     {
         MainCtrl.getInstance().addDataChangeListeners(this);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void updateData(final Object element)
     {
         Display.getDefault().asyncExec(new Runnable() {
@@ -138,10 +155,14 @@ public class JournalView extends ViewPart implements DataChangeListener
         });
     }
 
+    /**
+     * 入力要素を追加する。
+     * @param element 入力要素
+     */
     public void addInputElement(Object element)
     {
-        this.tbv.add(element);
-        Table table = this.tbv.getTable();
+        this.tbv_.add(element);
+        Table table = this.tbv_.getTable();
         int itemCount = table.getItemCount();
 
         if (itemCount > JOURNAL_MAX)
@@ -156,41 +177,47 @@ public class JournalView extends ViewPart implements DataChangeListener
     }
 
     /**
-     * テーブルで表現する内容を取得する。 このビューの場合は、アクションのリストを返す。
-     * 
-     * 
+     * テーブルで表現する内容を取得する。<br>
+     * このビューの場合は、アクションのリストを返す。
+     * @param main メインコントロール
+     * @return アクションのリスト
      */
     protected Object getInputElement(MainCtrl main)
     {
-        List list = main.getInvocationList();
-        return list;
-    }
-
-    public void addEvent()
-    {
-
+        List<InvocationModel> invocationList = main.getInvocationList();
+        return invocationList;
     }
 
     /**
-     * ラベルプロバイダを返す。
+     * イベントを追加する。
      */
-    protected IBaseLabelProvider getLabelProvider()
+    public void addEvent()
+    {
+        // Do Nothing.
+    }
+
+    /**
+     * ラベルプロバイダを取得する。
+     * @return ラベルプロバイダ
+     */
+    private IBaseLabelProvider getLabelProvider()
     {
         return new ActionListLabelProvider();
     }
 
     /**
-     * 
-     * @see org.eclipse.ui.IWorkbenchPart#setFocus()
+     * {@inheritDoc}
      */
     public void setFocus()
-    {}
+    {
+        // Do Nothing.
+    }
 
     /**
      * テーブルヘッダを初期化する。
-     * 
+     * @param tbv テーブルビューワ
      */
-    protected void initTableHeader(TableViewer tbv)
+    private void initTableHeader(TableViewer tbv)
     {
         TableColumn column = new TableColumn(tbv.getTable(), SWT.LEFT);
 
@@ -211,28 +238,28 @@ public class JournalView extends ViewPart implements DataChangeListener
         column.setWidth(70);
 
         tbv.getTable().setHeaderVisible(true);
-        this.tbv = tbv;
+        this.tbv_ = tbv;
     }
 
-    class ActionListLabelProvider implements ITableLabelProvider, ITableColorProvider
+    /**
+     * Viewのラベルプロバイダ。
+     * @author cero-t
+     */
+    private static class ActionListLabelProvider implements ITableLabelProvider,
+            ITableColorProvider
     {
         /**
+         * {@inheritDoc}<br>
          * elementを表す行の、column_index列目のテキストを返す。
-         * 
-         * @param element
-         * @param column_index
-         * @return
-         * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnText(java.lang.Object,
-         *      int)
          */
-        public String getColumnText(Object element, int column_index)
+        public String getColumnText(Object element, int columIndex)
         {
             String ret;
 
             InvocationModel invocation = (InvocationModel)element;
 
             // TODO 行番号にハードコードした実装としたため、改善したい。。
-            switch (column_index)
+            switch (columIndex)
             {
             case 0:
                 ret = "-";
@@ -262,11 +289,17 @@ public class JournalView extends ViewPart implements DataChangeListener
             return ret;
         }
 
-        public Image getColumnImage(Object element, int column_index)
+        /**
+         * {@inheritDoc}
+         */
+        public Image getColumnImage(Object element, int columnIndex)
         {
             return null;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public Color getBackground(Object element, int columnIndex)
         {
             // TODO TANIMOTO 閾値の設定は検討する必要あり
@@ -278,24 +311,44 @@ public class JournalView extends ViewPart implements DataChangeListener
             return new Color(null, 255, 0, 0);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public Color getForeground(Object element, int columnIndex)
         {
-            // TODO 自動生成されたメソッド・スタブ
             return null;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void addListener(ILabelProviderListener ilabelproviderlistener)
-        {}
+        {
+            // Do Nothing.
+        }
 
+        /**
+         * {@inheritDoc}
+         */
         public void dispose()
-        {}
+        {
+            // Do Nothing.
+        }
 
+        /**
+         * {@inheritDoc}
+         */
         public boolean isLabelProperty(Object obj, String s)
         {
             return false;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void removeListener(ILabelProviderListener ilabelproviderlistener)
-        {}
+        {
+            // Do Nothing.
+        }
     }
 }

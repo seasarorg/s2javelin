@@ -1,4 +1,4 @@
-package org.seasar.javelin.bottleneckeye.editors;
+package org.seasar.javelin.bottleneckeye.editors.view;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -22,6 +22,7 @@ import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.GraphicalViewer;
 import org.seasar.javelin.bottleneckeye.communicate.Telegram;
+import org.seasar.javelin.bottleneckeye.communicate.TelegramClientManager;
 import org.seasar.javelin.bottleneckeye.editpart.ComponentEditPart;
 import org.seasar.javelin.bottleneckeye.model.ArrowConnectionModel;
 import org.seasar.javelin.bottleneckeye.model.ComponentModel;
@@ -252,4 +253,10 @@ public class JmxStatsVisionEditor extends AbstractStatsVisionEditor<ObjectName> 
 			throw new IllegalArgumentException(ex);
 		}
 	}
+
+    public TelegramClientManager getTelegramClientManager()
+    {
+        return null;
+    }
+
 }

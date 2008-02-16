@@ -63,4 +63,5 @@ public class Header
 	public void setByteRequestKind(byte byteRequestKind_) {
 		this.byteRequestKind_ = byteRequestKind_;
 	}
+
 }

@@ -1,54 +1,87 @@
 package org.seasar.javelin.bottleneckeye;
 
-import org.eclipse.ui.plugin.*;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 /**
  * The main plugin class to be used in the desktop.
  */
-public class StatsVisionPlugin extends AbstractUIPlugin {
+public class StatsVisionPlugin extends AbstractUIPlugin
+{
+    /** このインスタンス。 */
+    private static StatsVisionPlugin plugin__;
 
-	//The shared instance.
-	private static StatsVisionPlugin plugin;
-	
-	/**
-	 * The constructor.
-	 */
-	public StatsVisionPlugin() {
-		plugin = this;
-	}
+    /** 更新アイコン。 */
+    public static final String       IMG_REFRESH = "icons/refresh.gif";
 
-	/**
-	 * This method is called upon plug-in activation
-	 */
-	public void start(BundleContext context) throws Exception {
-		super.start(context);
-	}
+    /**
+     * {@inheritDoc}<br>
+     * 画像の登録を行う。
+     */
+    protected void initializeImageRegistry(ImageRegistry registry)
+    {
+        registerImage(registry, IMG_REFRESH, IMG_REFRESH);
+    }
 
-	/**
-	 * This method is called when the plug-in is stopped
-	 */
-	public void stop(BundleContext context) throws Exception {
-		super.stop(context);
-		plugin = null;
-	}
+    /**
+     * 1つの画像の登録を行う。
+     * @param registry イメージレジストリ
+     * @param key 画像のキー
+     * @param fileName 画像ファイル名
+     */
+    private void registerImage(ImageRegistry registry, String key, String fileName)
+    {
+        ImageDescriptor desc = getImageDescriptor(fileName);
+        registry.put(key, desc);
+    }
 
-	/**
-	 * Returns the shared instance.
-	 */
-	public static StatsVisionPlugin getDefault() {
-		return plugin;
-	}
+    /**
+     * コンストラクタ。
+     */
+    public StatsVisionPlugin()
+    {
+        plugin__ = this;
+    }
 
-	/**
-	 * Returns an image descriptor for the image file at the given
-	 * plug-in relative path.
-	 *
-	 * @param path the path
-	 * @return the image descriptor
-	 */
-	public static ImageDescriptor getImageDescriptor(String path) {
-		return AbstractUIPlugin.imageDescriptorFromPlugin("org.seasar.javelin.bottleneckeye", path);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void start(BundleContext context)
+        throws Exception
+    {
+        super.start(context);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void stop(BundleContext context)
+        throws Exception
+    {
+        super.stop(context);
+        plugin__ = null;
+    }
+
+    /**
+     * インスタンスを取得する。
+     * @return インスタンス
+     */
+    public static StatsVisionPlugin getDefault()
+    {
+        return plugin__;
+    }
+
+    /**
+     * Returns an image descriptor for the image file at the given
+     * plug-in relative path.
+     *
+     * @param path the path
+     * @return the image descriptor
+     */
+    public static ImageDescriptor getImageDescriptor(String path)
+    {
+        return AbstractUIPlugin.imageDescriptorFromPlugin("org.seasar.javelin.bottleneckeye", path);
+    }
 }

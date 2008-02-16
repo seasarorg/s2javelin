@@ -2,7 +2,7 @@ package org.seasar.javelin.bottleneckeye.editpart;
 
 import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPartFactory;
-import org.seasar.javelin.bottleneckeye.editors.StatsVisionEditor;
+import org.seasar.javelin.bottleneckeye.editors.view.StatsVisionEditor;
 import org.seasar.javelin.bottleneckeye.model.ArrowConnectionModel;
 import org.seasar.javelin.bottleneckeye.model.ComponentModel;
 import org.seasar.javelin.bottleneckeye.model.ContentsModel;

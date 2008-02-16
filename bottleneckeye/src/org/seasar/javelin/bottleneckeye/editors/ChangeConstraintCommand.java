@@ -2,6 +2,7 @@ package org.seasar.javelin.bottleneckeye.editors;
 
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.commands.Command;
+import org.seasar.javelin.bottleneckeye.editors.view.StatsVisionEditor;
 import org.seasar.javelin.bottleneckeye.model.ComponentModel;
 
 

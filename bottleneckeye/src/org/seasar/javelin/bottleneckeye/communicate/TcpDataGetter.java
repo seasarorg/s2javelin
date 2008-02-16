@@ -6,61 +6,100 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.seasar.javelin.bottleneckeye.editors.StatsVisionEditor;
+import org.seasar.javelin.bottleneckeye.editors.EditorTabInterface;
 
-public class TcpDataGetter {
+public class TcpDataGetter implements TelegramClientManager
+{
+
 	/**
 	 * 通信ソケット
 	 */
-	SocketChannel socketChannel = null;
+	private SocketChannel socketChannel_ = null;
 
 	/**
 	 * 出力流
 	 */
-	PrintStream objPrintStream = null;
+	private PrintStream objPrintStream_ = null;
+
+	/** 受信した電文を転送するターゲットオブジェクトのリスト */
+    private List<EditorTabInterface> editorTabList_;
+
+    private TelegramReader telegramReader_;
+
+    /** ホスト名 */
+    private String hostName_;
+
+    /** ポート番号 */
+    private int portNumber_;
+
+
+
+	public TcpDataGetter()
+	{
+	    this.editorTabList_ = new ArrayList<EditorTabInterface>();
+	}
+
 
 	/**
-	 * 使っているEditor
+	 * ホスト名をセットする。
+	 *
+	 * @param hostName ホスト名
 	 */
-	StatsVisionEditor statsJavelinEditor = null;
-	
-	public TcpDataGetter() {
+	public void setHostName(String hostName)
+	{
+		this.hostName_ = hostName;
 	}
 
 
-	public void setStatsJavelinEditor(StatsVisionEditor statsJavelinEditor) {
-		this.statsJavelinEditor = statsJavelinEditor;
+	/**
+	 * ポート番号をセットする。
+	 *
+	 * @param portNumber ポート番号
+	 */
+	public void setPortNumber(int portNumber)
+	{
+        this.portNumber_ = portNumber;
 	}
+
 
 	/**
 	 * サーバに接続する。
 	 */
-	public boolean open() {
-		try {
-			// サーバに接続する
-			SocketAddress remote = new InetSocketAddress(statsJavelinEditor.getHostName(),
-					statsJavelinEditor.getPortNum());
-			socketChannel = SocketChannel.open(remote);
-			// 接続中のメッセージ
-			System.out.println("\nサーバに接続しました:" + remote);
+	public boolean open()
+	{
+		try
+		{
+			 // サーバに接続する
+			 SocketAddress remote = new InetSocketAddress(this.hostName_, this.portNumber_);
+			 this.socketChannel_ = SocketChannel.open(remote);
+			 // 接続中のメッセージ
+			 System.out.println("\nサーバに接続しました:" + remote);
 
-		} catch (UnknownHostException objUnknownHostException) {
+		}
+		catch (UnknownHostException objUnknownHostException)
+		{
+			 // エラーメッセージを出す
+			 System.out.println("サーバへの接続に失敗しました。サーバアドレス、ポートを通りに設定していることを確認してください。");
+			 return false;
+		}
+		catch (IOException objIOException)
+		{
 			// エラーメッセージを出す
 			System.out.println(
-					"サーバに接続するのは失敗しました。サーバアドレス、ポートを通りに設定していることを確認ください。");
-			return false;
-		} catch (IOException objIOException) {
-			// エラーメッセージを出す
-			System.out.println(
-					"サーバに接続するのは失敗しました。サーバアドレス、ポートを通りに設定していることを確認ください。");
+					"サーバへの接続に失敗しました。サーバアドレス、ポートが正しく設定されていることを確認してください。");
 			return false;
 		}
 
-		try {
-			objPrintStream = new PrintStream(socketChannel.socket()
+		try
+		{
+		    this.objPrintStream_ = new PrintStream(this.socketChannel_.socket()
 					.getOutputStream(), true);
-		} catch (IOException objIOException) {
+		}
+		catch (IOException objIOException)
+		{
 			// エラーメッセージを出す
 			objIOException.printStackTrace();
 	        return false;
@@ -72,26 +111,30 @@ public class TcpDataGetter {
 	/**
 	 * サーバに接続を除く
 	 */
-	public void close() {
-		if(telegramReader != null)
+	public void close()
+	{
+		if (this.telegramReader_ != null)
 		{
-			telegramReader.setRunning(false);
+		    this.telegramReader_.setRunning(false);
 		}
 
 		// 使用した通信対象をクリアする
-		if(objPrintStream != null)
+		if (this.objPrintStream_ != null)
 		{
-			objPrintStream.close();
+		    this.objPrintStream_.close();
 		}
 
-		try {
-			if(socketChannel != null)
+		try
+		{
+			if (this.socketChannel_ != null)
 			{
-				socketChannel.close();
+			    this.socketChannel_.close();
 			}
 			
-			System.out.println("サーバと通信が終了されました。");
-		} catch (IOException objIOException) {
+			System.out.println("サーバとの通信を終了しました。");
+		}
+		catch (IOException objIOException)
+		{
 			// エラーを出す
 			objIOException.printStackTrace();
 		}
@@ -100,10 +143,8 @@ public class TcpDataGetter {
 	/**
 	 * サーバに状態取得電文を送る
 	 */
-	public void request() {
-		// 出力流データを格納
-		byte[] byteOutputArr = null;
-
+	public void request()
+	{
 		// 頭部データ対象を作って、データを設定する
 		Header objHeader = new Header();
 		objHeader.setByteTelegramKind(Common.BYTE_TELEGRAM_KIND_GET);
@@ -113,29 +154,14 @@ public class TcpDataGetter {
 		Telegram objOutputTelegram = new Telegram();
 		objOutputTelegram.setObjHeader(objHeader);
 
-		// 電文は、object ⇒ byte[] に変換する
-		byteOutputArr = TelegramUtil.createTelegram(objOutputTelegram);
-
-		try {
-			if(objPrintStream != null)
-			{
-				// 出力流を出力する
-				objPrintStream.write(byteOutputArr);
-			}
-		} catch (IOException objIOException) {
-			// エラーメッセージを出す
-			objIOException.printStackTrace();
-			this.close();
-		}
+		sendTelegram(objOutputTelegram);
 	}
 
 	/**
-	 * サーバにリセット電文を送る
+	 * サーバにリセット電文を送る。
 	 */
-	public void sendReset() {
-		// 出力流データを格納
-		byte[] byteOutputArr = null;
-
+	public void sendReset()
+	{
 		// 頭部データ対象を作って、データを設定する
 		Header objHeader = new Header();
 		objHeader.setByteTelegramKind(Common.BYTE_TELEGRAM_KIND_RESET);
@@ -145,26 +171,58 @@ public class TcpDataGetter {
 		Telegram objOutputTelegram = new Telegram();
 		objOutputTelegram.setObjHeader(objHeader);
 
-		// 電文は、object ⇒ byte[] に変換する
-		byteOutputArr = TelegramUtil.createTelegram(objOutputTelegram);
-
-		try {
-			// 出力流を出力する
-			if(objPrintStream != null)
-			{
-				objPrintStream.write(byteOutputArr);
-			}
-		} catch (IOException objIOException) {
-			// エラーメッセージを出す
-			objIOException.printStackTrace();
-			this.close();
-		}
+		sendTelegram(objOutputTelegram);
 	}
-	static TelegramReader telegramReader;
 
-	public void startRead() {
-		telegramReader = new TelegramReader(statsJavelinEditor, socketChannel);
-		Thread readerThread = new Thread(telegramReader, "StatsReaderThread");
+
+    /**
+     * 受信した電文を転送するオブジェクトをセットする。
+     *
+     * @param editorTab 転送先オブジェクト
+     */
+    public void addEditorTab(EditorTabInterface editorTab)
+    {
+        this.editorTabList_.add(editorTab);
+    }
+
+
+	/**
+	 * サーバからの電文受信を開始する。
+	 */
+	public void startRead()
+	{
+		this.telegramReader_ = new TelegramReader(this.socketChannel_);
+		for (EditorTabInterface editorTab : this.editorTabList_)
+		{
+		    this.telegramReader_.addEditorTab(editorTab);
+		}
+		
+		Thread readerThread = new Thread(this.telegramReader_, "StatsReaderThread");
 		readerThread.start();
 	}
+
+
+    /**
+     * サーバに電文を送信する。
+     *
+     * @param telegram 電文
+     */
+    public void sendTelegram(Telegram telegram)
+    {
+        byte[] byteOutputArray = TelegramUtil.createTelegram(telegram);
+
+        try
+        {
+            if (this.objPrintStream_ != null)
+            {
+                this.objPrintStream_.write(byteOutputArray);
+                this.objPrintStream_.flush();
+            }
+        }
+        catch (IOException objIOException)
+        {
+            objIOException.printStackTrace();
+            this.close();
+        }
+    }
 }

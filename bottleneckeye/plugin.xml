@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
 <plugin
-   id="org.seasar.javelin.statsvision"
+   id="org.seasar.javelin.bottleneckeye"
    name="%pluginName"
    version="1.0.0"
    class="org.seasar.javelin.bottleneckeye.StatsVisionPlugin"
@@ -16,7 +16,10 @@
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
    </requires>
    <runtime>
-      <library name="statsvision.jar">
+      <library name="bottleneckeye.jar">
+         <export name="*"/>
+      </library>
+      <library name="bottleneckeye_pro.jar">
          <export name="*"/>
       </library>
    </runtime>
@@ -57,26 +60,4 @@
             name="File">
       </wizard>
    </extension>
-   
-<!--
-   <extension
-         point="org.eclipse.ui.perspectives">
-      <perspective
-            icon="image/efv_16.gif"
-            class="org.seasar.javelin.statsvision.viewer.PerspectiveFactory"
-            name="ENdoSnipe"
-            id="org.seasar.javelin.statsvision.viewer.perspective"/>
-   </extension>
-   <extension
-         id="org.seasar.javelin.statsvision.Perspective"
-         name="メイン"
-         point="org.eclipse.ui.perspectiveExtensions">
-      <perspectiveExtension targetID="org.seasar.javelin.statsvision.perspective">
-         <view
-            id="org.seasar.javelin.statsvision.perspective"
-               relationship="stack"
-               relative="right"/>
-      </perspectiveExtension>
-   </extension>   
--->
 </plugin>

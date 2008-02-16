@@ -8,6 +8,8 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.part.MultiPageEditorActionBarContributor;
+import org.seasar.javelin.bottleneckeye.editors.view.AbstractStatsVisionEditor;
+import org.seasar.javelin.bottleneckeye.editors.view.StatsVisionEditor;
 
 /**
  * Manages the installation/deinstallation of global actions for multi-page

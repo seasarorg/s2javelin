@@ -13,8 +13,8 @@ import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.LayerConstants;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
 import org.seasar.javelin.bottleneckeye.editors.MultiPageEditor;
-import org.seasar.javelin.bottleneckeye.editors.StatsVisionEditor;
 import org.seasar.javelin.bottleneckeye.editors.StatsVisionXYLayoutEditPolicy;
+import org.seasar.javelin.bottleneckeye.editors.view.StatsVisionEditor;
 import org.seasar.javelin.bottleneckeye.model.ContentsModel;
 
 

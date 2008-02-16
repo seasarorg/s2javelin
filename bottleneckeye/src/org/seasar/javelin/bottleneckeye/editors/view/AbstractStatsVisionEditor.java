@@ -1,4 +1,4 @@
-package org.seasar.javelin.bottleneckeye.editors;
+package org.seasar.javelin.bottleneckeye.editors.view;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -79,22 +79,24 @@ public abstract class AbstractStatsVisionEditor<T>
     private   Map<T, Point> pointMap = new HashMap<T, Point>();
 
     /** コンポーネントの自動配置位置を決めるためのランク記憶用マップ。 */
-    private   Map<ComponentModel, Integer> revRankMap
+    private   Map<ComponentModel, Integer> revRankMap_
         = new HashMap<ComponentModel, Integer>();
 
     /** コンテンツのルートモデル。 */
     protected ContentsModel rootModel;
 
-    // コンテンツ・アウトライナー・ページ
+    /**
+     * コンテンツ・アウトライナー・ページ
+     */
     class StatsVisionContentOutlinePage extends ContentOutlinePage {
 
-        //ページをアウトラインとサムネイルに分離するコンポジット
+        /** ページをアウトラインとサムネイルに分離するコンポジット */
         private SashForm sash;
 
-        // サムネイルを表示する為のフィギュア
+        /** サムネイルを表示する為のフィギュア */
         private ScrollableThumbnail thumbnail;
 
-        // Viewerの破棄と連携するためのリスナ。
+        /** Viewerの破棄と連携するためのリスナ */
         private DisposeListener disposeListener;
         
         public StatsVisionContentOutlinePage() {
@@ -522,7 +524,7 @@ public abstract class AbstractStatsVisionEditor<T>
                 list.add(component);
                 rankMap.put(rank, list);
             }
-            revRankMap.put(component, rank);
+            revRankMap_.put(component, rank);
         }
 
         for (int rank : rankMap.keySet())
@@ -572,14 +574,14 @@ public abstract class AbstractStatsVisionEditor<T>
         List<ArrowConnectionModel> list = (List<ArrowConnectionModel>)component.getModelTargetConnections();
 
         // ルートモデルのRankを取る
-        if ((revRankMap.size() == 0))
+        if ((revRankMap_.size() == 0))
         {
             return rank;
         }
 
-        if (revRankMap.containsKey(component))
+        if (revRankMap_.containsKey(component))
         {
-            int currentRank = revRankMap.get(component);
+            int currentRank = revRankMap_.get(component);
             return currentRank;
         }
 
@@ -589,7 +591,7 @@ public abstract class AbstractStatsVisionEditor<T>
         for (ArrowConnectionModel arrowModel : list)
         {
 
-            if (!(revRankMap.size() == 0) && (!(revRankMap.containsKey(arrowModel.getSource()))))
+            if (!(revRankMap_.size() == 0) && (!(revRankMap_.containsKey(arrowModel.getSource()))))
             {
                 continue;
             }
@@ -714,4 +716,5 @@ public abstract class AbstractStatsVisionEditor<T>
     {
         return super.getGraphicalViewer();
     }
+
 }

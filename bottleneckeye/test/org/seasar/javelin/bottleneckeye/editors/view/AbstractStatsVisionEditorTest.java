@@ -1,4 +1,4 @@
-package org.seasar.javelin.bottleneckeye.editors;
+package org.seasar.javelin.bottleneckeye.editors.view;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -12,7 +12,7 @@ import junit.framework.TestCase;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.seasar.javelin.bottleneckeye.communicate.Telegram;
-import org.seasar.javelin.bottleneckeye.editors.AbstractStatsVisionEditor;
+import org.seasar.javelin.bottleneckeye.communicate.TelegramClientManager;
 import org.seasar.javelin.bottleneckeye.editpart.ComponentEditPart;
 import org.seasar.javelin.bottleneckeye.model.ArrowConnectionModel;
 import org.seasar.javelin.bottleneckeye.model.ComponentModel;
@@ -221,5 +221,10 @@ public class AbstractStatsVisionEditorTest extends TestCase {
 
 		public void stop() {
 		}
+
+	    public TelegramClientManager getTelegramClientManager()
+	    {
+	        return null;
+	    }
 	};
 }

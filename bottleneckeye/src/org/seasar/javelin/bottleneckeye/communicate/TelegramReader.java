@@ -3,95 +3,144 @@ package org.seasar.javelin.bottleneckeye.communicate;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.seasar.javelin.bottleneckeye.editors.StatsVisionEditor;
+import org.seasar.javelin.bottleneckeye.editors.EditorTabInterface;
 
-public class TelegramReader implements Runnable {
-	private StatsVisionEditor statsJavelinEditor_;
+public class TelegramReader implements Runnable
+{
+    private boolean                  isRunning_;
 
-	private boolean isRunning;
+    /** 電文を転送するターゲットオブジェクトのリスト */
+    private List<EditorTabInterface> editorTabList_;
 
+    private SocketChannel            channel_;
 
-	SocketChannel channel_;
+    /** サーバ側からのデータのHead用変数 */
+    private ByteBuffer               headerBuffer = ByteBuffer.allocate(Header.HEADER_LENGTH);
 
-	// サーバ側からのデータのHead用変数
-	ByteBuffer headerBuffer = ByteBuffer.allocate(Header.HEADER_LENGTH);
-	
-	
-	public TelegramReader(StatsVisionEditor stasJavelinEditor,
-			SocketChannel channel) {
-		this.channel_ = channel;
-		this.statsJavelinEditor_ = stasJavelinEditor;
-		this.isRunning = false;
-	}
+    /**
+     * 電文を受信するオブジェクトを作成する。
+     *
+     * @param stasJavelinEditor
+     * @param channel
+     */
+    public TelegramReader(SocketChannel channel)
+    {
+        this.channel_ = channel;
+        this.isRunning_ = false;
+        this.editorTabList_ = new ArrayList<EditorTabInterface>();
+    }
 
-	public void run() {
-		this.isRunning = true;
-		while (this.isRunning) {
-			byte[] telegramBytes = null;
-			try {
-				telegramBytes = this.readTelegramBytes();
-			} catch (IOException ioe) {
-				// TODO 再接続
-				this.isRunning = false;
-				break;
-			}
-			Telegram telegram = TelegramUtil.recovryTelegram(telegramBytes);
+    /**
+     * 受信した電文を転送するオブジェクトをセットする。
+     *
+     * @param editorTab 転送先オブジェクト
+     */
+    public void addEditorTab(EditorTabInterface editorTab)
+    {
+        this.editorTabList_.add(editorTab);
+    }
 
-			int telegramKind = telegram.getObjHeader().getByteTelegramKind();
-			int requestKind = telegram.getObjHeader().getByteRequestKind();
+    /**
+     * 電文受信ループ。
+     */
+    public void run()
+    {
+        this.isRunning_ = true;
+        while (this.isRunning_)
+        {
+            byte[] telegramBytes = null;
+            try
+            {
+                telegramBytes = this.readTelegramBytes();
+            }
+            catch (IOException ioe)
+            {
+                // TODO 再接続
+                this.isRunning_ = false;
+                break;
+            }
+            Telegram telegram = TelegramUtil.recoveryTelegram(telegramBytes);
+            boolean isProcess = false;
+            for (EditorTabInterface editorTab : this.editorTabList_)
+            {
+                isProcess |= editorTab.receiveTelegram(telegram);
+            }
+            if (isProcess == false)
+            {
+                // TODO ログ出力
+                int requestKind = telegram.getObjHeader().getByteRequestKind();
+                System.out.println("未定義の要求応答種別を受信しました。[" + requestKind + "]");
+            }
 
-			if (Common.BYTE_TELEGRAM_KIND_ALERT == telegramKind) {
-				// 通知受信処理を行う
-				statsJavelinEditor_.listeningGraphicalViewer(telegram);
-			} else if (Common.BYTE_TELEGRAM_KIND_GET == telegramKind
-					&& Common.BYTE_REQUEST_KIND_RESPONSE == requestKind) {
-				// 応答受信処理を行う。
-				statsJavelinEditor_.addResponseTelegram(telegram);
-				System.out.println("電文受信[" + requestKind + "]");
-			} else {
-				// TODO ログ出力
-				System.out.println("未定義の要求応答種別を受信しました。[" + requestKind + "]");
-			}
-		}
+            int telegramKind = telegram.getObjHeader().getByteTelegramKind();
+            int requestKind = telegram.getObjHeader().getByteRequestKind();
 
-	}
+            /*            if (Common.BYTE_TELEGRAM_KIND_ALERT == telegramKind)
+                        {
+                            // 通知受信処理を行う
+                            statsJavelinEditor_.listeningGraphicalViewer(telegram);
+                        }
+                        else if (Common.BYTE_TELEGRAM_KIND_GET == telegramKind
+                                && Common.BYTE_REQUEST_KIND_RESPONSE == requestKind)
+                        {
+                            // 応答受信処理を行う。
+                            statsJavelinEditor_.addResponseTelegram(telegram);
+                            System.out.println("電文受信[" + requestKind + "]");
+                        }
+                        else
+                        {
+                            // TODO ログ出力
+                            System.out.println("未定義の要求応答種別を受信しました。[" + requestKind + "]");
+                        }*/
+        }
 
-	/**
-	 * サーバからデータを読み込む
-	 * 
-	 * @throws IOException
-	 */
-	public byte[] readTelegramBytes() throws IOException {
+    }
 
-		int readCount = 0;
-		while (readCount < Header.HEADER_LENGTH) {
-			readCount += channel_.read(headerBuffer);
-		}
+    /**
+     * サーバからデータを読み込む
+     *
+     * @return 受信したデータ
+     * @throws IOException
+     */
+    public byte[] readTelegramBytes()
+        throws IOException
+    {
 
-		headerBuffer.rewind();
-		int telegramLength = headerBuffer.getInt();
+        int readCount = 0;
+        while (readCount < Header.HEADER_LENGTH)
+        {
+            readCount += channel_.read(headerBuffer);
+        }
 
-		// ヘッダ部しかない場合はそのまま返す。
-		if (telegramLength <= Header.HEADER_LENGTH) {
-			headerBuffer.rewind();
-			return headerBuffer.array();
-		}
+        headerBuffer.rewind();
+        int telegramLength = headerBuffer.getInt();
 
-		readCount = 0;
-		ByteBuffer bodyBuffer = ByteBuffer.allocate(telegramLength);
-		bodyBuffer.put(headerBuffer.array());
+        // ヘッダ部しかない場合はそのまま返す。
+        if (telegramLength <= Header.HEADER_LENGTH)
+        {
+            headerBuffer.rewind();
+            return headerBuffer.array();
+        }
 
-		while (bodyBuffer.remaining() > 0) {
-			channel_.read(bodyBuffer);
-		}
+        readCount = 0;
+        ByteBuffer bodyBuffer = ByteBuffer.allocate(telegramLength);
+        bodyBuffer.put(headerBuffer.array());
 
-		headerBuffer.rewind();
-		return bodyBuffer.array();
-	}
+        while (bodyBuffer.remaining() > 0)
+        {
+            channel_.read(bodyBuffer);
+        }
 
-	public void setRunning(boolean isRunning) {
-		this.isRunning = isRunning;
-	}
+        headerBuffer.rewind();
+        return bodyBuffer.array();
+    }
+
+    public void setRunning(boolean isRunning)
+    {
+        this.isRunning_ = isRunning;
+    }
 
 }

@@ -6,6 +6,7 @@ import org.eclipse.gef.Request;
 import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.editpolicies.XYLayoutEditPolicy;
 import org.eclipse.gef.requests.CreateRequest;
+import org.seasar.javelin.bottleneckeye.editors.view.StatsVisionEditor;
 
 public class StatsVisionXYLayoutEditPolicy extends XYLayoutEditPolicy
 {

@@ -2,61 +2,93 @@ package org.seasar.javelin.bottleneckeye.model;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.seasar.javelin.bottleneckeye.event.DataChangeListener;
 
-public class MainCtrl {
+/**
+ * メインコントロール。
+ * @author smg
+ */
+public final class MainCtrl
+{
+    /** データ変更リスナ。 */
+    private Set<DataChangeListener> dataChangeListeners_ = new HashSet<DataChangeListener>();
 
-	/** データ変更リスナ。 */
-	private Set<DataChangeListener> dataChangeListeners_ = new HashSet<DataChangeListener>();
+    /** InvocationModelのリスト */
+    private List<InvocationModel>   invocationModelList_;
 
-	/** InvocationModelのリスト */
-	private List invocationModelList_;
+    /** MainCtrlの唯一のインスタンス。 */
+    private static MainCtrl         instance__;
 
-	/** MainCtrlの唯一のインスタンス。 */
-	static private MainCtrl instance__;
+    /**
+     * デフォルトコンストラクタ。
+     */
+    private MainCtrl()
+    {
+        this.invocationModelList_ = new ArrayList<InvocationModel>();
+    }
 
-	public MainCtrl()
-	{
-		this.invocationModelList_ = new ArrayList();
-	}
-	
-	/**
-	 * MainCtrlのインスタンスを取得する。
-	 * 
-	 * @return
-	 */
-	static public MainCtrl getInstance() {
-		if (instance__ == null) {
-			instance__ = new MainCtrl();
-		}
+    /**
+     * MainCtrlのインスタンスを取得する。
+     * @return MainCtrl
+     */
+    public static MainCtrl getInstance()
+    {
+        if (instance__ == null)
+        {
+            instance__ = new MainCtrl();
+        }
 
-		return instance__;
-	}
+        return instance__;
+    }
 
-	public void addInvocationModel(InvocationModel invocationModel) {
-		this.invocationModelList_.add(invocationModel);
-	}
+    /**
+     * InvocationModelを追加する。
+     * @param invocationModel InvocationModel
+     */
+    public synchronized void addInvocationModel(InvocationModel invocationModel)
+    {
+        this.invocationModelList_.add(invocationModel);
+    }
 
-	public List getInvocationList() {
-		return this.invocationModelList_;
-	}
-	
-	public void addDataChangeListeners(DataChangeListener listener) {
-		this.dataChangeListeners_.add(listener);
-	}
+    /**
+     * InvocationModelのリストを取得する。
+     * @return InvocationModelのリスト
+     */
+    public synchronized List<InvocationModel> getInvocationList()
+    {
+        return this.invocationModelList_;
+    }
 
-	public void removeDataChangeListener(DataChangeListener listener) {
-		this.dataChangeListeners_.remove(listener);
-	}
-	public void notifyDataChangeListener(Object element) {
-		for (Iterator iter = this.dataChangeListeners_.iterator(); iter
-				.hasNext();) {
-			DataChangeListener listener = (DataChangeListener) iter.next();
-			listener.updateData(element);
-		}
-	}
+    /**
+     * データ変更リスナを登録する。
+     * @param listener リスナ
+     */
+    public void addDataChangeListeners(DataChangeListener listener)
+    {
+        this.dataChangeListeners_.add(listener);
+    }
+
+    /**
+     * データ変更リスナを除外する。
+     * @param listener リスナ
+     */
+    public void removeDataChangeListener(DataChangeListener listener)
+    {
+        this.dataChangeListeners_.remove(listener);
+    }
+
+    /**
+     * リスナにデータ変更を通知する。
+     * @param element 要素
+     */
+    public void notifyDataChangeListener(Object element)
+    {
+        for (DataChangeListener listener : this.dataChangeListeners_)
+        {
+            listener.updateData(element);
+        }
+    }
 }

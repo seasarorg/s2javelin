@@ -9,226 +9,306 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 import org.seasar.javelin.bottleneckeye.editpart.ComponentEditPart;
 
+/**
+ * コンポーネントモデル。
+ * @author smg
+ */
 public class ComponentModel extends AbstractModel
 {
     /**
      * コンストラクタ。
      */
-	public ComponentModel()
-	{
-		super();
-	}
-	
-	// 変更の種類を識別するための文字列
-	public static final String P_CONSTRAINT = "_constraint";
+    public ComponentModel()
+    {
+        super();
+    }
 
-	public static final String P_CLASS_NAME = "_className";
+    /** 制約の変更 */
+    public static final String            P_CONSTRAINT                 = "_constraint";
 
-	public static final String P_INVOCATION = "_invocation";
-	
-	public static final String P_SOURCE_CONNECTION = "_source_connection";
+    /** クラス名の変更 */
+    public static final String            P_CLASS_NAME                 = "_className";
 
-	public static final String P_TARGET_CONNECTION = "_target_connection";
+    /** Invocationの変更 */
+    public static final String            P_INVOCATION                 = "_invocation";
 
-    public static final String P_EXCEEDED_THRESHOLD_ALARM = "exceededThresholdMethodName";
-    
-    private String exceededThresholdMethodName_ = "";
-    
-	private String className_;
+    /** 接続元コネクションの変更 */
+    public static final String            P_SOURCE_CONNECTION          = "_source_connection";
 
-	private ComponentEditPart part_;
-	
-	private List<InvocationModel> invocationList_ = 
-		new ArrayList<InvocationModel>();
+    /** 接続先コネクションの変更 */
+    public static final String            P_TARGET_CONNECTION          = "_target_connection";
 
-	private Rectangle constraint_; // 制約
+    /** 警告の閾値の変更 */
+    public static final String            P_EXCEEDED_THRESHOLD_ALARM   = "exceededThresholdMethodName";
 
-	private ComponentType componentType_;
+    /** 警告の閾値 */
+    private String                        exceededThresholdMethodName_ = "";
 
-	// 以下IPropertySourceインターフェイスの
-	// メソッドの一部をオーバーライドした部分
-	public IPropertyDescriptor[] getPropertyDescriptors()
-	{
-		List<IPropertyDescriptor> list = 
-			new ArrayList<IPropertyDescriptor>();
-		list.add(new TextPropertyDescriptor(P_CLASS_NAME, "クラス名"));
-		for (int index = 0; index < getInvocationList().size(); index++)
-		{
-			list.add(
-			    list.size() - 1
-				, new TextPropertyDescriptor(
-					P_INVOCATION + index
-					, getInvocationList().get(index).getMethodName()));
-		}
+    /** クラス名 */
+    private String                        className_;
 
-		IPropertyDescriptor[] descriptors = 
-			list.toArray(new IPropertyDescriptor[list.size()]);
-		return descriptors;
+    /** EditPart */
+    private ComponentEditPart             part_;
 
-	}
+    /** Invocationのリスト */
+    private List<InvocationModel>         invocationList_              = new ArrayList<InvocationModel>();
 
-	public Object getPropertyValue(Object id)
-	{
-		if (id.equals(P_CLASS_NAME))
-		{
-			// プロパティ・ビューに表示するデータを返す
-			return className_;
-		}
-		if (id instanceof String)
-		{
-			String text = (String)id;
-			if (text.startsWith(P_INVOCATION))
-			{
-				int num = Integer.parseInt(text.substring(P_INVOCATION.length()));
-				return getInvocationList().get(num);
-			}
-		}
-		
-		return null;
-	}
+    /** 制約 */
+    private Rectangle                     constraint_;                                                            // 制約
 
-	public boolean isPropertySet(Object id)
-	{
-		if (id.equals(P_CLASS_NAME))
-		{
-			return true;
-		}
-		
-		if (id instanceof String)
-		{
-			String text = (String)id;
-			if (text.startsWith(P_INVOCATION))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
+    /** コンポーネントタイプ */
+    private ComponentType                 componentType_;
 
-	public void setPropertyValue(Object id, Object value)
-	{
-	}
+    /** このモデルから伸びているコネクションのリスト */
+    private List<AbstractConnectionModel> sourceConnections_           = new ArrayList<AbstractConnectionModel>();
 
-	public String getClassName()
-	{
-		return className_;
-	}
-
-	public void setClassName(String className)
-	{
-		className_ = className;
-		componentType_ = ComponentType.getComponentType(className);
-	    firePropertyChange(P_CLASS_NAME, null, className_);
-	}
-
-	public void addInvocation(InvocationModel invocation)
-	{
-		for(int index = invocationList_.size() - 1; index>=0 ; index--)
-		{
-			InvocationModel prevInvocation = invocationList_.get(index);
-			if(prevInvocation.getMethodName().equals(invocation.getMethodName()))
-			{
-				invocationList_.set(index, invocation);
-				return;
-			}
-		}
-		invocationList_.add(invocation);
-		invocation.setComponent(this);
-		Collections.sort(invocationList_);
-	}
-
-	public List<InvocationModel> getInvocationList()
-	{
-		return invocationList_;
-	}
-
-	public Rectangle getConstraint()
-	{
-		return constraint_;
-	}
-
-	public void setConstraint(Rectangle constraint)
-	{
-		constraint_ = constraint;
-		// 変更の通知
-		firePropertyChange(P_CONSTRAINT, null, constraint);
-	}
-
-	public void setEditPart(ComponentEditPart part)
-	{
-		part_ = part;
-	}
-	
-	public ComponentEditPart getEditPart()
-	{
-		return part_;
-	}
-	
-	// このモデルから伸びているコネクションのリスト
-	private List sourceConnections = new ArrayList();
-
-	// このモデルに向かって張られているコネクションのリスト
-	private List targetConnections = new ArrayList();
-
-	// このモデルから出るコネクション モデルの追加
-	public void addSourceConnection(Object connx)
-	{
-		sourceConnections.add(connx);
-		firePropertyChange(P_SOURCE_CONNECTION, null, null);
-	}
-
-	// このモデルに接続されるコネクション モデルの追加
-	public void addTargetConnection(Object connx)
-	{
-		targetConnections.add(connx);
-		firePropertyChange(P_TARGET_CONNECTION, null, null);
-	}
-
-	// このモデルを接続元とするコネクションのリストを返す
-	public List getModelSourceConnections()
-	{
-		return sourceConnections;
-	}
-
-	// このモデルを接続先とするコネクションのリストを返す
-	public List getModelTargetConnections()
-	{
-		return targetConnections;
-	}
-
-	// このモデルをコネクションのソースから切り離す
-	public void removeSourceConnection(Object connx)
-	{
-		sourceConnections.remove(connx);
-		firePropertyChange(P_SOURCE_CONNECTION, null, null);
-	}
-
-	// このモデルをコネクションのターゲットから切り離す
-	public void removeTargetConnection(Object connx)
-	{
-		targetConnections.remove(connx);
-		firePropertyChange(P_TARGET_CONNECTION, null, null);
-	}
+    /** このモデルに向かって張られているコネクションのリスト */
+    private List<AbstractConnectionModel> targetConnections_           = new ArrayList<AbstractConnectionModel>();
 
     /**
-     * @param exceededThresholdAlarm 設定する exceededThresholdAlarm。
+     * {@inheritDoc}
+     */
+    @Override
+    public IPropertyDescriptor[] getPropertyDescriptors()
+    {
+        List<IPropertyDescriptor> list = new ArrayList<IPropertyDescriptor>();
+        list.add(new TextPropertyDescriptor(P_CLASS_NAME, "クラス名"));
+        for (int index = 0; index < getInvocationList().size(); index++)
+        {
+            list.add(list.size() - 1,
+                     new TextPropertyDescriptor(P_INVOCATION + index,
+                                                getInvocationList().get(index).getMethodName()));
+        }
+
+        IPropertyDescriptor[] descriptors = list.toArray(new IPropertyDescriptor[list.size()]);
+        return descriptors;
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object getPropertyValue(Object id)
+    {
+        if (id.equals(P_CLASS_NAME))
+        {
+            // プロパティ・ビューに表示するデータを返す
+            return this.className_;
+        }
+        if (id instanceof String)
+        {
+            String text = (String)id;
+            if (text.startsWith(P_INVOCATION))
+            {
+                int num = Integer.parseInt(text.substring(P_INVOCATION.length()));
+                return getInvocationList().get(num);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isPropertySet(Object id)
+    {
+        if (id.equals(P_CLASS_NAME))
+        {
+            return true;
+        }
+
+        if (id instanceof String)
+        {
+            String text = (String)id;
+            if (text.startsWith(P_INVOCATION))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setPropertyValue(Object id, Object value)
+    {
+        // Do Nothing.
+    }
+
+    /**
+     * クラス名を取得する。
+     * @return クラス名
+     */
+    public String getClassName()
+    {
+        return this.className_;
+    }
+
+    /**
+     * クラス名を設定する。
+     * @param className クラス名
+     */
+    public void setClassName(String className)
+    {
+        this.className_ = className;
+        this.componentType_ = ComponentType.getComponentType(className);
+        firePropertyChange(P_CLASS_NAME, null, this.className_);
+    }
+
+    /**
+     * Invocationを追加する。
+     * @param invocation Invocation
+     */
+    public void addInvocation(InvocationModel invocation)
+    {
+        for (int index = this.invocationList_.size() - 1; index >= 0; index--)
+        {
+            InvocationModel prevInvocation = this.invocationList_.get(index);
+            if (prevInvocation.getMethodName().equals(invocation.getMethodName()))
+            {
+                this.invocationList_.set(index, invocation);
+                return;
+            }
+        }
+        this.invocationList_.add(invocation);
+        invocation.setComponent(this);
+        Collections.sort(this.invocationList_);
+    }
+
+    /**
+     * Invocationの一覧を取得する。
+     * @return Invocationの一覧
+     */
+    public List<InvocationModel> getInvocationList()
+    {
+        return this.invocationList_;
+    }
+
+    /**
+     * 制約を取得する。
+     * @return 制約
+     */
+    public Rectangle getConstraint()
+    {
+        return this.constraint_;
+    }
+
+    /**
+     * 制約を設定する。
+     * @param constraint 制約
+     */
+    public void setConstraint(Rectangle constraint)
+    {
+        this.constraint_ = constraint;
+        // 変更の通知
+        firePropertyChange(P_CONSTRAINT, null, constraint);
+    }
+
+    /**
+     * EditPartを設定する。
+     * @param part EditPart
+     */
+    public void setEditPart(ComponentEditPart part)
+    {
+        this.part_ = part;
+    }
+
+    /**
+     * EditPartを取得する。
+     * @return EditPart
+     */
+    public ComponentEditPart getEditPart()
+    {
+        return this.part_;
+    }
+
+    /**
+     * このモデルが接続元となるコネクションモデルを追加する。
+     * @param connx コネクションモデル
+     */
+    public void addSourceConnection(AbstractConnectionModel connx)
+    {
+        this.sourceConnections_.add(connx);
+        firePropertyChange(P_SOURCE_CONNECTION, null, null);
+    }
+
+    /**
+     * このモデルが接続先となるコネクションモデルを追加する。
+     * @param connx コネクションモデル
+     */
+    public void addTargetConnection(AbstractConnectionModel connx)
+    {
+        this.targetConnections_.add(connx);
+        firePropertyChange(P_TARGET_CONNECTION, null, null);
+    }
+
+    /**
+     * このモデルが接続元となるコネクションモデル一覧を取得する。
+     * @return コネクションモデル一覧
+     */
+    public List<AbstractConnectionModel> getModelSourceConnections()
+    {
+        return this.sourceConnections_;
+    }
+
+    /**
+     * このモデルが接続先となるコネクションモデル一覧を取得する。
+     * @return コネクションモデル一覧
+     */
+    public List<?> getModelTargetConnections()
+    {
+        return this.targetConnections_;
+    }
+
+    /**
+     * このモデルを接続元とするコネクションを切り離す。
+     * @param connx コネクション
+     */
+    public void removeSourceConnection(AbstractConnectionModel connx)
+    {
+        this.sourceConnections_.remove(connx);
+        firePropertyChange(P_SOURCE_CONNECTION, null, null);
+    }
+
+    /**
+     * このモデルを接続先とするコネクションを切り離す。
+     * @param connx コネクション
+     */
+    public void removeTargetConnection(AbstractConnectionModel connx)
+    {
+        this.targetConnections_.remove(connx);
+        firePropertyChange(P_TARGET_CONNECTION, null, null);
+    }
+
+    /**
+     * 警告の閾値を設定する。
+     * @param exceededThresholdMethodName 警告の閾値
      */
     public void setExceededThresholdAlarm(String exceededThresholdMethodName)
     {
-    	if (exceededThresholdMethodName == null)
-    	{
-    		exceededThresholdMethodName_ = null;
-    		return;
-    	}
-    	
+        if (exceededThresholdMethodName == null)
+        {
+            this.exceededThresholdMethodName_ = null;
+            return;
+        }
+
         String oldMethodName = this.exceededThresholdMethodName_;
         this.exceededThresholdMethodName_ = exceededThresholdMethodName;
-        this.firePropertyChange(
-                P_EXCEEDED_THRESHOLD_ALARM, oldMethodName, this.exceededThresholdMethodName_);
+        this.firePropertyChange(P_EXCEEDED_THRESHOLD_ALARM, oldMethodName,
+                                this.exceededThresholdMethodName_);
     }
 
-	public ComponentType getComponentType() {
-		return componentType_;
-	}
-    
+    /**
+     * コンポーネントタイプを取得する。
+     * @return コンポーネントタイプ
+     */
+    public ComponentType getComponentType()
+    {
+        return this.componentType_;
+    }
 }
