@@ -192,6 +192,10 @@ public final class TelegramUtil extends Common {
                 {
                     Object obj = responseBody.getObjItemValueArr()[index];
                     byte[] value = null;
+                    if(obj == null)
+                    {
+                        continue;
+                    }
                     switch (itemType)
                     {
                         case ITEMTYPE_BYTE:
