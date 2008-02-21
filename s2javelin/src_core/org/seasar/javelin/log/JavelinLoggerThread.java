@@ -162,14 +162,14 @@ class JavelinLoggerThread extends Thread {
 			for (int index = 0; index < files.length; index++) {
 				File file = files[index];
 				zipFile(zStream, file);
-				JavelinErrorLogger.getInstance()
-						.log(
-								"zip file name = " + file.getName() + " to "
-										+ fileName);
+//				JavelinErrorLogger.getInstance()
+//						.log(
+//								"zip file name = " + file.getName() + " to "
+//										+ fileName);
 
 				file.delete();
-				JavelinErrorLogger.getInstance().log(
-						"Remove file name = " + file.getName());
+//				JavelinErrorLogger.getInstance().log(
+//						"Remove file name = " + file.getName());
 			}
 
 			zStream.finish();
@@ -198,9 +198,9 @@ class JavelinLoggerThread extends Thread {
 
 		for (int index = files.length; index > maxFileCount; index--) {
 			files[files.length - index].delete();
-			JavelinErrorLogger.getInstance().log(
-					"Remove file name = "
-							+ files[files.length - index].getName());
+//			JavelinErrorLogger.getInstance().log(
+//					"Remove file name = "
+//							+ files[files.length - index].getName());
 		}
 	}
 
