@@ -165,7 +165,7 @@ public class TcpDataGetter implements TelegramClientManager
 		// 頭部データ対象を作って、データを設定する
 		Header objHeader = new Header();
 		objHeader.setByteTelegramKind(Common.BYTE_TELEGRAM_KIND_RESET);
-		objHeader.setByteRequestKind(Common.BYTE_REQUEST_KIND_NOTIFY);
+		objHeader.setByteRequestKind(Common.BYTE_REQUEST_KIND_REQUEST);
 
 		// 頭部を電文対象に設定する
 		Telegram objOutputTelegram = new Telegram();
