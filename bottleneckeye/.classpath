@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="lib/jaxb-api.jar"/>
 	<classpathentry kind="lib" path="lib/jaxb-impl.jar"/>
 	<classpathentry kind="lib" path="lib/jsr173_1.0_api.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

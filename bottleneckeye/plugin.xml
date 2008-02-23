@@ -22,6 +22,9 @@
       <library name="bottleneckeye_pro.jar">
          <export name="*"/>
       </library>
+      <library name="lib/commons-lang-2.3.jar">
+         <export name="*"/>
+      </library>
    </runtime>
   <extension
      point="org.eclipse.ui.editors">
