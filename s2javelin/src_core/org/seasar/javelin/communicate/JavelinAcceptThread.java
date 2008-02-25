@@ -1,6 +1,5 @@
 package org.seasar.javelin.communicate;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -14,7 +13,6 @@ import org.seasar.javelin.JavelinErrorLogger;
 import org.seasar.javelin.S2StatsJavelinRecorder;
 import org.seasar.javelin.bean.Invocation;
 import org.seasar.javelin.communicate.entity.Telegram;
-import org.seasar.javelin.util.IOUtil;
 
 public class JavelinAcceptThread implements Runnable, AlarmListener {
 	private static final int MAX_SOCKET = 30;
