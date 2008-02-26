@@ -17,15 +17,18 @@ import org.seasar.javelin.S2JavelinConfig;
  */
 public class JavelinConfigUtil
 {
-    private static final String JAVELIN_OPTION_KEY = S2JavelinConfig.JAVELIN_PREFIX + "property";
+    /** Javelinオプションキー */
+    private static final String      JAVELIN_OPTION_KEY = S2JavelinConfig.JAVELIN_PREFIX
+                                                                + "property";
 
     /** 設定ファイル名 */
-    private String fileName_;
+    private String                   fileName_;
 
-    private Properties properties_;
+    /** Javelin プロパティ */
+    private Properties               properties_;
 
-    private static JavelinConfigUtil configUtil_ = new JavelinConfigUtil();
-
+    /** Javelinの設定オブジェクト */
+    private static JavelinConfigUtil configUtil_        = new JavelinConfigUtil();
 
     /**
      * Singleton
@@ -34,7 +37,6 @@ public class JavelinConfigUtil
     {
         this.fileName_ = System.getProperty(JAVELIN_OPTION_KEY);
     }
-
 
     /**
      * JavelinConfigUtilのインスタンスを返す。
@@ -45,7 +47,6 @@ public class JavelinConfigUtil
     {
         return configUtil_;
     }
-
 
     /**
      * 設定ファイルを読み込む。
@@ -72,8 +73,7 @@ public class JavelinConfigUtil
             }
             catch (IOException e)
             {
-                System.err.println("オプションファイルの読み込みに失敗しました。"
-                                   + "(" + this.fileName_ + ")");
+                System.err.println("オプションファイルの読み込みに失敗しました。" + "(" + this.fileName_ + ")");
             }
         }
         else
@@ -82,9 +82,9 @@ public class JavelinConfigUtil
         }
     }
 
-
     /**
      * 指定されたキーに対応する文字列を返す。
+     * 初期設定が行われていないときには、デフォルト値を返す。
      *
      * @param key キー
      * @param defaultValue デフォルト値
@@ -107,14 +107,14 @@ public class JavelinConfigUtil
         return value;
     }
 
-
     /**
      * 指定されたキーに対応する数値を返す。
+     * 初期設定が行われていないとき、又は不正な値が入力されているとき、
+     * デフォルト値を返す。
      *
      * @param key キー
      * @param defaultValue デフォルト値
      * @return 値
-     * @throws NumberFormatException 値の文字列が数値を表していない
      */
     public int getInteger(String key, int defaultValue)
     {
@@ -127,20 +127,21 @@ public class JavelinConfigUtil
             }
             catch (NumberFormatException nfe)
             {
-                throw new NumberFormatException(value);
+                System.out.println(key + "に不正な値が入力されました。デフォルト値(" + defaultValue + ")を使用します。");
+                setInteger(key, defaultValue);
             }
         }
         return defaultValue;
     }
 
-
     /**
      * 指定されたキーに対応する数値を返す。
+     * 初期設定が行われていないとき、又は不正な値が入力されているとき、
+     * デフォルト値を返す。
      *
      * @param key キー
      * @param defaultValue デフォルト値
      * @return 値
-     * @throws NumberFormatException 値の文字列が数値を表していない
      */
     public long getLong(String key, long defaultValue)
     {
@@ -153,20 +154,21 @@ public class JavelinConfigUtil
             }
             catch (NumberFormatException nfe)
             {
-                throw new NumberFormatException(value);
+                System.out.println(key + "に不正な値が入力されました。デフォルト値(" + defaultValue + ")を使用します。");
+                setLong(key, defaultValue);
             }
         }
         return defaultValue;
     }
 
-
     /**
      * 指定されたキーに対応するBoolean値を返す。
+     * 初期設定が行われていないとき、又は不正な値が入力されているとき、
+     * デフォルト値を返す。
      *
      * @param key キー
      * @param defaultValue デフォルト値
      * @return 値
-     * @throws NumberFormatException 値の文字列がtrueでもfalseでもない場合
      */
     public boolean getBoolean(String key, boolean defaultValue)
     {
@@ -181,11 +183,11 @@ public class JavelinConfigUtil
             {
                 return false;
             }
-            throw new NumberFormatException(value);
+            System.out.println(key + "に不正な値が入力されました。デフォルト値(" + defaultValue + ")を使用します。");
+            setBoolean(key, defaultValue);
         }
         return defaultValue;
     }
-
 
     /**
      * 指定されたキーに文字列をセットします。
@@ -205,7 +207,6 @@ public class JavelinConfigUtil
         this.properties_.setProperty(key, value);
     }
 
-
     /**
      * 指定されたキーに数値をセットします。
      *
@@ -217,7 +218,6 @@ public class JavelinConfigUtil
         String valueString = String.valueOf(value);
         setString(key, valueString);
     }
-
 
     /**
      * 指定されたキーに数値をセットします。
@@ -231,7 +231,6 @@ public class JavelinConfigUtil
         setString(key, valueString);
     }
 
-
     /**
      * 指定されたキーにboolean値をセットします。
      *
@@ -244,12 +243,11 @@ public class JavelinConfigUtil
         setString(key, valueString);
     }
 
-
     /**
      * 指定されたキーが設定に存在するかどうかを調べます。
      *
      * @param key キー
-     * @return 存在するならtrue
+     * @return true:存在する、false：存在しない。
      */
     public boolean isKeyExist(String key)
     {
@@ -262,7 +260,6 @@ public class JavelinConfigUtil
         }
         return this.properties_.containsKey(key);
     }
-
 
     /**
      * Configファイル名を返す。
