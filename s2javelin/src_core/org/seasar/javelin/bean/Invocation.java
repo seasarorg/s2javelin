@@ -328,11 +328,17 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
     public synchronized void reset()
     {
         count_ = 0;
+        
         minimum_ = INITIAL;
         maximum_ = INITIAL;
         intervalSum_ = 0;
-
         intervalList_.clear();
+
+        cpuMinimum_ = INITIAL;
+        cpuMaximum_ = INITIAL;
+        cpuIntervalSum_ = 0;
+        cpuIntervalList_.clear();
+        
         throwableList_.clear();
     }
 
