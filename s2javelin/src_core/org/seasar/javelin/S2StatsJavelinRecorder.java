@@ -495,6 +495,10 @@ public class S2StatsJavelinRecorder
             long cpuTime = 
                 node.getEndVmStatus().getCpuTime() - 
                 node.getStartVmStatus().getCpuTime();
+            if (cpuTime < 0)
+            {
+                cpuTime = 0;
+            }
             node.setCpuTime(cpuTime);
 
             if (cause_ != cause)
