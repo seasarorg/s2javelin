@@ -593,6 +593,27 @@ public final class TelegramUtil extends Common {
 					"minimumInterval", Common.BYTE_ITEMMODE_KIND_8BYTE_INT,
 					objItemValueArr);
 
+            // CPUïΩãœéûä‘
+            objItemValueArr = new Long[1];
+            objItemValueArr[0] = Long.valueOf(invocation.getCpuAverage());
+            bodies[bodyIndex + 1] = createResponseBody(objName,
+                    "averageCpuInterval", Common.BYTE_ITEMMODE_KIND_8BYTE_INT,
+                    objItemValueArr);
+
+            // CPUç≈ëÂèàóùéûä‘
+            objItemValueArr = new Long[1];
+            objItemValueArr[0] = Long.valueOf(invocation.getCpuMaximum());
+            bodies[bodyIndex + 2] = createResponseBody(objName,
+                    "maximumCpuInterval", Common.BYTE_ITEMMODE_KIND_8BYTE_INT,
+                    objItemValueArr);
+
+            // CPUç≈è¨èàóùéûä‘
+            objItemValueArr = new Long[1];
+            objItemValueArr[0] = Long.valueOf(invocation.getCpuMinimum());
+            bodies[bodyIndex + 3] = createResponseBody(objName,
+                    "minimumCpuInterval", Common.BYTE_ITEMMODE_KIND_8BYTE_INT,
+                    objItemValueArr);
+            
 			// ó·äOî≠ê∂âÒêî
 			objItemValueArr = new Long[1];
 			objItemValueArr[0] = Long.valueOf(invocation.getThrowableCount());
