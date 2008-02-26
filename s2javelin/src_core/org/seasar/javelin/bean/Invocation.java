@@ -30,18 +30,30 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
 
     private long              maximum_           = INITIAL;
 
-    private LinkedList<Long>        intervalList_      = new LinkedList<Long>();
+    /** CPU消費時間の最小値。 */
+    private long cpuMinimum_ = INITIAL;
 
-    private LinkedList<Throwable>        throwableList_     = new LinkedList<Throwable>();
+    /** CPU消費時間の最大値。 */
+    private long cpuMaximum_ = INITIAL;
 
-    private Set<Invocation>               callerSet_         = new HashSet<Invocation>();
+    private LinkedList<Long> intervalList_ = new LinkedList<Long>();
 
-    private boolean           isFieldAccess_     = false;
+    private LinkedList<Long> cpuIntervalList_ = new LinkedList<Long>();
 
-    private boolean           isReadFieldAccess_ = false;
+    private LinkedList<Throwable> throwableList_ = new LinkedList<Throwable>();
 
+    private Set<Invocation> callerSet_ = new HashSet<Invocation>();
+
+    private boolean isFieldAccess_     = false;
+
+    private boolean isReadFieldAccess_ = false;
+
+    /** 呼び出し時間の合計値（平均値算出用) */
     private long intervalSum_ = 0;
 
+    /** CPU呼び出し時間の合計値（平均値算出用) */
+    private long cpuIntervalSum_ = 0;
+    
 	private long accumulatedTime_;
 
 	/**
@@ -67,8 +79,15 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
 
 	private String processName_;
 
-    public Invocation(String processName, ObjectName objName, ObjectName classObjName, String className,
-            String methodName, int intervalMax, int throwableMax, long recordThreshold,
+    public Invocation(
+            String processName, 
+            ObjectName objName, 
+            ObjectName classObjName, 
+            String className,
+            String methodName, 
+            int intervalMax, 
+            int throwableMax, 
+            long recordThreshold,
             long alarmThreshold)
     {
     	processName_ = processName;
@@ -127,6 +146,26 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
         return intervalSum_ / count_;
     }
 
+    public long getCpuMinimum()
+    {
+        return cpuMinimum_;
+    }
+
+    public long getCpuMaximum()
+    {
+        return cpuMaximum_;
+    }
+
+    public synchronized long getCpuAverage()
+    {
+        if (count_ == 0)
+        {
+            return 0;
+        }
+
+        return cpuIntervalSum_ / count_;
+    }
+    
     public List<Long> getIntervalList()
     {
         return intervalList_;
@@ -162,21 +201,46 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
         return invocations;
     }
     
-    public synchronized void addInterval(long interval)
+    /**
+     * メソッドの消費時間を追加する。
+     * 
+     * @param interval メソッドの消費時間。
+     * @param cpuInterval メソッドのCPU消費時間。
+     */
+    public synchronized void addInterval(long interval, long cpuInterval)
     {
         count_++;
 
         intervalSum_ += interval;
-        intervalList_.add(Long.valueOf(interval));
+        intervalList_.add(interval);
         while (intervalList_.size() > intervalMax_)
         {
             intervalList_.removeFirst();
         }
 
+        cpuIntervalSum_ += cpuInterval;
+        cpuIntervalList_.add(cpuInterval);
+        while (cpuIntervalList_.size() > intervalMax_)
+        {
+            cpuIntervalList_.removeFirst();
+        }
+
         if (interval < minimum_ || minimum_ == INITIAL)
+        {
             minimum_ = interval;
+        }
         if (interval > maximum_ || maximum_ == INITIAL)
+        {
             maximum_ = interval;
+        }
+        if (cpuInterval < cpuMinimum_ || cpuMinimum_ == INITIAL)
+        {
+            cpuMinimum_ = cpuInterval;
+        }
+        if (cpuInterval > cpuMaximum_ || cpuMaximum_ == INITIAL)
+        {
+            cpuMaximum_ = cpuInterval;
+        }
     }
 
     public synchronized void addCaller(Invocation caller)

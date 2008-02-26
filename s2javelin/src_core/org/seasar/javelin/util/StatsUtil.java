@@ -7,17 +7,29 @@ import org.seasar.javelin.S2JavelinConfig;
 public class StatsUtil
 {
 
-	public static long getElapsedTime(CallTreeNode node)
-	{
-	    long elapsedTime = node.getAccumulatedTime();
-	    for (int index = 0; index < node.getChildren().size(); index++)
-	    {
-	    	CallTreeNode child = (CallTreeNode)  node.getChildren().get(index);
-	        elapsedTime = elapsedTime - child.getAccumulatedTime();
-	    }
-	
-	    return elapsedTime;
-	}
+    public static long getElapsedTime(CallTreeNode node)
+    {
+        long elapsedTime = node.getAccumulatedTime();
+        for (int index = 0; index < node.getChildren().size(); index++)
+        {
+            CallTreeNode child = (CallTreeNode) node.getChildren().get(index);
+            elapsedTime = elapsedTime - child.getAccumulatedTime();
+        }
+    
+        return elapsedTime;
+    }
+
+    public static long getElapsedCpuTime(CallTreeNode node)
+    {
+        long elapsedTime = node.getCpuTime();
+        for (int index = 0; index < node.getChildren().size(); index++)
+        {
+            CallTreeNode child = (CallTreeNode) node.getChildren().get(index);
+            elapsedTime = elapsedTime - child.getCpuTime();
+        }
+    
+        return elapsedTime;
+    }
 
 	/**
 	 * スレッドを識別するための文字列を出力する。 

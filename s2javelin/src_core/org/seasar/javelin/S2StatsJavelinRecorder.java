@@ -481,6 +481,11 @@ public class S2StatsJavelinRecorder
             VMStatus vmStatus = vmStatusHelper__.createVMStatus();
             node.setEndTime(System.currentTimeMillis());
             node.setEndVmStatus(vmStatus);
+            
+            long cpuTime = 
+                node.getEndVmStatus().getCpuTime() - 
+                node.getStartVmStatus().getCpuTime();
+            node.setCpuTime(cpuTime);
 
             if (cause_ != cause)
             {
@@ -649,7 +654,9 @@ public class S2StatsJavelinRecorder
         Invocation invocation = node.getInvocation();
         if (invocation != null)
         {
-            invocation.addInterval(StatsUtil.getElapsedTime(node));
+            long interval = StatsUtil.getElapsedTime(node);
+            long cpuInterval = StatsUtil.getElapsedCpuTime(node);
+            invocation.addInterval(interval, cpuInterval);
             if (node.getParent() != null)
             {
                 invocation.addCaller(node.getParent().getInvocation());

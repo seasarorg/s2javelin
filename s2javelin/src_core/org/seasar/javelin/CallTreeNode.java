@@ -19,6 +19,8 @@ public class CallTreeNode {
 	private long endTime_;
 
 	private long accumulatedTime_;
+	
+	private long cpuTime_;
 
 	private VMStatus startVmStatus_;
 
@@ -72,6 +74,16 @@ public class CallTreeNode {
 		return accumulatedTime_;
 	}
 
+	public void setCpuTime(long cpuTime)
+	{
+	    cpuTime_ = cpuTime;
+	}
+
+	public long getCpuTime()
+	{
+	    return cpuTime_;
+	}
+	
 	public StackTraceElement[] getStacktrace() {
 		return stacktrace_;
 	}

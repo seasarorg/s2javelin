@@ -12,9 +12,12 @@ public interface InvocationMBean {
 	String getMethodName();
 	
 	long getCount();
-	long getMinimum();
-	long getMaximum();
-	long getAverage();
+    long getMinimum();
+    long getMaximum();
+    long getAverage();
+    long getCpuMinimum();
+    long getCpuMaximum();
+    long getCpuAverage();
 	long getThrowableCount();
 	List<Throwable> getThrowableList();
 	ObjectName[] getAllCallerObjectName();
