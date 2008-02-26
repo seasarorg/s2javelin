@@ -43,6 +43,15 @@ public class InvocationModel implements Comparable, NotificationListener
     /** メソッドの平均処理時間（単位:ミリ秒）。 */
     private long                average_;
 
+    /** メソッドの最短CPU処理時間（単位:ミリ秒）。 */
+    private long                cpuMinimum_;
+
+    /** メソッドの最長CPU処理時間（単位:ミリ秒）。 */
+    private long                cpuMaximum_;
+
+    /** メソッドの平均CPU処理時間（単位:ミリ秒）。 */
+    private long                cpuAverage_;
+
     /** メソッド内での例外発生回数。 */
     private long                throwableCount_;
 
@@ -116,6 +125,36 @@ public class InvocationModel implements Comparable, NotificationListener
     public void setMinimum(long minimum)
     {
         minimum_ = minimum;
+    }
+
+    public long getCpuMinimum()
+    {
+        return this.cpuMinimum_;
+    }
+
+    public void setCpuMinimum(long cpuMinimum)
+    {
+        this.cpuMinimum_ = cpuMinimum;
+    }
+
+    public long getCpuMaximum()
+    {
+        return this.cpuMaximum_;
+    }
+
+    public void setCpuMaximum(long cpuMaximum)
+    {
+        this.cpuMaximum_ = cpuMaximum;
+    }
+
+    public long getCpuAverage()
+    {
+        return this.cpuAverage_;
+    }
+
+    public void setCpuAverage(long cpuAverage)
+    {
+        this.cpuAverage_ = cpuAverage;
     }
 
     public long getThrowableCount()
@@ -286,6 +325,15 @@ public class InvocationModel implements Comparable, NotificationListener
             // 最小処理時間
             if (strItemName.equals("minimumInterval"))
                 invocation.setMinimum((Long)objTempArr[0]);
+            // 平均時間
+            if (strItemName.equals("averageCpuInterval"))
+                invocation.setCpuAverage((Long)objTempArr[0]);
+            // 最大処理時間
+            if (strItemName.equals("maximumCpuInterval"))
+                invocation.setCpuMaximum((Long)objTempArr[0]);
+            // 最小処理時間
+            if (strItemName.equals("minimumCpuInterval"))
+                invocation.setCpuMinimum((Long)objTempArr[0]);
             // 例外発生回数
             if (strItemName.equals("throwableCount"))
                 invocation.setThrowableCount((Long)objTempArr[0]);
