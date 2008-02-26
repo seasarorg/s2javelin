@@ -2,7 +2,6 @@ package org.seasar.javelin;
 
 import java.io.IOException;
 import java.io.PrintStream;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -12,36 +11,44 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * S2JavelinFilter
+ * @author eriguchi
+ *
+ */
 public class S2JavelinFilter implements Filter
 {
 
-    private static final String PNAME_DOMAIN           = "domain";
+    /** 引数の数. */
+    private static final int    ARGS_NUM                = 6;
 
-    private static final String PNAME_INTERVAL_MAX     = "intervalMax";
+    private static final String PNAME_DOMAIN            = "domain";
 
-    private static final String PNAME_THROWABLE_MAX    = "throwableMax";
+    private static final String PNAME_INTERVAL_MAX      = "intervalMax";
 
-    private static final String PNAME_RECORD_THRESHOLD = "recordThreshold";
+    private static final String PNAME_THROWABLE_MAX     = "throwableMax";
 
-    private static final String PNAME_ALARM_THRESHOLD  = "alarmThreshold";
+    private static final String PNAME_RECORD_THRESHOLD  = "recordThreshold";
 
-    private static final String PNAME_JAVELIN_DIR      = "javelinFileDir";
+    private static final String PNAME_ALARM_THRESHOLD   = "alarmThreshold";
 
-    private static final String PNAME_IS_LOG_ARGS = "log.args";
+    private static final String PNAME_JAVELIN_DIR       = "javelinFileDir";
 
-    private static final String PNAME_IS_LOG_RETURN = "log.return";
+    private static final String PNAME_IS_LOG_ARGS       = "log.args";
+
+    private static final String PNAME_IS_LOG_RETURN     = "log.return";
 
     private static final String PNAME_IS_LOG_STACKTRACE = "log.stacktrace";
-    
-    private static final String PNAME_ROOT_CALLER_NAME = "rootCallerName";
-    
-    private static final String PNAME_END_CALLEE_NAME = "endCalleeName";
-    
-    private static final String PNAME_THREAD_MODEL = "threadModel";
-    
-    private static final String PNAME_HTTP_PORT = "httpPort";
-    
-    private S2JavelinConfig config_;
+
+    private static final String PNAME_ROOT_CALLER_NAME  = "rootCallerName";
+
+    private static final String PNAME_END_CALLEE_NAME   = "endCalleeName";
+
+    private static final String PNAME_THREAD_MODEL      = "threadModel";
+
+    private static final String PNAME_HTTP_PORT         = "httpPort";
+
+    private S2JavelinConfig     config_;
 
     /**
      * 初期化。
@@ -51,14 +58,13 @@ public class S2JavelinFilter implements Filter
      */
     public void init(FilterConfig config)
     {
-    	this.config_ = new S2JavelinConfig();
+        this.config_ = new S2JavelinConfig();
 
         String domain = getInitParameter(config, PNAME_DOMAIN);
-    	if (this.config_.isSetDomain() == false
-                && domain != null && domain.trim().length() > 0)
-    	{
+        if (this.config_.isSetDomain() == false && domain != null && domain.trim().length() > 0)
+        {
             this.config_.setDomain(domain);
-    	}
+        }
 
         // web.xmlよりも設定ファイル（*.conf）の方を優先する
         if (this.config_.isSetAlarmThreshold() == false
@@ -84,11 +90,11 @@ public class S2JavelinFilter implements Filter
         if (this.config_.isSetJavelinFileDir() == false
                 && isParameterStringValue(config, PNAME_JAVELIN_DIR))
         {
-        	String javelinFileDir = getInitParameter(config, PNAME_JAVELIN_DIR);
-        	if (javelinFileDir.trim().length() > 0)
-        	{
+            String javelinFileDir = getInitParameter(config, PNAME_JAVELIN_DIR);
+            if (javelinFileDir.trim().length() > 0)
+            {
                 this.config_.setJavelinFileDir(javelinFileDir);
-        	}
+            }
         }
         if (this.config_.isSetLogArgs() == false
                 && isParameterBooleanValue(config, PNAME_IS_LOG_ARGS))
@@ -129,7 +135,6 @@ public class S2JavelinFilter implements Filter
         printConfigValue();
     }
 
-
     /**
      * 指定されたオプションの値が文字列かどうかを調べる。
      *
@@ -142,7 +147,6 @@ public class S2JavelinFilter implements Filter
         String configValue = config.getInitParameter(name);
         return (configValue != null);
     }
-
 
     /**
      * 指定されたオプションの値が数値かどうかを調べる。
@@ -169,7 +173,6 @@ public class S2JavelinFilter implements Filter
         return true;
     }
 
-
     /**
      * 指定されたオプションの値がブール値かどうかを調べる。
      *
@@ -187,18 +190,17 @@ public class S2JavelinFilter implements Filter
         return false;
     }
 
-
     private int getInitParameterInteger(FilterConfig config, String pname)
-	{
-		String configValue = config.getInitParameter(pname);
-		return Integer.parseInt(configValue);
-	}
+    {
+        String configValue = config.getInitParameter(pname);
+        return Integer.parseInt(configValue);
+    }
 
     private boolean getInitParameterBoolean(FilterConfig config, String pname)
-	{
-		String configValue = config.getInitParameter(pname);
-		return Boolean.valueOf(configValue);
-	}
+    {
+        String configValue = config.getInitParameter(pname);
+        return Boolean.valueOf(configValue);
+    }
 
     /**
      * サーブレットフィルタの設定から、指定されたパラメータの値を取得する。
@@ -206,42 +208,46 @@ public class S2JavelinFilter implements Filter
      * @param pname 取得したいパラメータの名称。
      * @return パラメータの値。
      */
-	private String getInitParameter(FilterConfig config, String pname)
-	{
-		String value = config.getInitParameter(pname);
-		return value;
-	}
+    private String getInitParameter(FilterConfig config, String pname)
+    {
+        String value = config.getInitParameter(pname);
+        return value;
+    }
 
-	/**
-	 * フィルタリング処理。
-	 * サーブレットの処理時間を計測し、各種処理を行う。
-	 */
-	public void doFilter(ServletRequest request, ServletResponse response,
-            FilterChain chain)
+    /**
+     * フィルタリング処理。
+     * サーブレットの処理時間を計測し、各種処理を行う。
+     * @param request リクエスト
+     * @param response レスポンス
+     * @param chain フィルターチェイン
+     * @throws IOException 入出力例外
+     * @throws ServletException サーブレット例外
+     */
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
         throws IOException,
             ServletException
     {
-        HttpServletRequest  httpRequest  = (HttpServletRequest)request;
+        HttpServletRequest httpRequest = (HttpServletRequest)request;
         HttpServletResponse httpResponse = (HttpServletResponse)response;
 
         try
         {
-        	// ThreadLocalから取得したCallTreeに対して呼び出し構造を保存する。
+            // ThreadLocalから取得したCallTreeに対して呼び出し構造を保存する。
             CallTree callTree = S2JavelinCommonPool.getCallTree();
-            if(callTree != null)
+            if (callTree != null)
             {
                 S2StatsJavelinRecorder.initCallTree(callTree);
             }
 
             /**
-        	 * ThreadLocalからクラス名、メソッド名を呼び出す。
-        	 * クラス名、メソッド名が存在しない場合、
-        	 * Http Requestのコンテキストパス、サーブレットパスを呼び出す。
-        	 */
+             * ThreadLocalからクラス名、メソッド名を呼び出す。
+             * クラス名、メソッド名が存在しない場合、
+             * Http Requestのコンテキストパス、サーブレットパスを呼び出す。
+             */
             String contextPath = S2JavelinCommonPool.getClassName();
             String servletPath = S2JavelinCommonPool.getMethodName();
             if (contextPath == null || servletPath == null)
-            {	
+            {
                 servletPath = httpRequest.getPathInfo();
                 if (servletPath == null)
                 {
@@ -252,27 +258,27 @@ public class S2JavelinFilter implements Filter
                 {
                     contextPath = httpRequest.getContextPath() + httpRequest.getServletPath();
                 }
-            
+
                 contextPath = httpRequest.getContextPath();
                 servletPath = httpRequest.getServletPath();
-        	}
+            }
 
             Object[] args = null;
             if (this.config_.isLogArgs())
             {
-            	args = new Object[6];
-            	args[0] = httpRequest.getRemoteHost();
-            	args[1] = httpRequest.getRemotePort();
-            	args[2] = contextPath;
-            	args[3] = servletPath;
-            	args[4] = httpRequest.getMethod();
-            	args[5] = httpRequest.getParameterMap();
+                args = new Object[ARGS_NUM];
+                args[0] = httpRequest.getRemoteHost();
+                args[1] = httpRequest.getRemotePort();
+                args[2] = contextPath;
+                args[3] = servletPath;
+                args[4] = httpRequest.getMethod();
+                args[5] = httpRequest.getParameterMap();
             }
-            
+
             StackTraceElement[] stacktrace = null;
             if (this.config_.isLogStacktrace())
             {
-            	stacktrace = Thread.currentThread().getStackTrace();
+                stacktrace = Thread.currentThread().getStackTrace();
             }
 
             S2StatsJavelinRecorder.preProcess(contextPath, servletPath, args, stacktrace, this.config_);
@@ -280,9 +286,9 @@ public class S2JavelinFilter implements Filter
         }
         catch (Throwable th)
         {
-        	th.printStackTrace();
+            th.printStackTrace();
         }
-        
+
         try
         {
             //==================================================
@@ -292,30 +298,29 @@ public class S2JavelinFilter implements Filter
         }
         catch (IOException ex)
         {
-            S2StatsJavelinRecorder.postProcessField(config_);
+            S2StatsJavelinRecorder.postProcessField(this.config_);
             S2StatsJavelinRecorder.postProcess(ex, this.config_);
             throw ex;
         }
         catch (ServletException ex)
         {
-            S2StatsJavelinRecorder.postProcessField(config_);
+            S2StatsJavelinRecorder.postProcessField(this.config_);
             S2StatsJavelinRecorder.postProcess(ex, this.config_);
             throw ex;
         }
         catch (RuntimeException ex)
         {
-            S2StatsJavelinRecorder.postProcessField(config_);
+            S2StatsJavelinRecorder.postProcessField(this.config_);
             S2StatsJavelinRecorder.postProcess(ex, this.config_);
             throw ex;
         }
         catch (Error error)
         {
-            S2StatsJavelinRecorder.postProcessField(config_);
+            S2StatsJavelinRecorder.postProcessField(this.config_);
             S2StatsJavelinRecorder.postProcess(error, this.config_);
             throw error;
         }
-        
-        
+
         try
         {
             Object returnValue = null;
@@ -323,35 +328,36 @@ public class S2JavelinFilter implements Filter
             {
                 returnValue = createReturnValue(httpResponse);
             }
-            
 
-            S2StatsJavelinRecorder.postProcessField(config_);
+            S2StatsJavelinRecorder.postProcessField(this.config_);
             S2StatsJavelinRecorder.postProcess(returnValue, this.config_);
         }
-        catch(Throwable th)
+        catch (Throwable th)
         {
             th.printStackTrace();
         }
     }
 
-	/**
-	 * HttpServletResponseから、戻り値を生成する。
-	 * 
-	 * @param response サーブレットレスポンス。
-	 * @return 戻り値。
-	 */
+    /**
+     * HttpServletResponseから、戻り値を生成する。
+     * 
+     * @param response サーブレットレスポンス。
+     * @return 戻り値。
+     */
     private Object createReturnValue(HttpServletResponse response)
-	{
-    	String returnValue;
-    	returnValue = response.getContentType();
-		return returnValue;
-	}
-
-	public void destroy( )
     {
-    	// 何もしない
+        String returnValue;
+        returnValue = response.getContentType();
+        return returnValue;
     }
 
+    /**
+     * {non-javadoc}
+     */
+    public void destroy()
+    {
+        // 何もしない
+    }
 
     /**
      * 設定値を標準出力に出力する。
@@ -384,6 +390,12 @@ public class S2JavelinFilter implements Filter
         out.println("\tjavelin.stringLimitLength       : " + this.config_.getStringLimitLength());
         out.println("\tjavelin.error.log               : " + this.config_.getErrorLog());
         out.println("\tjavelin.record.jmx              : " + this.config_.isRecordJMX());
+        out.println("\tjavelin.log.jvn.max             : " + this.config_.getLogJvnMax());
+        out.println("\tjavelin.log.zip.max             : " + this.config_.getLogZipMax());
+        out.println("\tjavelin.record.jmx              : " + this.config_.isRecordJMX());
+        out.println("\tjavelin.recordStrategy          : " + this.config_.getRecordStrategy());
+        out.println("\tjavelin.alarmListeners          : " + this.config_.getAlarmListeners());
+        out.println("\tjavelin.telegramListeners       : " + this.config_.getTelegramListeners());
         out.println("<<<<");
     }
 
