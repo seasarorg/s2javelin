@@ -30,6 +30,14 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 	private JavelinAcceptThread() {
 		S2StatsJavelinRecorder.addListener(this);
 	}
+	
+	/**
+	 * 初期化メソッド
+	 */
+	public void init()
+	{
+	    // 何もしない。
+	}
 
 	public static JavelinAcceptThread getInstance() {
 		return instance_;

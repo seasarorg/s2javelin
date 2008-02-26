@@ -21,4 +21,7 @@ public interface AlarmListener
      * @return trueならばルートノードのみを対象とする。falseならば全てのAlarmを対象とする。
      */
     boolean isSendingRootOnly();
+    
+    /** 初期化メソッド */
+    void init();
 }
