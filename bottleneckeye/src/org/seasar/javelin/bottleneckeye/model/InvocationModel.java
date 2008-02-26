@@ -325,15 +325,15 @@ public class InvocationModel implements Comparable, NotificationListener
             // Å¬ˆ—ŠÔ
             if (strItemName.equals("minimumInterval"))
                 invocation.setMinimum((Long)objTempArr[0]);
-            // •½‹ÏŠÔ
+            // •½‹ÏCPUŠÔ
             if (strItemName.equals("averageCpuInterval"))
-                invocation.setCpuAverage((Long)objTempArr[0]);
-            // Å‘åˆ—ŠÔ
+                invocation.setCpuAverage((Long)objTempArr[0]/1000000);
+            // Å‘åCPUŠÔ
             if (strItemName.equals("maximumCpuInterval"))
-                invocation.setCpuMaximum((Long)objTempArr[0]);
-            // Å¬ˆ—ŠÔ
+                invocation.setCpuMaximum((Long)objTempArr[0]/1000000);
+            // Å¬CPUŠÔ
             if (strItemName.equals("minimumCpuInterval"))
-                invocation.setCpuMinimum((Long)objTempArr[0]);
+                invocation.setCpuMinimum((Long)objTempArr[0]/1000000);
             // —áŠO”­¶‰ñ”
             if (strItemName.equals("throwableCount"))
                 invocation.setThrowableCount((Long)objTempArr[0]);

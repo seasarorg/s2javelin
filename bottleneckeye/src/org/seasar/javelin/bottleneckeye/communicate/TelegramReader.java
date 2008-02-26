@@ -112,7 +112,15 @@ public class TelegramReader implements Runnable
         int readCount = 0;
         while (readCount < Header.HEADER_LENGTH)
         {
-            readCount += channel_.read(headerBuffer);
+            int count = channel_.read(headerBuffer);
+            if (count < 0)
+            {
+                throw new IOException();
+            }
+            else
+            {
+                readCount += count;
+            }
         }
 
         headerBuffer.rewind();
