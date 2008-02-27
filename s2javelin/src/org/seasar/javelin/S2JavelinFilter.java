@@ -282,7 +282,7 @@ public class S2JavelinFilter implements Filter
             }
 
             S2StatsJavelinRecorder.preProcess(contextPath, servletPath, args, stacktrace, this.config_);
-            S2StatsJavelinRecorder.preProcessField(contextPath, servletPath, config_);
+//            S2StatsJavelinRecorder.preProcessField(contextPath, servletPath, config_);
         }
         catch (Throwable th)
         {
@@ -298,25 +298,25 @@ public class S2JavelinFilter implements Filter
         }
         catch (IOException ex)
         {
-            S2StatsJavelinRecorder.postProcessField(this.config_);
+//            S2StatsJavelinRecorder.postProcessField(this.config_);
             S2StatsJavelinRecorder.postProcess(ex, this.config_);
             throw ex;
         }
         catch (ServletException ex)
         {
-            S2StatsJavelinRecorder.postProcessField(this.config_);
+//            S2StatsJavelinRecorder.postProcessField(this.config_);
             S2StatsJavelinRecorder.postProcess(ex, this.config_);
             throw ex;
         }
         catch (RuntimeException ex)
         {
-            S2StatsJavelinRecorder.postProcessField(this.config_);
+//            S2StatsJavelinRecorder.postProcessField(this.config_);
             S2StatsJavelinRecorder.postProcess(ex, this.config_);
             throw ex;
         }
         catch (Error error)
         {
-            S2StatsJavelinRecorder.postProcessField(this.config_);
+//            S2StatsJavelinRecorder.postProcessField(this.config_);
             S2StatsJavelinRecorder.postProcess(error, this.config_);
             throw error;
         }
@@ -329,7 +329,7 @@ public class S2JavelinFilter implements Filter
                 returnValue = createReturnValue(httpResponse);
             }
 
-            S2StatsJavelinRecorder.postProcessField(this.config_);
+//            S2StatsJavelinRecorder.postProcessField(this.config_);
             S2StatsJavelinRecorder.postProcess(returnValue, this.config_);
         }
         catch (Throwable th)

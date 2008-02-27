@@ -393,9 +393,9 @@ public class S2StatsJavelinRecorder
             node.setEndTime(System.currentTimeMillis());
             node.setEndVmStatus(vmStatus);
 
-            long cpuTime = 
-                node.getEndVmStatus().getCpuTime() - 
-                node.getStartVmStatus().getCpuTime();
+            long endCpuTime   = node.getEndVmStatus().getCpuTime();
+            long startCpuTime = node.getStartVmStatus().getCpuTime();
+            long cpuTime      = endCpuTime - startCpuTime;
             if (cpuTime < 0)
             {
                 cpuTime = 0;
@@ -492,9 +492,9 @@ public class S2StatsJavelinRecorder
             node.setEndTime(System.currentTimeMillis());
             node.setEndVmStatus(vmStatus);
             
-            long cpuTime = 
-                node.getEndVmStatus().getCpuTime() - 
-                node.getStartVmStatus().getCpuTime();
+            long endCpuTime = node.getEndVmStatus().getCpuTime();
+            long startCpuTime = node.getStartVmStatus().getCpuTime();
+            long cpuTime = endCpuTime - startCpuTime;
             if (cpuTime < 0)
             {
                 cpuTime = 0;
