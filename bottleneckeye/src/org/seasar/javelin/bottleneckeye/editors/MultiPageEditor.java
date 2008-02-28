@@ -93,6 +93,27 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
     /** ラインスタイル */
     private String                          lineStyle_                    = LINE_STYLE_NORMAL;
 
+    /** ホストのデフォルト値 */
+    private static final String             DEFAULT_HOST                  = "localhost";
+
+    /** ポート番号のデフォルト値 */
+    private static final int                DEFAULT_PORT                  = 0;
+
+    /** ドメインのデフォルト値 */
+    private static final String             DEFAULT_DOMAIN                = "default";
+
+    /** Warning閾値のデフォルト値 */
+    private static final int                DEFAULT_WARNING               = 0;
+
+    /** Alarm閾値のデフォルト値 */
+    private static final int                DEFAULT_ALARM                 = 0;
+
+    /** モードのデフォルト値 */
+    private static final String             DEFAULT_MODE                  = "TCP";
+
+    /** スタイルのデフォルト値 */
+    private static final String             DEFAULT_STYLE                 = "NORMAL";
+
     /**
      * Creates a multi-page editor example.
      */
@@ -159,7 +180,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         try
         {
             InputStream tabStream = MultiPageEditor.class.getResourceAsStream(TAB_SETTINGS_FILE);
-            if(tabStream == null)
+            if (tabStream == null)
             {
                 return;
             }
@@ -324,6 +345,16 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         IFileEditorInput input = (IFileEditorInput)editorInput;
 
         BufferedReader bufferedReader = null;
+
+        // 初期値を設定する。
+        this.host_ = DEFAULT_HOST;
+        this.port_ = DEFAULT_PORT;
+        this.domain_ = DEFAULT_DOMAIN;
+        this.warningThreshold_ = DEFAULT_WARNING;
+        this.alarmThreshold_ = DEFAULT_ALARM;
+        this.mode_ = DEFAULT_MODE;
+        this.lineStyle_ = DEFAULT_STYLE;
+
         try
         {
             InputStream stream = input.getFile().getContents();
@@ -332,31 +363,22 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 
             setPartName(input.getName());
 
-            this.host_ = bufferedReader.readLine();
-            this.port_ = setInteger(bufferedReader.readLine(), 0);
-            this.domain_ = bufferedReader.readLine();
-            this.warningThreshold_ = setInteger(bufferedReader.readLine(), 0);
-            this.alarmThreshold_ = setInteger(bufferedReader.readLine(), 0);
-            this.mode_ = bufferedReader.readLine();
-            this.lineStyle_ = bufferedReader.readLine();
+            this.host_ = setString("Host", bufferedReader.readLine(), DEFAULT_HOST);
+            this.port_ = setInteger("Port", bufferedReader.readLine(), DEFAULT_PORT);
+            this.domain_ = setString("Domain", bufferedReader.readLine(), DEFAULT_DOMAIN);
+            this.warningThreshold_ = setInteger("Warning", bufferedReader.readLine(),
+                                                DEFAULT_WARNING);
+            this.alarmThreshold_ = setInteger("Alarm", bufferedReader.readLine(), DEFAULT_ALARM);
+            this.mode_ = setString("Mode", bufferedReader.readLine(), DEFAULT_MODE);
+            this.lineStyle_ = setString("Style", bufferedReader.readLine(), DEFAULT_STYLE);
         }
-        catch (CoreException e)
+        catch (CoreException ex)
         {
-            this.host_ = "";
-            this.domain_ = "";
-            e.printStackTrace();
+            ex.printStackTrace();
         }
-        catch (IOException e)
+        catch (IOException ex)
         {
-            this.host_ = "";
-            this.domain_ = "";
-            e.printStackTrace();
-        }
-        catch (NumberFormatException e)
-        {
-            this.host_ = "";
-            this.domain_ = "";
-            e.printStackTrace();
+            ex.printStackTrace();
         }
         finally
         {
@@ -412,15 +434,20 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
     /**
      * 文字列を入力し、文字列が0以上の整数の場合、その値を整数にして返す。 それ以外の場合はデフォルト値を返す。
      * 
-     * @param input
-     *            入力
-     * @param defaultValue
-     *            デフォルト値
+     * @param key キー
+     * @param input 入力
+     * @param defaultValue デフォルト値
      * @return データとして入力される値
      */
-    private int setInteger(String input, int defaultValue)
+    private int setInteger(String key, String input, int defaultValue)
     {
         int value;
+        if (input == null)
+        {
+            System.err.println("[BottleneckEye]" + key + "が設定されていません。デフォルト値(" + defaultValue
+                    + ")を使用します。");
+            return defaultValue;
+        }
         try
         {
             value = Integer.parseInt(input);
@@ -432,9 +459,30 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         }
         catch (NumberFormatException ex)
         {
-            System.err.println("[StatsVision]不正な値が入力されました。デフォルト値:" + defaultValue + "を使用します。");
+            System.err.println("[BottleneckEye]" + key + "に不正な値が入力されました。デフォルト値(" + defaultValue
+                    + ")を使用します。");
             return defaultValue;
         }
+    }
+
+    /**
+     * 文字列を入力し、文字列が空でなければ、入力された文字列を返す。
+     * 文字列が空であれば、デフォルト値を返す。
+     * 
+     * @param key キー
+     * @param input 入力
+     * @param defaultValue デフォルト値
+     * @return データとして入力される値
+     */
+    private String setString(String key, String input, String defaultValue)
+    {
+        if (input == null || "".equals(input))
+        {
+            System.err.println("[BottleneckEye]" + key + "が設定されていません。デフォルト値(" + defaultValue
+                    + ")を使用します。");
+            return defaultValue;
+        }
+        return input;
     }
 
     /**
