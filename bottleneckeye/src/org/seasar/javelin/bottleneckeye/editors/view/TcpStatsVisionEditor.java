@@ -56,12 +56,10 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
             this.tcpDataGetter_.setPortNumber(getPortNum());
 
             // 表示用データを取得する
-            boolean result = this.tcpDataGetter_.open();
+            this.tcpDataGetter_.open();
             this.isConnect_ = true;
-            if (result == true)
-            {
-                this.tcpDataGetter_.startRead();
-            }
+
+            this.tcpDataGetter_.startRead();
 
         }
         catch (Exception objException)
@@ -412,7 +410,6 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
         return this.tcpDataGetter_;
     }
 
-
     /**
      * サーバに電文を送信する。
      *
@@ -422,5 +419,4 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
     {
         this.tcpDataGetter_.sendTelegram(telegram);
     }
-
 }
