@@ -21,7 +21,7 @@ import org.seasar.javelin.util.StatsUtil;
 public class S2StatsJavelinRecorder
 {
     /** 初期化判定フラグ */
-    private static boolean                        isInitialized;
+    private static boolean                        initialized_;
 
     /**
      * メソッドコールツリーの記録用オブジェクト。
@@ -54,7 +54,7 @@ public class S2StatsJavelinRecorder
      * 公開用HTTPポートが指定されていた場合は、HttpAdaptorの生成と登録も行う。
      * @param config パラメータの設定値を保存するオブジェクト
      */
-    private static void javelinInit(S2JavelinConfig config)
+    public static void javelinInit(S2JavelinConfig config)
     {
         try
         {
@@ -74,6 +74,8 @@ public class S2StatsJavelinRecorder
             // TCPでの接続受付を開始する。
             int port = config.getAcceptPort();
             JavelinAcceptThread.getInstance().start(port);
+            
+            initialized_ = true;
 
         }
         catch (Exception ex)
@@ -192,10 +194,9 @@ public class S2StatsJavelinRecorder
         synchronized (S2StatsJavelinRecorder.class)
         {
             // 初期化処理
-            if (isInitialized == false)
+            if (initialized_ == false)
             {
                 javelinInit(config);
-                isInitialized = true;
             }
         }
 
@@ -580,10 +581,9 @@ public class S2StatsJavelinRecorder
         synchronized (S2StatsJavelinRecorder.class)
         {
             // 初期化処理
-            if (isInitialized == false)
+            if (initialized_ == false)
             {
                 javelinInit(config);
-                isInitialized = true;
             }
         }
 
@@ -756,6 +756,15 @@ public class S2StatsJavelinRecorder
     {
         CallTree callTree = callTree_.get();
         callTree.setThreadID(threadId);
+    }
+    
+    /**
+     * 初期化されているかを返す.
+     * @return　true:初期化されている、false:初期化されていない.
+     */
+    public static boolean isInitialized()
+    {
+        return initialized_;
     }
 
 }
