@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.seasar.javelin.bottleneckeye.editors.EditorTabInterface;
+import org.seasar.javelin.bottleneckeye.editors.view.TcpStatsVisionEditor;
 
 public class TelegramReader implements Runnable
 {
@@ -18,19 +19,25 @@ public class TelegramReader implements Runnable
     private SocketChannel            channel_;
 
     /** サーバ側からのデータのHead用変数 */
-    private ByteBuffer               headerBuffer = ByteBuffer.allocate(Header.HEADER_LENGTH);
+    private ByteBuffer               headerBuffer   = ByteBuffer.allocate(Header.HEADER_LENGTH);
+
+    /**　再起動用TcpStatsVisionEditor */
+    private TcpDataGetter            tcpDataGetter_ = null;
+
+    /** リトライ時間 */
+    private static final int         RETRY_INTERVAL = 10000;
 
     /**
      * 電文を受信するオブジェクトを作成する。
      *
-     * @param stasJavelinEditor
-     * @param channel
+     * @param tcpDataGetter StatsVisionEditor
+     * @param channel チャネル
      */
-    public TelegramReader(SocketChannel channel)
+    public TelegramReader(TcpDataGetter tcpDataGetter)
     {
-        this.channel_ = channel;
         this.isRunning_ = false;
         this.editorTabList_ = new ArrayList<EditorTabInterface>();
+        this.tcpDataGetter_ = tcpDataGetter;
     }
 
     /**
@@ -51,6 +58,12 @@ public class TelegramReader implements Runnable
         this.isRunning_ = true;
         while (this.isRunning_)
         {
+            this.channel_ = this.tcpDataGetter_.getChannel();
+            if(this.channel_ == null)
+            {
+                retry();
+                continue;
+            }
             byte[] telegramBytes = null;
             try
             {
@@ -58,7 +71,6 @@ public class TelegramReader implements Runnable
             }
             catch (IOException ioe)
             {
-                // TODO 再接続
                 this.isRunning_ = false;
                 break;
             }
@@ -151,4 +163,26 @@ public class TelegramReader implements Runnable
         this.isRunning_ = isRunning;
     }
 
+    /**
+     * リトライする。
+     */
+    private void retry()
+    {
+        System.out.println(RETRY_INTERVAL / 1000 + "秒後に再接続します。");
+        try
+        {
+            Thread.sleep(RETRY_INTERVAL);
+        }
+        catch (InterruptedException ex)
+        {
+            ex.printStackTrace();
+        }
+        finally
+        {
+            if (this.isRunning_)
+            {
+                this.tcpDataGetter_.open();
+            }
+        }
+    }
 }
