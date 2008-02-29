@@ -253,7 +253,8 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
             InstantiationException,
             IllegalAccessException
     {
-        Class<EditorTabInterface> tabClass = (Class<EditorTabInterface>)Class.forName(className);
+        Class<?> clazz = Class.forName(className);
+        Class<? extends EditorTabInterface> tabClass = clazz.asSubclass(EditorTabInterface.class);
         EditorTabInterface editorTab = tabClass.newInstance();
 
         Composite tabComposite = editorTab.createComposite(getContainer(), this);
@@ -515,6 +516,17 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         for (EditorTabInterface editorTab : this.editorTabMap_.values())
         {
             editorTab.onReset();
+        }
+    }
+
+    /**
+     * ReloadÇí ímÇ∑ÇÈÅB
+     */
+    public void notifyReload()
+    {
+        for (EditorTabInterface editorTab : this.editorTabMap_.values())
+        {
+            editorTab.onReload();
         }
     }
 

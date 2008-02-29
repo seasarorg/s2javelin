@@ -198,7 +198,7 @@ public class SettingsEditorTab
                 MainCtrl.getInstance().getInvocationList().clear();
 
                 notifyAllSettings();
-                SettingsEditorTab.this.multiPageEditor_.notifyStart();
+                SettingsEditorTab.this.multiPageEditor_.notifyReload();
             }
         });
 

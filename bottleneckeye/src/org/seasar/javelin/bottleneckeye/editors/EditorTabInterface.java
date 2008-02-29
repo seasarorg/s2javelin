@@ -49,6 +49,11 @@ public interface EditorTabInterface
     void onReset();
 
     /**
+     * Reloadボタンを押した際の処理。
+     */
+    void onReload();
+
+    /**
      * Stopボタンを押した際の処理。
      */
     void onStop();

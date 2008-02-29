@@ -23,9 +23,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.part.MultiPageEditorPart;
-import org.seasar.javelin.bottleneckeye.communicate.Body;
 import org.seasar.javelin.bottleneckeye.communicate.Common;
-import org.seasar.javelin.bottleneckeye.communicate.ResponseBody;
 import org.seasar.javelin.bottleneckeye.communicate.Telegram;
 import org.seasar.javelin.bottleneckeye.editors.EditorTabInterface;
 import org.seasar.javelin.bottleneckeye.editors.MultiPageEditor;
@@ -234,5 +232,13 @@ public class StatsVisionEditorTab implements EditorTabInterface
     public void onStop()
     {
         this.editor_.stop();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void onReload()
+    {
+        this.editor_.start();
     }
 }

@@ -447,6 +447,14 @@ public class ProfilerTab implements EditorTabInterface, DataChangeListener
     /**
      * {@inheritDoc}
      */
+    public void onReload()
+    {
+        // Do Nothing.
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void updateData(Object element)
     {
         InvocationModel model = (InvocationModel)element;
