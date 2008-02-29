@@ -661,13 +661,36 @@ public class S2JavelinInterceptor extends AbstractInterceptor
     {
         PrintStream out = System.out;
         out.println(">>>> Properties related with S2JavelinInterceptor");
-        out.println("\tjavelin.javelinEnable   : " + this.config_.isJavelinEnable());
-        out.println("\tjavelin.intervalMax     : " + this.config_.getIntervalMax());
-        out.println("\tjavelin.throwableMax    : " + this.config_.getThrowableMax());
-        out.println("\tjavelin.recordThreshold : " + this.config_.getRecordThreshold());
-        out.println("\tjavelin.alarmThreshold  : " + this.config_.getAlarmThreshold());
-        out.println("\tjavelin.domain          : " + this.config_.getDomain());
-        out.println("\tjavelin.httpPort        : " + this.config_.getHttpPort());
+        out.println("\tjavelin.intervalMax             : " + this.config_.getIntervalMax());
+        out.println("\tjavelin.throwableMax            : " + this.config_.getThrowableMax());
+        out.println("\tjavelin.statisticsThreshold     : " + this.config_.getStatisticsThreshold());
+        out.println("\tjavelin.recordThreshold         : " + this.config_.getRecordThreshold());
+        out.println("\tjavelin.alarmThreshold          : " + this.config_.getAlarmThreshold());
+        out.println("\tjavelin.javelinFileDir          : " + this.config_.getJavelinFileDir());
+        out.println("\tjavelin.domain                  : " + this.config_.getDomain());
+        out.println("\tjavelin.log.stacktrace          : " + this.config_.isLogStacktrace());
+        out.println("\tjavelin.log.args                : " + this.config_.isLogArgs());
+        out.println("\tjavelin.log.jmxinfo             : " + this.config_.isLogJmxInfo());
+        out.println("\tjavelin.log.return              : " + this.config_.isLogReturn());
+        out.println("\tjavelin.log.return.detail       : " + this.config_.isReturnDetail());
+        out.println("\tjavelin.log.return.detail.depth : " + this.config_.getReturnDetailDepth());
+        out.println("\tjavelin.log.args.detail         : " + this.config_.isArgsDetail());
+        out.println("\tjavelin.log.args.detail.depth   : " + this.config_.getArgsDetailDepth());
+        out.println("\tjavelin.rootCallerName          : " + this.config_.getRootCallerName());
+        out.println("\tjavelin.endCalleeName           : " + this.config_.getEndCalleeName());
+        out.println("\tjavelin.threadModel             : " + this.config_.getThreadModel());
+        out.println("\tjavelin.httpPort                : " + this.config_.getHttpPort());
+        out.println("\tjavelin.acceptPort              : " + this.config_.getAcceptPort());
+        out.println("\tjavelin.javelinEnable           : " + this.config_.isJavelinEnable());
+        out.println("\tjavelin.stringLimitLength       : " + this.config_.getStringLimitLength());
+        out.println("\tjavelin.error.log               : " + this.config_.getErrorLog());
+        out.println("\tjavelin.record.jmx              : " + this.config_.isRecordJMX());
+        out.println("\tjavelin.log.jvn.max             : " + this.config_.getLogJvnMax());
+        out.println("\tjavelin.log.zip.max             : " + this.config_.getLogZipMax());
+        out.println("\tjavelin.record.jmx              : " + this.config_.isRecordJMX());
+        out.println("\tjavelin.recordStrategy          : " + this.config_.getRecordStrategy());
+        out.println("\tjavelin.alarmListeners          : " + this.config_.getAlarmListeners());
+        out.println("\tjavelin.telegramListeners       : " + this.config_.getTelegramListeners());
         out.println("<<<<");
     }
 }
