@@ -11,12 +11,10 @@ import java.util.Date;
 public class NormalDateFormatter
 {
     static final private String DATA_FORMAT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS";
-    
+
     /**
      * long値で渡された時刻の値を、"yyyy/MM/dd HH:mm:ss.SSS"
      * という形式の文字列に変換する。
-     * 同期化していないため、複数スレッドからのアクセスに対する
-     * 呼び出しがあった場合は、結果を保証しない。
      * 
      * @param time 時刻
      * @return フォーマットした時刻の文字列
@@ -25,6 +23,22 @@ public class NormalDateFormatter
     {
         Date tmpDateObject = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat(DATA_FORMAT_PATTERN);
+        tmpDateObject.setTime(time);
+        return formatter.format(tmpDateObject);
+    }
+    static final private String DATA_WITHOUT_MILLIS_FORMAT_PATTERN = "yyyy/MM/dd HH:mm:ss";
+
+    /**
+     * long値で渡された時刻の値を、"yyyy/MM/dd HH:mm:ss"
+     * という形式の文字列に変換する。
+     * 
+     * @param time 時刻
+     * @return フォーマットした時刻の文字列
+     */
+    static public String formatWithoutMillis(long time)
+    {
+        Date tmpDateObject = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat(DATA_WITHOUT_MILLIS_FORMAT_PATTERN);
         tmpDateObject.setTime(time);
         return formatter.format(tmpDateObject);
     }
