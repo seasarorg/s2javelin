@@ -30,7 +30,7 @@ public class StatsVisionEditPartFactory implements EditPartFactory
 		{
 			ComponentModel    componentModel = (ComponentModel)model;
 			ComponentEditPart componentPart  = new ComponentEditPart();
-			statsVisionEditor.setComponentEditPart(componentPart);
+			statsVisionEditor.addComponentEditPart(componentPart);
 
 			componentModel.setEditPart(componentPart);
 			part = componentPart;

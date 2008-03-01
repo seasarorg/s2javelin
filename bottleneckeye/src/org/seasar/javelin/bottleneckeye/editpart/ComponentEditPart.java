@@ -50,10 +50,12 @@ public class ComponentEditPart
     /** メソッド名の最大長。これを越える部分は...で表示する。 */
     private static final int METHODNAME_MAXLENGTH    = 80;
 
-    private static HashMap<String, Label> invocationLabelMap
+    /** ブリンク用 */
+    private HashMap<String, Label> invocationLabelMap
         = new HashMap<String, Label>();
 
-    private static HashMap<String, InvocationModel> invocationMap
+    /** ブリンク用 */
+    private HashMap<String, InvocationModel> invocationMap
         = new HashMap<String, InvocationModel>();
 
     protected IFigure createFigure()
@@ -248,21 +250,25 @@ public class ComponentEditPart
     public void exceededThresholdAlarm(String classmethodName)
     {
         Label label = invocationLabelMap.get(classmethodName);
-
         InvocationModel invocation = invocationMap.get(classmethodName);
-
+        
+        if(label == null || invocation == null 
+        || invocation.getClassName() == null || invocation.getMethodName() == null)
+        {
+            return;
+        }
+        
         EditPartViewer viewer = getViewer();
         if (viewer == null)
         {
-            // TODO ERIGUCHI ログ
             return;
         }
         Control control = viewer.getControl();
         if (control == null)
         {
-            // TODO ERIGUCHI ログ
             return;
         }
+        
         Display display = control.getDisplay();
 
         String methodLabelText = createMethodLabelText(invocation);

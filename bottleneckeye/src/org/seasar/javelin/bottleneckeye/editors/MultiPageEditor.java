@@ -302,6 +302,10 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
      */
     public void dispose()
     {
+        for(EditorTabInterface editorTab:this.editorTabMap_.values())
+        {
+            editorTab.onStop();
+        }
         ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
         super.dispose();
     }

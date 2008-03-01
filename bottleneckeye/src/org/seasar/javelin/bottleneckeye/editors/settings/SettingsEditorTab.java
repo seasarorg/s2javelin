@@ -195,8 +195,6 @@ public class SettingsEditorTab
         this.reloadButton_.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event)
             {
-                MainCtrl.getInstance().getInvocationList().clear();
-
                 notifyAllSettings();
                 SettingsEditorTab.this.multiPageEditor_.notifyReload();
             }
@@ -223,8 +221,6 @@ public class SettingsEditorTab
         this.startButton_.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event)
             {
-                MainCtrl.getInstance().getInvocationList().clear();
-
                 notifyAllSettings();
 
                 SettingsEditorTab.this.startButton_.setEnabled(false);

@@ -213,7 +213,7 @@ public class AbstractStatsVisionEditorTest extends TestCase {
 		public void setBlnReload(boolean blnReload) {
 		}
 
-		public void setComponentEditPart(ComponentEditPart componentPart) {
+		public void addComponentEditPart(ComponentEditPart componentPart) {
 		}
 
 		public void start() {

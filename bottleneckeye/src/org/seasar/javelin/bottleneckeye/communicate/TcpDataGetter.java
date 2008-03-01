@@ -192,7 +192,8 @@ public class TcpDataGetter implements TelegramClientManager
             this.telegramReader_.addEditorTab(editorTab);
         }
 
-        Thread readerThread = new Thread(this.telegramReader_, "StatsReaderThread");
+        Thread readerThread = new Thread(this.telegramReader_, "StatsReaderThread-"
+                + this.hostName_ + ":" + this.portNumber_);
         readerThread.start();
     }
 

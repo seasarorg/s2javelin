@@ -1,5 +1,6 @@
 package org.seasar.javelin.bottleneckeye.editors.view;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -26,11 +27,6 @@ import org.seasar.javelin.bottleneckeye.model.MainCtrl;
  */
 public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
 {
-    /** 赤くブリンクメソッドの統計 */
-    private static int        intExceededThresholdMethodCounter__ = 0;
-
-    /** Listeningするとき、初期表示時使うEditPartを持つ */
-    private ComponentEditPart componentEditPart_                  = null;
 
     /** TCPデータ取得 */
     private TcpDataGetter     tcpDataGetter_                      = new TcpDataGetter();
@@ -40,6 +36,9 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
 
     /** ビューワ */
     private GraphicalViewer   viewer_;
+
+    /** このエディタで管理するコンポーネントのリスト。 */
+    private List<ComponentEditPart> componentList_ = new ArrayList<ComponentEditPart>();
 
     /**
      * {@inheritDoc}
@@ -294,20 +293,10 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
             strExceededThresholdMethodName = strExceededThresholdMethodName.substring(5);
         }
 
-        intExceededThresholdMethodCounter__++;
-
         // 赤くブリンクで表示する
-        if (this.componentEditPart_ != null)
+        for (ComponentEditPart componentEditPart : this.componentList_)
         {
-            try
-            {
-                this.componentEditPart_.exceededThresholdAlarm(strExceededThresholdMethodName);
-            }
-            catch (NullPointerException nullPointerExp)
-            {
-                System.out.println("　★⇒　メソッド【" + strExceededThresholdMethodName
-                        + "】は表示しているメソッドではありません！");
-            }
+            componentEditPart.exceededThresholdAlarm(strExceededThresholdMethodName);
         }
 
     }
@@ -384,13 +373,13 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
         this.tcpDataGetter_.sendReset();
         this.tcpDataGetter_.request();
     }
-
+    
     /**
      * {@inheritDoc}
      */
-    public void setComponentEditPart(ComponentEditPart componentPart)
+    public void addComponentEditPart(ComponentEditPart componentPart)
     {
-        this.componentEditPart_ = componentPart;
+        this.componentList_.add(componentPart);
     }
 
     /**

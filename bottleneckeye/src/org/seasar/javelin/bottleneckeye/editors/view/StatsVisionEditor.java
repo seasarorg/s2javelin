@@ -58,7 +58,7 @@ public interface StatsVisionEditor extends IEditorPart
 
     void addResponseTelegram(Telegram telegram);
 
-    void setComponentEditPart(ComponentEditPart componentPart);
+    void addComponentEditPart(ComponentEditPart componentPart);
 
     void setDirty(boolean isDirty);
 

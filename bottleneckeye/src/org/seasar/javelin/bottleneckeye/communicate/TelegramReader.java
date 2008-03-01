@@ -102,37 +102,35 @@ public class TelegramReader implements Runnable
         int readCount = 0;
         while (readCount < Header.HEADER_LENGTH)
         {
-            int count = channel_.read(headerBuffer);
+            int count = this.channel_.read(this.headerBuffer);
             if (count < 0)
             {
                 throw new IOException();
             }
-            else
-            {
-                readCount += count;
-            }
+
+            readCount += count;
         }
 
-        headerBuffer.rewind();
-        int telegramLength = headerBuffer.getInt();
+        this.headerBuffer.rewind();
+        int telegramLength = this.headerBuffer.getInt();
 
         // ƒwƒbƒ_•”‚µ‚©‚È‚¢ê‡‚Í‚»‚Ì‚Ü‚Ü•Ô‚·B
         if (telegramLength <= Header.HEADER_LENGTH)
         {
-            headerBuffer.rewind();
-            return headerBuffer.array();
+            this.headerBuffer.rewind();
+            return this.headerBuffer.array();
         }
 
         readCount = 0;
         ByteBuffer bodyBuffer = ByteBuffer.allocate(telegramLength);
-        bodyBuffer.put(headerBuffer.array());
+        bodyBuffer.put(this.headerBuffer.array());
 
         while (bodyBuffer.remaining() > 0)
         {
-            channel_.read(bodyBuffer);
+            this.channel_.read(bodyBuffer);
         }
 
-        headerBuffer.rewind();
+        this.headerBuffer.rewind();
         return bodyBuffer.array();
     }
 

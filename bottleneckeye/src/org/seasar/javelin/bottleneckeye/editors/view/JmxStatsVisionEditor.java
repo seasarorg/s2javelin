@@ -209,7 +209,7 @@ public class JmxStatsVisionEditor extends AbstractStatsVisionEditor<ObjectName> 
 		// –¢ŽÀ‘•
 	}
 
-	public void setComponentEditPart(ComponentEditPart componentPart) {
+	public void addComponentEditPart(ComponentEditPart componentPart) {
 		this.componentEditPart = componentPart;
 	}
 
