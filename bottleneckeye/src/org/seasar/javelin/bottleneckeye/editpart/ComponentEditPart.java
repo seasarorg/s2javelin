@@ -1,8 +1,10 @@
 package org.seasar.javelin.bottleneckeye.editpart;
 
 import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TimerTask;
 
 import org.eclipse.draw2d.ChopboxAnchor;
 import org.eclipse.draw2d.ColorConstants;
@@ -29,6 +31,8 @@ import org.seasar.javelin.bottleneckeye.model.InvocationModel;
 public class ComponentEditPart
     extends EditPartWithListener implements NodeEditPart
 {
+    private static final int BLINK_COUNT = 5;
+
     /** ÉNÉâÉXÇÃîwåiêFÅB */
     private static final Color YELLOW = new Color(null, 255, 255, 206);
 
@@ -140,8 +144,8 @@ public class ComponentEditPart
             strKeyTemp.append(methodName);
             String strKey = strKeyTemp.toString();
 
-            invocationLabelMap.put(strKey, invocationLabel);
-            invocationMap.put(strKey, invocation);
+            this.invocationLabelMap.put(strKey, invocationLabel);
+            this.invocationMap.put(strKey, invocation);
 
             figure.add(invocationLabel);
         }
@@ -211,7 +215,9 @@ public class ComponentEditPart
     }
 
     protected void createEditPolicies()
-    {}
+    {
+        // Do Nothing
+    }
 
     public void propertyChange(PropertyChangeEvent evt)
     {
@@ -247,15 +253,17 @@ public class ComponentEditPart
         return ((ComponentModel)getModel()).getModelTargetConnections();
     }
 
-    public void exceededThresholdAlarm(String classmethodName)
+    public List<TimerTask> exceededThresholdAlarm(String classmethodName)
     {
-        Label label = invocationLabelMap.get(classmethodName);
-        InvocationModel invocation = invocationMap.get(classmethodName);
+        List<TimerTask> result = new ArrayList<TimerTask>();
+        
+        Label label = this.invocationLabelMap.get(classmethodName);
+        InvocationModel invocation = this.invocationMap.get(classmethodName);
         
         if(label == null || invocation == null 
         || invocation.getClassName() == null || invocation.getMethodName() == null)
         {
-            return;
+            return result;
         }
         
         Control control = null;
@@ -264,17 +272,17 @@ public class ComponentEditPart
             EditPartViewer viewer = getViewer();
             if (viewer == null)
             {
-                return;
+                return result;
             }
             control = viewer.getControl();
             if (control == null)
             {
-                return;
+                return result;
             }
         }
         catch (NullPointerException npe)
         {
-            return;
+            return result;
         }
         
         Display display = control.getDisplay();
@@ -283,12 +291,18 @@ public class ComponentEditPart
 
         display.asyncExec(new LabelUpdateJob(label, methodLabelText));
 
-        Runnable blinkJob = new Blinker(display, label, ColorConstants.black, RED,
-                                        getFgColor(invocation), getBgColor(invocation));
-        Thread blinker = new Thread(blinkJob);
-        blinker.start();
-        
         ((ComponentModel)getModel()).setExceededThresholdAlarm(null);
+        
+        for(int index = 0; index < BLINK_COUNT; index++)
+        {
+            TimerTask blinkJobRed = new Blinker(display, label, ColorConstants.black, RED);
+            TimerTask blinkJobNormal = new Blinker(display, label, getFgColor(invocation), getBgColor(invocation));
+            
+            result.add(blinkJobRed);
+            result.add(blinkJobNormal);
+        }
+            
+        return result;
     }
 
     public static String toStr(String result, int length)

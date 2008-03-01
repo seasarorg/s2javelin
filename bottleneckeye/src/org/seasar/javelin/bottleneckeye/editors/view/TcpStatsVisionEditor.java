@@ -37,9 +37,6 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
     /** ビューワ */
     private GraphicalViewer   viewer_;
 
-    /** このエディタで管理するコンポーネントのリスト。 */
-    private List<ComponentEditPart> componentList_ = new ArrayList<ComponentEditPart>();
-
     /**
      * {@inheritDoc}
      */
@@ -261,46 +258,6 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
         });
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void listeningGraphicalViewer(Telegram telegram)
-    {
-        if (telegram.getObjBody().length == 0)
-        {
-            return;
-        }
-
-        // InvocationMapに、該当InvocationModelを設定する
-        InvocationModel[] invocations = InvocationModel.createFromTelegram(telegram,
-                                                                           this.alarmThreshold_,
-                                                                           this.warningThreshold_);
-
-        // TODO ハードコーディング
-        InvocationModel invocation = invocations[0];
-        MainCtrl.getInstance().addInvocationModel(invocation);
-        MainCtrl.getInstance().notifyDataChangeListener(invocation);
-
-        // 「クラス名、メソッド名」で赤くブリンクメソッドのキーを取得する
-        StringBuilder strKeyTemp = new StringBuilder();
-        strKeyTemp.append(invocation.getClassName());
-        strKeyTemp.append(invocation.getMethodName());
-        String strExceededThresholdMethodName = strKeyTemp.toString();
-
-        String rootFlag = strExceededThresholdMethodName.substring(0, 5);
-        if (rootFlag.endsWith("ROOT-"))
-        {
-            strExceededThresholdMethodName = strExceededThresholdMethodName.substring(5);
-        }
-
-        // 赤くブリンクで表示する
-        for (ComponentEditPart componentEditPart : this.componentList_)
-        {
-            componentEditPart.exceededThresholdAlarm(strExceededThresholdMethodName);
-        }
-
-    }
-
     private ComponentModel getComponentModel(Map<String, ComponentModel> componentMap,
             ContentsModel rootModel, String strClassName)
     {
@@ -372,14 +329,6 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
         super.reset();
         this.tcpDataGetter_.sendReset();
         this.tcpDataGetter_.request();
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public void addComponentEditPart(ComponentEditPart componentPart)
-    {
-        this.componentList_.add(componentPart);
     }
 
     /**

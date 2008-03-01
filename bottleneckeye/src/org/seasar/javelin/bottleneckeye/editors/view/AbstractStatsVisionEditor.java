@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -37,12 +39,15 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
+import org.seasar.javelin.bottleneckeye.communicate.Telegram;
+import org.seasar.javelin.bottleneckeye.editpart.ComponentEditPart;
 import org.seasar.javelin.bottleneckeye.editpart.StatsVisionEditPartFactory;
 import org.seasar.javelin.bottleneckeye.editpart.StatsVisionTreeEditPartFactory;
 import org.seasar.javelin.bottleneckeye.model.ArrowConnectionModel;
 import org.seasar.javelin.bottleneckeye.model.ComponentModel;
 import org.seasar.javelin.bottleneckeye.model.ContentsModel;
 import org.seasar.javelin.bottleneckeye.model.InvocationModel;
+import org.seasar.javelin.bottleneckeye.model.MainCtrl;
 
 public abstract class AbstractStatsVisionEditor<T> 
     extends GraphicalEditor implements StatsVisionEditor
@@ -70,6 +75,12 @@ public abstract class AbstractStatsVisionEditor<T>
     public String            mode_             = "TCP";
 
     public String            lineStyle_        = "NORMAL";
+    
+    /** ブリンク用タイマー。 */
+    private static Timer blinkTimer__ = new Timer("BottleneckEye-BlinkThread");
+    
+    /** このエディタで管理するコンポーネントのリスト。 */
+    private List<ComponentEditPart> componentList_ = new ArrayList<ComponentEditPart>();
     
     // Componentモデル設定用
     protected Map<T, ComponentModel> componentMap      
@@ -717,4 +728,58 @@ public abstract class AbstractStatsVisionEditor<T>
         return super.getGraphicalViewer();
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void addComponentEditPart(ComponentEditPart componentPart)
+    {
+        this.componentList_.add(componentPart);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void listeningGraphicalViewer(Telegram telegram)
+    {
+        if (telegram.getObjBody().length == 0)
+        {
+            return;
+        }
+        
+        // InvocationMapに、該当InvocationModelを設定する
+        InvocationModel[] invocations = InvocationModel.createFromTelegram(telegram,
+                                                                           this.alarmThreshold_,
+                                                                           this.warningThreshold_);
+
+        // TODO ハードコーディング
+        InvocationModel invocation = invocations[0];
+        MainCtrl.getInstance().addInvocationModel(invocation);
+        MainCtrl.getInstance().notifyDataChangeListener(invocation);
+
+        // 「クラス名、メソッド名」で赤くブリンクメソッドのキーを取得する
+        StringBuilder strKeyTemp = new StringBuilder();
+        strKeyTemp.append(invocation.getClassName());
+        strKeyTemp.append(invocation.getMethodName());
+        String strExceededThresholdMethodName = strKeyTemp.toString();
+
+        String rootFlag = strExceededThresholdMethodName.substring(0, 5);
+        if (rootFlag.endsWith("ROOT-"))
+        {
+            strExceededThresholdMethodName = strExceededThresholdMethodName.substring(5);
+        }
+
+        // 赤くブリンクで表示する
+        for (ComponentEditPart componentEditPart : this.componentList_)
+        {
+            List<TimerTask> blinkTaskList = componentEditPart.exceededThresholdAlarm(strExceededThresholdMethodName);
+            for(int index = 0; index < blinkTaskList.size(); index++)
+            {
+                TimerTask blinkTask =  blinkTaskList.get(index);
+                blinkTimer__.schedule(blinkTask, 1000 * index);
+            }
+        }            
+        
+    }
+    
 }

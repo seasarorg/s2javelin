@@ -205,10 +205,6 @@ public class JmxStatsVisionEditor extends AbstractStatsVisionEditor<ObjectName> 
 		// –¢ŽÀ‘•
 	}
 
-	public void listeningGraphicalViewer(Telegram telegram) {
-		// –¢ŽÀ‘•
-	}
-
 	public void addComponentEditPart(ComponentEditPart componentPart) {
 		this.componentEditPart = componentPart;
 	}
