@@ -204,9 +204,6 @@ public class AbstractStatsVisionEditorTest extends TestCase {
 		public void disconnect() {
 		}
 
-		public void listeningGraphicalViewer(Telegram telegram) {
-		}
-
 		public void reset() {
 		}
 
