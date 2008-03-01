@@ -13,33 +13,16 @@ import org.seasar.javelin.bottleneckeye.editors.view.TcpStatsVisionEditor;
  */
 public final class TelegramSender
 {
-
-    /** Singletonのインスタンス */
-    private static TelegramSender sender__ = new TelegramSender(); 
-
     /** TCP通信用オブジェクト */
     private TcpStatsVisionEditor editor_;
-
 
     /**
      * 電文送信インスタンスを作成する。
      */
-    private TelegramSender()
+    public TelegramSender()
     {
         // 何もしない
     }
-
-
-    /**
-     * 電文送信インスタンスを返す。
-     *
-     * @return インスタンス
-     */
-    public static TelegramSender getInstance()
-    {
-        return sender__;
-    }
-
 
     /**
      * TCP通信用オブジェクトをセットする。

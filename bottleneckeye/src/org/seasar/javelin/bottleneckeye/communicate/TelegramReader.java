@@ -85,27 +85,6 @@ public class TelegramReader implements Runnable
                 int requestKind = telegram.getObjHeader().getByteRequestKind();
                 System.out.println("未定義の要求応答種別を受信しました。[" + requestKind + "]");
             }
-
-            int telegramKind = telegram.getObjHeader().getByteTelegramKind();
-            int requestKind = telegram.getObjHeader().getByteRequestKind();
-
-            /*            if (Common.BYTE_TELEGRAM_KIND_ALERT == telegramKind)
-                        {
-                            // 通知受信処理を行う
-                            statsJavelinEditor_.listeningGraphicalViewer(telegram);
-                        }
-                        else if (Common.BYTE_TELEGRAM_KIND_GET == telegramKind
-                                && Common.BYTE_REQUEST_KIND_RESPONSE == requestKind)
-                        {
-                            // 応答受信処理を行う。
-                            statsJavelinEditor_.addResponseTelegram(telegram);
-                            System.out.println("電文受信[" + requestKind + "]");
-                        }
-                        else
-                        {
-                            // TODO ログ出力
-                            System.out.println("未定義の要求応答種別を受信しました。[" + requestKind + "]");
-                        }*/
         }
 
     }

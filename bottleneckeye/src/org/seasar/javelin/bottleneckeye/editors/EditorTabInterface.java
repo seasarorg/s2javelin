@@ -6,6 +6,7 @@ package org.seasar.javelin.bottleneckeye.editors;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.MultiPageEditorPart;
 import org.seasar.javelin.bottleneckeye.communicate.Telegram;
+import org.seasar.javelin.bottleneckeye.communicate.TelegramSender;
 
 /**
  * タブの１画面を表すインタフェース。
@@ -37,6 +38,13 @@ public interface EditorTabInterface
      * @return この電文を処理した場合は <code>true</code>
      */
     boolean receiveTelegram(Telegram telegram);
+
+    /**
+     * 電文送信オブジェクトをセットする。
+     *
+     * @param telegramSender 電文送信オブジェクト。
+     */
+    void setTelegramSender(TelegramSender telegramSender);
 
     /**
      * Startボタンを押した際の処理。

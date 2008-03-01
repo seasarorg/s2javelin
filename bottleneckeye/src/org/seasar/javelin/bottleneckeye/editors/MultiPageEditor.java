@@ -148,7 +148,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         setPageText(index, statsVisionEditorTab.getName());
         this.editorTabMap_.put(StatsVisionEditorTab.class.getName(), statsVisionEditorTab);
 
-        TelegramSender sender = TelegramSender.getInstance();
+        TelegramSender sender = new TelegramSender();
         sender.setTcpStatsVisionEditor((TcpStatsVisionEditor)this.editor_);
 
         // İ’è‰æ–Êƒ^ƒu‚ğì¬‚·‚éB

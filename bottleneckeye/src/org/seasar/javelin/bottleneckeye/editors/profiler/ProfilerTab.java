@@ -21,6 +21,7 @@ import org.eclipse.ui.part.CellEditorActionHandler;
 import org.eclipse.ui.part.MultiPageEditorPart;
 import org.seasar.javelin.bottleneckeye.StatsVisionPlugin;
 import org.seasar.javelin.bottleneckeye.communicate.Telegram;
+import org.seasar.javelin.bottleneckeye.communicate.TelegramSender;
 import org.seasar.javelin.bottleneckeye.editors.EditorTabInterface;
 import org.seasar.javelin.bottleneckeye.event.DataChangeListener;
 import org.seasar.javelin.bottleneckeye.model.InvocationModel;
@@ -402,6 +403,14 @@ public class ProfilerTab implements EditorTabInterface, DataChangeListener
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void setTelegramSender(TelegramSender telegramSender)
+    {
+        // Do Nothing
+    }
+    
     /**
      * {@inheritDoc}
      */
