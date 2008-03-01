@@ -93,6 +93,9 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
     /** ラインスタイル */
     private String                          lineStyle_                    = LINE_STYLE_NORMAL;
 
+    /** 電文送信オブジェクト。 */
+    private TelegramSender telegramSender_;
+
     /** ホストのデフォルト値 */
     private static final String             DEFAULT_HOST                  = "localhost";
 
@@ -150,6 +153,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 
         TelegramSender sender = new TelegramSender();
         sender.setTcpStatsVisionEditor((TcpStatsVisionEditor)this.editor_);
+        this.telegramSender_ = sender;
 
         // 設定画面タブを作成する。
         SettingsEditorTab settingsEditorTab = new SettingsEditorTab(this, this.editor_);
@@ -260,6 +264,8 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         Composite tabComposite = editorTab.createComposite(getContainer(), this);
         int index = addPage(tabComposite);
         setPageText(index, editorTab.getName());
+        
+        editorTab.setTelegramSender(this.telegramSender_);
 
         this.editorTabMap_.put(className, editorTab);
     }
