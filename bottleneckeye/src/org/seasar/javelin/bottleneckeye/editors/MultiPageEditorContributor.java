@@ -1,6 +1,5 @@
 package org.seasar.javelin.bottleneckeye.editors;
 
-import org.eclipse.gef.ui.actions.GEFActionConstants;
 import org.eclipse.gef.ui.actions.ZoomComboContributionItem;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;

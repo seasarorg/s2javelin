@@ -2,7 +2,6 @@ package org.seasar.javelin.bottleneckeye.editpart;
 
 import java.beans.PropertyChangeEvent;
 
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.seasar.javelin.bottleneckeye.StatsVisionPlugin;
 import org.seasar.javelin.bottleneckeye.model.ComponentModel;

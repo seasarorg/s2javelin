@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.seasar.javelin.bottleneckeye.editors.EditorTabInterface;
-import org.seasar.javelin.bottleneckeye.editors.view.TcpStatsVisionEditor;
 
 public class TelegramReader implements Runnable
 {
