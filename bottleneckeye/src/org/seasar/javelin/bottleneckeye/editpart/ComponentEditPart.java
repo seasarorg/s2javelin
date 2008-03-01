@@ -258,13 +258,21 @@ public class ComponentEditPart
             return;
         }
         
-        EditPartViewer viewer = getViewer();
-        if (viewer == null)
+        Control control = null;
+        try
         {
-            return;
+            EditPartViewer viewer = getViewer();
+            if (viewer == null)
+            {
+                return;
+            }
+            control = viewer.getControl();
+            if (control == null)
+            {
+                return;
+            }
         }
-        Control control = viewer.getControl();
-        if (control == null)
+        catch (NullPointerException npe)
         {
             return;
         }
