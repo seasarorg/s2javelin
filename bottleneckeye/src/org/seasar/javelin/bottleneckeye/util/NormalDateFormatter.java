@@ -10,12 +10,7 @@ import java.util.Date;
  */
 public class NormalDateFormatter
 {
-    static final private String     DATA_FORMAT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS";
-
-    static private SimpleDateFormat formatter_          = new SimpleDateFormat(
-                                                                               DATA_FORMAT_PATTERN);
-
-    static private Date             tmpDateObject_      = new Date();
+    static final private String DATA_FORMAT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS";
     
     /**
      * longílÇ≈ìnÇ≥ÇÍÇΩéûçèÇÃílÇÅA"yyyy/MM/dd HH:mm:ss.SSS"
@@ -28,7 +23,9 @@ public class NormalDateFormatter
      */
     static public String format(long time)
     {
-        tmpDateObject_.setTime(time);
-        return formatter_.format(tmpDateObject_);
+        Date tmpDateObject = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat(DATA_FORMAT_PATTERN);
+        tmpDateObject.setTime(time);
+        return formatter.format(tmpDateObject);
     }
 }
