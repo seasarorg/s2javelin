@@ -10,87 +10,83 @@ import javax.management.ObjectName;
 
 public class Invocation extends NotificationBroadcasterSupport implements InvocationMBean
 {
-    private static final long INITIAL            = -1;
+    private static final long     INITIAL             = -1;
 
-    private ObjectName        objName_;
+    private ObjectName            objName_;
 
-    private ObjectName        classObjName_;
+    private ObjectName            classObjName_;
 
-    private String            className_;
+    private String                className_;
 
-    private String            methodName_;
+    private String                methodName_;
 
-    private int               intervalMax_;
+    private int                   intervalMax_;
 
-    private int               throwableMax_;
+    private int                   throwableMax_;
 
-    private long              count_;
+    private long                  count_;
 
-    private long              minimum_           = INITIAL;
+    private long                  minimum_            = INITIAL;
 
-    private long              maximum_           = INITIAL;
+    private long                  maximum_            = INITIAL;
 
     /** CPU消費時間の最小値。 */
-    private long cpuMinimum_ = INITIAL;
+    private long                  cpuMinimum_         = INITIAL;
 
     /** CPU消費時間の最大値。 */
-    private long cpuMaximum_ = INITIAL;
+    private long                  cpuMaximum_         = INITIAL;
 
-    private LinkedList<Long> intervalList_ = new LinkedList<Long>();
+    private LinkedList<Long>      intervalList_       = new LinkedList<Long>();
 
-    private LinkedList<Long> cpuIntervalList_ = new LinkedList<Long>();
+    private LinkedList<Long>      cpuIntervalList_    = new LinkedList<Long>();
 
-    private LinkedList<Throwable> throwableList_ = new LinkedList<Throwable>();
+    private LinkedList<Throwable> throwableList_      = new LinkedList<Throwable>();
 
-    private Set<Invocation> callerSet_ = new HashSet<Invocation>();
+    private Set<Invocation>       callerSet_          = new HashSet<Invocation>();
 
-    private boolean isFieldAccess_     = false;
+    private boolean               isFieldAccess_      = false;
 
-    private boolean isReadFieldAccess_ = false;
+    private boolean               isReadFieldAccess_  = false;
 
     /** 呼び出し時間の合計値（平均値算出用) */
-    private long intervalSum_ = 0;
+    private long                  intervalSum_        = 0;
 
     /** CPU呼び出し時間の合計値（平均値算出用) */
-    private long cpuIntervalSum_ = 0;
-    
-	private long accumulatedTime_;
+    private long                  cpuIntervalSum_     = 0;
 
-	/**
-	 * accumulatedTime_の最大値。
-	 * {@link #setAccumulatedTime}の中でaccumulatedTime_と共に更新判定を行う。
-	 */
-	private long maxAccumulatedTime_;
+    private long                  accumulatedTime_;
 
-	/** maxAccumulatedTime_の更新回数 */
-	private long maxAccumulatedTimeUpdateCount_;
+    /** ログを出力するCPU時間の閾値 */
+    private long                  recordCpuThreshold_ = 0;
+
+    /** 警告を発生させるCPU時間の閾値 */
+    private long                  alarmCpuThreshold_  = 0;
 
     /**
-     * 呼び出し情報を記録する際の閾値。 
-     * 値（ミリ秒）を下回る処理時間の呼び出し情報は記録しない。
+     * accumulatedTime_の最大値。 {@link #setAccumulatedTime}の中でaccumulatedTime_と共に更新判定を行う。
      */
-    private long              recordThreshold_;
+    private long                  maxAccumulatedTime_;
+
+    /** maxAccumulatedTime_の更新回数 */
+    private long                  maxAccumulatedTimeUpdateCount_;
 
     /**
-     * 呼び出し情報を赤くブリンクする際の閾値。 
-     * 値（ミリ秒）を下回る処理時間の呼び出し情報は赤くブリンクしない。
+     * 呼び出し情報を記録する際の閾値。 値（ミリ秒）を下回る処理時間の呼び出し情報は記録しない。
      */
-    private long              alarmThreshold_;
+    private long                  recordThreshold_;
 
-	private String processName_;
+    /**
+     * 呼び出し情報を赤くブリンクする際の閾値。 値（ミリ秒）を下回る処理時間の呼び出し情報は赤くブリンクしない。
+     */
+    private long                  alarmThreshold_;
 
-    public Invocation(
-            String processName, 
-            ObjectName objName, 
-            ObjectName classObjName, 
-            String className,
-            String methodName, 
-            int intervalMax, 
-            int throwableMax, 
-            long recordThreshold,
-            long alarmThreshold)
+    private String                processName_;
+
+    public Invocation(String processName, ObjectName objName, ObjectName classObjName,
+            String className, String methodName, int intervalMax, int throwableMax,
+            long recordThreshold, long alarmThreshold)
     {
-    	processName_ = processName;
+        processName_ = processName;
         objName_ = objName;
         classObjName_ = classObjName;
         className_ = className;
@@ -165,7 +161,7 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
 
         return cpuIntervalSum_ / count_;
     }
-    
+
     public List<Long> getIntervalList()
     {
         return intervalList_;
@@ -183,7 +179,8 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
 
     public synchronized ObjectName[] getAllCallerObjectName()
     {
-        Invocation[] invocations = (Invocation[])callerSet_.toArray(new Invocation[callerSet_.size()]);
+        Invocation[] invocations =
+                (Invocation[])callerSet_.toArray(new Invocation[callerSet_.size()]);
         ObjectName[] objNames = new ObjectName[invocations.length];
 
         for (int index = 0; index < invocations.length; index++)
@@ -196,11 +193,12 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
 
     public synchronized Invocation[] getAllCallerInvocation()
     {
-        Invocation[] invocations = (Invocation[])callerSet_.toArray(new Invocation[callerSet_.size()]);
+        Invocation[] invocations =
+                (Invocation[])callerSet_.toArray(new Invocation[callerSet_.size()]);
 
         return invocations;
     }
-    
+
     /**
      * メソッドの消費時間を追加する。
      * 
@@ -328,7 +326,7 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
     public synchronized void reset()
     {
         count_ = 0;
-        
+
         minimum_ = INITIAL;
         maximum_ = INITIAL;
         intervalSum_ = 0;
@@ -338,7 +336,7 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
         cpuMaximum_ = INITIAL;
         cpuIntervalSum_ = 0;
         cpuIntervalList_.clear();
-        
+
         throwableList_.clear();
     }
 
@@ -362,28 +360,73 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
         isReadFieldAccess_ = isReadFieldAccess;
     }
 
-	public String getProcessName() {
-		return processName_;
-	}
-	
-	public long getAccumulatedTime() {
-		return accumulatedTime_;
-	}
+    public String getProcessName()
+    {
+        return processName_;
+    }
 
-	public void setAccumulatedTime(long accumulatedTime) {
-		accumulatedTime_ = accumulatedTime;
-		if (accumulatedTime_ > maxAccumulatedTime_)
-		{
-			maxAccumulatedTime_ = accumulatedTime_;
-			maxAccumulatedTimeUpdateCount_++;
-		}
-	}
-	
-	public long getMaxAccumulatedTime() {
-		return maxAccumulatedTime_;
-	}
+    public long getAccumulatedTime()
+    {
+        return accumulatedTime_;
+    }
 
-	public long getMaxAccumulatedTimeUpdateCount() {
-		return maxAccumulatedTimeUpdateCount_;
-	}
+    public void setAccumulatedTime(long accumulatedTime)
+    {
+        accumulatedTime_ = accumulatedTime;
+        if (accumulatedTime_ > maxAccumulatedTime_)
+        {
+            maxAccumulatedTime_ = accumulatedTime_;
+            maxAccumulatedTimeUpdateCount_++;
+        }
+    }
+
+    public long getMaxAccumulatedTime()
+    {
+        return maxAccumulatedTime_;
+    }
+
+    public long getMaxAccumulatedTimeUpdateCount()
+    {
+        return maxAccumulatedTimeUpdateCount_;
+    }
+
+    /**
+     * ログを出力するCPU時間の閾値を取得する
+     * 
+     * @return CPU時間の閾値
+     */
+    public long getRecordCpuThreshold()
+    {
+        return this.recordCpuThreshold_;
+    }
+
+    /**
+     * ログを出力するCPU時間の閾値を設定する
+     * 
+     * @param recordCpuThreshold CPU時間の閾値
+     */
+    public void setRecordCpuThreshold(long recordCpuThreshold)
+    {
+        this.recordCpuThreshold_ = recordCpuThreshold;
+    }
+
+    /**
+     * 警告を発生させるCPU時間の閾値を取得する
+     * 
+     * @return CPU時間の閾値
+     */
+    public long getAlarmCpuThreshold()
+    {
+        return this.alarmCpuThreshold_;
+    }
+
+    /**
+     * 警告を発生させるCPU時間の閾値を設定する
+     * 
+     * @param recordCpuThreshold CPU時間の閾値
+     */
+    public void setAlarmCpuThreshold(long alarmCpuThreshold)
+    {
+        this.alarmCpuThreshold_ = alarmCpuThreshold;
+    }
 }
