@@ -137,6 +137,7 @@ public class SettingsEditorTab
             {
                 String hostName = SettingsEditorTab.this.hostText_.getText();
                 SettingsEditorTab.this.statsVisionEditor_.setHostName(hostName);
+                statsVisionEditor_.setDirty(true);
             }
         });
 
@@ -146,6 +147,7 @@ public class SettingsEditorTab
                 String portText = SettingsEditorTab.this.portText_.getText();
                 int port = Integer.parseInt(portText);
                 SettingsEditorTab.this.statsVisionEditor_.setPortNum(port);
+                statsVisionEditor_.setDirty(true);
             }
         });
 
@@ -154,6 +156,7 @@ public class SettingsEditorTab
             {
                 String domain = SettingsEditorTab.this.domainText_.getText();
                 SettingsEditorTab.this.statsVisionEditor_.setDomain(domain);
+                statsVisionEditor_.setDirty(true);
             }
         });
 
@@ -163,6 +166,7 @@ public class SettingsEditorTab
                 String thresholdText = SettingsEditorTab.this.warningText_.getText();
                 long threshold = Long.parseLong(thresholdText);
                 SettingsEditorTab.this.statsVisionEditor_.setWarningThreshold(threshold);
+                statsVisionEditor_.setDirty(true);
             }
         });
 
@@ -172,6 +176,7 @@ public class SettingsEditorTab
                 String thresholdText = SettingsEditorTab.this.alarmText_.getText();
                 long threshold = Long.parseLong(thresholdText);
                 SettingsEditorTab.this.statsVisionEditor_.setAlarmThreshold(threshold);
+                statsVisionEditor_.setDirty(true);
             }
         });
 
@@ -180,6 +185,7 @@ public class SettingsEditorTab
             {
                 String mode = SettingsEditorTab.this.modeCombo_.getText();
                 SettingsEditorTab.this.statsVisionEditor_.setMode(mode);
+                statsVisionEditor_.setDirty(true);
             }
         });
 
@@ -188,6 +194,7 @@ public class SettingsEditorTab
             {
                 String lineStyle = SettingsEditorTab.this.lineStyleCombo_.getText();
                 SettingsEditorTab.this.statsVisionEditor_.setLineStyle(lineStyle);
+                statsVisionEditor_.setDirty(true);
             }
         });
 
