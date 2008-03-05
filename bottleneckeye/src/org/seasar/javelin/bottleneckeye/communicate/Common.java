@@ -116,6 +116,12 @@ public class Common
     /** 項目名（リソース値での、プロセス全体のネットワークデータ送信量） */
     public static final String ITEMNAME_NETWORKOUTPUTSIZEOFPROCESS = "networkOutputSizeOfProcess";
 
+    /** 項目名（リソース値での、ファイル入力量） */
+    public static final String ITEMNAME_FILEINPUTSIZEOFPROCESS = "fileInputSizeOfProcess";
+
+    /** 項目名（リソース値での、ファイル出力量） */
+    public static final String ITEMNAME_FILEOUTPUTSIZEOFPROCESS = "fileOutputSizeOfProcess";
+
     /** 項目名（JVNファイル JVNファイル名） */
     public static final String ITEMNAME_JVN_FILE_NAME = "jvnFileName";
 
