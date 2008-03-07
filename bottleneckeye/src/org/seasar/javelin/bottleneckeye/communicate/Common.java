@@ -122,6 +122,12 @@ public class Common
     /** 項目名（リソース値での、ファイル出力量） */
     public static final String ITEMNAME_FILEOUTPUTSIZEOFPROCESS = "fileOutputSizeOfProcess";
 
+    /** 項目名（リソース値での、スレッド数） */
+    public static final String ITEMNAME_THREADCOUNT = "threadCount";
+
+    /** 項目名（リソース値での、トータルのガベージコレクションの時間） */
+    public static final String ITEMNAME_GARBAGETOTALTIME = "garbageTotalTime";
+
     /** 項目名（JVNファイル JVNファイル名） */
     public static final String ITEMNAME_JVN_FILE_NAME = "jvnFileName";
 
