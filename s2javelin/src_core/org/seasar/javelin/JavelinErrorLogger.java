@@ -26,7 +26,7 @@ public class JavelinErrorLogger
     /**
      * エラーログ出力日時のフォーマット。
      */
-    private static final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+    private static final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss.SSS";
 
     /**
      * JavelinErrorLoggerのインスタンス。
