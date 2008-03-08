@@ -23,61 +23,59 @@ import org.seasar.javelin.bottleneckeye.StatsVisionPlugin;
 import org.seasar.javelin.bottleneckeye.communicate.Telegram;
 import org.seasar.javelin.bottleneckeye.communicate.TelegramSender;
 import org.seasar.javelin.bottleneckeye.editors.EditorTabInterface;
-import org.seasar.javelin.bottleneckeye.event.DataChangeListener;
 import org.seasar.javelin.bottleneckeye.model.InvocationModel;
-import org.seasar.javelin.bottleneckeye.model.MainCtrl;
 import org.seasar.javelin.bottleneckeye.views.ColumnViewerSorter;
 
 /**
  * プロファイラ。
  * @author cero-t
  */
-public class ProfilerTab implements EditorTabInterface, DataChangeListener
+public class ProfilerTab implements EditorTabInterface
 {
     /** クラス名 */
-    protected static final String        CLASS_NAME     = "クラス名";
+    protected static final String        CLASS_NAME       = "クラス名";
 
     /** メソッド名 */
-    protected static final String        METHOD_NAME    = "メソッド名";
+    protected static final String        METHOD_NAME      = "メソッド名";
 
     /** 合計処理時間 */
-    protected static final String        TOTAL_TIME     = "合計処理時間";
+    protected static final String        TOTAL_TIME       = "合計処理時間";
 
     /** 平均処理時間 */
-    protected static final String        AVERAGE_TIME   = "平均処理時間";
+    protected static final String        AVERAGE_TIME     = "平均処理時間";
 
     /** 最大処理時間 */
-    protected static final String        MAX_TIME       = "最大処理時間";
+    protected static final String        MAX_TIME         = "最大処理時間";
 
     /** 最小処理時間 */
-    protected static final String        MIN_TIME       = "最小処理時間";
+    protected static final String        MIN_TIME         = "最小処理時間";
 
     /** 合計CPU時間 */
-    protected static final String        TOTAL_CPU_TIME     = "合計CPU時間";
-    
+    protected static final String        TOTAL_CPU_TIME   = "合計CPU時間";
+
     /** 平均CPU時間 */
-    protected static final String        AVERAGE_CPU_TIME   = "平均CPU時間";
+    protected static final String        AVERAGE_CPU_TIME = "平均CPU時間";
 
     /** 最大CPU時間 */
-    protected static final String        MAX_CPU_TIME       = "最大CPU時間";
+    protected static final String        MAX_CPU_TIME     = "最大CPU時間";
 
     /** 最小CPU時間 */
-    protected static final String        MIN_CPU_TIME       = "最小CPU時間";
+    protected static final String        MIN_CPU_TIME     = "最小CPU時間";
 
     /** 呼び出し回数 */
-    protected static final String        CALL_TIME      = "呼び出し回数";
+    protected static final String        CALL_TIME        = "呼び出し回数";
 
     /** 例外発生回数 */
-    protected static final String        THROWABLE_TIME = "例外発生回数";
+    protected static final String        THROWABLE_TIME   = "例外発生回数";
 
     /** テーブルビューワ。 */
     private TableViewer                  viewer_;
 
     /** テーブルに表示するデータの元となるマップ */
-    private Map<String, InvocationModel> modelMap_      = new HashMap<String, InvocationModel>();
+    private Map<String, InvocationModel> modelMap_        = new HashMap<String, InvocationModel>();
 
     /** テーブルに表示するデータのリスト */
-    private List<InvocationModel>        modelList_     = new ArrayList<InvocationModel>();
+    private List<InvocationModel>        modelList_       = new ArrayList<InvocationModel>();
 
     /**
      * {@inheritDoc}
@@ -89,8 +87,8 @@ public class ProfilerTab implements EditorTabInterface, DataChangeListener
         composite.setLayout(layout);
 
         Button button = new Button(composite, SWT.PUSH | SWT.FLAT);
-        Image image = StatsVisionPlugin.getDefault().getImageRegistry().get(
-                                                                            StatsVisionPlugin.IMG_REFRESH);
+        Image image =
+                StatsVisionPlugin.getDefault().getImageRegistry().get(StatsVisionPlugin.IMG_REFRESH);
         button.setImage(image);
         button.setLayoutData(new GridData());
         button.addSelectionListener(new SelectionListener() {
@@ -116,10 +114,9 @@ public class ProfilerTab implements EditorTabInterface, DataChangeListener
         createColumns(this.viewer_);
 
         this.viewer_.setInput(this.modelList_);
-        MainCtrl.getInstance().addDataChangeListeners(this);
 
-        CellEditorActionHandler actionHandler = new CellEditorActionHandler(
-                                                                            editorPart.getEditorSite().getActionBars());
+        CellEditorActionHandler actionHandler =
+                new CellEditorActionHandler(editorPart.getEditorSite().getActionBars());
         ProfilerCopyAction action = new ProfilerCopyAction(this.viewer_);
         actionHandler.setCopyAction(action);
 
@@ -337,7 +334,7 @@ public class ProfilerTab implements EditorTabInterface, DataChangeListener
                 return (l1 < l2 ? -1 : (l1 == l2 ? 0 : 1));
             }
         };
-        
+
         column = new TableViewerColumn(viewer, SWT.LEFT);
         column.getColumn().setText(CALL_TIME);
         column.getColumn().setWidth(100);
@@ -400,6 +397,14 @@ public class ProfilerTab implements EditorTabInterface, DataChangeListener
      */
     public boolean receiveTelegram(Telegram telegram)
     {
+        // InvocationMapに、該当InvocationModelを設定する
+        InvocationModel[] invocations = InvocationModel.createFromTelegram(telegram, 0, 0);
+
+        for (InvocationModel invocation : invocations)
+        {
+            this.modelMap_.put(invocation.getClassName() + "#" + invocation.getMethodName(),
+                               invocation);
+        }
         return false;
     }
 
@@ -410,7 +415,7 @@ public class ProfilerTab implements EditorTabInterface, DataChangeListener
     {
         // Do Nothing
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -459,14 +464,5 @@ public class ProfilerTab implements EditorTabInterface, DataChangeListener
     public void onReload()
     {
         // Do Nothing.
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void updateData(Object element)
-    {
-        InvocationModel model = (InvocationModel)element;
-        this.modelMap_.put(model.getClassName() + "#" + model.getMethodName(), model);
     }
 }
