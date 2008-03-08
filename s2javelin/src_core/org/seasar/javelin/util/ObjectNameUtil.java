@@ -9,8 +9,6 @@ import org.seasar.javelin.bean.InvocationMBean;
 
 public class ObjectNameUtil
 {
-    private static final String       INVALID_OBJECTNAME = "[\\*\\?=:,\n\r]";
-
     private static final List<String> keyList__          = new ArrayList<String>();
 
     private static final List<String> valueList__        = new ArrayList<String>();
