@@ -24,6 +24,8 @@ public class ObjectNameUtil
         addToMap("\r", "#####CR#####");
         addToMap("\n", "#####LF#####");
         addToMap(",", "#####COMMA#####");
+        addToMap("\\\"", "#####DOUBLEQUOTE#####");
+        addToMap("\\\\", "#####BACKSLASH#####");
     }
 
     private static void addToMap(String key, String value)
