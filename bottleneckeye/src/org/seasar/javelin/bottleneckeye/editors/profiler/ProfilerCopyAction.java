@@ -42,6 +42,7 @@ public class ProfilerCopyAction extends Action
 
     static
     {
+        // TODO ヘッダの内容を新しいものに変更する。
         String[] headers = {CLASS_NAME, METHOD_NAME, TOTAL_TIME, AVERAGE_TIME, MAX_TIME, MIN_TIME,
             CALL_TIME, THROWABLE_TIME};
         HEADER = StringUtils.join(headers, "\t") + NEWLINE;
