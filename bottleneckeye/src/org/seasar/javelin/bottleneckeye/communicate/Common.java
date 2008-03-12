@@ -24,7 +24,7 @@ public class Common
     /** 電文種別（機能呼び出し） */
     public static final byte BYTE_TELEGRAM_KIND_FUNCTIONCALL = 5;
     
-    /** 電文種別(JVNログ出力通知) */
+    /** 電文種別(JVNログダウンロード) */
 	public static final byte BYTE_TELEGRAM_KIND_JVN_FILE = 6;
 
     /** 電文種別(サーバプロパティ設定取得) */
