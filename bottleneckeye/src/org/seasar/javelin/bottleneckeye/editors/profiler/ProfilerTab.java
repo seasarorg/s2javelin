@@ -20,6 +20,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.CellEditorActionHandler;
 import org.eclipse.ui.part.MultiPageEditorPart;
 import org.seasar.javelin.bottleneckeye.StatsVisionPlugin;
+import org.seasar.javelin.bottleneckeye.communicate.Common;
+import org.seasar.javelin.bottleneckeye.communicate.Header;
 import org.seasar.javelin.bottleneckeye.communicate.Telegram;
 import org.seasar.javelin.bottleneckeye.communicate.TelegramSender;
 import org.seasar.javelin.bottleneckeye.editors.EditorTabInterface;
@@ -397,14 +399,26 @@ public class ProfilerTab implements EditorTabInterface
      */
     public boolean receiveTelegram(Telegram telegram)
     {
-        // InvocationMapに、該当InvocationModelを設定する
-        InvocationModel[] invocations = InvocationModel.createFromTelegram(telegram, 0, 0);
+        Header header = telegram.getObjHeader();
+        byte telegramKind = header.getByteTelegramKind();
+        byte requestKind = header.getByteRequestKind();
 
-        for (InvocationModel invocation : invocations)
+        // 状態取得応答電文を受信した場合
+        if (telegramKind == Common.BYTE_TELEGRAM_KIND_GET
+                && requestKind == Common.BYTE_REQUEST_KIND_RESPONSE)
         {
-            this.modelMap_.put(invocation.getClassName() + "#" + invocation.getMethodName(),
-                               invocation);
+            // InvocationMapに、該当InvocationModelを設定する
+            InvocationModel[] invocations = InvocationModel.createFromTelegram(telegram, 0, 0);
+    
+            for (InvocationModel invocation : invocations)
+            {
+                this.modelMap_.put(invocation.getClassName() + "#" + invocation.getMethodName(),
+                                   invocation);
+            }
+            
+            return true;
         }
+        
         return false;
     }
 
