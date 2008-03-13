@@ -218,12 +218,12 @@ public class S2JavelinConfig
     /**
      * JMX通信による情報公開を行うかどうかを設定する。
      *
-     * @param  JMX通信による情報公開を行うならtrue
+     * @param isRecordJMX JMX通信による情報公開を行うならtrue
      */
-    public void setRecordJMX(boolean isLogStacktrace)
+    public void setRecordJMX(boolean isRecordJMX)
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
-        configUtil.setBoolean(LOG_STACKTRACE_KEY, isLogStacktrace);
+        configUtil.setBoolean(RECORD_JMX_KEY, isRecordJMX);
     }
 
     /**
