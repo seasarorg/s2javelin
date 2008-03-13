@@ -1,8 +1,6 @@
 package org.seasar.javelin.bottleneckeye.util;
 
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import org.apache.commons.lang.time.DateFormatUtils;
 
 /**
  * 一般的な形式の日付文字列とlong型の時刻値を相互変換するユーティリティ。
@@ -11,6 +9,7 @@ import java.util.Date;
 public class NormalDateFormatter
 {
     static final private String DATA_FORMAT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS";
+    static final private String DATA_WITHOUT_MILLIS_FORMAT_PATTERN = "yyyy/MM/dd HH:mm:ss";
 
     /**
      * long値で渡された時刻の値を、"yyyy/MM/dd HH:mm:ss.SSS"
@@ -21,12 +20,8 @@ public class NormalDateFormatter
      */
     static public String format(long time)
     {
-        Date tmpDateObject = new Date();
-        SimpleDateFormat formatter = new SimpleDateFormat(DATA_FORMAT_PATTERN);
-        tmpDateObject.setTime(time);
-        return formatter.format(tmpDateObject);
+        return DateFormatUtils.format(time, DATA_FORMAT_PATTERN);
     }
-    static final private String DATA_WITHOUT_MILLIS_FORMAT_PATTERN = "yyyy/MM/dd HH:mm:ss";
 
     /**
      * long値で渡された時刻の値を、"yyyy/MM/dd HH:mm:ss"
@@ -37,9 +32,6 @@ public class NormalDateFormatter
      */
     static public String formatWithoutMillis(long time)
     {
-        Date tmpDateObject = new Date();
-        SimpleDateFormat formatter = new SimpleDateFormat(DATA_WITHOUT_MILLIS_FORMAT_PATTERN);
-        tmpDateObject.setTime(time);
-        return formatter.format(tmpDateObject);
+        return DateFormatUtils.format(time, DATA_WITHOUT_MILLIS_FORMAT_PATTERN);
     }
 }
