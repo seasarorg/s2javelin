@@ -52,6 +52,17 @@ public class InvocationModel implements Comparable, NotificationListener
     /** メソッドの平均CPU処理時間（単位:ミリ秒）。 */
     private long                cpuAverage_;
 
+
+    /** メソッドの最短CPU処理時間（単位:ミリ秒）。 */
+    private long                userMinimum_;
+
+    /** メソッドの最長CPU処理時間（単位:ミリ秒）。 */
+    private long                userMaximum_;
+
+    /** メソッドの平均CPU処理時間（単位:ミリ秒）。 */
+    private long                userAverage_;
+    
+    
     /** メソッド内での例外発生回数。 */
     private long                throwableCount_;
 
@@ -157,6 +168,37 @@ public class InvocationModel implements Comparable, NotificationListener
         this.cpuAverage_ = cpuAverage;
     }
 
+
+    public long getUserMinimum()
+    {
+        return this.userMinimum_;
+    }
+
+    public void setUserMinimum(long userMinimum)
+    {
+        this.userMinimum_ = userMinimum;
+    }
+
+    public long getUserMaximum()
+    {
+        return this.userMaximum_;
+    }
+
+    public void setUserMaximum(long userMaximum)
+    {
+        this.userMaximum_ = userMaximum;
+    }
+
+    public long getUserAverage()
+    {
+        return this.userAverage_;
+    }
+
+    public void setUserAverage(long userAverage)
+    {
+        this.userAverage_ = userAverage;
+    }
+    
     public long getThrowableCount()
     {
         return throwableCount_;
@@ -331,9 +373,18 @@ public class InvocationModel implements Comparable, NotificationListener
             // 最大CPU時間
             if (strItemName.equals("maximumCpuInterval"))
                 invocation.setCpuMaximum((Long)objTempArr[0]/1000000);
-            // 最小CPU時間
+            // 最小USER時間
             if (strItemName.equals("minimumCpuInterval"))
                 invocation.setCpuMinimum((Long)objTempArr[0]/1000000);
+            // 平均USER時間
+            if (strItemName.equals("averageUserInterval"))
+                invocation.setUserAverage((Long)objTempArr[0]/1000000);
+            // 最大USER時間
+            if (strItemName.equals("maximumUserInterval"))
+                invocation.setUserMaximum((Long)objTempArr[0]/1000000);
+            // 最小USER時間
+            if (strItemName.equals("minimumUserInterval"))
+                invocation.setUserMinimum((Long)objTempArr[0]/1000000);
             // 例外発生回数
             if (strItemName.equals("throwableCount"))
                 invocation.setThrowableCount((Long)objTempArr[0]);

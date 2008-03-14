@@ -64,6 +64,18 @@ public class ProfilerTab implements EditorTabInterface
     /** 最小CPU時間 */
     protected static final String        MIN_CPU_TIME     = "最小CPU時間";
 
+    /** 合計USER時間 */
+    protected static final String        TOTAL_USER_TIME   = "合計USER時間";
+
+    /** 平均USER時間 */
+    protected static final String        AVERAGE_USER_TIME = "平均USER時間";
+
+    /** 最大USER時間 */
+    protected static final String        MAX_USER_TIME     = "最大USER時間";
+
+    /** 最小USER時間 */
+    protected static final String        MIN_USER_TIME     = "最小USER時間";
+    
     /** 呼び出し回数 */
     protected static final String        CALL_TIME        = "呼び出し回数";
 
@@ -337,6 +349,89 @@ public class ProfilerTab implements EditorTabInterface
             }
         };
 
+        column = new TableViewerColumn(viewer, SWT.LEFT);
+        column.getColumn().setText(TOTAL_USER_TIME);
+        column.getColumn().setWidth(100);
+        column.getColumn().setMoveable(true);
+        column.setLabelProvider(new ColumnLabelProvider() {
+            public String getText(Object element)
+            {
+                long count = ((InvocationModel)element).getCount();
+                long average = ((InvocationModel)element).getUserAverage();
+                long total = count * average;
+                return String.valueOf(total);
+            }
+        });
+        new ColumnViewerSorter(viewer, column) {
+            @Override
+            protected int doCompare(Object e1, Object e2)
+            {
+                long l1 = ((InvocationModel)e1).getCount() * ((InvocationModel)e1).getUserAverage();
+                long l2 = ((InvocationModel)e2).getCount() * ((InvocationModel)e2).getUserAverage();
+                return (l1 < l2 ? -1 : (l1 == l2 ? 0 : 1));
+            }
+        };
+
+        column = new TableViewerColumn(viewer, SWT.LEFT);
+        column.getColumn().setText(AVERAGE_USER_TIME);
+        column.getColumn().setWidth(100);
+        column.getColumn().setMoveable(true);
+        column.setLabelProvider(new ColumnLabelProvider() {
+            public String getText(Object element)
+            {
+                return String.valueOf(((InvocationModel)element).getUserAverage());
+            }
+        });
+        new ColumnViewerSorter(viewer, column) {
+            @Override
+            protected int doCompare(Object e1, Object e2)
+            {
+                long l1 = ((InvocationModel)e1).getUserAverage();
+                long l2 = ((InvocationModel)e2).getUserAverage();
+                return (l1 < l2 ? -1 : (l1 == l2 ? 0 : 1));
+            }
+        };
+
+        column = new TableViewerColumn(viewer, SWT.LEFT);
+        column.getColumn().setText(MAX_USER_TIME);
+        column.getColumn().setWidth(100);
+        column.getColumn().setMoveable(true);
+        column.setLabelProvider(new ColumnLabelProvider() {
+            public String getText(Object element)
+            {
+                return String.valueOf(((InvocationModel)element).getUserMaximum());
+            }
+        });
+        new ColumnViewerSorter(viewer, column) {
+            @Override
+            protected int doCompare(Object e1, Object e2)
+            {
+                long l1 = ((InvocationModel)e1).getUserMaximum();
+                long l2 = ((InvocationModel)e2).getUserMaximum();
+                return (l1 < l2 ? -1 : (l1 == l2 ? 0 : 1));
+            }
+        };
+
+        column = new TableViewerColumn(viewer, SWT.LEFT);
+        column.getColumn().setText(MIN_USER_TIME);
+        column.getColumn().setWidth(100);
+        column.getColumn().setMoveable(true);
+        column.setLabelProvider(new ColumnLabelProvider() {
+            public String getText(Object element)
+            {
+                return String.valueOf(((InvocationModel)element).getUserMinimum());
+            }
+        });
+        new ColumnViewerSorter(viewer, column) {
+            @Override
+            protected int doCompare(Object e1, Object e2)
+            {
+                long l1 = ((InvocationModel)e1).getUserMinimum();
+                long l2 = ((InvocationModel)e2).getUserMinimum();
+                return (l1 < l2 ? -1 : (l1 == l2 ? 0 : 1));
+            }
+        };
+        
         column = new TableViewerColumn(viewer, SWT.LEFT);
         column.getColumn().setText(CALL_TIME);
         column.getColumn().setWidth(100);
