@@ -176,6 +176,9 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 
         // 初期設定をビューに通知する
         initSettingEditorTab(settingsEditorTab);
+        
+        // 接続を開始する。
+        settingsEditorTab.start();
     }
 
     private void initTabs()

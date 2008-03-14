@@ -10,7 +10,7 @@ import org.seasar.javelin.bottleneckeye.editors.EditorTabInterface;
 
 public class TelegramReader implements Runnable
 {
-    private boolean                  isRunning_;
+    private volatile boolean         isRunning_;
 
     /** 電文を転送するターゲットオブジェクトのリスト */
     private List<EditorTabInterface> editorTabList_;
@@ -58,7 +58,7 @@ public class TelegramReader implements Runnable
         while (this.isRunning_)
         {
             this.channel_ = this.tcpDataGetter_.getChannel();
-            if(this.channel_ == null)
+            if (this.channel_ == null)
             {
                 retry();
                 continue;
@@ -144,21 +144,24 @@ public class TelegramReader implements Runnable
      */
     private void retry()
     {
-        System.out.println(RETRY_INTERVAL / 1000 + "秒後に再接続します。");
+        if (this.isRunning_ == false)
+        {
+            return;
+        }
+
         try
         {
+            System.out.println(RETRY_INTERVAL / 1000 + "秒後に再接続します。");
             Thread.sleep(RETRY_INTERVAL);
         }
         catch (InterruptedException ex)
         {
             ex.printStackTrace();
         }
-        finally
+
+        if (this.isRunning_)
         {
-            if (this.isRunning_)
-            {
-                this.tcpDataGetter_.open();
-            }
+            this.tcpDataGetter_.open();
         }
     }
 }

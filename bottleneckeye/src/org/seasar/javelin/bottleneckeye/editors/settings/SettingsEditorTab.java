@@ -228,21 +228,7 @@ public class SettingsEditorTab
         this.startButton_.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event)
             {
-                notifyAllSettings();
-
-                SettingsEditorTab.this.startButton_.setEnabled(false);
-                SettingsEditorTab.this.stopButton_.setEnabled(true);
-                SettingsEditorTab.this.resetButton_.setEnabled(true);
-                SettingsEditorTab.this.reloadButton_.setEnabled(true);
-                SettingsEditorTab.this.hostText_.setEnabled(false);
-                SettingsEditorTab.this.portText_.setEnabled(false);
-                SettingsEditorTab.this.domainText_.setEnabled(false);
-                SettingsEditorTab.this.warningText_.setEnabled(false);
-                SettingsEditorTab.this.alarmText_.setEnabled(false);
-                SettingsEditorTab.this.modeCombo_.setEnabled(false);
-                SettingsEditorTab.this.lineStyleCombo_.setEnabled(false);
-
-                SettingsEditorTab.this.multiPageEditor_.notifyStart();
+                start();
             }
         });
 
@@ -483,5 +469,24 @@ public class SettingsEditorTab
         Label spacerLabel;
         spacerLabel = new Label(composite, SWT.NONE);
         spacerLabel.setLayoutData(spacerGrid);
+    }
+
+    public void start()
+    {
+        notifyAllSettings();
+
+        SettingsEditorTab.this.startButton_.setEnabled(false);
+        SettingsEditorTab.this.stopButton_.setEnabled(true);
+        SettingsEditorTab.this.resetButton_.setEnabled(true);
+        SettingsEditorTab.this.reloadButton_.setEnabled(true);
+        SettingsEditorTab.this.hostText_.setEnabled(false);
+        SettingsEditorTab.this.portText_.setEnabled(false);
+        SettingsEditorTab.this.domainText_.setEnabled(false);
+        SettingsEditorTab.this.warningText_.setEnabled(false);
+        SettingsEditorTab.this.alarmText_.setEnabled(false);
+        SettingsEditorTab.this.modeCombo_.setEnabled(false);
+        SettingsEditorTab.this.lineStyleCombo_.setEnabled(false);
+
+        SettingsEditorTab.this.multiPageEditor_.notifyStart();
     }
 }

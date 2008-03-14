@@ -8,6 +8,11 @@ import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.seasar.javelin.bottleneckeye.editors.EditorTabInterface;
 
@@ -29,11 +34,21 @@ public class TcpDataGetter implements TelegramClientManager
 
     private TelegramReader           telegramReader_;
 
+    private ExecutorService          writeExecutor_  = createThreadPoolExecutor();
+
     /** ホスト名 */
     private String                   hostName_;
 
     /** ポート番号 */
     private int                      portNumber_;
+
+    /** 接続状態 */
+    private boolean                  isConnect_      = false;
+
+    public boolean isConnect()
+    {
+        return this.isConnect_;
+    }
 
     public TcpDataGetter()
     {
@@ -63,43 +78,70 @@ public class TcpDataGetter implements TelegramClientManager
     /**
      * サーバに接続する。
      */
-    public boolean open()
+    public void open()
     {
-        try
-        {
-            // サーバに接続する
-            SocketAddress remote = new InetSocketAddress(this.hostName_, this.portNumber_);
-            this.socketChannel_ = SocketChannel.open(remote);
-            // 接続中のメッセージ
-            System.out.println("\nサーバに接続しました:" + remote);
+        this.writeExecutor_.execute(new Runnable() {
+            public void run()
+            {
+                try
+                {
+                    // サーバに接続する
+                    SocketAddress remote =
+                            new InetSocketAddress(TcpDataGetter.this.hostName_,
+                                                  TcpDataGetter.this.portNumber_);
+                    TcpDataGetter.this.socketChannel_ = SocketChannel.open(remote);
+                    // 接続中のメッセージ
+                    System.out.println("\nサーバに接続しました:" + remote);
+                    TcpDataGetter.this.isConnect_ = true;
+                }
+                catch (UnknownHostException objUnknownHostException)
+                {
+                    // エラーメッセージを出す
+                    System.out.println("サーバへの接続に失敗しました。サーバアドレス、ポートを通りに設定していることを確認してください。");
+                    return;
+                    //            return false;
+                }
+                catch (IOException objIOException)
+                {
+                    // エラーメッセージを出す
+                    System.out.println("サーバへの接続に失敗しました。サーバアドレス、ポートが正しく設定されていることを確認してください。");
+                    return;
+                    //            return false;
+                }
 
-        }
-        catch (UnknownHostException objUnknownHostException)
-        {
-            // エラーメッセージを出す
-            System.out.println("サーバへの接続に失敗しました。サーバアドレス、ポートを通りに設定していることを確認してください。");
-            return false;
-        }
-        catch (IOException objIOException)
-        {
-            // エラーメッセージを出す
-            System.out.println("サーバへの接続に失敗しました。サーバアドレス、ポートが正しく設定されていることを確認してください。");
-            return false;
-        }
+                try
+                {
+                    TcpDataGetter.this.objPrintStream_ =
+                            new PrintStream(
+                                            TcpDataGetter.this.socketChannel_.socket().getOutputStream(),
+                                            true);
+                }
+                catch (IOException objIOException)
+                {
+                    // エラーメッセージを出す
+                    objIOException.printStackTrace();
+                    return;
+                    //            return false;
+                }
 
-        try
-        {
-            this.objPrintStream_ = new PrintStream(this.socketChannel_.socket().getOutputStream(),
-                                                   true);
-        }
-        catch (IOException objIOException)
-        {
-            // エラーメッセージを出す
-            objIOException.printStackTrace();
-            return false;
-        }
+                //        return true;
+            }
+        });
+    }
 
-        return true;
+    private ThreadPoolExecutor createThreadPoolExecutor()
+    {
+        return new ThreadPoolExecutor(1, 1, 0, TimeUnit.NANOSECONDS,
+                                      new LinkedBlockingQueue<Runnable>(), new ThreadFactory() {
+                                          public Thread newThread(Runnable r)
+                                          {
+                                              String name =
+                                                      "BeyeWriterThread-"
+                                                              + TcpDataGetter.this.hostName_ + ":"
+                                                              + TcpDataGetter.this.portNumber_;
+                                              return new Thread(r, name);
+                                          }
+                                      }, new ThreadPoolExecutor.DiscardPolicy());
     }
 
     /**
@@ -107,33 +149,46 @@ public class TcpDataGetter implements TelegramClientManager
      */
     public void close()
     {
-        if (this.telegramReader_ != null)
-        {
-            this.telegramReader_.setRunning(false);
-        }
-
-        // 使用した通信対象をクリアする
-        if (this.objPrintStream_ != null)
-        {
-            this.objPrintStream_.close();
-            this.objPrintStream_ = null;
-        }
-
-        try
-        {
-            if (this.socketChannel_ != null)
+        this.writeExecutor_.execute(new Runnable() {
+            public void run()
             {
-                this.socketChannel_.close();
-                this.socketChannel_ = null;
-            }
+                if (TcpDataGetter.this.telegramReader_ != null)
+                {
+                    TcpDataGetter.this.telegramReader_.setRunning(false);
+                }
 
-            System.out.println("サーバとの通信を終了しました。");
-        }
-        catch (IOException objIOException)
-        {
-            // エラーを出す
-            objIOException.printStackTrace();
-        }
+                // 使用した通信対象をクリアする
+                if (TcpDataGetter.this.objPrintStream_ != null)
+                {
+                    TcpDataGetter.this.objPrintStream_.close();
+                    TcpDataGetter.this.objPrintStream_ = null;
+                }
+
+                try
+                {
+                    if (TcpDataGetter.this.socketChannel_ != null)
+                    {
+                        TcpDataGetter.this.socketChannel_.close();
+                        TcpDataGetter.this.socketChannel_ = null;
+                    }
+
+                    System.out.println("サーバとの通信を終了しました。");
+                    TcpDataGetter.this.isConnect_ = false;
+                }
+                catch (IOException objIOException)
+                {
+                    // エラーを出す
+                    objIOException.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public void shutdown()
+    {
+        this.telegramReader_.setRunning(false);
+        this.close();
+        this.writeExecutor_.shutdown();
     }
 
     /**
@@ -186,15 +241,23 @@ public class TcpDataGetter implements TelegramClientManager
      */
     public void startRead()
     {
-        this.telegramReader_ = new TelegramReader(this);
-        for (EditorTabInterface editorTab : this.editorTabList_)
-        {
-            this.telegramReader_.addEditorTab(editorTab);
-        }
+        this.writeExecutor_.execute(new Runnable() {
+            public void run()
+            {
+                TcpDataGetter.this.telegramReader_ = new TelegramReader(TcpDataGetter.this);
+                for (EditorTabInterface editorTab : TcpDataGetter.this.editorTabList_)
+                {
+                    TcpDataGetter.this.telegramReader_.addEditorTab(editorTab);
+                }
 
-        Thread readerThread = new Thread(this.telegramReader_, "StatsReaderThread-"
-                + this.hostName_ + ":" + this.portNumber_);
-        readerThread.start();
+                Thread readerThread =
+                        new Thread(TcpDataGetter.this.telegramReader_, "BeyeReaderThread-"
+                                + TcpDataGetter.this.hostName_ + ":"
+                                + TcpDataGetter.this.portNumber_);
+
+                readerThread.start();
+            }
+        });
     }
 
     /**
@@ -202,30 +265,35 @@ public class TcpDataGetter implements TelegramClientManager
      *
      * @param telegram 電文
      */
-    public void sendTelegram(Telegram telegram)
+    public void sendTelegram(final Telegram telegram)
     {
-        byte[] byteOutputArray = TelegramUtil.createTelegram(telegram);
-
-        try
-        {
-            if (this.objPrintStream_ != null)
+        this.writeExecutor_.execute(new Runnable() {
+            public void run()
             {
-                this.objPrintStream_.write(byteOutputArray);
-                this.objPrintStream_.flush();
-                // 強制終了が行われたとき、再接続を行う
-                if (this.objPrintStream_.checkError())
+                byte[] byteOutputArray = TelegramUtil.createTelegram(telegram);
+
+                try
                 {
-                    System.err.println("通信が強制終了しました。");
-                    close();
-                    startRead();
+                    if (TcpDataGetter.this.objPrintStream_ != null)
+                    {
+                        TcpDataGetter.this.objPrintStream_.write(byteOutputArray);
+                        TcpDataGetter.this.objPrintStream_.flush();
+                        // 強制終了が行われたとき、再接続を行う
+                        if (TcpDataGetter.this.objPrintStream_.checkError())
+                        {
+                            System.err.println("通信が強制終了しました。");
+                            close();
+                            startRead();
+                        }
+                    }
+                }
+                catch (IOException objIOException)
+                {
+                    objIOException.printStackTrace();
+                    TcpDataGetter.this.close();
                 }
             }
-        }
-        catch (IOException objIOException)
-        {
-            objIOException.printStackTrace();
-            this.close();
-        }
+        });
     }
 
     /**

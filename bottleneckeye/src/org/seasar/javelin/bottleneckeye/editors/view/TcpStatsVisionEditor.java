@@ -1,6 +1,5 @@
 package org.seasar.javelin.bottleneckeye.editors.view;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +11,6 @@ import org.seasar.javelin.bottleneckeye.communicate.ResponseBody;
 import org.seasar.javelin.bottleneckeye.communicate.TcpDataGetter;
 import org.seasar.javelin.bottleneckeye.communicate.Telegram;
 import org.seasar.javelin.bottleneckeye.communicate.TelegramClientManager;
-import org.seasar.javelin.bottleneckeye.editpart.ComponentEditPart;
 import org.seasar.javelin.bottleneckeye.model.AbstractConnectionModel;
 import org.seasar.javelin.bottleneckeye.model.ArrowConnectionModel;
 import org.seasar.javelin.bottleneckeye.model.ComponentModel;
@@ -29,13 +27,10 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
 {
 
     /** TCPデータ取得 */
-    private TcpDataGetter     tcpDataGetter_                      = new TcpDataGetter();
-
-    /** 接続状態 */
-    private boolean           isConnect_                          = false;
+    private TcpDataGetter   tcpDataGetter_ = new TcpDataGetter();
 
     /** ビューワ */
-    private GraphicalViewer   viewer_;
+    private GraphicalViewer viewer_;
 
     /**
      * {@inheritDoc}
@@ -44,19 +39,19 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
     {
         try
         {
-            if (this.isConnect_ == true)
+            if (this.tcpDataGetter_ == null || this.tcpDataGetter_.isConnect() == true)
             {
+                // サーバと一旦切断する。
                 disconnect();
             }
             this.tcpDataGetter_.setHostName(getHostName());
             this.tcpDataGetter_.setPortNumber(getPortNum());
 
-            // 表示用データを取得する
+            // サーバに接続する。
             this.tcpDataGetter_.open();
-            this.isConnect_ = true;
-
+            
+            // 読み込みを開始する。
             this.tcpDataGetter_.startRead();
-
         }
         catch (Exception objException)
         {
@@ -72,7 +67,6 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
     public void disconnect()
     {
         this.tcpDataGetter_.close();
-        this.isConnect_ = false;
     }
 
     /**
@@ -115,8 +109,14 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
      */
     public void stop()
     {
-        // 接続
+        // 切断
         disconnect();
+    }
+
+    public void dispose()
+    {
+        super.dispose();
+        this.tcpDataGetter_.shutdown();
     }
 
     /**
@@ -126,17 +126,17 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
     public void doAddResponseTelegram(final Telegram telegram)
     {
         // 電文よりモデルを作成する。
-        InvocationModel[] invocations = InvocationModel.createFromTelegram(telegram,
-                                                                           this.alarmThreshold_,
-                                                                           this.warningThreshold_);
+        InvocationModel[] invocations =
+                InvocationModel.createFromTelegram(telegram, this.alarmThreshold_,
+                                                   this.warningThreshold_);
 
         for (int index = 0; index < invocations.length; index++)
         {
             InvocationModel invocation;
             invocation = invocations[index];
             String strClassName = invocation.getClassName();
-            ComponentModel target = getComponentModel(getComponentMap(), this.rootModel,
-                                                      strClassName);
+            ComponentModel target =
+                    getComponentModel(getComponentMap(), this.rootModel, strClassName);
 
             // InvocationMapに、該当InvocationModelを設定する
             MainCtrl.getInstance().addInvocationModel(invocation);
@@ -161,7 +161,8 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
                 String strItemName = responseBody.getStrItemName();
                 String classMethodName = responseBody.getStrObjName();
 
-                int methodIndex = classMethodName.lastIndexOf(InvocationModel.CLASSMETHOD_SEPARATOR);
+                int methodIndex =
+                        classMethodName.lastIndexOf(InvocationModel.CLASSMETHOD_SEPARATOR);
                 if (methodIndex >= 0)
                 {
                     String bodyClassName = classMethodName.substring(0, methodIndex);
