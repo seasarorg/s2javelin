@@ -248,6 +248,7 @@ public class StatsVisionEditorTab implements EditorTabInterface
      */
     public void onReload()
     {
+        this.editor_.stop();
         this.editor_.start();
     }
 }
