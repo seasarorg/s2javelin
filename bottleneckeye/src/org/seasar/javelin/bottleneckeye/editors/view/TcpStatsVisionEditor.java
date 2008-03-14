@@ -39,7 +39,7 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
     {
         try
         {
-            if (this.tcpDataGetter_ == null || this.tcpDataGetter_.isConnect() == true)
+            if (this.tcpDataGetter_ == null)
             {
                 // サーバと一旦切断する。
                 disconnect();

@@ -15,7 +15,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.MultiPageEditorPart;
 import org.seasar.javelin.bottleneckeye.editors.MultiPageEditor;
 import org.seasar.javelin.bottleneckeye.editors.view.StatsVisionEditor;
-import org.seasar.javelin.bottleneckeye.model.MainCtrl;
 
 /**
  * İ’èƒ^ƒuB
