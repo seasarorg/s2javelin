@@ -26,6 +26,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.seasar.javelin.bottleneckeye.editors.EditPartWithListener;
 import org.seasar.javelin.bottleneckeye.model.ComponentModel;
+import org.seasar.javelin.bottleneckeye.model.ComponentType;
 import org.seasar.javelin.bottleneckeye.model.InvocationModel;
 
 public class ComponentEditPart
@@ -87,13 +88,23 @@ public class ComponentEditPart
         // •\Ž¦•¶Žš—ñ‚ÌŒˆ’è
         String className     = model.getClassName();
         String componentName = "";
-        if (className.indexOf("/") > -1 || className.indexOf("@") > -1)
+        
+        if (model.getComponentType() == ComponentType.WEB
+                || model.getComponentType() == ComponentType.DATABASE)
         {
             componentName = className;
         }
         else
         {
-            componentName = className.substring(className.lastIndexOf(".") + 1);
+            int lastIndexOf = className.lastIndexOf(".");
+            if (lastIndexOf >= 0)
+            {
+                componentName = className.substring(lastIndexOf + 1);
+            }
+            else
+            {
+                componentName = className;
+            }
         }
         
         label.setForegroundColor(GRAY);
