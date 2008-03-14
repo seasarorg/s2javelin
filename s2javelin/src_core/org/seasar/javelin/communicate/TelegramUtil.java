@@ -20,7 +20,7 @@ import org.seasar.javelin.communicate.entity.Telegram;
  */
 public final class TelegramUtil extends Common {
 	private static final String CLASSMETHOD_SEPARATOR = "###CLASSMETHOD_SEPARATOR###";
-	private static final int TELEGRAM_ITEM_COUNT = 9;
+	private static final int TELEGRAM_ITEM_COUNT = 12;
 
 
 
@@ -614,10 +614,31 @@ public final class TelegramUtil extends Common {
                     "minimumCpuInterval", Common.BYTE_ITEMMODE_KIND_8BYTE_INT,
                     objItemValueArr);
             
-			// ó·äOî≠ê∂âÒêî
+            // UserïΩãœéûä‘
+            objItemValueArr = new Long[1];
+            objItemValueArr[0] = Long.valueOf(invocation.getUserAverage());
+            bodies[bodyIndex + 7] = createResponseBody(objName,
+                    "averageUserInterval", Common.BYTE_ITEMMODE_KIND_8BYTE_INT,
+                    objItemValueArr);
+
+            // Userç≈ëÂèàóùéûä‘
+            objItemValueArr = new Long[1];
+            objItemValueArr[0] = Long.valueOf(invocation.getUserMaximum());
+            bodies[bodyIndex + 8] = createResponseBody(objName,
+                    "maximumUserInterval", Common.BYTE_ITEMMODE_KIND_8BYTE_INT,
+                    objItemValueArr);
+
+            // Userç≈è¨èàóùéûä‘
+            objItemValueArr = new Long[1];
+            objItemValueArr[0] = Long.valueOf(invocation.getUserMinimum());
+            bodies[bodyIndex + 9] = createResponseBody(objName,
+                    "minimumUserInterval", Common.BYTE_ITEMMODE_KIND_8BYTE_INT,
+                    objItemValueArr);
+
+            // ó·äOî≠ê∂âÒêî
 			objItemValueArr = new Long[1];
 			objItemValueArr[0] = Long.valueOf(invocation.getThrowableCount());
-			bodies[bodyIndex + 7] = createResponseBody(objName,
+			bodies[bodyIndex + 10] = createResponseBody(objName,
 					"throwableCount", Common.BYTE_ITEMMODE_KIND_8BYTE_INT,
 					objItemValueArr);
 
@@ -629,7 +650,7 @@ public final class TelegramUtil extends Common {
                 callerNames[callerIndex] = callerInvocations[callerIndex].getClassName();
             }
 			
-			bodies[bodyIndex + 8] = createResponseBody(objName,
+			bodies[bodyIndex + 11] = createResponseBody(objName,
 					"allCallerNames", Common.BYTE_ITEMMODE_KIND_STRING,
 					callerNames);
 

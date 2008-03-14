@@ -7,6 +7,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.seasar.javelin.bean.Component;
+import org.seasar.javelin.bean.InvocationInterval;
 import org.seasar.javelin.bean.Invocation;
 import org.seasar.javelin.communicate.AlarmListener;
 import org.seasar.javelin.communicate.JavelinAcceptThread;
@@ -402,6 +403,15 @@ public class S2StatsJavelinRecorder
                 cpuTime = 0;
             }
             node.setCpuTime(cpuTime);
+
+            long endUserTime   = node.getEndVmStatus().getUserTime();
+            long startUserTime = node.getStartVmStatus().getUserTime();
+            long userTime      = endUserTime - startUserTime;
+            if (userTime < 0)
+            {
+                userTime = 0;
+            }
+            node.setUserTime(userTime);
             
             if (returnValue != null)
             {
@@ -668,9 +678,8 @@ public class S2StatsJavelinRecorder
         Invocation invocation = node.getInvocation();
         if (invocation != null)
         {
-            long interval    = StatsUtil.getElapsedTime(node);
-            long cpuInterval = StatsUtil.getElapsedCpuTime(node);
-            invocation.addInterval(interval, cpuInterval);
+            InvocationInterval interval    = StatsUtil.getElapsedTime(node);
+            invocation.addInterval(interval);
             if (node.getParent() != null)
             {
                 invocation.addCaller(node.getParent().getInvocation());

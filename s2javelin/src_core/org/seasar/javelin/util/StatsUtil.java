@@ -2,33 +2,32 @@ package org.seasar.javelin.util;
 
 import org.seasar.javelin.CallTreeNode;
 import org.seasar.javelin.S2JavelinConfig;
+import org.seasar.javelin.bean.InvocationInterval;
 
 
 public class StatsUtil
 {
 
-    public static long getElapsedTime(CallTreeNode node)
+    public static InvocationInterval getElapsedTime(CallTreeNode node)
     {
+        InvocationInterval interval = new InvocationInterval();
+        
         long elapsedTime = node.getAccumulatedTime();
+        long elapsedCpuTime = node.getCpuTime();
+        long elapsedUserTime = node.getUserTime();
         for (int index = 0; index < node.getChildren().size(); index++)
         {
             CallTreeNode child = (CallTreeNode) node.getChildren().get(index);
             elapsedTime = elapsedTime - child.getAccumulatedTime();
+            elapsedCpuTime = elapsedCpuTime - child.getCpuTime();
+            elapsedUserTime = elapsedUserTime - child.getUserTime();
         }
     
-        return elapsedTime;
-    }
-
-    public static long getElapsedCpuTime(CallTreeNode node)
-    {
-        long elapsedTime = node.getCpuTime();
-        for (int index = 0; index < node.getChildren().size(); index++)
-        {
-            CallTreeNode child = (CallTreeNode) node.getChildren().get(index);
-            elapsedTime = elapsedTime - child.getCpuTime();
-        }
-    
-        return elapsedTime;
+        interval.setInterval(elapsedTime);
+        interval.setCpuInterval(elapsedCpuTime);
+        interval.setUserInterval(elapsedUserTime);
+        
+        return interval;
     }
 
 	/**

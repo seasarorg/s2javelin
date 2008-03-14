@@ -10,77 +10,66 @@ import javax.management.ObjectName;
 
 public class Invocation extends NotificationBroadcasterSupport implements InvocationMBean
 {
-    private static final long     INITIAL             = -1;
+    private static final long              INITIAL             = -1;
 
-    private ObjectName            objName_;
+    private ObjectName                     objName_;
 
-    private ObjectName            classObjName_;
+    private ObjectName                     classObjName_;
 
-    private String                className_;
+    private String                         className_;
 
-    private String                methodName_;
+    private String                         methodName_;
 
-    private int                   intervalMax_;
+    private int                            intervalMax_;
 
-    private int                   throwableMax_;
+    private int                            throwableMax_;
 
-    private long                  count_;
+    private long                           count_;
 
-    private long                  minimum_            = INITIAL;
+    private InvocationInterval             minimumInterval_    = new InvocationInterval();
 
-    private long                  maximum_            = INITIAL;
+    private InvocationInterval             maximumInterval_    = new InvocationInterval();
 
-    /** CPU消費時間の最小値。 */
-    private long                  cpuMinimum_         = INITIAL;
+    private LinkedList<InvocationInterval> intervalList_       =
+                                                                       new LinkedList<InvocationInterval>();
 
-    /** CPU消費時間の最大値。 */
-    private long                  cpuMaximum_         = INITIAL;
+    private LinkedList<Throwable>          throwableList_      = new LinkedList<Throwable>();
 
-    private LinkedList<Long>      intervalList_       = new LinkedList<Long>();
+    private Set<Invocation>                callerSet_          = new HashSet<Invocation>();
 
-    private LinkedList<Long>      cpuIntervalList_    = new LinkedList<Long>();
+    private boolean                        isFieldAccess_      = false;
 
-    private LinkedList<Throwable> throwableList_      = new LinkedList<Throwable>();
+    private boolean                        isReadFieldAccess_  = false;
 
-    private Set<Invocation>       callerSet_          = new HashSet<Invocation>();
+    private InvocationInterval             intervalSum_        = new InvocationInterval(0, 0, 0);
 
-    private boolean               isFieldAccess_      = false;
-
-    private boolean               isReadFieldAccess_  = false;
-
-    /** 呼び出し時間の合計値（平均値算出用) */
-    private long                  intervalSum_        = 0;
-
-    /** CPU呼び出し時間の合計値（平均値算出用) */
-    private long                  cpuIntervalSum_     = 0;
-
-    private long                  accumulatedTime_;
+    private long                           accumulatedTime_;
 
     /** ログを出力するCPU時間の閾値 */
-    private long                  recordCpuThreshold_ = 0;
+    private long                           recordCpuThreshold_ = 0;
 
     /** 警告を発生させるCPU時間の閾値 */
-    private long                  alarmCpuThreshold_  = 0;
+    private long                           alarmCpuThreshold_  = 0;
 
     /**
      * accumulatedTime_の最大値。 {@link #setAccumulatedTime}の中でaccumulatedTime_と共に更新判定を行う。
      */
-    private long                  maxAccumulatedTime_;
+    private long                           maxAccumulatedTime_;
 
     /** maxAccumulatedTime_の更新回数 */
-    private long                  maxAccumulatedTimeUpdateCount_;
+    private long                           maxAccumulatedTimeUpdateCount_;
 
     /**
      * 呼び出し情報を記録する際の閾値。 値（ミリ秒）を下回る処理時間の呼び出し情報は記録しない。
      */
-    private long                  recordThreshold_;
+    private long                           recordThreshold_;
 
     /**
      * 呼び出し情報を赤くブリンクする際の閾値。 値（ミリ秒）を下回る処理時間の呼び出し情報は赤くブリンクしない。
      */
-    private long                  alarmThreshold_;
+    private long                           alarmThreshold_;
 
-    private String                processName_;
+    private String                         processName_;
 
     public Invocation(String processName, ObjectName objName, ObjectName classObjName,
             String className, String methodName, int intervalMax, int throwableMax,
@@ -124,12 +113,12 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
 
     public long getMinimum()
     {
-        return minimum_;
+        return minimumInterval_.getInterval();
     }
 
     public long getMaximum()
     {
-        return maximum_;
+        return maximumInterval_.getInterval();
     }
 
     public synchronized long getAverage()
@@ -139,17 +128,17 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
             return 0;
         }
 
-        return intervalSum_ / count_;
+        return intervalSum_.getInterval() / count_;
     }
 
     public long getCpuMinimum()
     {
-        return cpuMinimum_;
+        return minimumInterval_.getCpuInterval();
     }
 
     public long getCpuMaximum()
     {
-        return cpuMaximum_;
+        return maximumInterval_.getCpuInterval();
     }
 
     public synchronized long getCpuAverage()
@@ -159,10 +148,29 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
             return 0;
         }
 
-        return cpuIntervalSum_ / count_;
+        return intervalSum_.getCpuInterval() / count_;
     }
 
-    public List<Long> getIntervalList()
+    public long getUserMinimum()
+    {
+        return minimumInterval_.getUserInterval();
+    }
+
+    public long getUserMaximum()
+    {
+        return maximumInterval_.getUserInterval();
+    }
+
+    public synchronized long getUserAverage()
+    {
+        if (count_ == 0)
+        {
+            return 0;
+        }
+
+        return intervalSum_.getUserInterval() / count_;
+    }    
+    public List<InvocationInterval> getIntervalList()
     {
         return intervalList_;
     }
@@ -202,43 +210,87 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
     /**
      * メソッドの消費時間を追加する。
      * 
-     * @param interval メソッドの消費時間。
+     * @param allInterval メソッドの消費時間。
      * @param cpuInterval メソッドのCPU消費時間。
      */
-    public synchronized void addInterval(long interval, long cpuInterval)
+    public synchronized void addInterval(InvocationInterval interval)
     {
         count_++;
 
-        intervalSum_ += interval;
+        InvocationInterval intervalSum = this.intervalSum_;
+        updateIntervalSum(intervalSum, interval);
         intervalList_.add(interval);
         while (intervalList_.size() > intervalMax_)
         {
             intervalList_.removeFirst();
         }
 
-        cpuIntervalSum_ += cpuInterval;
-        cpuIntervalList_.add(cpuInterval);
-        while (cpuIntervalList_.size() > intervalMax_)
+        InvocationInterval minInterval = this.minimumInterval_;
+        updateMinInterval(interval, minInterval);
+
+        InvocationInterval maxInterval = this.maximumInterval_;
+        updateMaxInterval(interval, maxInterval);
+    }
+
+    private void updateIntervalSum(InvocationInterval intervalSum, InvocationInterval interval)
+    {
+        long sum = intervalSum.getInterval() + interval.getInterval();
+        long cpuSum = intervalSum.getCpuInterval() + interval.getCpuInterval();
+        long userSum = intervalSum.getUserInterval() + interval.getUserInterval();
+
+        intervalSum.setInterval(sum);
+        intervalSum.setCpuInterval(cpuSum);
+        intervalSum.setUserInterval(userSum);
+    }
+
+    private void updateMaxInterval(InvocationInterval interval, InvocationInterval maxInterval)
+    {
+        long newMaxInterval =
+                calcUpdateMaxInterval(maxInterval.getInterval(), interval.getInterval());
+        long newCpuMaxInterval =
+                calcUpdateMaxInterval(maxInterval.getCpuInterval(), interval.getCpuInterval());
+        long newUserMaxInterval =
+                calcUpdateMaxInterval(maxInterval.getUserInterval(), interval.getUserInterval());
+
+        maxInterval.setInterval(newMaxInterval);
+        maxInterval.setCpuInterval(newCpuMaxInterval);
+        maxInterval.setUserInterval(newUserMaxInterval);
+    }
+
+    private void updateMinInterval(InvocationInterval interval, InvocationInterval minInterval)
+    {
+        long newMinInterval =
+                calcUpdateMinInterval(minInterval.getInterval(), interval.getInterval());
+        long newMinCpuInterval =
+                calcUpdateMinInterval(minInterval.getCpuInterval(), interval.getCpuInterval());
+        long newMinUserInterval =
+                calcUpdateMinInterval(minInterval.getUserInterval(), interval.getUserInterval());
+        
+        minInterval.setInterval(newMinInterval);
+        minInterval.setCpuInterval(newMinCpuInterval);
+        minInterval.setUserInterval(newMinUserInterval);
+    }
+
+    private long calcUpdateMinInterval(long oldValue, long newValue)
+    {
+        long result = oldValue;
+        if (newValue < oldValue || oldValue == INITIAL)
         {
-            cpuIntervalList_.removeFirst();
+            result = newValue;
         }
 
-        if (interval < minimum_ || minimum_ == INITIAL)
+        return result;
+    }
+
+    private long calcUpdateMaxInterval(long oldValue, long newValue)
+    {
+        long result = oldValue;
+        if (newValue > oldValue || oldValue == INITIAL)
         {
-            minimum_ = interval;
+            result = newValue;
         }
-        if (interval > maximum_ || maximum_ == INITIAL)
-        {
-            maximum_ = interval;
-        }
-        if (cpuInterval < cpuMinimum_ || cpuMinimum_ == INITIAL)
-        {
-            cpuMinimum_ = cpuInterval;
-        }
-        if (cpuInterval > cpuMaximum_ || cpuMaximum_ == INITIAL)
-        {
-            cpuMaximum_ = cpuInterval;
-        }
+
+        return result;
     }
 
     public synchronized void addCaller(Invocation caller)
@@ -327,15 +379,10 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
     {
         count_ = 0;
 
-        minimum_ = INITIAL;
-        maximum_ = INITIAL;
-        intervalSum_ = 0;
+        this.minimumInterval_ = new InvocationInterval();
+        this.maximumInterval_ = new InvocationInterval();
+        this.intervalSum_ = new InvocationInterval(0, 0, 0);
         intervalList_.clear();
-
-        cpuMinimum_ = INITIAL;
-        cpuMaximum_ = INITIAL;
-        cpuIntervalSum_ = 0;
-        cpuIntervalList_.clear();
 
         throwableList_.clear();
     }

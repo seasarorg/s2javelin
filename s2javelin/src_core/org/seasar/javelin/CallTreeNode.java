@@ -22,6 +22,8 @@ public class CallTreeNode {
 	
 	private long cpuTime_;
 
+    private long userTime_;
+	
 	private VMStatus startVmStatus_;
 
     private VMStatus endVmStatus_;
@@ -219,5 +221,15 @@ public class CallTreeNode {
     public void setStartVmStatus(VMStatus startVmStatus)
     {
         this.startVmStatus_ = startVmStatus;
+    }
+
+    public long getUserTime()
+    {
+        return userTime_;
+    }
+
+    public void setUserTime(long userTime)
+    {
+        userTime_ = userTime;
     }
 }
