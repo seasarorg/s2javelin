@@ -1,0 +1,145 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<HTML>
+<HEAD>
+<TITLE>S2Javelinの便利な使い方-クラス図を作成する</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=Shift_JIS">
+<META http-equiv=Content-Style-Type content=text/css>
+<LINK media=screen href="http://www.seasar.org/seasar_b.css" type=text/css rel=stylesheet>
+<LINK media=print href="http://www.seasar.org/seasar_p.css" type=text/css rel=stylesheet>
+</HEAD>
+<BODY>
+<TABLE cellSpacing=0 cellPadding=0 width="100%" align=left border=0>
+	<TBODY>
+		<TR>
+			<TD vAlign=top align=left width=780>
+			<TABLE class=white cellSpacing=0 cellPadding=0 width=780 border=0>
+				<TBODY>
+					<TR>
+						<TD colSpan=7><IMG height=5 alt=""
+							src="http://www.seasar.org/images/top01_b.gif" width=780></TD>
+					</TR>
+					<TR>
+						<TD><IMG height=117 alt=Seasar
+							src="http://www.seasar.org/images/top02_b.gif" width=235></TD>
+						<TD colSpan=3><IMG height=117 alt="DI Container with AOP"
+							src="http://www.seasar.org/images/top03.gif" width=289></TD>
+						<TD colSpan=3><IMG height=117 alt="" src="image/spacer.gif" width=256></TD>
+					</TR>
+					<TR>
+						<TD rowSpan=2><IMG height=49 alt=""
+							src="http://www.seasar.org/images/top04.gif" width=235></TD>
+						<TD><A href="http://www.seasar.org/index.html"><IMG height=30
+							alt="" src="http://www.seasar.org/images/menu01_b_ja.gif"
+							width=78 border=0></A></TD>
+						<TD><A href="http://www.seasar.org/projects.html"><IMG height=30
+							alt="" src="http://www.seasar.org/images/menu02_b_ja.gif"
+							width=101 border=0></A></TD>
+						<TD><A href="http://www.seasar.org/products.html"><IMG height=30
+							alt="" src="http://www.seasar.org/images/menu03_b_ja.gif"
+							width=110 border=0></A></TD>
+						<TD><A href="http://www.seasar.org/resources.html"><IMG height=30
+							alt="" src="http://www.seasar.org/images/menu04_b_ja.gif"
+							width=113 border=0></A></TD>
+						<TD><IMG height=30 alt=""
+							src="http://www.seasar.org/images/menu05_b_ja.gif" width=109
+							border=0></TD>
+						<TD><IMG height=30 alt=""
+							src="http://www.seasar.org/images/menu06.gif" width=34></TD>
+					</TR>
+					<TR>
+						<TD colSpan=6><IMG height=19 alt="" src="image/spacer.gif" width=545></TD>
+					</TR>
+				</TBODY>
+			</TABLE>
+			<TABLE class=white cellSpacing=0 cellPadding=0 width=780 border=0>
+				<TBODY>
+					<TR vAlign=top align=left>
+						<TD width=14><IMG height=14 alt="" src="image/spacer.gif" width=14></TD>
+						<TD class=main width=740><!-- don't edit end --><!-- document start -->
+						<IMG height=10 alt="" src="image/spacer.gif" width=14>
+
+						<H1><A name=title style="font-size:32;">S2Javelinの便利な使い方</A></H1>
+						<P>このページでは、S2Javelinの便利な使い方を解説しています。</P>
+						<BR><BR>
+						<UL>
+							<LI><A href="#diagram">クラス図を作成する</A></LI>
+							<LI><A href="usage_profiling.html">負荷性能を測る</A></LI>
+							<LI><A href="usage_tuning.html">ボトルネックを見つける</A></LI>
+						</UL>
+						<BR><BR>
+
+						<H1><A name="diagram"></A>クラス図を作成する</H1>
+						<H2>１．はじめに-前提条件</H2>
+						このページでは、S2JavelinとBottleneckEyeを使い、クラス図を生成する手順を示します。<BR>
+						S2Javelinに付属のreadme.txtに従って、
+						S2JavelinおよびBottleneckEyeのインストールを完了して下さい。<BR>
+						<BR><BR>
+						<H2>２．セットアップ</H2>
+						<OL>
+						<LI>まず、S2Javelinのパラメータを変更します。
+						javelin.properties中の「javelin.alarmThreshold」の値を「0」ミリ秒に変更します。
+<pre>
+# BottleneckEyeへの通知を行うターン・アラウンド・タイムの閾値(単位:ミリ秒)
+javelin.alarmThreshold=5000
+</pre>
+<CENTER>↓</CENTER>
+<pre>
+# BottleneckEyeへの通知を行うターン・アラウンド・タイムの閾値(単位:ミリ秒)
+javelin.alarmThreshold=0
+</pre>
+						こうする事により、全てのリクエストがBottleneckEyeに通知される事になります。</LI>
+						<LI>続いて、Eclipseを起動し、BottleneckEyeの新規ファイルを作成します。</LI>
+						</OL>
+						<BR><BR>
+
+						<H2>３．作成スタート</H2>
+						<OL>
+						<LI>BottleneckEyeファイルを開きます。</LI>
+						<LI>アプリケーションサーバを起動します。</LI>
+						<LI>Webアプリケーションの操作を行います。<BR>
+							動作したクラスが、次々とBottleneckEyeのビューに追加されてゆくのを確認して下さい。</LI>
+						</OL>
+						<BR><BR>
+
+						<H2>４．調整＆保存</H2>
+						<OL>
+						<LI>操作を一通り完了したら、見やすいように、クラスの位置を任意の位置に変更して下さい。</LI>
+						<LI>調整後、保存ボタンを押すと、クラス位置が保存されます。</LI>
+						</OL>
+						<BR><BR>
+
+						<H2>５．データの確認</H2>
+						<OL>
+						<LI>クラス図に表示される性能データを確認します。
+							メソッドの最後にある数値は、それぞれ最大処理時間、平均処理時間を示します。<BR>
+							黄字、赤字はWarning、Alarmで設定した値を最大処理時間もしくは平均処理時間が超過していることを示します。</LI>
+						<LI>場合によっては、灰色の字で示されるメソッドが存在する場合もあります。
+							これは、現在測定情報が存在しない事を示します。</LI>
+						<LI>プロパティ・ビューを表示しておくと、クラスを選択する事で、その詳細情報を参照できます。<BR>
+							呼び出し回数や例外発生回数を見ることで、さらに詳細に分析を行うことが可能です。</LI>
+						</OL>
+						</TD>
+						<TD width=14><IMG height=14 alt="" src="image/spacer.gif" width=14></TD>
+					</TR>
+					<TR>
+						<TD width=14><IMG height=30 alt="" src="image/spacer.gif" width=14></TD>
+						<TD width=766><IMG height=30 alt="" src="image/spacer.gif" width=592></TD>
+					</TR>
+					<TR>
+						<TD width=14><IMG height=14 alt="" src="image/spacer.gif" width=14></TD>
+						<TD class=copyright width=766>&copy; Copyright The Seasar
+						Foundation and the others 2004, all rights reserved.</TD>
+					</TR>
+				</TBODY>
+			</TABLE>
+		</TR>
+		<TR>
+			<TD class=backunder vAlign=top align=left width=780 height=16>&nbsp;</TD>
+			<TD class=backcorner vAlign=top align=left height=16>&nbsp;</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<!-- don't edit end -->
+</BODY>
+</HTML>
