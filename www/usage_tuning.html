@@ -71,42 +71,34 @@
 
 						<H1><A name="tuning"></A>ボトルネックを見つける</H1>
 						<H2>１．はじめに-前提条件</H2>
+						このページでは、BottleneckEyeを使ってシステムの性能問題を発見し、
+						ArrowVisionで解析するまでの手順を示します。
+						S2Javelinに付属のreadme.txtに従って、 S2JavelinおよびBottleneckEyeのインストールを完了して下さい。<BR>
+						ArrowVisionについては、<A HREF="http://www.smg.co.jp/service/products/arrow_vision/index.html">こちら</A>
+						を参照ください。
 						<BR><BR>
 
 						<H2>２．セットアップ</H2>
 						<OL>
 						<LI>まず、S2Javelinのパラメータを変更します。
-						javelin.properties中の「javelin.recordCpuThreshold」「javelin.recordThreshold」
-						「javelin.alarmCpuThreshold」「javelin.alarmThreshold」の値を以下のように変更します。<BR>
+						javelin.properties中の「javelin.recordThreshold」
+						「javelin.alarmThreshold」の値を以下のように変更します。<BR>
 <pre>
-# ファイル出力を行うCPUタイムの閾値(単位:ミリ秒)
-javelin.recordCpuThreshold=10000
-
 # ファイル出力を行うターン・アラウンド・タイムの閾値(単位:ミリ秒)
 javelin.recordThreshold=10000
-
-# BottleneckEyeへの通知を行うCPUタイムの閾値(単位:ミリ秒)
-javelin.alarmCpuThreshold=10000
 
 # BottleneckEyeへの通知を行うターン・アラウンド・タイムの閾値(単位:ミリ秒)
 javelin.alarmThreshold=10000
 </pre>
 <CENTER>↓</CENTER>
 <pre>
-# ファイル出力を行うCPUタイムの閾値(単位:ミリ秒)
-javelin.recordCpuThreshold=1000
-
 # ファイル出力を行うターン・アラウンド・タイムの閾値(単位:ミリ秒)
 javelin.recordThreshold=3000
-
-# BottleneckEyeへの通知を行うCPUタイムの閾値(単位:ミリ秒)
-javelin.alarmCpuThreshold=1000
 
 # BottleneckEyeへの通知を行うターン・アラウンド・タイムの閾値(単位:ミリ秒)
 javelin.alarmThreshold=3000
 </pre>
-						ここではCPUタイムの閾値を1000ミリ秒、
-						ターン・アラウンド・タイムの閾値を3000ミリ秒としました。
+						ここではターン・アラウンド・タイムの閾値を3000ミリ秒としました。
 						実際の値はシステムの要件やチューニングの目的に合わせて変更する必要があります。</LI>
 						<LI>アプリケーション・サーバを起動し、アプリケーションを動作させます。
 							(起動直後は初期化処理などで通常よりも処理時間が必要となるため、
@@ -121,15 +113,18 @@ javelin.alarmThreshold=3000
 							<LI>まず、Eclipseで[Window]→[Preferences]とメニューを選択し、
 								設定ダイアログをオープンします。</LI>
 							<LI>続いて、リストの中からArrowVisionを選択します。</LI>
-							<LI>ソースコードを参照するプロジェクトにチェックを入れて、OKボタンを押します。</LI>
+							<LI>ソースコードを参照するプロジェクトにチェックを入れて、OKボタンを押します。<BR>
+							<A HREF="image/tutorial/18_relation.png"><IMG height=100 src="image/tutorial/18_relation.png"></A></LI>
 							</OL>
 						</OL>
 						<BR><BR>
 
 						<H2>３．データ取得</H2>
 						<OL>
-						<LI>アプリケーションの操作を行い、チューニング対象の処理を実行します。</LI>
-						<LI>BottleneckEyeのクラス図上で、ブリンク(点滅)が発生すれば、測定成功です。</LI>
+						<LI>アプリケーションの操作を行い、チューニング対象の処理を実行します。<BR>
+							<A HREF="image/tutorial/19_operation.png"><IMG height=100 src="image/tutorial/19_operation.png"></A></LI>
+						<LI>BottleneckEyeのクラス図上で、ブリンク(点滅)が発生すれば、測定成功です。<BR>
+							<A HREF="image/tutorial/20_blink.png"><IMG height=100 src="image/tutorial/20_blink.png"></A></LI>
 						</OL>
 						<BR><BR>
 
@@ -141,20 +136,26 @@ javelin.alarmThreshold=3000
 # jvnファイルを出力するディレクトリへのパス。
 javelin.javelinFileDir=../logs
 </pre>
-							javelin.propertiesファイルからの相対パス指定になります。</LI>
+							javelin.propertiesファイルからの相対パス指定になります。<BR>
+							<A HREF="image/tutorial/21_file.png"><IMG height=100 src="image/tutorial/21_file.png"></A></LI>
 						<LI>ArrowVisionパースペクティブを開きます。</LI>
 						<LI>メインビューに1で回収したファイルをドラッグ＆ドロップします。<BR>
-							シーケンス図が表示される事を確認して下さい。</LI>
+							シーケンス図が表示される事を確認して下さい。<BR>
+							<A HREF="image/tutorial/22_dragAndDrop.png"><IMG height=100 src="image/tutorial/22_dragAndDrop.png"></A>
+						→	<A HREF="image/tutorial/23_sequence.png"><IMG height=100 src="image/tutorial/23_sequence.png"></A></LI>
 						</OL>
 						<BR><BR>
 
 						<H2>５．解析</H2>
 						<OL>
-						<LI>メッセージビューをDurationカラムでソートします。</LI>
+						<LI>メッセージビューをDurationカラムでソートします。<BR>
+							<A HREF="image/tutorial/24_duration.png"><IMG height=100 src="image/tutorial/24_duration.png"></A></LI>
 						<LI>シーケンス図上、一番深い部分で処理時間が大きいものを見つけます。</LI>
 						<LI>メッセージビューのレコードをクリックすると、連動して、シーケンス図上でも選択されます。</LI>
 						<LI>シーケンス図のアローをダブルクリックすると、呼び出し先のソースコードが開きます。<BR>
-							(そこから時間のかかった処理がどこか、解析を進めると良いでしょう。)</LI>
+							(そこから時間のかかった処理がどこか、解析を進めると良いでしょう。)<BR>
+							<A HREF="image/tutorial/25_sourceCode.png"><IMG height=100 src="image/tutorial/25_sourceCode.png"></A><BR>
+							今回は、あらかじめsleepを仕込んでいました。</LI>
 						</OL>
 						<BR><BR>
 

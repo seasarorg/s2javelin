@@ -79,33 +79,21 @@
 						<H2>２．セットアップ</H2>
 						<OL>
 						<LI>まず、S2Javelinのパラメータを変更します。
-						javelin.properties中の「javelin.recordCpuThreshold」「javelin.recordThreshold」
-						「javelin.alarmCpuThreshold」「javelin.alarmThreshold」の値を「10000」ミリ秒に変更します。<BR>
+						javelin.properties中の「javelin.recordThreshold」
+						「javelin.alarmThreshold」の値を「10000」ミリ秒に変更します。<BR>
 						(ここでは10000ミリ秒としましたが、ファイル出力やアラーム通知が発生しないように、
 						十分に大きな値を設定して下さい。)
 <pre>
-# ファイル出力を行うCPUタイムの閾値(単位:ミリ秒)
-javelin.recordCpuThreshold=0
-
 # ファイル出力を行うターン・アラウンド・タイムの閾値(単位:ミリ秒)
 javelin.recordThreshold=0
-
-# BottleneckEyeへの通知を行うCPUタイムの閾値(単位:ミリ秒)
-javelin.alarmCpuThreshold=0
 
 # BottleneckEyeへの通知を行うターン・アラウンド・タイムの閾値(単位:ミリ秒)
 javelin.alarmThreshold=0
 </pre>
 <CENTER>↓</CENTER>
 <pre>
-# ファイル出力を行うCPUタイムの閾値(単位:ミリ秒)
-javelin.recordCpuThreshold=10000
-
 # ファイル出力を行うターン・アラウンド・タイムの閾値(単位:ミリ秒)
 javelin.recordThreshold=10000
-
-# BottleneckEyeへの通知を行うCPUタイムの閾値(単位:ミリ秒)
-javelin.alarmCpuThreshold=10000
 
 # BottleneckEyeへの通知を行うターン・アラウンド・タイムの閾値(単位:ミリ秒)
 javelin.alarmThreshold=10000
@@ -121,7 +109,9 @@ javelin.alarmThreshold=10000
 							(クラス図の背景が白色である)事を確認します。</LI>
 						<LI>負荷をかける前に、測定データのリセットを行います。
 							SettingsタブのResetボタンを押して下さい。
-							クラス図のメソッド表記が灰色になれば、成功です。</LI>
+							クラス図のメソッド表記が灰色になれば、成功です。<BR>
+							<A HREF="image/tutorial/13_resetButton.png"><IMG height=100 src="image/tutorial/13_resetButton.png"></A>
+						→	<A HREF="image/tutorial/14_reset.png"><IMG height=100 src="image/tutorial/14_reset.png"></A></LI>
 						</OL>
 						<BR><BR>
 
@@ -140,9 +130,11 @@ javelin.javelinFileDir=../logs
 
 						<H2>４．データの確認</H2>
 						<OL>
-						<LI>SettingsタブのReloadボタンを押します。</LI>
-						<LI>さらに、Profilerタブを開き、リフレッシュボタンを押します。</LI>
-						<LI>測定結果が一覧形式で表示されます。</LI>
+						<LI>SettingsタブのReloadボタンを押します。<BR>
+							<A HREF="image/tutorial/15_reloadButton.png"><IMG height=100 src="image/tutorial/15_reloadButton.png"></A></LI>
+						<LI>さらに、Profilerタブを開き、リフレッシュボタンを押すと、測定結果が一覧形式で表示されます。<BR>
+							<A HREF="image/tutorial/16_refresh.png"><IMG height=100 src="image/tutorial/16_refresh.png"></A>
+						→	<A HREF="image/tutorial/17_profiler.png"><IMG height=100 src="image/tutorial/17_profiler.png"></A></LI>
 						</OL>
 						</TD>
 						<TD width=14><IMG height=14 alt="" src="image/spacer.gif" width=14></TD>
