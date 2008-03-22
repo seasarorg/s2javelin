@@ -74,12 +74,88 @@
 						<BR><BR>
 
 						<H2>２．セットアップ</H2>
+						<OL>
+						<LI>まず、S2Javelinのパラメータを変更します。
+						javelin.properties中の「javelin.recordCpuThreshold」「javelin.recordThreshold」
+						「javelin.alarmCpuThreshold」「javelin.alarmThreshold」の値を以下のように変更します。<BR>
+<pre>
+# ファイル出力を行うCPUタイムの閾値(単位:ミリ秒)
+javelin.recordCpuThreshold=10000
+
+# ファイル出力を行うターン・アラウンド・タイムの閾値(単位:ミリ秒)
+javelin.recordThreshold=10000
+
+# BottleneckEyeへの通知を行うCPUタイムの閾値(単位:ミリ秒)
+javelin.alarmCpuThreshold=10000
+
+# BottleneckEyeへの通知を行うターン・アラウンド・タイムの閾値(単位:ミリ秒)
+javelin.alarmThreshold=10000
+</pre>
+<CENTER>↓</CENTER>
+<pre>
+# ファイル出力を行うCPUタイムの閾値(単位:ミリ秒)
+javelin.recordCpuThreshold=1000
+
+# ファイル出力を行うターン・アラウンド・タイムの閾値(単位:ミリ秒)
+javelin.recordThreshold=3000
+
+# BottleneckEyeへの通知を行うCPUタイムの閾値(単位:ミリ秒)
+javelin.alarmCpuThreshold=1000
+
+# BottleneckEyeへの通知を行うターン・アラウンド・タイムの閾値(単位:ミリ秒)
+javelin.alarmThreshold=3000
+</pre>
+						ここではCPUタイムの閾値を1000ミリ秒、
+						ターン・アラウンド・タイムの閾値を3000ミリ秒としました。
+						実際の値はシステムの要件やチューニングの目的に合わせて変更する必要があります。</LI>
+						<LI>アプリケーション・サーバを起動し、アプリケーションを動作させます。
+							(起動直後は初期化処理などで通常よりも処理時間が必要となるため、
+							正しい測定結果を得るには、ウォーミングアップが必要です。)</LI>
+						<LI>続いて、Eclipseを起動し、<A href="usage.html">「クラス図を作成する」</A>
+							で作成したbeyeファイルを開きます。</LI>
+						<LI>BottleneckEyeがアプリケーションに接続している
+							(クラス図の背景が白色である)事を確認します。</LI>
+						<LI>さらに、ArrowVisionで解析対象とするプロジェクトを指定しておきます。<BR>
+							(こうしておくと、ArrowVisionからソースコードにジャンプできます。))
+							<OL>
+							<LI>まず、Eclipseで[Window]→[Preferences]とメニューを選択し、
+								設定ダイアログをオープンします。</LI>
+							<LI>続いて、リストの中からArrowVisionを選択します。</LI>
+							<LI>ソースコードを参照するプロジェクトにチェックを入れて、OKボタンを押します。</LI>
+							</OL>
+						</OL>
 						<BR><BR>
 
 						<H2>３．データ取得</H2>
+						<OL>
+						<LI>アプリケーションの操作を行い、チューニング対象の処理を実行します。</LI>
+						<LI>BottleneckEyeのクラス図上で、ブリンク(点滅)が発生すれば、測定成功です。</LI>
+						</OL>
 						<BR><BR>
 
 						<H2>４．データの確認</H2>
+						<OL>
+						<LI>動作解析用のJavelinファイル(.jvn)を回収します。
+							ファイルが出力されるのは以下のディレクトリです。
+<pre>
+# jvnファイルを出力するディレクトリへのパス。
+javelin.javelinFileDir=../logs
+</pre>
+							javelin.propertiesファイルからの相対パス指定になります。</LI>
+						<LI>ArrowVisionパースペクティブを開きます。</LI>
+						<LI>メインビューに1で回収したファイルをドラッグ＆ドロップします。<BR>
+							シーケンス図が表示される事を確認して下さい。</LI>
+						</OL>
+						<BR><BR>
+
+						<H2>５．解析</H2>
+						<OL>
+						<LI>メッセージビューをDurationカラムでソートします。</LI>
+						<LI>シーケンス図上、一番深い部分で処理時間が大きいものを見つけます。</LI>
+						<LI>メッセージビューのレコードをクリックすると、連動して、シーケンス図上でも選択されます。</LI>
+						<LI>シーケンス図のアローをダブルクリックすると、呼び出し先のソースコードが開きます。<BR>
+							(そこから時間のかかった処理がどこか、解析を進めると良いでしょう。)</LI>
+						</OL>
 						<BR><BR>
 
 						</TD>
@@ -98,7 +174,7 @@
 			</TABLE>
 		</TR>
 		<TR>
-			<TD class=backunder vAlign=top align=left width=780 height=16>&nbsp;</TD>
+			<TD class=backunder  vAlign=top align=left width=780 height=16>&nbsp;</TD>
 			<TD class=backcorner vAlign=top align=left height=16>&nbsp;</TD>
 		</TR>
 	</TBODY>
