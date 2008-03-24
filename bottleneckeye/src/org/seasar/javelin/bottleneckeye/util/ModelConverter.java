@@ -1,6 +1,7 @@
 package org.seasar.javelin.bottleneckeye.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,32 +14,30 @@ import org.seasar.javelin.bottleneckeye.model.InvocationModel;
 import org.seasar.javelin.bottleneckeye.model.persistence.Component;
 import org.seasar.javelin.bottleneckeye.model.persistence.Method;
 import org.seasar.javelin.bottleneckeye.model.persistence.Relation;
-import org.seasar.javelin.bottleneckeye.model.persistence.Root;
+import org.seasar.javelin.bottleneckeye.model.persistence.View;
 
+/**
+ * モデルのコンバータ。
+ *
+ */
 public class ModelConverter
 {
     /**
-     * ContentsModelを、永続化モデル(Root)に変換する。
-     * @param origRoot ContentsModel
-     * @return 永続化モデル(Root)
+     * ComponentModelのリストを、永続化モデル(View)に変換する。
+     * @param origComponentList ComponentModelのリスト
+     * @return 永続化モデル(View)
      */
-    public static Root toPersistenceModel(ContentsModel origRoot)
+    public static View toView(Collection<ComponentModel> origComponentList)
     {
-        if (origRoot == null)
-        {
-            return null;
-        }
+        View view = new View();
 
-        Root root = new Root();
+        List<Component> components = ModelConverter.toComponents(origComponentList);
+        view.setComponents(components);
 
-        List<ComponentModel> origComponentList = origRoot.getChildren();
-        List<Component> components = toComponents(origComponentList);
-        root.setComponents(components);
+        List<Relation> relations = ModelConverter.toRelations(origComponentList);
+        view.setRelations(relations);
 
-        List<Relation> relations = toRelations(origComponentList);
-        root.setRelations(relations);
-
-        return root;
+        return view;
     }
 
     /**
@@ -46,9 +45,15 @@ public class ModelConverter
      * @param origComponentList ComponentModelのリスト
      * @return 永続化モデル(Component)のリスト
      */
-    private static List<Component> toComponents(List<ComponentModel> origComponentList)
+    public static List<Component> toComponents(Collection<ComponentModel> origComponentList)
     {
         List<Component> components = new ArrayList<Component>();
+
+        if (origComponentList == null)
+        {
+            return components;
+        }
+
         for (ComponentModel origComponent : origComponentList)
         {
             Component component = toComponent(origComponent);
@@ -57,6 +62,7 @@ public class ModelConverter
             List<Method> methodList = toMethodList(origComponent.getInvocationList());
             component.setMethods(methodList);
         }
+
         return components;
     }
 
@@ -81,7 +87,7 @@ public class ModelConverter
      * @param invocationModelList InvocationModelのリスト
      * @return 永続化モデル(Method)のリスト
      */
-    protected static List<Method> toMethodList(List<InvocationModel> invocationModelList)
+    private static List<Method> toMethodList(List<InvocationModel> invocationModelList)
     {
         ArrayList<Method> methodList = new ArrayList<Method>();
 
@@ -103,7 +109,7 @@ public class ModelConverter
     {
         Method method = new Method();
 
-        method.setName(invocation.getClassName());
+        method.setName(invocation.getMethodName());
         method.setAverage(invocation.getAverage());
         method.setMaximum(invocation.getMaximum());
         method.setMinimum(invocation.getMinimum());
@@ -119,7 +125,7 @@ public class ModelConverter
      * @param origComponentList ComponentModelのリスト
      * @return 永続化モデル(Relation)のリスト
      */
-    private static List<Relation> toRelations(List<ComponentModel> origComponentList)
+    public static List<Relation> toRelations(Collection<ComponentModel> origComponentList)
     {
         List<Relation> relations = new ArrayList<Relation>();
 
@@ -144,30 +150,42 @@ public class ModelConverter
     }
 
     /**
-     * 永続化モデル(Root)を、Contentsモデルに変換する。
-     * @param origRoot 永続化モデル(Root)
+     * 永続化モデル(View)を、Contentsモデルに変換する。
+     * @param view 永続化モデル(View)
      * @return Contentsモデル
      */
-    public ContentsModel toContentsModel(Root origRoot)
+    public static ContentsModel toContentsModel(View view)
     {
-        if (origRoot == null)
+        if (view == null)
         {
             return null;
         }
+        
+        ContentsModel contents = new ContentsModel();
+        if (view.getComponents() == null)
+        {
+            return contents;
+        }
 
+        List<Component> origComponents = view.getComponents();
         Map<String, ComponentModel> tempComponentMap = new HashMap<String, ComponentModel>();
 
-        ContentsModel root = new ContentsModel();
-
-        List<Component> origComponents = origRoot.getComponents();
         for (Component origComponent : origComponents)
         {
             String name = origComponent.getName();
 
-            ComponentModel component = createNewComponent(root, name);
+            ComponentModel component = createNewComponent(contents, name);
+            component.getConstraint().x = origComponent.getX();
+            component.getConstraint().y = origComponent.getY();
             tempComponentMap.put(name, component);
 
             List<Method> origMethods = origComponent.getMethods();
+
+            if (origMethods == null)
+            {
+                continue;
+            }
+
             for (Method method : origMethods)
             {
                 InvocationModel invocation = toInvocationModel(method);
@@ -175,7 +193,13 @@ public class ModelConverter
             }
         }
 
-        List<Relation> origRelations = origRoot.getRelations();
+        List<Relation> origRelations = view.getRelations();
+
+        if (origRelations == null)
+        {
+            return contents;
+        }
+
         for (Relation origRelation : origRelations)
         {
             ArrowConnectionModel connection = new ArrowConnectionModel();
@@ -184,7 +208,7 @@ public class ModelConverter
             ComponentModel sourceComponent = tempComponentMap.get(sourceName);
             if (sourceComponent == null)
             {
-                sourceComponent = createNewComponent(root, sourceName);
+                sourceComponent = createNewComponent(contents, sourceName);
             }
 
             connection.setSource(sourceComponent);
@@ -194,14 +218,14 @@ public class ModelConverter
             ComponentModel targetComponent = tempComponentMap.get(targetName);
             if (targetComponent == null)
             {
-                targetComponent = createNewComponent(root, targetName);
+                targetComponent = createNewComponent(contents, targetName);
             }
 
             connection.setTarget(targetComponent);
             targetComponent.addTargetConnection(connection);
         }
 
-        return root;
+        return contents;
     }
 
     /**
@@ -209,7 +233,7 @@ public class ModelConverter
      * @param method 永続化モデル(Method)
      * @return InvocationModel
      */
-    private InvocationModel toInvocationModel(Method method)
+    private static InvocationModel toInvocationModel(Method method)
     {
         InvocationModel invocation = new InvocationModel();
 
@@ -226,16 +250,16 @@ public class ModelConverter
 
     /**
      * 新規にコンポーネントモデルを作成する。
-     * @param root コンポーネントモデルを追加する親モデル
+     * @param contents コンポーネントモデルを追加する親モデル
      * @param name コンポーネント名
      * @return コンポーネントモデル
      */
-    private ComponentModel createNewComponent(ContentsModel root, String name)
+    private static ComponentModel createNewComponent(ContentsModel contents, String name)
     {
         ComponentModel component = new ComponentModel();
         component.setClassName(name);
         component.setConstraint(new Rectangle(0, 0, -1, -1));
-        root.addChild(component);
+        contents.addChild(component);
 
         return component;
     }

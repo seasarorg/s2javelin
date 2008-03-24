@@ -1,6 +1,7 @@
 package org.seasar.javelin.bottleneckeye.wizard;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.eclipse.core.resources.IFile;
@@ -15,20 +16,36 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.seasar.javelin.bottleneckeye.model.persistence.PersistenceModel;
+import org.seasar.javelin.bottleneckeye.model.persistence.Settings;
+import org.seasar.javelin.bottleneckeye.util.ModelSerializer;
 
+/**
+ * Bottleneck Eyeファイルの新規作成ウィザード。
+ */
 public class NewFileWizardPage extends WizardPage
 {
     private static final String TITLE = "Bottleneck Eye";
-    private static final String DESC  = "Modify values.";
-    
-    private Text hostNameText;
-    private Text portText;
-    private Text domainText;
-    private Text warnText;
-    private Text alarmText;
-    private Combo modeCombo;
-    private Combo lineStyleCombo;
 
+    private static final String DESC  = "Modify values.";
+
+    private Text                hostNameText;
+
+    private Text                portText;
+
+    private Text                domainText;
+
+    private Text                warnText;
+
+    private Text                alarmText;
+
+    private Combo               modeCombo;
+
+    private Combo               lineStyleCombo;
+
+    /**
+     * コンストラクタ。
+     */
     public NewFileWizardPage()
     {
         super("Create new Bottleneck Eye file.");
@@ -41,81 +58,81 @@ public class NewFileWizardPage extends WizardPage
         Composite composite = new Composite(parent, SWT.NULL);
         composite.setLayout(new GridLayout(2, false));
 
-        ModifyListener listener = new ModifyListener(){
+        ModifyListener listener = new ModifyListener() {
             public void modifyText(ModifyEvent e)
             {
                 doValidate();
             }
         };
-        
+
         Label label;
         label = new Label(composite, SWT.NULL);
         label.setText("Host:");
-        hostNameText = new Text(composite, SWT.BORDER);
-        hostNameText.setText("localhost");
-        hostNameText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        hostNameText.addModifyListener(listener);
+        this.hostNameText = new Text(composite, SWT.BORDER);
+        this.hostNameText.setText("localhost");
+        this.hostNameText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        this.hostNameText.addModifyListener(listener);
 
         label = new Label(composite, SWT.NULL);
         label.setText("Port:");
-        portText = new Text(composite, SWT.BORDER);
-        portText.setText("18000");
-        portText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        portText.addModifyListener(listener);
+        this.portText = new Text(composite, SWT.BORDER);
+        this.portText.setText("18000");
+        this.portText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        this.portText.addModifyListener(listener);
 
         label = new Label(composite, SWT.NULL);
         label.setText("Domain:");
-        domainText = new Text(composite, SWT.BORDER);
-        domainText.setText("default");
-        domainText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        domainText.addModifyListener(listener);
+        this.domainText = new Text(composite, SWT.BORDER);
+        this.domainText.setText("default");
+        this.domainText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        this.domainText.addModifyListener(listener);
 
         label = new Label(composite, SWT.NULL);
         label.setText("Warning:");
-        warnText = new Text(composite, SWT.BORDER);
-        warnText.setText("300");
-        warnText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        warnText.addModifyListener(listener);
+        this.warnText = new Text(composite, SWT.BORDER);
+        this.warnText.setText("300");
+        this.warnText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        this.warnText.addModifyListener(listener);
 
         label = new Label(composite, SWT.NULL);
         label.setText("Alarm:");
-        alarmText = new Text(composite, SWT.BORDER);
-        alarmText.setText("500");
-        alarmText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        alarmText.addModifyListener(listener);
-        
+        this.alarmText = new Text(composite, SWT.BORDER);
+        this.alarmText.setText("500");
+        this.alarmText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        this.alarmText.addModifyListener(listener);
+
         label = new Label(composite, SWT.NULL);
         label.setText("Mode:");
-        modeCombo = new Combo(composite, SWT.READ_ONLY);
-        modeCombo.add("TCP");
-        modeCombo.add("JMX");
-        modeCombo.setText("TCP");
+        this.modeCombo = new Combo(composite, SWT.READ_ONLY);
+        this.modeCombo.add("TCP");
+        this.modeCombo.add("JMX");
+        this.modeCombo.setText("TCP");
 
         label = new Label(composite, SWT.NULL);
         label.setText("Style:");
-        lineStyleCombo = new Combo(composite, SWT.READ_ONLY);
-        lineStyleCombo.add("NORMAL");
-        lineStyleCombo.add("SHORTEST");
-        lineStyleCombo.add("FAN");
-        lineStyleCombo.add("MANHATTAN");
-        lineStyleCombo.setText("NORMAL");
+        this.lineStyleCombo = new Combo(composite, SWT.READ_ONLY);
+        this.lineStyleCombo.add("NORMAL");
+        this.lineStyleCombo.add("SHORTEST");
+        this.lineStyleCombo.add("FAN");
+        this.lineStyleCombo.add("MANHATTAN");
+        this.lineStyleCombo.setText("NORMAL");
 
         doValidate();
         setControl(composite);
     }
-    
+
     private void doValidate()
     {
-        if (hostNameText.getText().trim().length() == 0)
+        if (this.hostNameText.getText().trim().length() == 0)
         {
             setErrorMessage("Host cannot be empty.");
             setPageComplete(false);
             return;
         }
-        
+
         try
         {
-            int port = Integer.parseInt(portText.getText());
+            int port = Integer.parseInt(this.portText.getText());
             if (port < 1 || port > 65535)
             {
                 setErrorMessage("Port must be from 1 to 65535.");
@@ -123,23 +140,23 @@ public class NewFileWizardPage extends WizardPage
                 return;
             }
         }
-        catch(NumberFormatException nfEx)
+        catch (NumberFormatException nfEx)
         {
             setErrorMessage("Port must be from 1 to 65535.");
             setPageComplete(false);
             return;
         }
-        
-        if (domainText.getText().trim().length() == 0)
+
+        if (this.domainText.getText().trim().length() == 0)
         {
             setErrorMessage("Domain cannot be empty.");
             setPageComplete(false);
             return;
         }
-        
+
         try
         {
-            long warn = Long.parseLong(warnText.getText());
+            long warn = Long.parseLong(this.warnText.getText());
             if (warn < 1)
             {
                 setErrorMessage("Warn must be from 1 to max long value.");
@@ -147,16 +164,16 @@ public class NewFileWizardPage extends WizardPage
                 return;
             }
         }
-        catch(NumberFormatException nfEx)
+        catch (NumberFormatException nfEx)
         {
             setErrorMessage("Warn must be from 1 to max long value.");
             setPageComplete(false);
             return;
         }
-        
+
         try
         {
-            long alarm = Long.parseLong(alarmText.getText());
+            long alarm = Long.parseLong(this.alarmText.getText());
             if (alarm < 1)
             {
                 setErrorMessage("Alarm must be from 1 to max long value.");
@@ -164,32 +181,107 @@ public class NewFileWizardPage extends WizardPage
                 return;
             }
         }
-        catch(NumberFormatException nfEx)
+        catch (NumberFormatException nfEx)
         {
             setErrorMessage("Alarm must be from 1 to max long value.");
             setPageComplete(false);
             return;
         }
-        
+
         setErrorMessage(null);
         setPageComplete(true);
     }
 
-    public void save(IFile file) throws CoreException
+    /**
+     * 保存する。
+     * @param file ファイル
+     * @throws CoreException
+     */
+    public void save(IFile file)
+        throws CoreException
     {
-        StringBuilder builder = new StringBuilder(1024);
-        String lineSeparator = System.getProperty("line.separator");
+        PersistenceModel root = new PersistenceModel();
+        Settings settings = new Settings();
+        root.setSettings(settings);
 
-        StringBuilder data = new StringBuilder(1024);
-        data.append(hostNameText.getText()).append(lineSeparator);
-        data.append(portText.getText()).append(lineSeparator);
-        data.append(domainText.getText()).append(lineSeparator);
-        data.append(warnText.getText()).append(lineSeparator);
-        data.append(alarmText.getText()).append(lineSeparator);
-        data.append(modeCombo.getText()).append(lineSeparator);
-        data.append(lineStyleCombo.getText()).append(lineSeparator);
-        
-        InputStream stream = new ByteArrayInputStream(data.toString().getBytes());
-        file.setContents(stream, true, false, null);
+        settings.setHostName(this.hostNameText.getText());
+        settings.setPortNum(convertToInteger(this.portText.getText()));
+        settings.setDomain(this.domainText.getText());
+        settings.setWarningThreshold(convertToLong(this.warnText.getText()));
+        settings.setAlarmThreshold(convertToLong(this.alarmText.getText()));
+        settings.setMode((this.modeCombo.getText()));
+        settings.setLineStyle((this.lineStyleCombo.getText()));
+
+        byte[] data = null;
+        try
+        {
+            data = ModelSerializer.serialize(root);
+        }
+        catch (IOException ex)
+        {
+            ex.printStackTrace();
+        }
+
+        InputStream stream = new ByteArrayInputStream(data);
+        try
+        {
+            file.setContents(stream, true, false, null);
+        }
+        finally
+        {
+            try
+            {
+                stream.close();
+            }
+            catch (IOException ex)
+            {
+                // ignore
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * 文字列をIntegerに変換する。
+     * @param str 文字列
+     * @return Integerの値。文字列がnullかIntegerに変換できない時はnullを返す。
+     */
+    public Integer convertToInteger(String str)
+    {
+        if (str == null)
+        {
+            return null;
+        }
+
+        try
+        {
+            return Integer.parseInt(str);
+        }
+        catch (NumberFormatException ex)
+        {
+            return null;
+        }
+    }
+
+    /**
+     * 文字列をLongに変換する。
+     * @param str 文字列
+     * @return Longの値。文字列がnullかLongに変換できない時はnullを返す。
+     */
+    public Long convertToLong(String str)
+    {
+        if (str == null)
+        {
+            return null;
+        }
+
+        try
+        {
+            return Long.parseLong(str);
+        }
+        catch (NumberFormatException ex)
+        {
+            return null;
+        }
     }
 }

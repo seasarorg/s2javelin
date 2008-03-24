@@ -1,35 +1,47 @@
 package org.seasar.javelin.bottleneckeye.editors;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchPartSite;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
+import org.seasar.javelin.bottleneckeye.StatsVisionPlugin;
 import org.seasar.javelin.bottleneckeye.communicate.TelegramClientManager;
 import org.seasar.javelin.bottleneckeye.communicate.TelegramSender;
 import org.seasar.javelin.bottleneckeye.editors.settings.SettingsEditorTab;
 import org.seasar.javelin.bottleneckeye.editors.view.StatsVisionEditor;
 import org.seasar.javelin.bottleneckeye.editors.view.StatsVisionEditorTab;
 import org.seasar.javelin.bottleneckeye.editors.view.TcpStatsVisionEditor;
+import org.seasar.javelin.bottleneckeye.model.persistence.PersistenceModel;
+import org.seasar.javelin.bottleneckeye.model.persistence.Settings;
+import org.seasar.javelin.bottleneckeye.util.ModelSerializer;
 
 /**
  * An example showing how to create a multi-page editor. This example has 3
@@ -40,10 +52,11 @@ import org.seasar.javelin.bottleneckeye.editors.view.TcpStatsVisionEditor;
  * <li>page 2 shows the words in page 0 in sorted order
  * </ul>
  */
-public class MultiPageEditor extends MultiPageEditorPart implements IResourceChangeListener
+public class MultiPageEditor extends MultiPageEditorPart implements IResourceChangeListener, ISelectionListener
 {
     /** タブの設定が書かれているファイル */
-    private static final String             TAB_SETTINGS_FILE             = "/org/seasar/javelin/bottleneckeye/editors/tabs.txt";
+    private static final String             TAB_SETTINGS_FILE             =
+                                                                                  "/org/seasar/javelin/bottleneckeye/editors/tabs.txt";
 
     /** タブの設定で、コメント行を表す接頭辞 */
     private static final String             TAB_SETTING_COMMENT_LINE_MARK = "#";
@@ -94,7 +107,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
     private String                          lineStyle_                    = LINE_STYLE_NORMAL;
 
     /** 電文送信オブジェクト。 */
-    private TelegramSender telegramSender_;
+    private TelegramSender                  telegramSender_;
 
     /** ホストのデフォルト値 */
     private static final String             DEFAULT_HOST                  = "localhost";
@@ -128,11 +141,23 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
     }
 
     /**
+     * タイトル画像をセットする。
+     *
+     * @param key アイコンのキー
+     */
+    public void setTitleImage(String key)
+    {
+        super.setTitleImage(StatsVisionPlugin.getDefault().getImageRegistry().get(key));
+    }
+
+    /**
      * Creates the pages of the multi-page editor.
      * @see org.eclipse.ui.part.MultiPageEditorPart#createPages()
      */
     protected void createPages()
     {
+        setTitleImage(StatsVisionPlugin.IMG_DISCONNECT_TITLE);
+
         // StatsVisionEditorタブを作成する。
         StatsVisionEditorTab statsVisionEditorTab = new StatsVisionEditorTab();
         statsVisionEditorTab.createEditor(getContainer(), this);
@@ -158,11 +183,13 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         // 設定画面タブを作成する。
         SettingsEditorTab settingsEditorTab = new SettingsEditorTab(this, this.editor_);
         Composite tabComposite = settingsEditorTab.createComposite(getContainer(), this);
-        index = addPage(tabComposite);
-        setPageText(index, settingsEditorTab.getName());
 
         // ファイルを元にタブを生成する
         initTabs();
+
+        // 設定画面タブを画面に追加する
+        index = addPage(tabComposite);
+        setPageText(index, settingsEditorTab.getName());
 
         // 電文転送先を登録する
         TelegramClientManager clientManager = this.editor_.getTelegramClientManager();
@@ -174,11 +201,120 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
             }
         }
 
+        loadFileContent();
+
         // 初期設定をビューに通知する
         initSettingEditorTab(settingsEditorTab);
-        
+
+        // MultiPageEditorをSelectionListenerとして登録する
+        IWorkbenchPartSite site = getSite();
+        IWorkbenchWindow window = site.getWorkbenchWindow();
+        ISelectionService service = window.getSelectionService();
+        service.addSelectionListener(this);
+
         // 接続を開始する。
         settingsEditorTab.start();
+    }
+
+    private void loadFileContent()
+    {
+        IFileEditorInput input = (IFileEditorInput)getEditorInput();
+        setPartName(input.getName());
+
+        PersistenceModel persistence = null;
+        InputStream in = null;
+        try
+        {
+            in = input.getFile().getContents();
+            persistence = ModelSerializer.deserialize(in);
+        }
+        catch (IOException ex)
+        {
+            // TODO: 例外処理
+            ex.printStackTrace();
+        }
+        catch (CoreException ex)
+        {
+            // TODO: 例外処理
+            ex.printStackTrace();
+        }
+        finally
+        {
+            if (in != null)
+            {
+                try
+                {
+                    in.close();
+                }
+                catch (IOException ex)
+                {
+                    // ignore
+                    ex.printStackTrace();
+                }
+            }
+        }
+
+        if (persistence == null)
+        {
+            return;
+        }
+
+        loadSetting(persistence.getSettings());
+        notifyLoad(persistence);
+    }
+
+    /**
+     * 文字列を入力し、文字列が0以上の整数の場合、その値を整数にして返す。 それ以外の場合はデフォルト値を返す。
+     * 
+     * @param key キー
+     * @param input 入力
+     * @param defaultValue デフォルト値
+     * @return データとして入力される値
+     */
+    private int setInteger(String key, String input, int defaultValue)
+    {
+        int value;
+        if (input == null)
+        {
+            System.err.println("[BottleneckEye]" + key + "が設定されていません。デフォルト値(" + defaultValue
+                    + ")を使用します。");
+            return defaultValue;
+        }
+        try
+        {
+            value = Integer.parseInt(input);
+            if (value < 0)
+            {
+                return defaultValue;
+            }
+            return value;
+        }
+        catch (NumberFormatException ex)
+        {
+            System.err.println("[BottleneckEye]" + key + "に不正な値が入力されました。デフォルト値(" + defaultValue
+                    + ")を使用します。");
+            return defaultValue;
+        }
+    }
+
+    /**
+     * 文字列を入力し、文字列が空でなければ、入力された文字列を返す。
+     * 文字列が空であれば、デフォルト値を返す。
+     * 
+     * @param key キー
+     * @param input 入力
+     * @param defaultValue デフォルト値
+     * @return データとして入力される値
+     */
+    private String setString(String key, String input, String defaultValue)
+    {
+        if (input == null || "".equals(input))
+        {
+            System.err.println("[BottleneckEye]" + key + "が設定されていません。デフォルト値(" + defaultValue
+                    + ")を使用します。");
+            return defaultValue;
+        }
+        return input;
     }
 
     private void initTabs()
@@ -267,7 +403,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         Composite tabComposite = editorTab.createComposite(getContainer(), this);
         int index = addPage(tabComposite);
         setPageText(index, editorTab.getName());
-        
+
         editorTab.setTelegramSender(this.telegramSender_);
 
         this.editorTabMap_.put(className, editorTab);
@@ -306,7 +442,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
      */
     public void dispose()
     {
-        for(EditorTabInterface editorTab:this.editorTabMap_.values())
+        for (EditorTabInterface editorTab : this.editorTabMap_.values())
         {
             editorTab.onStop();
         }
@@ -319,7 +455,34 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
      */
     public void doSave(IProgressMonitor monitor)
     {
-        this.editor_.doSave(monitor);
+        PersistenceModel persistence = new PersistenceModel();
+        notifySave(persistence);
+
+        byte[] data;
+        try
+        {
+            data = ModelSerializer.serialize(persistence);
+        }
+        catch (IOException ex)
+        {
+            ex.printStackTrace();
+            return;
+        }
+
+        InputStream stream = new ByteArrayInputStream(data);
+
+        IFile file = ((IFileEditorInput)getEditorInput()).getFile();
+
+        try
+        {
+            file.setContents(stream, true, false, monitor);
+        }
+        catch (CoreException ex)
+        {
+            ex.printStackTrace();
+        }
+
+        //        this.editor_.doSave(monitor);
     }
 
     /**
@@ -357,10 +520,6 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         }
         super.init(site, editorInput);
 
-        IFileEditorInput input = (IFileEditorInput)editorInput;
-
-        BufferedReader bufferedReader = null;
-
         // 初期値を設定する。
         this.host_ = DEFAULT_HOST;
         this.port_ = DEFAULT_PORT;
@@ -369,46 +528,35 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         this.alarmThreshold_ = DEFAULT_ALARM;
         this.mode_ = DEFAULT_MODE;
         this.lineStyle_ = DEFAULT_STYLE;
+    }
 
-        try
-        {
-            InputStream stream = input.getFile().getContents();
-            InputStreamReader reader = new InputStreamReader(stream);
-            bufferedReader = new BufferedReader(reader);
+    /**
+     * 設定を読み込む。
+     * @param file
+     */
+    protected void loadSetting(Settings settings)
+    {
+        this.host_ = settings.getHostName();
 
-            setPartName(input.getName());
+        if (settings.getPortNum() != null)
+        {
+            this.port_ = settings.getPortNum();
+        }
 
-            this.host_ = setString("Host", bufferedReader.readLine(), DEFAULT_HOST);
-            this.port_ = setInteger("Port", bufferedReader.readLine(), DEFAULT_PORT);
-            this.domain_ = setString("Domain", bufferedReader.readLine(), DEFAULT_DOMAIN);
-            this.warningThreshold_ = setInteger("Warning", bufferedReader.readLine(),
-                                                DEFAULT_WARNING);
-            this.alarmThreshold_ = setInteger("Alarm", bufferedReader.readLine(), DEFAULT_ALARM);
-            this.mode_ = setString("Mode", bufferedReader.readLine(), DEFAULT_MODE);
-            this.lineStyle_ = setString("Style", bufferedReader.readLine(), DEFAULT_STYLE);
-        }
-        catch (CoreException ex)
+        this.domain_ = settings.getDomain();
+
+        if (settings.getWarningThreshold() != null)
         {
-            ex.printStackTrace();
+            this.warningThreshold_ = settings.getWarningThreshold();
         }
-        catch (IOException ex)
+
+        if (settings.getAlarmThreshold() != null)
         {
-            ex.printStackTrace();
+            this.alarmThreshold_ = settings.getAlarmThreshold();
         }
-        finally
-        {
-            if (bufferedReader != null)
-            {
-                try
-                {
-                    bufferedReader.close();
-                }
-                catch (IOException ex)
-                {
-                    ex.printStackTrace();
-                }
-            }
-        }
+
+        this.mode_ = settings.getMode();
+        this.lineStyle_ = settings.getLineStyle();
     }
 
     /**
@@ -435,69 +583,17 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
                 IWorkbenchPage[] pages = getSite().getWorkbenchWindow().getPages();
                 for (int i = 0; i < pages.length; i++)
                 {
-                    FileEditorInput input = (FileEditorInput)MultiPageEditor.this.editor_.getEditorInput();
+                    FileEditorInput input =
+                            (FileEditorInput)MultiPageEditor.this.editor_.getEditorInput();
                     if (input.getFile().getProject().equals(event.getResource()))
                     {
-                        IEditorPart editorPart = pages[i].findEditor(MultiPageEditor.this.editor_.getEditorInput());
+                        IEditorPart editorPart =
+                                pages[i].findEditor(MultiPageEditor.this.editor_.getEditorInput());
                         pages[i].closeEditor(editorPart, true);
                     }
                 }
             }
         });
-    }
-
-    /**
-     * 文字列を入力し、文字列が0以上の整数の場合、その値を整数にして返す。 それ以外の場合はデフォルト値を返す。
-     * 
-     * @param key キー
-     * @param input 入力
-     * @param defaultValue デフォルト値
-     * @return データとして入力される値
-     */
-    private int setInteger(String key, String input, int defaultValue)
-    {
-        int value;
-        if (input == null)
-        {
-            System.err.println("[BottleneckEye]" + key + "が設定されていません。デフォルト値(" + defaultValue
-                    + ")を使用します。");
-            return defaultValue;
-        }
-        try
-        {
-            value = Integer.parseInt(input);
-            if (value < 0)
-            {
-                return defaultValue;
-            }
-            return value;
-        }
-        catch (NumberFormatException ex)
-        {
-            System.err.println("[BottleneckEye]" + key + "に不正な値が入力されました。デフォルト値(" + defaultValue
-                    + ")を使用します。");
-            return defaultValue;
-        }
-    }
-
-    /**
-     * 文字列を入力し、文字列が空でなければ、入力された文字列を返す。
-     * 文字列が空であれば、デフォルト値を返す。
-     * 
-     * @param key キー
-     * @param input 入力
-     * @param defaultValue デフォルト値
-     * @return データとして入力される値
-     */
-    private String setString(String key, String input, String defaultValue)
-    {
-        if (input == null || "".equals(input))
-        {
-            System.err.println("[BottleneckEye]" + key + "が設定されていません。デフォルト値(" + defaultValue
-                    + ")を使用します。");
-            return defaultValue;
-        }
-        return input;
     }
 
     /**
@@ -563,6 +659,44 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         for (EditorTabInterface editorTab : this.editorTabMap_.values())
         {
             editorTab.onPrint();
+        }
+    }
+
+    /**
+     * Saveを通知する。
+     * @param persistence 永続化モデル
+     */
+    public void notifySave(PersistenceModel persistence)
+    {
+        for (EditorTabInterface editorTab : this.editorTabMap_.values())
+        {
+            editorTab.onSave(persistence);
+        }
+    }
+
+    /**
+     * Loadを通知する。
+     * @param persistence 永続化モデル
+     */
+    public void notifyLoad(PersistenceModel persistence)
+    {
+        for (EditorTabInterface editorTab : this.editorTabMap_.values())
+        {
+            editorTab.onLoad(persistence);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void selectionChanged(IWorkbenchPart part, ISelection selection)
+    {
+        if (this.equals(getSite().getPage().getActiveEditor()))
+        {
+            if (this.editor_.equals(getActiveEditor()))
+            {
+                this.editor_.selectionChanged(part, selection);
+            }
         }
     }
 }

@@ -8,6 +8,9 @@ import java.util.List;
 
 import org.seasar.javelin.bottleneckeye.editors.EditorTabInterface;
 
+/**
+ * 電文を受信するクラス。
+ */
 public class TelegramReader implements Runnable
 {
     private volatile boolean         isRunning_;
@@ -23,6 +26,9 @@ public class TelegramReader implements Runnable
     /**　再起動用TcpStatsVisionEditor */
     private TcpDataGetter            tcpDataGetter_ = null;
 
+    /** 前に送った通知が接続通知なら <code>true</code> 、切断通知なら <code>false</code> */
+    private boolean isPrevNotifyConnect_;
+
     /** リトライ時間 */
     private static final int         RETRY_INTERVAL = 10000;
 
@@ -35,6 +41,7 @@ public class TelegramReader implements Runnable
     public TelegramReader(TcpDataGetter tcpDataGetter)
     {
         this.isRunning_ = false;
+        this.isPrevNotifyConnect_ = false;
         this.editorTabList_ = new ArrayList<EditorTabInterface>();
         this.tcpDataGetter_ = tcpDataGetter;
     }
@@ -60,9 +67,12 @@ public class TelegramReader implements Runnable
             this.channel_ = this.tcpDataGetter_.getChannel();
             if (this.channel_ == null)
             {
+                sendDisconnectNotify();
                 retry();
                 continue;
             }
+            sendConnectNotify();
+
             byte[] telegramBytes = null;
             try
             {
@@ -70,8 +80,10 @@ public class TelegramReader implements Runnable
             }
             catch (IOException ioe)
             {
-                this.isRunning_ = false;
-                break;
+                // 切断された
+                sendDisconnectNotify();
+                retry();
+                continue;
             }
             Telegram telegram = TelegramUtil.recoveryTelegram(telegramBytes);
             boolean isProcess = false;
@@ -87,6 +99,7 @@ public class TelegramReader implements Runnable
             }
         }
 
+        sendDisconnectNotify();
     }
 
     /**
@@ -151,7 +164,6 @@ public class TelegramReader implements Runnable
 
         try
         {
-            System.out.println(RETRY_INTERVAL / 1000 + "秒後に再接続します。");
             Thread.sleep(RETRY_INTERVAL);
         }
         catch (InterruptedException ex)
@@ -164,4 +176,41 @@ public class TelegramReader implements Runnable
             this.tcpDataGetter_.open();
         }
     }
+
+    /**
+     * 接続されたことを各タブへ通知する。
+     */
+    private void sendConnectNotify()
+    {
+        synchronized (this)
+        {
+            if (this.isPrevNotifyConnect_ == false)
+            {
+                this.isPrevNotifyConnect_ = true;
+                for (EditorTabInterface editorTab : this.editorTabList_)
+                {
+                    editorTab.connected();
+                }
+            }
+        }
+    }
+
+    /**
+     * 切断されたことを各タブへ通知する。
+     */
+    public void sendDisconnectNotify()
+    {
+        synchronized (this)
+        {
+            if (this.isPrevNotifyConnect_ == true)
+            {
+                this.isPrevNotifyConnect_ = false;
+                for (EditorTabInterface editorTab : this.editorTabList_)
+                {
+                    editorTab.disconnected();
+                }
+            }
+        }
+    }
+
 }

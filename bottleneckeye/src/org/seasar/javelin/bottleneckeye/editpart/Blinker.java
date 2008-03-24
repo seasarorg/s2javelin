@@ -1,33 +1,39 @@
 package org.seasar.javelin.bottleneckeye.editpart;
 
+import java.util.List;
+import java.util.Map;
 import java.util.TimerTask;
 
-import org.eclipse.draw2d.Label;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 
 public class Blinker extends TimerTask
 {
-    Display display_;
+    private Display display_;
 
-    Label   label_;
+    private Map<String, ComponentEditPart> componentEditPartMap_;
 
-    Color   bg_;
+    private String className_;
 
-    Color   fg_;
+    private String methodName_;
 
-    public Blinker(Display display, Label label, Color fg, Color bg)
+    private Color bg_;
+
+    private Color fg_;
+
+    public Blinker(Display display, String className, String methodName, Map<String, ComponentEditPart> componentEditPartMap, Color fg, Color bg)
     {
-        display_ = display;
-        label_ = label;
-        fg_ = fg;
-        bg_ = bg;
+        this.display_ = display;
+        this.componentEditPartMap_ = componentEditPartMap;
+        this.className_ = className;
+        this.methodName_ = methodName;
+        this.fg_ = fg;
+        this.bg_ = bg;
     }
 
     public void run()
     {
-        Runnable alarm;
-        alarm = new AlarmJob(label_, fg_, bg_);
-        display_.asyncExec(alarm);
+        Runnable alarm = new AlarmJob(this.className_, this.methodName_, this.componentEditPartMap_, this.fg_, this.bg_);
+        this.display_.asyncExec(alarm);
     }
 }

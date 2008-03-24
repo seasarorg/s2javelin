@@ -6,6 +6,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.MultiPageEditorActionBarContributor;
 import org.seasar.javelin.bottleneckeye.editors.view.AbstractStatsVisionEditor;
 import org.seasar.javelin.bottleneckeye.editors.view.StatsVisionEditor;
@@ -19,11 +20,13 @@ import org.seasar.javelin.bottleneckeye.editors.view.StatsVisionEditor;
 public class MultiPageEditorContributor extends
 		MultiPageEditorActionBarContributor
 {
-	private IEditorPart activeEditorPart;
+	private IEditorPart activeEditorPart_;
 
-	private IToolBarManager toolBarManager;
+	private IToolBarManager toolBarManager_;
 	
-	private IMenuManager    menuManager;
+	private IMenuManager    menuManager_;
+
+    private boolean isInitialized_ = false;
 	
 	/**
 	 * Creates a multi-page contributor.
@@ -49,30 +52,37 @@ public class MultiPageEditorContributor extends
 	 */
 	public void setActivePage(IEditorPart part)
 	{
-		if (this.activeEditorPart == part)
+		if (this.activeEditorPart_ == part)
 		{
             return;
 		}
 
-		this.activeEditorPart = part;
+		this.activeEditorPart_ = part;
 		
-		if (this.activeEditorPart instanceof StatsVisionEditor 
-		        && !this.isInitialized)
+		if (this.activeEditorPart_ instanceof StatsVisionEditor 
+		        && !this.isInitialized_)
         {
-		    this.isInitialized = true;
+		    this.isInitialized_ = true;
 		    
-            this.toolBarManager.add(new Separator());
+            this.toolBarManager_.add(new Separator());
 //            this.toolBarManager.add(getAction(this.activeEditorPart, GEFActionConstants.ZOOM_IN));
 //            this.toolBarManager.add(getAction(this.activeEditorPart, GEFActionConstants.ZOOM_OUT));
 	        
 	        // 倍率を直接指定するコンボ・ボックスの追加
-	        this.toolBarManager.add(new ZoomComboContributionItem(getPage()));      
-	        
+	        this.toolBarManager_.add(new ZoomComboContributionItem(getPage()));
+
+	        IAction action;
+	        // Undo, Redoは、クラスを削除した後にReloadボタンを押された場合に動作がおかしくなる
+//            action = getAction(this.activeEditorPart_, ActionFactory.UNDO.getId());
+//            this.toolBarManager_.add(action);
+//            action = getAction(this.activeEditorPart_, ActionFactory.REDO.getId());
+//            this.toolBarManager_.add(action);
+            action = getAction(this.activeEditorPart_, ActionFactory.DELETE.getId());
+            this.toolBarManager_.add(action);
+
 //	        this.menuManager.add(new PrintAction(activeEditorPart));
 	    }
 	}
-
-	private boolean isInitialized = false;
 	
 	/**
 	 * 初回表示時に１度だけ呼び出される。
@@ -80,13 +90,13 @@ public class MultiPageEditorContributor extends
 	public void contributeToToolBar(IToolBarManager toolBarManager)
 	{
 	    super.contributeToToolBar(toolBarManager);
-        this.toolBarManager = toolBarManager;
+        this.toolBarManager_ = toolBarManager;
 	}
 
     @Override
     public void contributeToMenu(IMenuManager menuManager)
     {
         super.contributeToMenu(menuManager);
-        this.menuManager = menuManager;
+        this.menuManager_ = menuManager;
     }
 }

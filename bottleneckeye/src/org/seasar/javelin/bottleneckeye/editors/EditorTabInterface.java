@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.MultiPageEditorPart;
 import org.seasar.javelin.bottleneckeye.communicate.Telegram;
 import org.seasar.javelin.bottleneckeye.communicate.TelegramSender;
+import org.seasar.javelin.bottleneckeye.model.persistence.PersistenceModel;
 
 /**
  * タブの１画面を表すインタフェース。
@@ -75,4 +76,26 @@ public interface EditorTabInterface
      * Copyボタンを押した際の処理。
      */
     void onCopy();
+
+    /**
+     * 接続されたときに呼ばれる処理。
+     */
+    void connected();
+
+    /**
+     * 切断されたときに呼ばれる処理。
+     */
+    void disconnected();
+
+    /**
+     * 保存時の処理。
+     * @param persistence 永続化モデル
+     */
+    void onSave(PersistenceModel persistence);
+
+    /**
+     * 読み込み時の処理。
+     * @param persistence 永続化モデル
+     */
+    void onLoad(PersistenceModel persistence);
 }

@@ -26,6 +26,7 @@ import org.seasar.javelin.bottleneckeye.communicate.Telegram;
 import org.seasar.javelin.bottleneckeye.communicate.TelegramSender;
 import org.seasar.javelin.bottleneckeye.editors.EditorTabInterface;
 import org.seasar.javelin.bottleneckeye.model.InvocationModel;
+import org.seasar.javelin.bottleneckeye.model.persistence.PersistenceModel;
 import org.seasar.javelin.bottleneckeye.views.ColumnViewerSorter;
 
 /**
@@ -35,34 +36,34 @@ import org.seasar.javelin.bottleneckeye.views.ColumnViewerSorter;
 public class ProfilerTab implements EditorTabInterface
 {
     /** クラス名 */
-    protected static final String        CLASS_NAME       = "クラス名";
+    protected static final String        CLASS_NAME        = "クラス名";
 
     /** メソッド名 */
-    protected static final String        METHOD_NAME      = "メソッド名";
+    protected static final String        METHOD_NAME       = "メソッド名";
 
     /** 合計処理時間 */
-    protected static final String        TOTAL_TIME       = "合計処理時間";
+    protected static final String        TOTAL_TIME        = "合計処理時間";
 
     /** 平均処理時間 */
-    protected static final String        AVERAGE_TIME     = "平均処理時間";
+    protected static final String        AVERAGE_TIME      = "平均処理時間";
 
     /** 最大処理時間 */
-    protected static final String        MAX_TIME         = "最大処理時間";
+    protected static final String        MAX_TIME          = "最大処理時間";
 
     /** 最小処理時間 */
-    protected static final String        MIN_TIME         = "最小処理時間";
+    protected static final String        MIN_TIME          = "最小処理時間";
 
     /** 合計CPU時間 */
-    protected static final String        TOTAL_CPU_TIME   = "合計CPU時間";
+    protected static final String        TOTAL_CPU_TIME    = "合計CPU時間";
 
     /** 平均CPU時間 */
-    protected static final String        AVERAGE_CPU_TIME = "平均CPU時間";
+    protected static final String        AVERAGE_CPU_TIME  = "平均CPU時間";
 
     /** 最大CPU時間 */
-    protected static final String        MAX_CPU_TIME     = "最大CPU時間";
+    protected static final String        MAX_CPU_TIME      = "最大CPU時間";
 
     /** 最小CPU時間 */
-    protected static final String        MIN_CPU_TIME     = "最小CPU時間";
+    protected static final String        MIN_CPU_TIME      = "最小CPU時間";
 
     /** 合計USER時間 */
     protected static final String        TOTAL_USER_TIME   = "合計USER時間";
@@ -75,21 +76,24 @@ public class ProfilerTab implements EditorTabInterface
 
     /** 最小USER時間 */
     protected static final String        MIN_USER_TIME     = "最小USER時間";
-    
+
     /** 呼び出し回数 */
-    protected static final String        CALL_TIME        = "呼び出し回数";
+    protected static final String        CALL_TIME         = "呼び出し回数";
 
     /** 例外発生回数 */
-    protected static final String        THROWABLE_TIME   = "例外発生回数";
+    protected static final String        THROWABLE_TIME    = "例外発生回数";
 
     /** テーブルビューワ。 */
     private TableViewer                  viewer_;
 
     /** テーブルに表示するデータの元となるマップ */
-    private Map<String, InvocationModel> modelMap_        = new HashMap<String, InvocationModel>();
+    private Map<String, InvocationModel> modelMap_         = new HashMap<String, InvocationModel>();
 
     /** テーブルに表示するデータのリスト */
-    private List<InvocationModel>        modelList_       = new ArrayList<InvocationModel>();
+    private List<InvocationModel>        modelList_        = new ArrayList<InvocationModel>();
+
+    /** リロードボタン */
+    private Button                       reloadButton_;
 
     /**
      * {@inheritDoc}
@@ -100,12 +104,13 @@ public class ProfilerTab implements EditorTabInterface
         GridLayout layout = new GridLayout(1, false);
         composite.setLayout(layout);
 
-        Button button = new Button(composite, SWT.PUSH | SWT.FLAT);
+        this.reloadButton_ = new Button(composite, SWT.PUSH | SWT.FLAT);
+        this.reloadButton_.setEnabled(false);
         Image image =
                 StatsVisionPlugin.getDefault().getImageRegistry().get(StatsVisionPlugin.IMG_REFRESH);
-        button.setImage(image);
-        button.setLayoutData(new GridData());
-        button.addSelectionListener(new SelectionListener() {
+        this.reloadButton_.setImage(image);
+        this.reloadButton_.setLayoutData(new GridData());
+        this.reloadButton_.addSelectionListener(new SelectionListener() {
             public void widgetDefaultSelected(SelectionEvent e)
             {
                 // Do Nothing.
@@ -431,7 +436,7 @@ public class ProfilerTab implements EditorTabInterface
                 return (l1 < l2 ? -1 : (l1 == l2 ? 0 : 1));
             }
         };
-        
+
         column = new TableViewerColumn(viewer, SWT.LEFT);
         column.getColumn().setText(CALL_TIME);
         column.getColumn().setWidth(100);
@@ -504,16 +509,16 @@ public class ProfilerTab implements EditorTabInterface
         {
             // InvocationMapに、該当InvocationModelを設定する
             InvocationModel[] invocations = InvocationModel.createFromTelegram(telegram, 0, 0);
-    
+
             for (InvocationModel invocation : invocations)
             {
                 this.modelMap_.put(invocation.getClassName() + "#" + invocation.getMethodName(),
                                    invocation);
             }
-            
+
             return true;
         }
-        
+
         return false;
     }
 
@@ -571,6 +576,53 @@ public class ProfilerTab implements EditorTabInterface
      * {@inheritDoc}
      */
     public void onReload()
+    {
+        // Do Nothing.
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void connected()
+    {
+        setReloadButtonEnabled(true);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void disconnected()
+    {
+        setReloadButtonEnabled(false);
+    }
+
+    /**
+     * リロードボタンの状態を変更する。
+     *
+     * @param enabled 有効にするなら <code>true</code>
+     */
+    private void setReloadButtonEnabled(final boolean enabled)
+    {
+        if (ProfilerTab.this.reloadButton_.isDisposed() == false)
+        {
+            this.reloadButton_.getDisplay().asyncExec(new Runnable() {
+                public void run()
+                {
+                    if (ProfilerTab.this.reloadButton_.isDisposed() == false)
+                    {
+                        ProfilerTab.this.reloadButton_.setEnabled(enabled);
+                    }
+                }
+            });
+        }
+    }
+
+    public void onLoad(PersistenceModel persistence)
+    {
+        // Do Nothing.
+    }
+
+    public void onSave(PersistenceModel persistence)
     {
         // Do Nothing.
     }

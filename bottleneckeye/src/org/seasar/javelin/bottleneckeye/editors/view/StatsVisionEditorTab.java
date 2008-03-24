@@ -23,11 +23,17 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.part.MultiPageEditorPart;
+import org.seasar.javelin.bottleneckeye.StatsVisionPlugin;
 import org.seasar.javelin.bottleneckeye.communicate.Common;
 import org.seasar.javelin.bottleneckeye.communicate.Telegram;
 import org.seasar.javelin.bottleneckeye.communicate.TelegramSender;
 import org.seasar.javelin.bottleneckeye.editors.EditorTabInterface;
 import org.seasar.javelin.bottleneckeye.editors.MultiPageEditor;
+import org.seasar.javelin.bottleneckeye.model.ContentsModel;
+import org.seasar.javelin.bottleneckeye.model.persistence.PersistenceModel;
+import org.seasar.javelin.bottleneckeye.model.persistence.Settings;
+import org.seasar.javelin.bottleneckeye.model.persistence.View;
+import org.seasar.javelin.bottleneckeye.util.ModelConverter;
 
 /**
  * クラス図を表示するタブ。
@@ -37,13 +43,13 @@ import org.seasar.javelin.bottleneckeye.editors.MultiPageEditor;
 public class StatsVisionEditorTab implements EditorTabInterface
 {
     /** クラス図を表示するエディタ */
-    private StatsVisionEditor   editor_;
+    private AbstractStatsVisionEditor<?> editor_;
 
     /** 通信モード */
-    private String              mode_;
+    private String                       mode_;
 
     /** EditorPart */
-    private MultiPageEditorPart editorPart_;
+    private MultiPageEditor              editorPart_;
 
     /**
      * クラス図を表示するタブを生成するインスタンスを作成する。
@@ -82,7 +88,7 @@ public class StatsVisionEditorTab implements EditorTabInterface
      * @param editorPart タブを生成するエディタ
      * @return 画面インスタンス
      */
-    public IEditorPart createEditor(Composite container, MultiPageEditorPart editorPart)
+    public IEditorPart createEditor(Composite container, MultiPageEditor editorPart)
     {
         this.editorPart_ = editorPart;
 
@@ -148,13 +154,14 @@ public class StatsVisionEditorTab implements EditorTabInterface
     {
         // Do Nothing
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public void onCopy()
     {
-        ScalableRootEditPart part = (ScalableRootEditPart)(this.editor_.getGraphicalViewer().getRootEditPart());
+        ScalableRootEditPart part =
+                (ScalableRootEditPart)(this.editor_.getGraphicalViewer().getRootEditPart());
 
         FileDialog dialog = new FileDialog(this.editor_.getEditorSite().getShell(), SWT.SAVE);
         dialog.setFilterExtensions(new String[]{"bmp"});
@@ -211,9 +218,8 @@ public class StatsVisionEditorTab implements EditorTabInterface
         if (data != null)
         {
             Printer printer = new Printer(data);
-            PrintGraphicalViewerOperation op = new PrintGraphicalViewerOperation(
-                                                                                 printer,
-                                                                                 this.editor_.getGraphicalViewer());
+            PrintGraphicalViewerOperation op =
+                    new PrintGraphicalViewerOperation(printer, this.editor_.getGraphicalViewer());
             op.setPrintMode(PrintFigureOperation.FIT_PAGE);
             op.run("StatsVision - " + this.editorPart_.getTitle());
         }
@@ -250,5 +256,63 @@ public class StatsVisionEditorTab implements EditorTabInterface
     {
         this.editor_.stop();
         this.editor_.start();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void connected()
+    {
+        Display.getDefault().asyncExec(new Runnable() {
+            public void run()
+            {
+                StatsVisionEditorTab.this.editorPart_.setTitleImage(StatsVisionPlugin.IMG_CONNECT_TITLE);
+                StatsVisionEditorTab.this.editor_.setBackground(AbstractStatsVisionEditor.CONNECTED_BACKCOLOR);
+            }
+        });
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void disconnected()
+    {
+        Display.getDefault().asyncExec(new Runnable() {
+            public void run()
+            {
+                StatsVisionEditorTab.this.editorPart_.setTitleImage(StatsVisionPlugin.IMG_DISCONNECT_TITLE);
+                StatsVisionEditorTab.this.editor_.setBackground(AbstractStatsVisionEditor.DISCONNECTED_BACKCOLOR);
+            }
+        });
+    }
+
+    public void onSave(PersistenceModel persistence)
+    {
+        Settings settings = new Settings();
+        persistence.setSettings(settings);
+
+        settings.setHostName(this.editor_.getHostName());
+        settings.setPortNum(this.editor_.getPortNum());
+        settings.setDomain(this.editor_.getDomain());
+        settings.setWarningThreshold(this.editor_.getWarningThreshold());
+        settings.setAlarmThreshold(this.editor_.getAlarmThreshold());
+        settings.setMode(this.editor_.getMode());
+        settings.setLineStyle(this.editor_.getLineStyle());
+
+        View view = ModelConverter.toView(this.editor_.getComponentMap().values());
+        persistence.setView(view);
+
+        this.editor_.setDirty(false);
+    }
+
+    public void onLoad(PersistenceModel persistence)
+    {
+        ContentsModel contents = ModelConverter.toContentsModel(persistence.getView());
+        if (contents != null)
+        {
+            this.editor_.loadContent(contents);
+            this.editor_.layoutModel();
+        }
+        this.editor_.getViewer().setContents(this.editor_.rootModel);
     }
 }

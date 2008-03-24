@@ -29,226 +29,234 @@ import org.seasar.javelin.bottleneckeye.model.ComponentModel;
 import org.seasar.javelin.bottleneckeye.model.ContentsModel;
 import org.seasar.javelin.bottleneckeye.model.InvocationModel;
 
-public class JmxStatsVisionEditor extends AbstractStatsVisionEditor<ObjectName> {
-	
-	/**
-	 * Listeningするとき、初期表示時使うEditPartを持つ
-	 */
-	public ComponentEditPart componentEditPart = null;
+public class JmxStatsVisionEditor extends AbstractStatsVisionEditor<ObjectName>
+{
+    /**
+     * Listeningするとき、初期表示時使うEditPartを持つ
+     */
+    public ComponentEditPart componentEditPart = null;
 
-	public void initializeGraphicalViewer() {
-		GraphicalViewer viewer = getGraphicalViewer();
-		
+    public JmxStatsVisionEditor()
+    {
+        setEditDomain(new DefaultEditDomain(this));
+    }
+
+    public void setBlnReload(boolean blnReload)
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    public void start()
+    {
+        Map<ObjectName, ComponentModel> componentMap = new HashMap<ObjectName, ComponentModel>();
+
+        GraphicalViewer viewer = getGraphicalViewer();
+
         // 最上位のモデルの設定
-        rootModel = new ContentsModel();
+        ContentsModel rootModel = new ContentsModel();
         rootModel.setContentsName(getTitle());
-        
-        // 位置データの読み込み
-        load();
-        
-        layoutModel(componentMap);
-        
+
+        try
+        {
+            JMXServiceURL url =
+                    new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + getHostName() + ":"
+                            + getPortNum() + "/jmxrmi");
+            JMXConnector connector = JMXConnectorFactory.connect(url);
+            MBeanServerConnection connection = connector.getMBeanServerConnection();
+
+            ObjectName objName =
+                    new ObjectName(getDomain()
+                            + ".container:type=org.seasar.javelin.bean.ContainerMBean");
+            Set set = connection.queryMBeans(objName, null);
+            if (set.size() == 0)
+            {
+                return;
+            }
+
+            ObjectInstance instance = (ObjectInstance)set.toArray()[0];
+
+            ObjectName[] names;
+            names =
+                    (ObjectName[])connection.getAttribute(instance.getObjectName(),
+                                                          "AllComponentObjectName");
+
+            for (ObjectName name : names)
+            {
+                String className = (String)connection.getAttribute(name, "ClassName");
+
+                ComponentModel component = new ComponentModel();
+                component.setClassName(className);
+                component.setConstraint(new Rectangle(0, 0, -1, -1));
+
+                rootModel.addChild(component);
+                componentMap.put(name, component);
+            }
+
+            for (ObjectName name : names)
+            {
+                ComponentModel target = componentMap.get(name);
+
+                if (target == null)
+                    continue;
+
+                ObjectName[] invocationNames =
+                        (ObjectName[])connection.getAttribute(name, "AllInvocationObjectName");
+                for (ObjectName invocationName : invocationNames)
+                {
+                    Long count = (Long)connection.getAttribute(invocationName, "Count");
+                    Long average = (Long)connection.getAttribute(invocationName, "Average");
+                    Long minimum = (Long)connection.getAttribute(invocationName, "Minimum");
+                    Long maximum = (Long)connection.getAttribute(invocationName, "Maximum");
+                    Long throwableCount =
+                            (Long)connection.getAttribute(invocationName, "ThrowableCount");
+
+                    String methodName =
+                            (String)connection.getAttribute(invocationName, "MethodName");
+
+                    InvocationModel invocation = new InvocationModel();
+                    invocation.setCount(count.longValue());
+                    invocation.setAverage(average.longValue());
+                    invocation.setMinimum(minimum.longValue());
+                    invocation.setMaximum(maximum.longValue());
+                    invocation.setThrowableCount(throwableCount);
+                    invocation.setAlarmThreshold(getAlarmThreshold());
+                    invocation.setWarningThreshold(getWarningThreshold());
+                    invocation.setMethodName(methodName);
+
+                    target.addInvocation(invocation);
+
+                    connection.addNotificationListener(invocationName, invocation, null, null);
+
+                    ObjectName[] callerNames =
+                            (ObjectName[])connection.getAttribute(invocationName,
+                                                                  "AllCallerObjectName");
+                    for (ObjectName callerName : callerNames)
+                    {
+                        ObjectName callerComponentName =
+                                (ObjectName)connection.getAttribute(callerName,
+                                                                    "ComponentObjectName");
+                        ComponentModel source = componentMap.get(callerComponentName);
+
+                        if (source == null)
+                            continue;
+
+                        ArrowConnectionModel arrow = new ArrowConnectionModel();
+                        source.addSourceConnection(arrow);
+                        target.addTargetConnection(arrow);
+                        arrow.setSource(source);
+                        arrow.setTarget(target);
+                    }
+                }
+            }
+
+        }
+        catch (MalformedURLException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        catch (MalformedObjectNameException e)
+        {
+            e.printStackTrace();
+        }
+        catch (AttributeNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        catch (InstanceNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        catch (MBeanException e)
+        {
+            e.printStackTrace();
+        }
+        catch (ReflectionException e)
+        {
+            e.printStackTrace();
+        }
+
+        setComponentMap(componentMap);
+        layoutModel();
+
         viewer.setContents(rootModel);
-	}
+    }
 
-	public void doSaveAs() {
-	}
+    public void connect()
+    {
+        // 未実装
+    }
 
-	public boolean isSaveAsAllowed() {
-		return false;
-	}
+    public void disconnect()
+    {
+        // 未実装
+    }
 
-	public JmxStatsVisionEditor() {
-		setEditDomain(new DefaultEditDomain(this));
-	}
+    public void stop()
+    {
+        // 未実装
+    }
 
-	public void setBlnReload(boolean blnReload) {
-		// TODO Auto-generated method stub
+    public void addResponseTelegram(Telegram telegram)
+    {
+        // 未実装
+    }
 
-	}
+    @Override
+    public void addComponentEditPart(String className, ComponentEditPart componentPart)
+    {
+        this.componentEditPart = componentPart;
+    }
 
-	public void start() {
-		Map<ObjectName, ComponentModel> componentMap = new HashMap<ObjectName, ComponentModel>();
-
-		GraphicalViewer viewer = getGraphicalViewer();
-
-		// 最上位のモデルの設定
-		ContentsModel rootModel = new ContentsModel();
-        rootModel.setContentsName(getTitle());
-
-		try {
-			JMXServiceURL url = new JMXServiceURL(
-					"service:jmx:rmi:///jndi/rmi://" + getHostName() + ":"
-							+ getPortNum() + "/jmxrmi");
-			JMXConnector connector = JMXConnectorFactory.connect(url);
-			MBeanServerConnection connection = connector
-					.getMBeanServerConnection();
-
-			ObjectName objName = new ObjectName(
-					getDomain()
-							+ ".container:type=org.seasar.javelin.bean.ContainerMBean");
-			Set set = connection.queryMBeans(objName, null);
-			if (set.size() == 0) {
-				return;
-			}
-
-			ObjectInstance instance = (ObjectInstance) set.toArray()[0];
-
-			ObjectName[] names;
-			names = (ObjectName[]) connection.getAttribute(instance
-					.getObjectName(), "AllComponentObjectName");
-
-			for (ObjectName name : names) {
-				String className = (String) connection.getAttribute(name,
-						"ClassName");
-
-				ComponentModel component = new ComponentModel();
-				component.setClassName(className);
-				component.setConstraint(new Rectangle(0, 0, -1, -1));
-
-				rootModel.addChild(component);
-				componentMap.put(name, component);
-			}
-
-			for (ObjectName name : names) {
-				ComponentModel target = componentMap.get(name);
-
-				if (target == null)
-					continue;
-
-				ObjectName[] invocationNames = (ObjectName[]) connection
-						.getAttribute(name, "AllInvocationObjectName");
-				for (ObjectName invocationName : invocationNames) {
-					Long count = (Long) connection.getAttribute(invocationName,
-							"Count");
-					Long average = (Long) connection.getAttribute(
-							invocationName, "Average");
-					Long minimum = (Long) connection.getAttribute(
-							invocationName, "Minimum");
-					Long maximum = (Long) connection.getAttribute(
-							invocationName, "Maximum");
-					Long throwableCount = (Long) connection.getAttribute(
-							invocationName, "ThrowableCount");
-
-					String methodName = (String) connection.getAttribute(
-							invocationName, "MethodName");
-
-					InvocationModel invocation = new InvocationModel();
-					invocation.setCount(count.longValue());
-					invocation.setAverage(average.longValue());
-					invocation.setMinimum(minimum.longValue());
-					invocation.setMaximum(maximum.longValue());
-					invocation.setThrowableCount(throwableCount);
-					invocation.setAlarmThreshold(alarmThreshold_);
-					invocation.setWarningThreshold(warningThreshold_);
-					invocation.setMethodName(methodName);
-
-					target.addInvocation(invocation);
-
-					connection.addNotificationListener(invocationName,
-							invocation, null, null);
-
-					ObjectName[] callerNames = (ObjectName[]) connection
-							.getAttribute(invocationName, "AllCallerObjectName");
-					for (ObjectName callerName : callerNames) {
-						ObjectName callerComponentName = (ObjectName) connection
-								.getAttribute(callerName, "ComponentObjectName");
-						ComponentModel source = componentMap
-								.get(callerComponentName);
-
-						if (source == null)
-							continue;
-
-						ArrowConnectionModel arrow = new ArrowConnectionModel();
-						source.addSourceConnection(arrow);
-						target.addTargetConnection(arrow);
-						arrow.setSource(source);
-						arrow.setTarget(target);
-					}
-				}
-			}
-
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (MalformedObjectNameException e) {
-			e.printStackTrace();
-		} catch (AttributeNotFoundException e) {
-			e.printStackTrace();
-		} catch (InstanceNotFoundException e) {
-			e.printStackTrace();
-		} catch (MBeanException e) {
-			e.printStackTrace();
-		} catch (ReflectionException e) {
-			e.printStackTrace();
-		}
-
-		layoutModel(componentMap);
-
-		viewer.setContents(rootModel);
-	}
-
-	public void connect() {
-		// 未実装
-	}
-
-	public void disconnect() {
-		// 未実装
-	}
-
-	public void stop() {
-		// 未実装
-	}
-
-	public void addResponseTelegram(Telegram telegram) {
-		// 未実装
-	}
-
-	public void addComponentEditPart(ComponentEditPart componentPart) {
-		this.componentEditPart = componentPart;
-	}
-
-	public void reset() {
+    @Override
+    public void reset()
+    {
         super.reset();
-        
-		try {
-			JMXServiceURL url = new JMXServiceURL(
-					"service:jmx:rmi:///jndi/rmi://" + getHostName() + ":"
-							+ getPortNum() + "/jmxrmi");
-			JMXConnector connector = JMXConnectorFactory.connect(url);
-			MBeanServerConnection connection = connector
-					.getMBeanServerConnection();
 
-			ObjectName objName = new ObjectName(
-					getDomain()
-							+ ".container:type=org.seasar.javelin.bean.ContainerMBean");
-			Set set = connection.queryMBeans(objName, null);
-			if (set.size() == 0) {
-				return;
-			}
+        try
+        {
+            JMXServiceURL url =
+                    new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + getHostName() + ":"
+                            + getPortNum() + "/jmxrmi");
+            JMXConnector connector = JMXConnectorFactory.connect(url);
+            MBeanServerConnection connection = connector.getMBeanServerConnection();
 
-			ObjectInstance instance = (ObjectInstance) set.toArray()[0];
+            ObjectName objName =
+                    new ObjectName(getDomain()
+                            + ".container:type=org.seasar.javelin.bean.ContainerMBean");
+            Set set = connection.queryMBeans(objName, null);
+            if (set.size() == 0)
+            {
+                return;
+            }
 
-			connection.invoke(instance.getObjectName(), "reset", null, null);
-		} catch (Exception ex) {
-			;
-		}
-	}
+            ObjectInstance instance = (ObjectInstance)set.toArray()[0];
 
-	@Override
-	protected ObjectName getComponentKey(String className)
-	{
-		try
-		{
-			return new ObjectName("component:type=" + className);
-		}
-		catch (Exception ex)
-		{
-			ex.printStackTrace();
-			throw new IllegalArgumentException(ex);
-		}
-	}
+            connection.invoke(instance.getObjectName(), "reset", null, null);
+        }
+        catch (Exception ex)
+        {
+            ;
+        }
+    }
+
+    @Override
+    protected ObjectName getComponentKey(String className)
+    {
+        try
+        {
+            return new ObjectName("component:type=" + className);
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+            throw new IllegalArgumentException(ex);
+        }
+    }
 
     public TelegramClientManager getTelegramClientManager()
     {

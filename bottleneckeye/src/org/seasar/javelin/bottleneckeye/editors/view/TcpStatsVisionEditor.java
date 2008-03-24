@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.DefaultEditDomain;
-import org.eclipse.gef.GraphicalViewer;
 import org.seasar.javelin.bottleneckeye.communicate.Body;
 import org.seasar.javelin.bottleneckeye.communicate.ResponseBody;
 import org.seasar.javelin.bottleneckeye.communicate.TcpDataGetter;
@@ -25,12 +24,8 @@ import org.seasar.javelin.bottleneckeye.model.MainCtrl;
  */
 public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
 {
-
     /** TCPデータ取得 */
-    private TcpDataGetter   tcpDataGetter_ = new TcpDataGetter();
-
-    /** ビューワ */
-    private GraphicalViewer viewer_;
+    private TcpDataGetter tcpDataGetter_ = new TcpDataGetter();
 
     /**
      * {@inheritDoc}
@@ -49,7 +44,7 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
 
             // サーバに接続する。
             this.tcpDataGetter_.open();
-            
+
             // 読み込みを開始する。
             this.tcpDataGetter_.startRead();
         }
@@ -67,27 +62,6 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
     public void disconnect()
     {
         this.tcpDataGetter_.close();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void initializeGraphicalViewer()
-    {
-        // GEFビューを作る
-        this.viewer_ = getGraphicalViewer();
-
-        // 最上位のモデルの設定
-        this.rootModel = new ContentsModel();
-        this.rootModel.setContentsName(getTitle());
-
-        // 位置データの読み込み
-        load();
-
-        layoutModel(this.componentMap);
-
-        this.viewer_.setContents(this.rootModel);
     }
 
     /**
@@ -113,6 +87,7 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
         disconnect();
     }
 
+    @Override
     public void dispose()
     {
         super.dispose();
@@ -125,18 +100,41 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
      */
     public void doAddResponseTelegram(final Telegram telegram)
     {
+        doAddResponseTelegramWithoutSetRootModel(telegram);
+        getViewer().setContents(this.rootModel);
+    }
+
+    /**
+     * 電文の受信処理を行う（ rootModel のセットは行わない）。
+     *
+     * @param telegram 電文
+     */
+    private boolean doAddResponseTelegramWithoutSetRootModel(final Telegram telegram)
+    {
+        boolean isAdded = false;
+
         // 電文よりモデルを作成する。
         InvocationModel[] invocations =
-                InvocationModel.createFromTelegram(telegram, this.alarmThreshold_,
-                                                   this.warningThreshold_);
+                InvocationModel.createFromTelegram(telegram, getAlarmThreshold(),
+                                                   getWarningThreshold());
 
         for (int index = 0; index < invocations.length; index++)
         {
             InvocationModel invocation;
             invocation = invocations[index];
             String strClassName = invocation.getClassName();
+
+            Map<String, ComponentModel> componentMap = getComponentMap();
+            if (componentMap.containsKey(strClassName) == false)
+            {
+                isAdded = true;
+            }
+            else if (componentMap.get(strClassName).isDeleted() == true)
+            {
+                isAdded = true;
+            }
             ComponentModel target =
-                    getComponentModel(getComponentMap(), this.rootModel, strClassName);
+                    getComponentModel(componentMap, this.rootModel, strClassName);
 
             // InvocationMapに、該当InvocationModelを設定する
             MainCtrl.getInstance().addInvocationModel(invocation);
@@ -187,14 +185,15 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
                     if (target.getClassName().equals(callerName) == false)
                     {
                         addOneCaller(target, callerName);
+                        isAdded = true;
                     }
                 }
             }
         }
 
-        layoutModel(getComponentMap());
-        this.viewer_.setContents(this.rootModel);
+        layoutModel();
 
+        return isAdded;
     }
 
     /**
@@ -244,7 +243,7 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
         {
             return;
         }
-        this.viewer_.getControl().getDisplay().asyncExec(new Runnable() {
+        getViewer().getControl().getDisplay().asyncExec(new Runnable() {
             public void run()
             {
                 try
@@ -280,29 +279,21 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
         }
         else
         {
-            // 該当ComponentModelを呼び出し先に設定する
             target = componentMap.get(strClassName);
+            if (target.isDeleted() == true)
+            {
+                // ユーザが削除したモデルを復活する
+                target.setDeleted(false);
+                rootModel.addChild(target);
+            }
+            else
+            {
+                // 該当ComponentModelを呼び出し先に設定する
+                target = componentMap.get(strClassName);
+            }
         }
 
         return target;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void doSaveAs()
-    {
-        // Do Nothing.
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isSaveAsAllowed()
-    {
-        return false;
     }
 
     /**
@@ -357,5 +348,29 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
     public void sendTelegram(Telegram telegram)
     {
         this.tcpDataGetter_.sendTelegram(telegram);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void listeningGraphicalViewer(final Telegram telegram)
+    {
+        getViewer().getControl().getDisplay().asyncExec(new Runnable() {
+            public void run()
+            {
+                boolean isAdded = false;
+                try
+                {
+                    isAdded = doAddResponseTelegramWithoutSetRootModel(telegram);
+                }
+                catch (Throwable throwable)
+                {
+                    throwable.printStackTrace();
+                }
+                getViewer().setContents(TcpStatsVisionEditor.this.rootModel);
+                TcpStatsVisionEditor.super.listeningGraphicalViewer(telegram);
+            }
+        });
     }
 }

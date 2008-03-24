@@ -16,6 +16,12 @@ public class StatsVisionPlugin extends AbstractUIPlugin
     /** 更新アイコン。 */
     public static final String       IMG_REFRESH = "icons/refresh.gif";
 
+    /** 未接続のときのタイトルアイコン */
+    public static final String IMG_DISCONNECT_TITLE = "icons/bottleneckeye_disconnect.gif";
+
+    /** 接続しているときのタイトルアイコン */
+    public static final String IMG_CONNECT_TITLE = "icons/bottleneckeye.gif";
+
     /**
      * {@inheritDoc}<br>
      * 画像の登録を行う。
@@ -23,6 +29,8 @@ public class StatsVisionPlugin extends AbstractUIPlugin
     protected void initializeImageRegistry(ImageRegistry registry)
     {
         registerImage(registry, IMG_REFRESH, IMG_REFRESH);
+        registerImage(registry, IMG_DISCONNECT_TITLE, IMG_DISCONNECT_TITLE);
+        registerImage(registry, IMG_CONNECT_TITLE, IMG_CONNECT_TITLE);
     }
 
     /**

@@ -2,7 +2,7 @@ package org.seasar.javelin.bottleneckeye.editpart;
 
 import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPartFactory;
-import org.seasar.javelin.bottleneckeye.editors.view.StatsVisionEditor;
+import org.seasar.javelin.bottleneckeye.editors.view.AbstractStatsVisionEditor;
 import org.seasar.javelin.bottleneckeye.model.ArrowConnectionModel;
 import org.seasar.javelin.bottleneckeye.model.ComponentModel;
 import org.seasar.javelin.bottleneckeye.model.ContentsModel;
@@ -10,11 +10,11 @@ import org.seasar.javelin.bottleneckeye.model.ContentsModel;
 
 public class StatsVisionEditPartFactory implements EditPartFactory
 {
-	StatsVisionEditor statsVisionEditor;
+	private AbstractStatsVisionEditor<?> statsVisionEditor_;
 	
-	public StatsVisionEditPartFactory(StatsVisionEditor statsVisionEditor)
+	public StatsVisionEditPartFactory(AbstractStatsVisionEditor<?> statsVisionEditor)
 	{
-		this.statsVisionEditor = statsVisionEditor;
+		this.statsVisionEditor_ = statsVisionEditor;
 	}
 
 	public EditPart createEditPart(EditPart context, Object model)
@@ -24,13 +24,13 @@ public class StatsVisionEditPartFactory implements EditPartFactory
 		// ÉÇÉfÉãÇÃå^Çí≤Ç◊ÇƒëŒâûÇ∑ÇÈEditPartÇçÏê¨
 		if (model instanceof ContentsModel)
 		{
-			part = new ContentsEditPart(statsVisionEditor);
+			part = new ContentsEditPart(this.statsVisionEditor_);
 		}
 		else if (model instanceof ComponentModel)
 		{
 			ComponentModel    componentModel = (ComponentModel)model;
-			ComponentEditPart componentPart  = new ComponentEditPart();
-			statsVisionEditor.addComponentEditPart(componentPart);
+			ComponentEditPart componentPart  = new ComponentEditPart(this.statsVisionEditor_);
+			this.statsVisionEditor_.addComponentEditPart(componentModel.getClassName(), componentPart);
 
 			componentModel.setEditPart(componentPart);
 			part = componentPart;

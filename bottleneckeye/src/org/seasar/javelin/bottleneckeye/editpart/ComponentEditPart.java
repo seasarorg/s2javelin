@@ -1,10 +1,8 @@
 package org.seasar.javelin.bottleneckeye.editpart;
 
 import java.beans.PropertyChangeEvent;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.TimerTask;
 
 import org.eclipse.draw2d.ChopboxAnchor;
 import org.eclipse.draw2d.ColorConstants;
@@ -17,22 +15,24 @@ import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.draw2d.ToolbarLayout;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.ConnectionEditPart;
-import org.eclipse.gef.EditPartViewer;
+import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.GraphicalEditPart;
 import org.eclipse.gef.NodeEditPart;
 import org.eclipse.gef.Request;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.seasar.javelin.bottleneckeye.editors.EditPartWithListener;
+import org.seasar.javelin.bottleneckeye.editors.StatsVisionDeleteEditPolicy;
+import org.seasar.javelin.bottleneckeye.editors.view.AbstractStatsVisionEditor;
 import org.seasar.javelin.bottleneckeye.model.ComponentModel;
 import org.seasar.javelin.bottleneckeye.model.ComponentType;
 import org.seasar.javelin.bottleneckeye.model.InvocationModel;
 
+/**
+ * クラスを表す EditPart 。
+ */
 public class ComponentEditPart
     extends EditPartWithListener implements NodeEditPart
 {
-    private static final int BLINK_COUNT = 5;
 
     /** クラスの背景色。 */
     private static final Color YELLOW = new Color(null, 255, 255, 206);
@@ -55,6 +55,12 @@ public class ComponentEditPart
     /** メソッド名の最大長。これを越える部分は...で表示する。 */
     private static final int METHODNAME_MAXLENGTH    = 80;
 
+    /** コンポーネント名 */
+    private String componentName_;
+
+    /** StatsVisionEditor */
+    private AbstractStatsVisionEditor<?> statsVisionEditor_;
+
     /** ブリンク用 */
     private HashMap<String, Label> invocationLabelMap
         = new HashMap<String, Label>();
@@ -62,6 +68,17 @@ public class ComponentEditPart
     /** ブリンク用 */
     private HashMap<String, InvocationModel> invocationMap
         = new HashMap<String, InvocationModel>();
+
+
+    /**
+     * クラスの EditPart を生成する。
+     *
+     * @param rootModel ルートモデル
+     */
+    public ComponentEditPart(AbstractStatsVisionEditor<?> statsVisionEditor)
+    {
+        this.statsVisionEditor_ = statsVisionEditor;
+    }
 
     protected IFigure createFigure()
     {
@@ -87,25 +104,9 @@ public class ComponentEditPart
 
         // 表示文字列の決定
         String className     = model.getClassName();
-        String componentName = "";
-        
-        if (model.getComponentType() == ComponentType.WEB
-                || model.getComponentType() == ComponentType.DATABASE)
-        {
-            componentName = className;
-        }
-        else
-        {
-            int lastIndexOf = className.lastIndexOf(".");
-            if (lastIndexOf >= 0)
-            {
-                componentName = className.substring(lastIndexOf + 1);
-            }
-            else
-            {
-                componentName = className;
-            }
-        }
+        this.componentName_ = className;
+        ComponentType componentType = model.getComponentType();
+        String componentText = createComponentText(componentType, className);
         
         label.setForegroundColor(GRAY);
         for (InvocationModel invocation : model.getInvocationList())
@@ -116,7 +117,7 @@ public class ComponentEditPart
             }
         }
         
-        label.setText(toStr(componentName, COMPONENTNAME_MAXLENGTH));
+        label.setText(toStr(componentText, COMPONENTNAME_MAXLENGTH));
         layer.add(label);
 
         CompartmentFigure figure = new CompartmentFigure();
@@ -151,7 +152,7 @@ public class ComponentEditPart
 
             // 「クラス名、メソッド名」でキーを設定する
             StringBuffer strKeyTemp = new StringBuffer();
-            strKeyTemp.append(model.getClassName());
+            //strKeyTemp.append(model.getClassName());
             strKeyTemp.append(methodName);
             String strKey = strKeyTemp.toString();
 
@@ -164,6 +165,61 @@ public class ComponentEditPart
         layer.add(figure);
 
         return layer;
+    }
+
+	private String createComponentText(ComponentType componentType,
+			String className) {
+		String componentText = "";
+		if (componentType == ComponentType.WEB
+                || componentType == ComponentType.DATABASE)
+        {
+            componentText = className;
+        }
+        else
+        {
+            int lastIndexOf = className.lastIndexOf(".");
+            if (lastIndexOf >= 0)
+            {
+                componentText = className.substring(lastIndexOf + 1);
+            }
+            else
+            {
+                componentText = className;
+            }
+        }
+		return componentText;
+	}
+
+    /**
+     * コンポーネント名を取得する。
+     *
+     * @return コンポーネント名
+     */
+    public String getComponentName()
+    {
+        return this.componentName_;
+    }
+
+    /**
+     * 指定されたメソッド名に対応するラベルを取得する。
+     *
+     * @param methodName メソッド名
+     * @return ラベル。ラベルがない場合は <code>null</code>
+     */
+    public Label getMethodLabel(String methodName)
+    {
+        return this.invocationLabelMap.get(methodName);
+    }
+
+    /**
+     * 指定されたメソッド名に対応する Invocation を取得する。
+     *
+     * @param methodName メソッド名
+     * @return Invocation 。見つからない場合は <code>null</code>
+     */
+    public InvocationModel getInvocationModel(String methodName)
+    {
+        return this.invocationMap.get(methodName);
     }
 
     private String createMethodLabelText(InvocationModel invocation)
@@ -225,11 +281,18 @@ public class ComponentEditPart
         ((GraphicalEditPart)getParent()).setLayoutConstraint(this, getFigure(), constraint);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected void createEditPolicies()
     {
-        // Do Nothing
+        installEditPolicy(EditPolicy.COMPONENT_ROLE,
+                          new StatsVisionDeleteEditPolicy());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void propertyChange(PropertyChangeEvent evt)
     {
         // 変更の型がモデルの位置情報の変更を示すものかどうか
@@ -248,73 +311,86 @@ public class ComponentEditPart
         else if (evt.getPropertyName().equals(ComponentModel.P_EXCEEDED_THRESHOLD_ALARM))
         {
             String methodName = (String)evt.getNewValue();
-            exceededThresholdAlarm(methodName);
+            this.statsVisionEditor_.exceededThresholdAlarm(this.componentName_, methodName, this);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected List getModelSourceConnections()
     {
         // このEditPartを接続元とするコネクション・モデルのリストを返す
         return ((ComponentModel)getModel()).getModelSourceConnections();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected List getModelTargetConnections()
     {
         // このEditPartを接続先とするコネクション・モデルのリストを返す
         return ((ComponentModel)getModel()).getModelTargetConnections();
     }
 
-    public List<TimerTask> exceededThresholdAlarm(String classmethodName)
-    {
-        List<TimerTask> result = new ArrayList<TimerTask>();
-        
-        Label label = this.invocationLabelMap.get(classmethodName);
-        InvocationModel invocation = this.invocationMap.get(classmethodName);
-        
-        if(label == null || invocation == null 
-        || invocation.getClassName() == null || invocation.getMethodName() == null)
-        {
-            return result;
-        }
-        
-        Control control = null;
-        try
-        {
-            EditPartViewer viewer = getViewer();
-            if (viewer == null)
-            {
-                return result;
-            }
-            control = viewer.getControl();
-            if (control == null)
-            {
-                return result;
-            }
-        }
-        catch (NullPointerException npe)
-        {
-            return result;
-        }
-        
-        Display display = control.getDisplay();
-
-        String methodLabelText = createMethodLabelText(invocation);
-
-        display.asyncExec(new LabelUpdateJob(label, methodLabelText));
-
-        ((ComponentModel)getModel()).setExceededThresholdAlarm(null);
-        
-        for(int index = 0; index < BLINK_COUNT; index++)
-        {
-            TimerTask blinkJobRed = new Blinker(display, label, ColorConstants.black, RED);
-            TimerTask blinkJobNormal = new Blinker(display, label, getFgColor(invocation), getBgColor(invocation));
-            
-            result.add(blinkJobRed);
-            result.add(blinkJobNormal);
-        }
-            
-        return result;
-    }
+    /**
+     * アラームの閾値を超えた時に呼ばれるメソッド。
+     *
+     * @param classmethodName クラスとメソッドの名前
+     * @param componentEditPartMap コンポーネントの EditPart 一覧
+     * @return ブリンクさせるタイマータスクのリスト
+     */
+//    public List<TimerTask> exceededThresholdAlarm(String classmethodName, Map<String, ComponentEditPart> componentEditPartMap)
+//    {
+//        List<TimerTask> result = new ArrayList<TimerTask>();
+//        
+//        Label label = this.invocationLabelMap.get(classmethodName);
+//        InvocationModel invocation = this.invocationMap.get(classmethodName);
+//        
+//        if(label == null || invocation == null 
+//        || invocation.getClassName() == null || invocation.getMethodName() == null)
+//        {
+//            return result;
+//        }
+//        
+//        Control control = null;
+//        try
+//        {
+//            EditPartViewer viewer = getViewer();
+//            if (viewer == null)
+//            {
+//                return result;
+//            }
+//            control = viewer.getControl();
+//            if (control == null)
+//            {
+//                return result;
+//            }
+//        }
+//        catch (NullPointerException npe)
+//        {
+//            return result;
+//        }
+//        
+//        Display display = control.getDisplay();
+//
+//        String methodLabelText = createMethodLabelText(invocation);
+//
+//        display.asyncExec(new LabelUpdateJob(label, methodLabelText));
+//
+//        ((ComponentModel)getModel()).setExceededThresholdAlarm(null);
+//        
+//        for(int index = 0; index < BLINK_COUNT; index++)
+//        {
+//            TimerTask blinkJobRed = new Blinker(display, classmethodName, componentList, ColorConstants.black, RED);
+//            TimerTask blinkJobNormal = new Blinker(display, this.rootModel_, getFgColor(invocation), getBgColor(invocation));
+//            
+//            result.add(blinkJobRed);
+//            result.add(blinkJobNormal);
+//        }
+//            
+//        return result;
+//    }
 
     public static String toStr(String result, int length)
     {
@@ -336,12 +412,12 @@ public class ComponentEditPart
         return result;
     }
 
-    private Color getBgColor(InvocationModel invocation)
+    public Color getBgColor(InvocationModel invocation)
     {
         return YELLOW;
     }
 
-    private Color getFgColor(InvocationModel invocation)
+    public Color getFgColor(InvocationModel invocation)
     {
         if (invocation.getMaximum() > invocation.getAlarmThreshold())
         {

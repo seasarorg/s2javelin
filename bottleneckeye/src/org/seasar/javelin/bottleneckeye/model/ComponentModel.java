@@ -65,6 +65,9 @@ public class ComponentModel extends AbstractModel
     /** このモデルに向かって張られているコネクションのリスト */
     private List<AbstractConnectionModel> targetConnections_           = new ArrayList<AbstractConnectionModel>();
 
+    /** このモデルがユーザによって削除されている場合は <code>true</code> */
+    private boolean isDeleted_ = false;
+
     /**
      * {@inheritDoc}
      */
@@ -260,7 +263,7 @@ public class ComponentModel extends AbstractModel
      * このモデルが接続先となるコネクションモデル一覧を取得する。
      * @return コネクションモデル一覧
      */
-    public List<?> getModelTargetConnections()
+    public List<? extends AbstractConnectionModel> getModelTargetConnections()
     {
         return this.targetConnections_;
     }
@@ -311,4 +314,25 @@ public class ComponentModel extends AbstractModel
     {
         return this.componentType_;
     }
+
+    /**
+     * このモデルがユーザによって削除されているかどうかを調べる。
+     *
+     * @return このモデルがユーザによって削除されている場合は <code>true</code>
+     */
+    public boolean isDeleted()
+    {
+        return this.isDeleted_;
+    }
+
+    /**
+     * ユーザによる削除フラグを設定する。
+     *
+     * @param isDeleted このモデルがユーザによって削除されている場合は <code>true</code>
+     */
+    public void setDeleted(boolean isDeleted)
+    {
+        this.isDeleted_ = isDeleted;
+    }
+
 }

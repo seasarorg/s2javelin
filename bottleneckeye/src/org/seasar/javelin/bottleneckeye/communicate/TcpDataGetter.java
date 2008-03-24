@@ -152,14 +152,14 @@ public class TcpDataGetter implements TelegramClientManager
         this.writeExecutor_.execute(new Runnable() {
             public void run()
             {
-                if (TcpDataGetter.this.isConnect_ == false)
-                {
-                    return;
-                }
-
                 if (TcpDataGetter.this.telegramReader_ != null)
                 {
                     TcpDataGetter.this.telegramReader_.setRunning(false);
+                }
+
+                if (TcpDataGetter.this.isConnect_ == false)
+                {
+                    return;
                 }
 
                 // 使用した通信対象をクリアする
@@ -179,6 +179,7 @@ public class TcpDataGetter implements TelegramClientManager
 
                     System.out.println("サーバとの通信を終了しました。");
                     TcpDataGetter.this.isConnect_ = false;
+                    TcpDataGetter.this.telegramReader_.sendDisconnectNotify();
                 }
                 catch (IOException objIOException)
                 {
@@ -309,4 +310,5 @@ public class TcpDataGetter implements TelegramClientManager
     {
         return this.socketChannel_;
     }
+
 }

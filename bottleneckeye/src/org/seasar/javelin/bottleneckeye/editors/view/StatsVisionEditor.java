@@ -1,12 +1,15 @@
 package org.seasar.javelin.bottleneckeye.editors.view;
 
 import org.eclipse.gef.GraphicalViewer;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.ISelectionListener;
 import org.seasar.javelin.bottleneckeye.communicate.Telegram;
 import org.seasar.javelin.bottleneckeye.communicate.TelegramClientManager;
 import org.seasar.javelin.bottleneckeye.editpart.ComponentEditPart;
+import org.seasar.javelin.bottleneckeye.model.ContentsModel;
 
-public interface StatsVisionEditor extends IEditorPart
+public interface StatsVisionEditor extends IEditorPart, ISelectionListener
 {
     void connect();
 
@@ -58,7 +61,7 @@ public interface StatsVisionEditor extends IEditorPart
 
     void addResponseTelegram(Telegram telegram);
 
-    void addComponentEditPart(ComponentEditPart componentPart);
+    void addComponentEditPart(String className, ComponentEditPart componentPart);
 
     void setDirty(boolean isDirty);
 
@@ -70,5 +73,12 @@ public interface StatsVisionEditor extends IEditorPart
      * @return 通信オブジェクト
      */
     TelegramClientManager getTelegramClientManager();
+
+    /**
+     * 背景色をセットする。
+     *
+     * @param color 背景色
+     */
+    void setBackground(Color color);
 
 }
