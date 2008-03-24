@@ -152,7 +152,7 @@
         ========================================================================
         <!-- S2JavelinFilter -->
         <filter-mapping>
-            <filter-name>s2JavelinFilter</filter-name>
+            <filter-name>s2javelinfilter</filter-name>
             <url-pattern>*.html</url-pattern>
         </filter-mapping>
         ========================================================================
