@@ -1,13 +1,16 @@
 package org.seasar.javelin.bean;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.management.ObjectName;
 
-public class Component implements ComponentMBean
+public class Component implements ComponentMBean, Serializable
 {
-    private String                  className_;
+	private static final long serialVersionUID = -6357402061431088667L;
+
+	private String                  className_;
 
     private ObjectName              objName_;
 

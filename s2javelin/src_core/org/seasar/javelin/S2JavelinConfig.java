@@ -73,7 +73,7 @@ public class S2JavelinConfig
     public static final String  STRINGLIMITLENGTH_KEY       = JAVELIN_PREFIX + "stringLimitLength";
 
     /** エラーログファイルのプロパティ名 */
-    public static final String   ERRORLOG_KEY                = JAVELIN_PREFIX + "error.log";
+    public static final String   SYSTEMLOG_KEY                = JAVELIN_PREFIX + "system.log";
 
     /** 利用するAlarmListener名 */
     public static final String  ALARM_LISTENERS_KEY         = JAVELIN_PREFIX + "alarmListeners";
@@ -92,6 +92,23 @@ public class S2JavelinConfig
 
     /** 利用するTelegramListener名 */
     public static final String  TELERAM_LISTENERS_KEY         = JAVELIN_PREFIX + "telegramListeners";
+
+    /** Javelinのシステムログの最大ファイル数のキー */
+    private static final String  SYSTEM_LOG_NUM_MAX_KEY      =
+                                                                     JAVELIN_PREFIX
+                                                                             + "system.log.num.max";
+
+    /** Javelinのシステムログの最大ファイルサイズのキー */
+    private static final String  SYSTEM_LOG_SIZE_MAX_KEY     =
+                                                                     JAVELIN_PREFIX
+                                                                             + "system.log.size.max";
+
+    /** Javelinのシステムログのログレベルのキー */
+    private static final String  SYSTEM_LOG_LEVEL_KEY        = JAVELIN_PREFIX + "system.log.level";
+
+
+    /** MBeanManagerが持つ情報をシリアライズするファイル名 */
+    public static final String  SERIALIZE_FILE_KEY           = JAVELIN_PREFIX + "serializeFile";
 
     private static final int     DEFAULT_INTERVALMAX         = 1000;
 
@@ -142,7 +159,7 @@ public class S2JavelinConfig
     public static final int      DEFAULT_ACCEPTPORT          = 32000;
 
     /** Javelin実行エラーメッセージの出力先パスのデフォルト値 */
-    public static final String   DEFAULT_ERRORLOG            = "log/error.log";
+    public static final String   DEFAULT_SYSTEMLOG            = "../traces";
 
     /** デフォルトで利用するAlarmListener名 */
     private static final String  DEFAULT_ALARM_LISTENERS     = "org.seasar.javelin.communicate.JmxListener";
@@ -163,6 +180,19 @@ public class S2JavelinConfig
     private static final String  DEFAULT_TELEGEAM_LISTENERS
         = "org.seasar.javelin.communicate.GetRequestTelegramListener,"
     	+ "org.seasar.javelin.communicate.ResetRequestTelegramListener";
+
+    /** Javelinのシステムログの最大ファイル数のデフォルト */
+    private static final int     DEFAULT_SYSTEM_LOG_NUM_MAX  = 16;
+
+    /** Javelinのシステムログの最大ファイルサイズのデフォルト */
+    private static final int     DEFAULT_SYSTEM_LOG_SIZE_MAX = 10 * 1024 * 1024;
+    
+    /** MBeanManagerが持つ情報をシリアライズするファイル名のデフォルト */
+    public static final String  DEFAULT_SERIALIZE_FILE       = "data/serialize.txt";
+    
+    /** Javelinのシステムログのログレベルのデフォルト */
+    private static final String     DEFAULT_SYSTEM_LOG_LEVEL         = "INFO";
+
 
     /**
      * S2StatsJavelinの設定を保持するオブジェクトを作成する。
@@ -298,7 +328,8 @@ public class S2JavelinConfig
     public String getJavelinFileDir()
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
-        return configUtil.getString(JAVELINFILEDIR_KEY, DEFAULT_JAVELINFILEDIR);
+        String relativePath = configUtil.getString(JAVELINFILEDIR_KEY, DEFAULT_JAVELINFILEDIR);
+        return configUtil.convertRelativePathtoAbsolutePath(relativePath);
     }
 
     /**
@@ -861,14 +892,15 @@ public class S2JavelinConfig
     }
 
     /**
-     * Javelin実行エラーメッセージの出力先パスを返す。
+     * Javelinシステムログの出力先ディレクトリを返す。
      *
-     * @return パス
+     * @return Javelinシステムログの出力先ディレクトリ。
      */
-    public String getErrorLog()
+    public String getSystemLog()
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
-        return configUtil.getString(ERRORLOG_KEY, DEFAULT_ERRORLOG);
+        String relativePath = configUtil.getString(SYSTEMLOG_KEY, DEFAULT_SYSTEMLOG);
+        return configUtil.convertRelativePathtoAbsolutePath(relativePath);
     }
 
     /**
@@ -963,5 +995,56 @@ public class S2JavelinConfig
     public boolean isSetTelegramListener()
     {
         return isKeyExist(TELERAM_LISTENERS_KEY);
+    }
+
+    /**
+     * Javelinのシステムログの最大ファイル数を取得する。
+     *
+     * @return Javelinのシステムログの最大ファイル数。
+     */
+    public int getSystemLogNumMax()
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        return configUtil.getInteger(SYSTEM_LOG_NUM_MAX_KEY, DEFAULT_SYSTEM_LOG_NUM_MAX);
+    }
+
+    
+    /**
+     * MBeanManagerが持つ情報をシリアライズするファイル名を返す。
+     *
+     * @return 利用するファイル名
+     */
+    public String getSerializeFile()
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        String relativePath = 
+        	configUtil.getString(SERIALIZE_FILE_KEY, DEFAULT_SERIALIZE_FILE);
+        return configUtil.convertRelativePathtoAbsolutePath(relativePath);
+    }
+
+    /**
+     * MBeanManagerが持つ情報をシリアライズするファイル名が設定されているかどうかを調べる。
+     *
+     * @return 利用するファイル名
+     */
+    public boolean isSetSerializeFile()
+    {
+        return isKeyExist(SERIALIZE_FILE_KEY);
+    }
+    /**
+     * Javelinのシステムログの最大ファイルサイズを取得する。
+     *
+     * @return Javelinのシステムログの最大ファイルサイズ。
+     */
+    public int getSystemLogSizeMax()
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        return configUtil.getInteger(SYSTEM_LOG_SIZE_MAX_KEY, DEFAULT_SYSTEM_LOG_SIZE_MAX);
+    }
+
+    public String getSystemLogLevel()
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        return configUtil.getString(SYSTEM_LOG_LEVEL_KEY, DEFAULT_SYSTEM_LOG_LEVEL);
     }
 }

@@ -60,7 +60,7 @@ public class S2StatsJavelinRecorder
         try
         {
             // エラーロガーを初期化する。
-            JavelinErrorLogger.initErrorLog(config);
+            SystemLogger.initSystemLog(config);
 
             // AlarmListenerを登録する
             registerAlarmListeners(config);
@@ -108,20 +108,20 @@ public class S2StatsJavelinRecorder
                     AlarmListener alarmListener = (AlarmListener)listener;
                     alarmListener.init();
                     addListener(alarmListener);
-                    JavelinErrorLogger.getInstance().log(
+                    SystemLogger.getInstance().info(
                                                          alarmListenerName
                                                                  + "をAlarmListenerとして登録しました。");
                 }
                 else
                 {
-                    JavelinErrorLogger.getInstance().log(
+                    SystemLogger.getInstance().info(
                                                          alarmListenerName
                                                                  + "はAlarmListenerを実装していないため、Alarm通知に利用しません。");
                 }
             }
             catch (Exception ex)
             {
-                JavelinErrorLogger.getInstance().log(
+                SystemLogger.getInstance().warn(
                                                      alarmListenerName
                                                              + "の登録に失敗したため、Alarm通知に利用しません。", ex);
             }
@@ -152,7 +152,7 @@ public class S2StatsJavelinRecorder
         }
         catch (ClassNotFoundException cnfe)
         {
-            JavelinErrorLogger.getInstance().log(className + "のロードに失敗したため、コンテキストクラスローダからのロードを行います。");
+            SystemLogger.getInstance().info(className + "のロードに失敗したため、コンテキストクラスローダからのロードを行います。");
             clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
         }
 

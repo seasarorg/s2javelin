@@ -683,7 +683,7 @@ public class S2JavelinInterceptor extends AbstractInterceptor
         out.println("\tjavelin.acceptPort              : " + this.config_.getAcceptPort());
         out.println("\tjavelin.javelinEnable           : " + this.config_.isJavelinEnable());
         out.println("\tjavelin.stringLimitLength       : " + this.config_.getStringLimitLength());
-        out.println("\tjavelin.error.log               : " + this.config_.getErrorLog());
+        out.println("\tjavelin.system.log              : " + this.config_.getSystemLog());
         out.println("\tjavelin.record.jmx              : " + this.config_.isRecordJMX());
         out.println("\tjavelin.log.jvn.max             : " + this.config_.getLogJvnMax());
         out.println("\tjavelin.log.zip.max             : " + this.config_.getLogZipMax());
@@ -691,6 +691,7 @@ public class S2JavelinInterceptor extends AbstractInterceptor
         out.println("\tjavelin.recordStrategy          : " + this.config_.getRecordStrategy());
         out.println("\tjavelin.alarmListeners          : " + this.config_.getAlarmListeners());
         out.println("\tjavelin.telegramListeners       : " + this.config_.getTelegramListeners());
+        out.println("\tjavelin.serializeFile           : " + this.config_.getSerializeFile());
         out.println("<<<<");
     }
 }

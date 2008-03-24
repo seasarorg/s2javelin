@@ -1,8 +1,12 @@
 package org.seasar.javelin.bean;
 
-public class InvocationInterval
+import java.io.Serializable;
+
+public class InvocationInterval implements Serializable
 {
-    private static final long INITIAL = -1;
+	private static final long serialVersionUID = 7855547784390235717L;
+
+	private static final long INITIAL = -1;
 
     private long              interval;
 

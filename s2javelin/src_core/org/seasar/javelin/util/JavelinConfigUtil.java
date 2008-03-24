@@ -17,25 +17,42 @@ import org.seasar.javelin.S2JavelinConfig;
  */
 public class JavelinConfigUtil
 {
-    /** Javelinオプションキー */
-    private static final String      JAVELIN_OPTION_KEY = S2JavelinConfig.JAVELIN_PREFIX
-                                                                + "property";
+    /** Javelinオプションキー1 */
+    private static final String JAVELIN_OPTION_KEY_1 = 
+    	S2JavelinConfig.JAVELIN_PREFIX + "property";
+    
+    /** Javelinオプションキー2 */
+    private static final String      JAVELIN_OPTION_KEY_2 = 
+    	S2JavelinConfig.JAVELIN_PREFIX + "properties";
 
-    /** 設定ファイル名 */
-    private String                   fileName_;
+    /** 設定ファイル名1 */
+    private String                   fileName1_;
 
+    /** 設定ファイル名2 */
+    private String                   fileName2_;
+    
     /** Javelin プロパティ */
     private Properties               properties_;
 
     /** Javelinの設定オブジェクト */
-    private static JavelinConfigUtil configUtil_        = new JavelinConfigUtil();
+    private static JavelinConfigUtil configUtil_ = new JavelinConfigUtil();
+    
+    /** Javelin実行Jarファイルの存在ディレクトリ */
+    private String                   absoluteJarDirectory_;
+    
+    /** PropertyFileのパス */
+    private String                   propertyFilePath_;
+    
+    /** PropertyFileの存在ディレクトリ */
+    private String                   propertyFileDirectory_;
 
     /**
      * Singleton
      */
     private JavelinConfigUtil()
     {
-        this.fileName_ = System.getProperty(JAVELIN_OPTION_KEY);
+        this.fileName1_ = System.getProperty(JAVELIN_OPTION_KEY_1);
+        this.fileName2_ = System.getProperty(JAVELIN_OPTION_KEY_2);
     }
 
     /**
@@ -54,31 +71,59 @@ public class JavelinConfigUtil
     private void load()
     {
         this.properties_ = new Properties();
-        if (this.fileName_ != null)
+
+        String fileName = null;
+        
+        if (this.fileName1_ != null)
         {
+        	fileName = this.fileName1_;
+        }
+        else if(this.fileName2_ != null)
+        {
+        	fileName = this.fileName2_;
+        }
+        else
+        {
+            fileName = "../conf/javelin.properties";
+        }
+        
+        this.propertyFilePath_ = convertRelPathFromJartoAbsPath(fileName);
+        
+        if (this.propertyFilePath_ != null)
+        {
+        	File file = null;
             try
             {
-                File file = new File(this.fileName_);
+                file = new File(this.propertyFilePath_);
+                if (!file.exists())
+                {
+                    System.err.println("プロパティファイルが存在しません。" + "(" + file.getAbsolutePath() + ")");
+                	return;
+                }
                 FileInputStream stream = new FileInputStream(file);
                 this.properties_.load(stream);
                 stream.close();
 
                 // 設定ファイル（*.conf）のあるディレクトリを取得する
-                File optionFile = new File(this.fileName_);
+                File optionFile = new File(this.propertyFilePath_);
                 File optionPath = optionFile.getParentFile();
                 if (optionPath != null)
                 {
-                    this.properties_.setProperty(JAVELIN_OPTION_KEY, optionPath.getAbsolutePath());
+                    setPropertyFileDirectory(optionPath.getAbsolutePath());
+                    this.properties_.setProperty(JAVELIN_OPTION_KEY_1, optionPath.getAbsolutePath());
                 }
             }
-            catch (IOException e)
+            catch (IOException ex)
             {
-                System.err.println("オプションファイルの読み込みに失敗しました。" + "(" + this.fileName_ + ")");
+            	if (file != null)
+            	{
+                    System.err.println("プロパティファイルの読み込みに失敗しました。" + "(" + file.getAbsolutePath() + ")");
+            	}
             }
         }
         else
         {
-            System.err.println("必要な（*.conf）ファイルが指定されていません。");
+            System.err.println("必要なプロパティ(-Djavelin.property)が指定されていません。");
         }
     }
 
@@ -268,7 +313,133 @@ public class JavelinConfigUtil
      */
     public String getFileName()
     {
-        return this.fileName_;
+        return this.fileName1_;
+    }
+    
+    /**
+     * Javelin実行Jarファイルの存在ディレクトリを返す。
+     * @return
+     */
+    public String getAbsoluteJarDirectory()
+    {
+        return this.absoluteJarDirectory_;
+    }
+    
+    /**
+     * Javelin実行Jarファイルの存在ディレクトリを設定する。
+     * 
+     * @param absoluteJarDirectory
+     */
+    public void setAbsoluteJarDirectory(String absoluteJarDirectory)
+    {
+        this.absoluteJarDirectory_ = absoluteJarDirectory;
+    }
+    
+    /**
+     * プロパティファイルの存在ディレクトリを返す。
+     * @return
+     */
+    public String getPropertyFileDirectory()
+    {
+        return this.propertyFileDirectory_;
+    }
+    
+    /**
+     * プロパティファイルの存在ディレクトリを設定する。
+     * 
+     * @param propertyFileDirectory
+     */
+    public void setPropertyFileDirectory(String propertyFileDirectory)
+    {
+        this.propertyFileDirectory_ = propertyFileDirectory;
+    }
+    
+    /**
+     * プロパティファイルのパスを設定する。
+     * 
+     * @param propertyFilePath
+     */
+    public void setPropertyFilePath(String propertyFilePath)
+    {
+        this.propertyFilePath_ = propertyFilePath;
+    }
+    
+    /**
+     * プロパティファイルのパスを返す。
+     * @return
+     */
+    public String getPropertyFilePath()
+    {
+        return this.propertyFilePath_;
+    }
+    
+    /**
+     * Javelin実行Jarファイルからの相対パスを
+     * 絶対パスに変換する。
+     * 
+     * @param relativePath Javelin実行Jarファイルからの相対パス
+     * @return 絶対パス
+     */
+    public String convertRelPathFromJartoAbsPath(String relativePath)
+    {
+        if(relativePath == null)
+        {
+            return null;
+        }
+
+        File relativeFile = new File(relativePath);
+        if(relativeFile.isAbsolute())
+        {
+            return relativePath;
+        }        
+        File targetPath = new File(this.absoluteJarDirectory_, relativePath);
+        
+        String canonicalPath;
+        try
+        {
+            canonicalPath = targetPath.getCanonicalPath();
+        }
+        catch (IOException ioe)
+        {
+            return targetPath.getAbsolutePath();
+        }
+        
+        return canonicalPath;
+    }
+    
+    /**
+     * プロパティファイルからの相対パスを
+     * 絶対パスに変換する。
+     * 
+     * @param relativePath プロパティファイルからの相対パス
+     * @return 絶対パス
+     */
+    public String convertRelativePathtoAbsolutePath(String relativePath)
+    {
+        if(relativePath == null)
+        {
+            return null;
+        }
+        
+        File relativeFile = new File(relativePath);
+        if(relativeFile.isAbsolute())
+        {
+            return relativePath;
+        }
+        
+        File targetPath = new File(this.propertyFileDirectory_, relativePath);
+        
+        String canonicalPath;
+        try
+        {
+            canonicalPath = targetPath.getCanonicalPath();
+        }
+        catch (IOException ioe)
+        {
+            return targetPath.getAbsolutePath();
+        }
+        
+        return canonicalPath;
     }
 
 }

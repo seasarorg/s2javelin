@@ -173,20 +173,7 @@ public class JavelinLogMaker
 
         if (config.isLogJmxInfo())
         {
-            if (messageType == ID_CALL)
-            {
-                // VMé¿çsèÓïÒ
-                VMStatus startStatus = node.getStartVmStatus();
-                jvnBuffer.append(JAVELIN_JMXINFO_START);
-                jvnBuffer.append(NEW_LINE);
-
-                addVMStatus(jvnBuffer, startStatus);
-
-                // diff
-                jvnBuffer.append(JAVELIN_JMXINFO_END);
-                jvnBuffer.append(NEW_LINE);
-            }
-            else if (messageType == ID_RETURN)
+            if (messageType == ID_CALL || messageType == ID_RETURN)
             {
                 // VMé¿çsèÓïÒ
                 VMStatus startStatus = node.getStartVmStatus();
@@ -195,7 +182,14 @@ public class JavelinLogMaker
                 jvnBuffer.append(JAVELIN_JMXINFO_START);
                 jvnBuffer.append(NEW_LINE);
 
-                addVMStatus(jvnBuffer, endStatus);
+                if (messageType == ID_CALL)
+                {
+                    addVMStatus(jvnBuffer, startStatus);
+                }
+                else
+                {
+                    addVMStatus(jvnBuffer, endStatus);
+                }
                 addVMStatusDiff(jvnBuffer, startStatus, endStatus);
 
                 // diff

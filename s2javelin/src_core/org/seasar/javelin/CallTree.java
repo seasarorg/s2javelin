@@ -93,7 +93,7 @@ public class CallTree
 			}
 			catch(Exception ex)
 			{
-				JavelinErrorLogger.getInstance().log(ex);
+				SystemLogger.getInstance().warn(ex);
 			}
 		}
 		

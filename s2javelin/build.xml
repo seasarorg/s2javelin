@@ -3,7 +3,7 @@
 	<!-- このビルド用のグローバルプロパティを設定する -->
 	<property name="version" value="1.1.0" />
 	<property name="dist.zip.name" value="S2Javelin-V${version}.zip" />
-	<property name="dist.zip.dir"  value="s2javelin-${version}" />
+	<property name="dist.zip.dir"  value="Javelin" />
 
 	<property name="src"          location="src" />
 	<property name="classes"      location="classes" />
@@ -73,6 +73,8 @@
 		<mkdir dir="${tmp_s2jvn}/${conf}" />
 		<mkdir dir="${tmp_s2jvn}/lib" />
 		<mkdir dir="${tmp_s2jvn}/logs" />
+		<mkdir dir="${tmp_s2jvn}/data" />
+		<mkdir dir="${tmp_s2jvn}/traces" />
 
 		<!-- jarを作成する -->
 		<jar jarfile="${tmp_s2jvn}/lib/s2javelin.jar" basedir="${classes}" />
@@ -100,10 +102,19 @@
 				<include name="deleteme.txt"/>
 			</fileset>
 		</copy>
+		<copy todir="${tmp_s2jvn}/traces">
+			<fileset dir="logs">
+				<include name="deleteme.txt"/>
+			</fileset>
+		</copy>
+		<copy todir="${tmp_s2jvn}/data">
+			<fileset dir="logs">
+				<include name="deleteme.txt"/>
+			</fileset>
+		</copy>
 
 		<!-- zipを生成する -->
-		<zip destfile="${dist}/${dist.zip.name}" basedir="${tmp}">
-		</zip>
+		<zip destfile="${dist}/${dist.zip.name}" basedir="${tmp}" />
 
 		<!-- tmpを消す -->
 		<delete dir="${tmp}" />

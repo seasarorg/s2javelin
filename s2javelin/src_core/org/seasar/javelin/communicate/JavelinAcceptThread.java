@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.seasar.javelin.CallTreeNode;
-import org.seasar.javelin.JavelinErrorLogger;
+import org.seasar.javelin.SystemLogger;
 import org.seasar.javelin.S2StatsJavelinRecorder;
 import org.seasar.javelin.bean.Invocation;
 import org.seasar.javelin.communicate.entity.Telegram;
@@ -50,7 +50,7 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 
 		try {
 			this.objServerSocket = new ServerSocket(port);
-			JavelinErrorLogger.getInstance().log(
+			SystemLogger.getInstance().info(
 					"S2JavelinのTCP接続受付を開始します。 ポート[" + port + "]");
 
 			// クライアント接続の受付を開始する。
@@ -59,10 +59,10 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 				acceptThread.setDaemon(true);
 				acceptThread.start();
 			} catch (Exception objException) {
-				JavelinErrorLogger.getInstance().log(objException);
+				SystemLogger.getInstance().warn(objException);
 			}
 		} catch (IOException objIOException) {
-			JavelinErrorLogger.getInstance().log(
+			SystemLogger.getInstance().info(
 					"ポート[" + port + "]はすでに開かれています。処理を続行します。");
 		}
 	}
@@ -75,7 +75,7 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 			try {
 				accept(group);
 			} catch (RuntimeException re) {
-				JavelinErrorLogger.getInstance().log("電文受信中に予期せぬエラーが発生しました。",
+				SystemLogger.getInstance().warn("電文受信中に予期せぬエラーが発生しました。",
 						re);
 			}
 		}
@@ -90,7 +90,7 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 		try {
 			this.objServerSocket.close();
 		} catch (IOException ioe) {
-			JavelinErrorLogger.getInstance().log("サーバソケットのクローズに失敗しました。", ioe);
+			SystemLogger.getInstance().warn("サーバソケットのクローズに失敗しました。", ioe);
 		}
 	}
 
@@ -99,25 +99,25 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 			// モニター
 			clientSocket = objServerSocket.accept();
 		} catch (IOException ioe) {
-			JavelinErrorLogger.getInstance().log("サーバソケットのacceptに失敗しました。", ioe);
+			SystemLogger.getInstance().warn("サーバソケットのacceptに失敗しました。", ioe);
 			return;
 		}
 
 		int clientCount = sweepClient();
 		if (clientCount > MAX_SOCKET) {
-			JavelinErrorLogger.getInstance().log(
+			SystemLogger.getInstance().info(
 					"接続数が最大数[" + MAX_SOCKET + "]を超えたため、接続を拒否します。");
 			try {
 				clientSocket.close();
 			} catch (IOException ioe) {
-				JavelinErrorLogger.getInstance().log("クライアントソケットのクローズに失敗しました。",
+				SystemLogger.getInstance().warn("クライアントソケットのクローズに失敗しました。",
 						ioe);
 			}
 			return;
 		}
 
 		InetAddress clientIP = clientSocket.getInetAddress();
-		JavelinErrorLogger.getInstance().log(
+		SystemLogger.getInstance().info(
 				"クライアントから接続されました。IP:[" + clientIP + "]");
 
 		// クライアントからの要求受付用に、処理スレッドを起動する。
@@ -134,8 +134,8 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 				clientList.add(clientRunnable);
 			}
 		} catch (IOException ioe) {
-			JavelinErrorLogger.getInstance()
-					.log("クライアント通信スレッドの生成に失敗しました。", ioe);
+			SystemLogger.getInstance()
+					.warn("クライアント通信スレッドの生成に失敗しました。", ioe);
 		}
 	}
 

@@ -1,5 +1,6 @@
 package org.seasar.javelin.bean;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,9 +9,11 @@ import java.util.Set;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
 
-public class Invocation extends NotificationBroadcasterSupport implements InvocationMBean
+public class Invocation extends NotificationBroadcasterSupport implements InvocationMBean, Serializable
 {
-    private static final long              INITIAL             = -1;
+	private static final long serialVersionUID = -5812420032608047545L;
+
+	private static final long              INITIAL             = -1;
 
     private ObjectName                     objName_;
 
@@ -30,8 +33,7 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
 
     private InvocationInterval             maximumInterval_    = new InvocationInterval();
 
-    private LinkedList<InvocationInterval> intervalList_       =
-                                                                       new LinkedList<InvocationInterval>();
+    private LinkedList<InvocationInterval> intervalList_ = new LinkedList<InvocationInterval>();
 
     private LinkedList<Throwable>          throwableList_      = new LinkedList<Throwable>();
 

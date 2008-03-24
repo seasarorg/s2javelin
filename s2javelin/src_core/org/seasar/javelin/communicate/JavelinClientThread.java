@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.seasar.javelin.JavelinErrorLogger;
+import org.seasar.javelin.SystemLogger;
 import org.seasar.javelin.S2JavelinConfig;
 import org.seasar.javelin.communicate.entity.Header;
 import org.seasar.javelin.communicate.entity.Telegram;
@@ -83,7 +83,7 @@ public class JavelinClientThread implements Runnable {
 		}
 		catch (Exception exception)
 		{
-			JavelinErrorLogger.getInstance().log("受信電文処理中に例外が発生しました。",
+			SystemLogger.getInstance().warn("受信電文処理中に例外が発生しました。",
 				exception);
 		}
 		finally
@@ -99,12 +99,12 @@ public class JavelinClientThread implements Runnable {
 				this.clientSocket.close();
 			}
 		} catch (IOException ioe) {
-			JavelinErrorLogger.getInstance().log("クライアント通信ソケットのクローズに失敗しました。",
+			SystemLogger.getInstance().warn("クライアント通信ソケットのクローズに失敗しました。",
 					ioe);
 		}
 
-		JavelinErrorLogger.getInstance()
-				.log("クライアントと切断しました。[" + clientIP + "]");
+		SystemLogger.getInstance()
+				.info("クライアントと切断しました。[" + clientIP + "]");
 	}
 
 	void sendResponse(Telegram requestTelegram) throws IOException {
@@ -139,7 +139,7 @@ public class JavelinClientThread implements Runnable {
 		S2JavelinConfig config = new S2JavelinConfig();
 		if(config.isDebug())
 		{
-			JavelinErrorLogger.getInstance().log(
+			SystemLogger.getInstance().debug(
 					"telegramLength  = [" + telegramLength + "]");
 		}
 		byte[] telegram = new byte[telegramLength];
@@ -165,7 +165,7 @@ public class JavelinClientThread implements Runnable {
 				outputStream_.flush();
 			}
 		} catch (IOException ioe) {
-			JavelinErrorLogger.getInstance().log("閾値超過通知電文の送信に失敗しました。", ioe);
+			SystemLogger.getInstance().warn("閾値超過通知電文の送信に失敗しました。", ioe);
 			this.close();
 		}
 	}
@@ -196,14 +196,14 @@ public class JavelinClientThread implements Runnable {
 				Object listener = listenerClass.newInstance();
 				if (listener instanceof TelegramListener) {
 					addListener((TelegramListener) listener);
-					JavelinErrorLogger.getInstance().log(
+					SystemLogger.getInstance().info(
 						listenerName + "をTelegramListenerとして登録しました。");
 				} else {
-					JavelinErrorLogger.getInstance().log(
+					SystemLogger.getInstance().info(
 						listenerName + "はTelegramListenerを実装していないため、電文処理に利用しません。");
 				}
 			} catch (Exception ex) {
-				JavelinErrorLogger.getInstance().log(
+				SystemLogger.getInstance().warn(
 					listenerName + "の登録に失敗したため、電文処理に利用しません。", ex);
 			}
 		}
@@ -229,7 +229,7 @@ public class JavelinClientThread implements Runnable {
 		try {
 			clazz = Class.forName(className);
 		} catch (ClassNotFoundException cnfe) {
-			JavelinErrorLogger.getInstance().log(
+			SystemLogger.getInstance().info(
 					className + "のロードに失敗したため、コンテキストクラスローダからのロードを行います。");
 			clazz = Thread.currentThread().getContextClassLoader().loadClass(
 					className);

@@ -1,7 +1,6 @@
 package org.seasar.javelin;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.seasar.javelin.bean.Component;
@@ -11,7 +10,21 @@ public class MBeanManager {
 	private static Map<String, Component> mBeanMap_;
 
 	static {
-		mBeanMap_ = new HashMap<String, Component>();
+		mBeanMap_ = MBeanManagerSerializer.deserialize();
+		
+		// shutdownHook‚Ì’Ç‰Á
+		Runtime.getRuntime().addShutdownHook(
+		    new Thread() {
+				public void run() {
+					if (mBeanMap_ != null)
+					{
+						synchronized (mBeanMap_) {
+							MBeanManagerSerializer.serialize(mBeanMap_);
+						}
+					}
+				}
+			}
+		);
 	}
 
 	public static Component[] getAllComponents() {

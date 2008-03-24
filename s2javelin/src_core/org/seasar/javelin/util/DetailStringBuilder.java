@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.seasar.javelin.JavelinErrorLogger;
+import org.seasar.javelin.SystemLogger;
 
 /**
  * パラメータ詳細化を行うクラス。
@@ -399,7 +399,7 @@ public class DetailStringBuilder
         }
         } catch(Exception ex)
         {
-        	JavelinErrorLogger.getInstance().log(ex);
+        	SystemLogger.getInstance().warn(ex);
         }
         return false;
     }
