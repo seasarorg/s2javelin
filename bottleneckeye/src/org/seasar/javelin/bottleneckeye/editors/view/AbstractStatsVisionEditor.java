@@ -257,6 +257,9 @@ public abstract class AbstractStatsVisionEditor<T> extends GraphicalEditor imple
         // Do Nothing
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void reset()
     {
         for (ComponentModel component : this.componentMap.values())
@@ -270,6 +273,15 @@ public abstract class AbstractStatsVisionEditor<T> extends GraphicalEditor imple
                 invocation.setThrowableCount(0);
             }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void reload()
+    {
+        stop();
+        start();
     }
 
     /**
@@ -333,6 +345,9 @@ public abstract class AbstractStatsVisionEditor<T> extends GraphicalEditor imple
         keyHandler.put(
             KeyStroke.getPressed(SWT.DEL, 127, 0),
             action);
+
+        action = new ClassReloadAction(this);
+        keyHandler.put(KeyStroke.getPressed(SWT.F5, 0), action);
 
         // グラフィカル・ビューワにキー・ハンドラを設定
         viewer.setKeyHandler(
