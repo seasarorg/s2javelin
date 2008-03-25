@@ -29,6 +29,7 @@ public class ModelSerializer
         {
             context = JAXBContext.newInstance(PersistenceModel.class);
             marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             unmarshaller = context.createUnmarshaller();
         }
         catch (JAXBException ex)
