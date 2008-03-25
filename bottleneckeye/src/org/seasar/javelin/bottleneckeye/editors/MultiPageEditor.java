@@ -184,6 +184,8 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         SettingsEditorTab settingsEditorTab = new SettingsEditorTab(this, this.editor_);
         Composite tabComposite = settingsEditorTab.createComposite(getContainer(), this);
 
+        loadFileContent();
+
         // ファイルを元にタブを生成する
         initTabs();
 
@@ -201,7 +203,6 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
             }
         }
 
-        loadFileContent();
 
         // 初期設定をビューに通知する
         initSettingEditorTab(settingsEditorTab);
