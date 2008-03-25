@@ -61,6 +61,11 @@ public interface StatsVisionEditor extends IEditorPart, ISelectionListener
      */
     void reload();
 
+    /**
+     * サーバに状態取得電文を送る。
+     */
+    void requestStatus();
+
     void listeningGraphicalViewer(Telegram telegram);
 
     void addResponseTelegram(Telegram telegram);

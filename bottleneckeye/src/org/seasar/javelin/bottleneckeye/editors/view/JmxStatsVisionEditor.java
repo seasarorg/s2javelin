@@ -240,8 +240,16 @@ public class JmxStatsVisionEditor extends AbstractStatsVisionEditor<ObjectName>
         }
         catch (Exception ex)
         {
-            ;
+            // Do nothing.
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void requestStatus()
+    {
+        // Do nothing.
     }
 
     @Override

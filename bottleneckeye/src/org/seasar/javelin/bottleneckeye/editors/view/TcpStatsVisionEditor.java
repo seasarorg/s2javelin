@@ -326,6 +326,14 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
     /**
      * {@inheritDoc}
      */
+    public void requestStatus()
+    {
+        this.tcpDataGetter_.request();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected String getComponentKey(String className)
     {
@@ -359,10 +367,9 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
         getViewer().getControl().getDisplay().asyncExec(new Runnable() {
             public void run()
             {
-                boolean isAdded = false;
                 try
                 {
-                    isAdded = doAddResponseTelegramWithoutSetRootModel(telegram);
+                    doAddResponseTelegramWithoutSetRootModel(telegram);
                 }
                 catch (Throwable throwable)
                 {
