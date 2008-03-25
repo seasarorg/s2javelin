@@ -7,7 +7,6 @@ import org.eclipse.ui.ISelectionListener;
 import org.seasar.javelin.bottleneckeye.communicate.Telegram;
 import org.seasar.javelin.bottleneckeye.communicate.TelegramClientManager;
 import org.seasar.javelin.bottleneckeye.editpart.ComponentEditPart;
-import org.seasar.javelin.bottleneckeye.model.ContentsModel;
 
 public interface StatsVisionEditor extends IEditorPart, ISelectionListener
 {
