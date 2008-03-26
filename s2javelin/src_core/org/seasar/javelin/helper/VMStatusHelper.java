@@ -104,12 +104,12 @@ public class VMStatusHelper
      */
     public VMStatus createVMStatus()
     {
+        VMStatus vmStatus = new VMStatus();
+
         if (false == this.javelinConfig.isLogJmxInfo())
         {
-            return null;
+            return vmStatus;
         }
-
-        VMStatus vmStatus = new VMStatus();
 
         vmStatus.setCpuTime(this.threadMBean.getCurrentThreadCpuTime());
         vmStatus.setUserTime(this.threadMBean.getCurrentThreadUserTime());
