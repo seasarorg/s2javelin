@@ -306,8 +306,6 @@ public class S2StatsJavelinRecorder
                 vmStatusHelper__.resetPeakMemoryUsage();
 
                 // 初回呼び出し時はコールツリーを初期化する。
-                tree.setRootCallerName(config.getRootCallerName());
-                tree.setEndCalleeName(config.getEndCalleeName());
 
                 node = new CallTreeNode();
                 node.setStartTime(System.currentTimeMillis());
@@ -317,8 +315,11 @@ public class S2StatsJavelinRecorder
                 {
                     node.setStacktrace(stacktrace);
                 }
+
                 if (tree != null)
                 {
+                    tree.setRootCallerName(config.getRootCallerName());
+                    tree.setEndCalleeName(config.getEndCalleeName());
                     tree.setRootNode(node);
                 }
             }
