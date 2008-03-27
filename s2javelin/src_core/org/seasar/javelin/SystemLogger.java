@@ -23,16 +23,13 @@ public class SystemLogger
     private static final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss.SSS";
 
     /** 改行文字。 */
-    private static final String NEW_LINE    = "\n";
+    private static final String NEW_LINE    = System.getProperty("line.separator");
 
     /** システムログファイルの拡張子。 */
     private static final String EXTENTION   = ".log";
 
     /** システムログファイル名のフォーマット(日付フォーマット(ミリ(sec)まで表示) */
     private static final String LOG_FILE_FORMAT = "jvn_sys_{0,date,yyyyMMddHHmmssSSS}" + EXTENTION;
-
-    /** システムログファイルの文字コード。 */
-    private static final String ENCODING    = "euc-jp";
 
     /** システムログファイルの最大数。 */
     private int                 systemLogNumMax_;
@@ -157,7 +154,7 @@ public class SystemLogger
 
             FileOutputStream fileOutputStream =
                     new FileOutputStream(logPath_ + File.separator + logFileName_, true);
-            writer = new OutputStreamWriter(fileOutputStream, ENCODING);
+            writer = new OutputStreamWriter(fileOutputStream);
 
             writer.write(formattedMessage);
             writeCount_ += formattedMessage.length();
