@@ -10,13 +10,16 @@ import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.part.CellEditorActionHandler;
 import org.eclipse.ui.part.MultiPageEditorPart;
 import org.seasar.javelin.bottleneckeye.StatsVisionPlugin;
@@ -95,6 +98,9 @@ public class ProfilerTab implements EditorTabInterface
     /** リロードボタン */
     private Button                       reloadButton_;
 
+    /** 電文送信オブジェクト */
+    private TelegramSender telegramSender_;
+
     /**
      * {@inheritDoc}
      */
@@ -110,17 +116,10 @@ public class ProfilerTab implements EditorTabInterface
                 StatsVisionPlugin.getDefault().getImageRegistry().get(StatsVisionPlugin.IMG_REFRESH);
         this.reloadButton_.setImage(image);
         this.reloadButton_.setLayoutData(new GridData());
-        this.reloadButton_.addSelectionListener(new SelectionListener() {
-            public void widgetDefaultSelected(SelectionEvent e)
-            {
-                // Do Nothing.
-            }
-
+        this.reloadButton_.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e)
             {
-                ProfilerTab.this.modelList_.clear();
-                ProfilerTab.this.modelList_.addAll(ProfilerTab.this.modelMap_.values());
-                ProfilerTab.this.viewer_.refresh(true);
+                onReload();
             }
         });
 
@@ -138,6 +137,20 @@ public class ProfilerTab implements EditorTabInterface
                 new CellEditorActionHandler(editorPart.getEditorSite().getActionBars());
         ProfilerCopyAction action = new ProfilerCopyAction(this.viewer_);
         actionHandler.setCopyAction(action);
+
+        // F5リロードのためのキーリスナ
+        KeyAdapter keyListener = new KeyAdapter(){
+            public void keyReleased(KeyEvent e)
+            {
+                if (e.keyCode == SWT.F5)
+                {
+                    onReload();
+                }
+            }
+        };
+        this.viewer_.getTable().addKeyListener(keyListener);
+        this.reloadButton_.addKeyListener(keyListener);
+        composite.addKeyListener(keyListener);
 
         return composite;
     }
@@ -516,6 +529,14 @@ public class ProfilerTab implements EditorTabInterface
                                    invocation);
             }
 
+            this.modelList_.clear();
+            this.modelList_.addAll(this.modelMap_.values());
+            this.viewer_.getControl().getDisplay().asyncExec(new Runnable(){
+                public void run()
+                {
+                    ProfilerTab.this.viewer_.refresh(true);
+                }
+            });
             return true;
         }
 
@@ -527,7 +548,7 @@ public class ProfilerTab implements EditorTabInterface
      */
     public void setTelegramSender(TelegramSender telegramSender)
     {
-        // Do Nothing
+        this.telegramSender_ = telegramSender;
     }
 
     /**
@@ -577,7 +598,19 @@ public class ProfilerTab implements EditorTabInterface
      */
     public void onReload()
     {
-        // Do Nothing.
+        if (this.telegramSender_ != null)
+        {
+            // 頭部データ対象を作って、データを設定する
+            Header objHeader = new Header();
+            objHeader.setByteTelegramKind(Common.BYTE_TELEGRAM_KIND_GET);
+            objHeader.setByteRequestKind(Common.BYTE_REQUEST_KIND_REQUEST);
+
+            // 頭部を電文対象に設定する
+            Telegram objOutputTelegram = new Telegram();
+            objOutputTelegram.setObjHeader(objHeader);
+
+            this.telegramSender_.sendTelegram(objOutputTelegram);
+        }
     }
 
     /**
@@ -617,11 +650,17 @@ public class ProfilerTab implements EditorTabInterface
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void onLoad(PersistenceModel persistence)
     {
         // Do Nothing.
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void onSave(PersistenceModel persistence)
     {
         // Do Nothing.
