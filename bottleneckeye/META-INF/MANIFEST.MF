@@ -8,7 +8,7 @@ Bundle-ClassPath: bottleneckeye.jar,
  lib/jaxb-impl.jar,
  lib/jsr173_1.0_api.jar,
  lib/commons-lang-2.3.jar
-Bundle-Version: 1.1.0
+Bundle-Version: 1.1.1
 Bundle-Activator: org.seasar.javelin.bottleneckeye.StatsVisionPlugin
 Bundle-Vendor: seasar.org
 Bundle-Localization: plugin
