@@ -1,6 +1,7 @@
 package org.seasar.javelin.bottleneckeye.editors.view;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -282,6 +283,19 @@ public abstract class AbstractStatsVisionEditor<T> extends GraphicalEditor imple
     {
         stop();
         start();
+    }
+
+    /**
+     * クラス位置を更新する。
+     * @param file
+     */
+    public void updatePointMap(Collection<ComponentModel> components)
+    {
+        for (ComponentModel component : components)
+        {
+            T key = getComponentKey(component.getClassName());
+            this.pointMap.put(key, component.getConstraint().getTopLeft());
+        }
     }
 
     /**

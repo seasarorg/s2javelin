@@ -3,6 +3,7 @@ package org.seasar.javelin.bottleneckeye.editors.view;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collection;
 
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.PrintFigureOperation;
@@ -29,6 +30,7 @@ import org.seasar.javelin.bottleneckeye.communicate.Telegram;
 import org.seasar.javelin.bottleneckeye.communicate.TelegramSender;
 import org.seasar.javelin.bottleneckeye.editors.EditorTabInterface;
 import org.seasar.javelin.bottleneckeye.editors.MultiPageEditor;
+import org.seasar.javelin.bottleneckeye.model.ComponentModel;
 import org.seasar.javelin.bottleneckeye.model.ContentsModel;
 import org.seasar.javelin.bottleneckeye.model.persistence.PersistenceModel;
 import org.seasar.javelin.bottleneckeye.model.persistence.Settings;
@@ -298,10 +300,13 @@ public class StatsVisionEditorTab implements EditorTabInterface
         settings.setMode(this.editor_.getMode());
         settings.setLineStyle(this.editor_.getLineStyle());
 
-        View view = ModelConverter.toView(this.editor_.getComponentMap().values());
+        Collection<ComponentModel> components = this.editor_.getComponentMap().values();
+		View view = ModelConverter.toView(components);
         persistence.setView(view);
-
-        this.editor_.setDirty(false);
+        
+        this.editor_.updatePointMap(components);
+        
+    	this.editor_.setDirty(false);
     }
 
     public void onLoad(PersistenceModel persistence)
