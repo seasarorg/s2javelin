@@ -15,7 +15,6 @@ import java.util.concurrent.BlockingQueue;
 
 import org.seasar.javelin.CallTree;
 import org.seasar.javelin.CallTreeNode;
-import org.seasar.javelin.SystemLogger;
 import org.seasar.javelin.S2JavelinConfig;
 
 /**
@@ -65,12 +64,8 @@ public class S2StatsJavelinFileGenerator {
 
 		// キューにタスクを追加する。
 		boolean result = queue_.offer(task);
-		if (result == true) {
+		if (result != true) {
 			jvnFileName = null;
-		} else {
-			// 失敗した場合は、ログに出力する。
-			String message = createLogMessage(tree, node);
-			SystemLogger.getInstance().warn(message);
 		}
 
 		return jvnFileName;
