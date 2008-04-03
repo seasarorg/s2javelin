@@ -81,7 +81,7 @@ public class S2StatsJavelinRecorder
         }
         catch (Exception ex)
         {
-            ex.printStackTrace();
+            SystemLogger.getInstance().warn(ex);
         }
     }
 
@@ -217,11 +217,11 @@ public class S2StatsJavelinRecorder
             }
             catch (MalformedObjectNameException ex)
             {
-                ex.printStackTrace();
+                SystemLogger.getInstance().warn(ex);
             }
             catch (NullPointerException ex)
             {
-                ex.printStackTrace();
+                SystemLogger.getInstance().warn(ex);
             }
         }
         if (component == null)
@@ -246,11 +246,11 @@ public class S2StatsJavelinRecorder
             }
             catch (MalformedObjectNameException ex)
             {
-                ex.printStackTrace();
+                SystemLogger.getInstance().warn(ex);
             }
             catch (NullPointerException ex)
             {
-                ex.printStackTrace();
+                SystemLogger.getInstance().warn(ex);
             }
         }
 
@@ -286,8 +286,7 @@ public class S2StatsJavelinRecorder
         }
         catch (Exception ex)
         {
-            // 想定外の例外が発生した場合は標準エラー出力に出力しておく。
-            ex.printStackTrace();
+            SystemLogger.getInstance().warn(ex);
         }
     }
 
@@ -366,7 +365,7 @@ public class S2StatsJavelinRecorder
         }
         catch (Exception ex)
         {
-            ex.printStackTrace();
+            SystemLogger.getInstance().warn(ex);
         }
     }
 
@@ -472,8 +471,7 @@ public class S2StatsJavelinRecorder
         }
         catch (Exception ex)
         {
-            // 想定外の例外が発生した場合は標準エラー出力に出力しておく。
-            ex.printStackTrace();
+            SystemLogger.getInstance().warn(ex);
         }
     }
 
@@ -563,8 +561,7 @@ public class S2StatsJavelinRecorder
         }
         catch (Exception ex)
         {
-            // 想定外の例外が発生した場合は標準エラー出力に出力しておく。
-            ex.printStackTrace();
+            SystemLogger.getInstance().warn(ex);
         }
     }
 
@@ -634,8 +631,7 @@ public class S2StatsJavelinRecorder
         }
         catch (Exception ex)
         {
-            // 想定外の例外が発生した場合は標準エラー出力に出力しておく。
-            ex.printStackTrace();
+            SystemLogger.getInstance().warn(ex);
         }
     }
 
@@ -664,8 +660,7 @@ public class S2StatsJavelinRecorder
         }
         catch (Exception ex)
         {
-            // 想定外の例外が発生した場合は標準エラー出力に出力しておく。
-            ex.printStackTrace();
+            SystemLogger.getInstance().warn(ex);
         }
     }
 
