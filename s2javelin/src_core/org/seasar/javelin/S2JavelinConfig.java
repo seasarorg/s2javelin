@@ -110,6 +110,11 @@ public class S2JavelinConfig
     /** MBeanManagerが持つ情報をシリアライズするファイル名 */
     public static final String  SERIALIZE_FILE_KEY           = JAVELIN_PREFIX + "serializeFile";
 
+    private static final String  CALL_TREE_MAX_KEY           = JAVELIN_PREFIX + "call.tree.max";
+
+    private static final int     DEFAULT_CALL_TREE_MAX       = 1000000;
+
+    
     private static final int     DEFAULT_INTERVALMAX         = 1000;
 
     private static final int     DEFAULT_THROWABLEMAX        = 1000;
@@ -1047,4 +1052,17 @@ public class S2JavelinConfig
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         return configUtil.getString(SYSTEM_LOG_LEVEL_KEY, DEFAULT_SYSTEM_LOG_LEVEL);
     }
+
+    public int getCallTreeMax()
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        return configUtil.getInteger(CALL_TREE_MAX_KEY, DEFAULT_CALL_TREE_MAX);
+    }
+
+    public void setCallTreeMax(int callTreeMax)
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        configUtil.setInteger(CALL_TREE_MAX_KEY, callTreeMax);
+    }
+
 }

@@ -24,6 +24,8 @@ public class CallTree
     
     private String endCalleeName_ = "unknown";
 
+    private Throwable cause_;
+
     private List<Callback> callbackList_ = new ArrayList<Callback>();
 
     private Map<String, Object> flagMap_ = new HashMap<String, Object>();
@@ -137,4 +139,14 @@ public class CallTree
 	{
 		return loggingValueMap_.get(key);
 	}
+
+    public Throwable getCause()
+    {
+        return cause_;
+    }
+
+    public void setCause(Throwable cause)
+    {
+        cause_ = cause;
+    }
 }

@@ -302,25 +302,7 @@ public class S2StatsJavelinRecorder
         {
             if (node == null)
             {
-                vmStatusHelper__.resetPeakMemoryUsage();
-
-                // 初回呼び出し時はコールツリーを初期化する。
-
-                node = new CallTreeNode();
-                node.setStartTime(System.currentTimeMillis());
-                node.setStartVmStatus(vmStatus);
-
-                if (config.isLogStacktrace())
-                {
-                    node.setStacktrace(stacktrace);
-                }
-
-                if (tree != null)
-                {
-                    tree.setRootCallerName(config.getRootCallerName());
-                    tree.setEndCalleeName(config.getEndCalleeName());
-                    tree.setRootNode(node);
-                }
+                node = initCallTree(tree, stacktrace, vmStatus, config);
             }
             else
             {
@@ -334,7 +316,18 @@ public class S2StatsJavelinRecorder
                     node.setStacktrace(stacktrace);
                 }
                 parent.addChild(node);
-                invocation.addCaller(parent.getInvocation());
+                if(parent.getChildren().size() > config.getCallTreeMax())
+                {
+                    String jvnFileName = dumpJavelinLog(config);
+                    SystemLogger.getInstance().warn(
+                                                    "CallTreeのサイズが閾値を超えました。CallTreeをクリアし、jvnログを出力します。ファイル名:"
+                                                            + jvnFileName);
+                    node = initCallTree(tree, stacktrace, vmStatus, config);
+                }
+                else
+                {
+                    invocation.addCaller(parent.getInvocation());
+                }
             }
             // パラメータ設定が行われているとき、ノードにパラメータを設定する
             if (config.isLogArgs())
@@ -367,6 +360,32 @@ public class S2StatsJavelinRecorder
         {
             SystemLogger.getInstance().warn(ex);
         }
+    }
+
+    private static CallTreeNode initCallTree(CallTree tree, StackTraceElement[] stacktrace,
+            VMStatus vmStatus, S2JavelinConfig config)
+    {
+        CallTreeNode node;
+        vmStatusHelper__.resetPeakMemoryUsage();
+
+        // 初回呼び出し時はコールツリーを初期化する。
+
+        node = new CallTreeNode();
+        node.setStartTime(System.currentTimeMillis());
+        node.setStartVmStatus(vmStatus);
+
+        if (config.isLogStacktrace())
+        {
+            node.setStacktrace(stacktrace);
+        }
+
+        if (tree != null)
+        {
+            tree.setRootCallerName(config.getRootCallerName());
+            tree.setEndCalleeName(config.getEndCalleeName());
+            tree.setRootNode(node);
+        }
+        return node;
     }
 
     /**
@@ -488,6 +507,12 @@ public class S2StatsJavelinRecorder
 
         try
         {
+            CallTree callTree = callTree_.get();
+            if(callTree == null)
+            {
+                return;
+            }
+
             // 呼び出し元情報取得。
             CallTreeNode node = callerNode_.get();
 
@@ -529,7 +554,6 @@ public class S2StatsJavelinRecorder
                 // Javelinログファイルを出力する。
                 S2StatsJavelinFileGenerator generator = new S2StatsJavelinFileGenerator(config);
                 CallTreeNode callTreeNode = callerNode_.get();
-                CallTree callTree = callTree_.get();
                 String jvnLogFileName = generator.generateJaveinFile(
                                                                      callTree,
                                                                      callTreeNode,
@@ -565,23 +589,27 @@ public class S2StatsJavelinRecorder
         }
     }
 
-    public static void dumpJavelinLog(S2JavelinConfig config)
+    public static String dumpJavelinLog(S2JavelinConfig config)
     {
+        String fileName = "";
         // Javelinログファイルを出力する。
         S2StatsJavelinFileGenerator generator = new S2StatsJavelinFileGenerator(config);
 
         CallTree callTree = callTree_.get();
         if (callTree == null)
         {
-            return;
+            return fileName;
         }
 
         CallTreeNode root = callTree.getRootNode();
         if (root != null)
         {
-            generator.generateJaveinFile(callTree, root, recordStrategy_.createCallback(root));
-
+            fileName =
+                    generator.generateJaveinFile(callTree, root,
+                                                 recordStrategy_.createCallback(root));
         }
+        
+        return fileName;
     }
 
     public static void preProcessField(String className, String methodName, S2JavelinConfig config)
