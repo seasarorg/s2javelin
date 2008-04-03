@@ -181,6 +181,10 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 			for (int index = clientList.size() - 1; index >= 0; index--) {
 				JavelinClientThread client = clientList.get(index);
 				client.sendAlarm(bytes);
+                if (SystemLogger.getInstance().isDebugEnabled())
+                {
+                    client.logTelegram("“d•¶‚ğ‘—M‚µ‚Ü‚µ‚½B", telegram);
+                }
 			}
 		}
 	}

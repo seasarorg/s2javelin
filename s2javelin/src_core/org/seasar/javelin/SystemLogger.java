@@ -23,7 +23,7 @@ public class SystemLogger
     private static final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss.SSS";
 
     /** 改行文字。 */
-    private static final String NEW_LINE    = System.getProperty("line.separator");
+    public static final String NEW_LINE    = System.getProperty("line.separator");
 
     /** システムログファイルの拡張子。 */
     private static final String EXTENTION   = ".log";
@@ -270,6 +270,16 @@ public class SystemLogger
         this.log(LogLevel.DEBUG, message, throwable);
     }
 
+    public boolean isDebugEnabled()
+    {
+        if (LogLevel.DEBUG.getLevel() < this.systemLogLevel_.getLevel())
+        {
+            return false;
+        }
+        
+        return true;
+    }
+    
     /**
      * システムログを初期化する。
      * 

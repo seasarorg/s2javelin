@@ -50,6 +50,9 @@ public final class TelegramUtil extends Common {
     private static final byte ITEMTYPE_STRING = 6;
 
 
+    /** 改行文字。 */
+    public static final String NEW_LINE    = System.getProperty("line.separator");
+
     /**
      * 文字列をバイト配列（４バイト文字列長＋UTF8）に変換する。
      *
@@ -465,62 +468,6 @@ public final class TelegramUtil extends Common {
         return bytesResult;
     }
 
-	/**
-	 * 電文を出力する
-	 */
-	public static String printTelegram(int intCounter, Telegram objInputTelegram) {
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("\n***** " + intCounter + "番目電文開始 *****\n");
-		buffer.append("#ヘッダ電文長 : "
-				+ objInputTelegram.getObjHeader().getIntSize());
-		buffer.append("\n");
-		buffer.append("#ヘッダ電文種別 : "
-				+ objInputTelegram.getObjHeader().getByteTelegramKind());
-		buffer.append("\n");
-		buffer.append("#ヘッダ応答種別 : "
-				+ objInputTelegram.getObjHeader().getByteRequestKind());
-		buffer.append("\n");
-
-		for (int i = 0; i < objInputTelegram.getObjBody().length; i++) {
-			buffer.append("------------------");
-			buffer.append("\n");
-			buffer.append("--本体["
-					+ i
-					+ "]対象名　 : "
-					+ ((ResponseBody) objInputTelegram.getObjBody()[i])
-							.getStrObjName());
-			buffer.append("\n");
-			buffer.append("--本体["
-					+ i
-					+ "]項目名　 : "
-					+ ((ResponseBody) objInputTelegram.getObjBody()[i])
-							.getStrItemName());
-			buffer.append("\n");
-			buffer.append("--本体["
-					+ i
-					+ "]項目型　 : "
-					+ ((ResponseBody) objInputTelegram.getObjBody()[i])
-							.getByteItemMode());
-			buffer.append("\n");
-			buffer.append("--本体["
-					+ i
-					+ "]繰返回数 : "
-					+ ((ResponseBody) objInputTelegram.getObjBody()[i])
-							.getIntLoopCount());
-			buffer.append("\n");
-			Object[] objArr = ((ResponseBody) objInputTelegram.getObjBody()[i])
-					.getObjItemValueArr();
-			for (int j = 0; j < objArr.length; j++) {
-				buffer.append("--本体[" + i + "]説明　　 : [" + j + "]" + objArr[j]);
-				buffer.append("\n");
-			}
-		}
-		buffer.append("***** " + intCounter + "番目電文終了 *****");
-		buffer.append("\n");
-
-		return buffer.toString();
-	}
-
 	public static byte[] createAll() {
 		// 電文データを取る
 		Component[] objComponentArr = MBeanManager.getAllComponents();
@@ -683,4 +630,68 @@ public final class TelegramUtil extends Common {
 
 		return body;
 	}
+
+	public static String toPrintStr(Telegram telegram)
+    {
+        StringBuffer receivedBuffer = new StringBuffer();
+	    
+        Header header = telegram.getObjHeader();
+        byte telegramKind = header.getByteTelegramKind();
+        byte requestKind = header.getByteRequestKind();
+        int length = header.getIntSize();
+
+        receivedBuffer.append(NEW_LINE);
+        receivedBuffer.append(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        receivedBuffer.append(NEW_LINE);
+
+        receivedBuffer.append("電文種別      :[" + telegramKind + "]");
+        receivedBuffer.append(NEW_LINE);
+        receivedBuffer.append("要求応答種別  :[" + requestKind + "]");
+        receivedBuffer.append(NEW_LINE);
+        receivedBuffer.append("電文長        :[" + length + "]");
+        receivedBuffer.append(NEW_LINE);
+
+        Body[] objBody = telegram.getObjBody();
+
+        receivedBuffer.append("オブジェクト名\t項目名\t項目型\t繰り返し回数\t項目値");
+        receivedBuffer.append(NEW_LINE);
+        for (Body body : objBody)
+        {
+            String objName = body.getStrObjName();
+            String itemName = body.getStrItemName();
+            String itemMode = "";
+            String loopCount = "";
+            String itemValue = "";
+
+            if (body instanceof ResponseBody)
+            {
+                ResponseBody responseBody = (ResponseBody)body;
+                itemMode = "[" + responseBody.getByteItemMode() + "]";
+                loopCount = "[" + responseBody.getIntLoopCount() + "]";
+
+                Object[] objArr = responseBody.getObjItemValueArr();
+                for (Object obj : objArr)
+                {
+                    itemValue += "[" + obj + "]";
+                }
+            }
+            receivedBuffer.append(objName);
+            receivedBuffer.append("\t\t");
+            receivedBuffer.append(itemName);
+            receivedBuffer.append("\t");
+            receivedBuffer.append(itemMode);
+            receivedBuffer.append("\t");
+            receivedBuffer.append(loopCount);
+            receivedBuffer.append("\t");
+            receivedBuffer.append(itemValue);
+            receivedBuffer.append(NEW_LINE);
+        }
+
+        receivedBuffer.append("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+        receivedBuffer.append(NEW_LINE);
+
+        String receivedStr = receivedBuffer.toString();
+        
+        return receivedStr;
+    }
 }
