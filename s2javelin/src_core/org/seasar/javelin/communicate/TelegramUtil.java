@@ -471,11 +471,11 @@ public final class TelegramUtil extends Common {
 	public static byte[] createAll() {
 		// 電文データを取る
 		Component[] objComponentArr = MBeanManager.getAllComponents();
-		List invocationList = new ArrayList();
+		List<Invocation> invocationList = new ArrayList<Invocation>();
 
 		// 電文数を統計する
 		for (int i = 0; i < objComponentArr.length; i++) {
-			invocationList.addAll(Arrays.asList((Object[]) objComponentArr[i]
+			invocationList.addAll(Arrays.asList(objComponentArr[i]
 					.getAllInvocation()));
 		}
 
@@ -490,7 +490,7 @@ public final class TelegramUtil extends Common {
 		return result;
 	}
 
-	static Telegram create(List invocations, byte telegramKind, byte requestKind) {
+	static Telegram create(List<Invocation> invocations, byte telegramKind, byte requestKind) {
 		// 電文頭部を作る【とりあえず、電文長を設定しない】
 		Header objHeader = new Header();
 		objHeader.setByteRequestKind(requestKind);

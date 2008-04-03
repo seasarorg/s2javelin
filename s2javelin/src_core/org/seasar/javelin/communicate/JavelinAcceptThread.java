@@ -157,7 +157,7 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 	public void sendExceedThresholdAlarm(String jvnFileName, CallTreeNode node) {
 		Invocation invocation = node.getInvocation();
 		Telegram objTelegram = TelegramUtil.create(Arrays
-				.asList(new Object[] { invocation }),
+				.asList(new Invocation[] { invocation }),
 				Common.BYTE_TELEGRAM_KIND_ALERT,
 				Common.BYTE_REQUEST_KIND_NOTIFY);
 

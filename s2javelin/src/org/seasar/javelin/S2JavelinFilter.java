@@ -132,6 +132,11 @@ public class S2JavelinFilter implements Filter
             this.config_.setHttpPort(getInitParameterInteger(config, PNAME_HTTP_PORT));
         }
 
+        synchronized (S2StatsJavelinRecorder.class)
+        {
+			S2StatsJavelinRecorder.javelinInit(this.config_);
+		}
+        
         printConfigValue();
     }
 

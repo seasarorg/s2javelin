@@ -57,6 +57,11 @@ public class S2StatsJavelinRecorder
      */
     public static void javelinInit(S2JavelinConfig config)
     {
+        if (initialized_ == true)
+        {
+        	return;
+        }
+        
         try
         {
             // エラーロガーを初期化する。
