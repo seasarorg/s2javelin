@@ -499,8 +499,6 @@ public class S2StatsJavelinRecorder
         }
     }
 
-    private static Throwable cause_;
-
     /**
      * 後処理（本処理失敗時）。
      * 
@@ -541,7 +539,7 @@ public class S2StatsJavelinRecorder
             }
             node.setCpuTime(cpuTime);
 
-            if (cause_ != cause)
+            if (callTree.getCause() != cause)
             {
                 node.setThrowable(cause);
                 node.setThrowTime(System.currentTimeMillis());
@@ -576,7 +574,7 @@ public class S2StatsJavelinRecorder
                 callTree_.set(new CallTree());
             }
 
-            if (cause_ == cause)
+            if (callTree.getCause() == cause)
             {
                 // 呼び出し元情報が取得できない場合は処理をキャンセルする。
                 // (すでに記録済みの例外のため。)
@@ -586,7 +584,7 @@ public class S2StatsJavelinRecorder
             // 発生した例外を記録しておく。
             node.getInvocation().addThrowable(cause);
 
-            cause_ = cause;
+            callTree.setCause(cause);
         }
         catch (Exception ex)
         {
