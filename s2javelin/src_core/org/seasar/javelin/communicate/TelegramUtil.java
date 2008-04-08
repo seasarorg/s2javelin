@@ -676,7 +676,7 @@ public final class TelegramUtil extends Common {
                 }
             }
             receivedBuffer.append(objName);
-            receivedBuffer.append("\t\t");
+            receivedBuffer.append("\t");
             receivedBuffer.append(itemName);
             receivedBuffer.append("\t");
             receivedBuffer.append(itemMode);
