@@ -19,13 +19,13 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 
 	static JavelinAcceptThread instance_ = new JavelinAcceptThread();
 
-	ServerSocket objServerSocket = null;
+	ServerSocket objServerSocket_ = null;
 
-	Socket clientSocket = null;
+	Socket clientSocket_ = null;
 
-	List<JavelinClientThread> clientList = new ArrayList<JavelinClientThread>();
+	List<JavelinClientThread> clientList_ = new ArrayList<JavelinClientThread>();
 
-	boolean isRunning = false;
+	boolean isRunning_ = false;
 
 	private JavelinAcceptThread() {
 		S2StatsJavelinRecorder.addListener(this);
@@ -39,17 +39,25 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 	    // 何もしない。
 	}
 
+	/**
+	 * JavelinAcceptThreadのインスタンスを取得する。
+	 * @return JavelinAcceptThread
+	 */
 	public static JavelinAcceptThread getInstance() {
 		return instance_;
 	}
 
+	/**
+	 * スレッドを開始する。
+	 * @param port ポート番号
+	 */
 	public void start(int port) {
-		if (this.objServerSocket != null) {
+		if (this.objServerSocket_ != null) {
 			return;
 		}
 
 		try {
-			this.objServerSocket = new ServerSocket(port);
+			this.objServerSocket_ = new ServerSocket(port);
 			SystemLogger.getInstance().info(
 					"S2JavelinのTCP接続受付を開始します。 ポート[" + port + "]");
 
@@ -70,8 +78,8 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 	public void run() {
 		ThreadGroup group = new ThreadGroup("JavelinThreadGroup");
 
-		isRunning = true;
-		while (isRunning) {
+		this.isRunning_ = true;
+		while (this.isRunning_) {
 			try {
 				accept(group);
 			} catch (RuntimeException re) {
@@ -80,15 +88,15 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 			}
 		}
 
-		synchronized (clientList) {
-			for (int index = clientList.size() - 1; index >= 0; index--) {
-				JavelinClientThread client = clientList.get(index);
+		synchronized (this.clientList_) {
+			for (int index = this.clientList_.size() - 1; index >= 0; index--) {
+				JavelinClientThread client = this.clientList_.get(index);
 				client.stop();
 			}
 		}
 
 		try {
-			this.objServerSocket.close();
+			this.objServerSocket_.close();
 		} catch (IOException ioe) {
 			SystemLogger.getInstance().warn("サーバソケットのクローズに失敗しました。", ioe);
 		}
@@ -97,7 +105,7 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 	private void accept(ThreadGroup group) {
 		try {
 			// モニター
-			clientSocket = objServerSocket.accept();
+		    this.clientSocket_ = this.objServerSocket_.accept();
 		} catch (IOException ioe) {
 			SystemLogger.getInstance().warn("サーバソケットのacceptに失敗しました。", ioe);
 			return;
@@ -108,7 +116,7 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 			SystemLogger.getInstance().info(
 					"接続数が最大数[" + MAX_SOCKET + "]を超えたため、接続を拒否します。");
 			try {
-				clientSocket.close();
+			    this.clientSocket_.close();
 			} catch (IOException ioe) {
 				SystemLogger.getInstance().warn("クライアントソケットのクローズに失敗しました。",
 						ioe);
@@ -116,22 +124,22 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 			return;
 		}
 
-		InetAddress clientIP = clientSocket.getInetAddress();
+		InetAddress clientIP = this.clientSocket_.getInetAddress();
 		SystemLogger.getInstance().info(
 				"クライアントから接続されました。IP:[" + clientIP + "]");
 
 		// クライアントからの要求受付用に、処理スレッドを起動する。
 		JavelinClientThread clientRunnable;
 		try {
-			clientRunnable = new JavelinClientThread(clientSocket);
+			clientRunnable = new JavelinClientThread(this.clientSocket_);
 			Thread objHandleThread = new Thread(group, clientRunnable,
 					"JavelinClientThread-" + clientCount);
 			objHandleThread.setDaemon(true);
 			objHandleThread.start();
 
 			// 通知のためのクライアントリストに追加する。
-			synchronized (clientList) {
-				clientList.add(clientRunnable);
+			synchronized (this.clientList_) {
+			    this.clientList_.add(clientRunnable);
 			}
 		} catch (IOException ioe) {
 			SystemLogger.getInstance()
@@ -141,22 +149,25 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 
 	private int sweepClient() {
 		int size;
-		synchronized (clientList) {
-			for (int index = clientList.size() - 1; index >= 0; index--) {
-				JavelinClientThread client = clientList.get(index);
+		synchronized (this.clientList_) {
+			for (int index = this.clientList_.size() - 1; index >= 0; index--) {
+				JavelinClientThread client = this.clientList_.get(index);
 				if (client.isClosed()) {
-					clientList.remove(index);
+				    this.clientList_.remove(index);
 				}
 			}
-			size = clientList.size();
+			size = this.clientList_.size();
 		}
 
 		return size;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public void sendExceedThresholdAlarm(String jvnFileName, CallTreeNode node) {
 		Invocation invocation = node.getInvocation();
-		Telegram objTelegram = TelegramUtil.create(Arrays
+		Telegram objTelegram = S2TelegramUtil.create(Arrays
 				.asList(new Invocation[] { invocation }),
 				Common.BYTE_TELEGRAM_KIND_ALERT,
 				Common.BYTE_REQUEST_KIND_NOTIFY);
@@ -176,10 +187,10 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 			return;
 		}
 
-		byte[] bytes = TelegramUtil.createTelegram(telegram);
-		synchronized (clientList) {
-			for (int index = clientList.size() - 1; index >= 0; index--) {
-				JavelinClientThread client = clientList.get(index);
+		byte[] bytes = S2TelegramUtil.createTelegram(telegram);
+		synchronized (this.clientList_) {
+			for (int index = this.clientList_.size() - 1; index >= 0; index--) {
+				JavelinClientThread client = this.clientList_.get(index);
 				client.sendAlarm(bytes);
                 if (SystemLogger.getInstance().isDebugEnabled())
                 {
@@ -189,8 +200,11 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 		}
 	}
 
+	/**
+	 * スレッドを停止する。
+	 */
 	public void stop() {
-		this.isRunning = false;
+		this.isRunning_ = false;
 	}
 
 	/**
@@ -207,9 +221,9 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 	 * @return
 	 */
 	public boolean hasClient() {
-	    synchronized(clientList)
+	    synchronized(this.clientList_)
 	    {
-	        return (clientList.size() > 0);
+	        return (this.clientList_.size() > 0);
 	    }
 	}
 }
