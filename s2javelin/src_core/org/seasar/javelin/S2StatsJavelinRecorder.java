@@ -503,6 +503,7 @@ public class S2StatsJavelinRecorder
      * 後処理（本処理失敗時）。
      * 
      * @param cause
+     * @param config S2Javelinの設定
      */
     public static void postProcess(Throwable cause, S2JavelinConfig config)
     {
@@ -592,6 +593,11 @@ public class S2StatsJavelinRecorder
         }
     }
 
+    /**
+     * Javelinログファイルを出力する。
+     * @param config S2Javelinの設定
+     * @return　ファイル名
+     */
     public static String dumpJavelinLog(S2JavelinConfig config)
     {
         String fileName = "";
@@ -615,6 +621,12 @@ public class S2StatsJavelinRecorder
         return fileName;
     }
 
+    /**
+     * 
+     * @param className クラス名
+     * @param methodName メソッド名
+     * @param config S2Javelinの設定
+     */
     public static void preProcessField(String className, String methodName, S2JavelinConfig config)
     {
         synchronized (S2StatsJavelinRecorder.class)
@@ -666,6 +678,10 @@ public class S2StatsJavelinRecorder
         }
     }
 
+    /**
+     * 
+     * @param config S2Javelinの設定
+     */
     public static void postProcessField(S2JavelinConfig config)
     {
         try
@@ -716,7 +732,7 @@ public class S2StatsJavelinRecorder
         List<CallTreeNode> children = node.getChildren();
         for (int index = 0; index < children.size(); index++)
         {
-            CallTreeNode child = (CallTreeNode)children.get(index);
+            CallTreeNode child = children.get(index);
             recordTransaction(child);
         }
     }
@@ -728,7 +744,7 @@ public class S2StatsJavelinRecorder
         List<CallTreeNode> children = node.getChildren();
         for (int index = 0; index < children.size(); index++)
         {
-            CallTreeNode child = (CallTreeNode)children.get(index);
+            CallTreeNode child = children.get(index);
             sendExceedThresholdAlarm(jvnFileName, child);
         }
     }
