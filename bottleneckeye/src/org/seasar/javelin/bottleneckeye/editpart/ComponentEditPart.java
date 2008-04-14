@@ -287,7 +287,7 @@ public class ComponentEditPart
     protected void createEditPolicies()
     {
         installEditPolicy(EditPolicy.COMPONENT_ROLE,
-                          new StatsVisionDeleteEditPolicy());
+                          new StatsVisionDeleteEditPolicy(this.statsVisionEditor_));
     }
 
     /**

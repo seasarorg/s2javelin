@@ -5,8 +5,10 @@ package org.seasar.javelin.bottleneckeye.editors;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.gef.commands.Command;
+import org.seasar.javelin.bottleneckeye.editors.view.AbstractStatsVisionEditor;
 import org.seasar.javelin.bottleneckeye.model.AbstractConnectionModel;
 import org.seasar.javelin.bottleneckeye.model.ComponentModel;
 import org.seasar.javelin.bottleneckeye.model.ContentsModel;
@@ -23,6 +25,8 @@ public class DeleteClassCommand extends Command
 
     private ComponentModel componentModel_;
 
+    private AbstractStatsVisionEditor<?> editor_;
+
     /** 削除対象のモデルをソースとするコネクションのリスト */
     private List<AbstractConnectionModel> sourceConnections_ = new ArrayList<AbstractConnectionModel>();
 
@@ -35,11 +39,14 @@ public class DeleteClassCommand extends Command
      *
      * @param contentsModel クラスを持つ ContentsModel
      * @param componentModel クラス
+     * @param editor クラス図エディタ
      */
-    public DeleteClassCommand(ContentsModel contentsModel, ComponentModel componentModel)
+    public DeleteClassCommand(ContentsModel contentsModel, ComponentModel componentModel,
+    		AbstractStatsVisionEditor<?> editor)
     {
         this.contentsModel_ = contentsModel;
         this.componentModel_ = componentModel;
+        this.editor_ = editor;
     }
 
 
@@ -57,6 +64,10 @@ public class DeleteClassCommand extends Command
         // コネクションを外した後にモデルを削除する
         this.contentsModel_.removeChild(this.componentModel_);
         this.componentModel_.setDeleted(true);
+
+        // 内部のマップからも削除する
+        Map<?, ComponentModel> componentMap = this.editor_.getComponentMap();
+        componentMap.remove(this.componentModel_.getClassName());
     }
 
     /**
