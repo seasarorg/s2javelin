@@ -1,6 +1,5 @@
 package org.seasar.javelin.bottleneckeye.editpart;
 
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.draw2d.Label;
