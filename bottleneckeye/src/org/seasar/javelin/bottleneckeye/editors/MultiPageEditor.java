@@ -156,6 +156,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
      */
     protected void createPages()
     {
+        PersistenceModel persistence = loadFileContent();
         setTitleImage(StatsVisionPlugin.IMG_DISCONNECT_TITLE);
 
         // StatsVisionEditorタブを作成する。
@@ -184,7 +185,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         SettingsEditorTab settingsEditorTab = new SettingsEditorTab(this, this.editor_);
         Composite tabComposite = settingsEditorTab.createComposite(getContainer(), this);
 
-        loadFileContent();
+        notifyLoad(persistence);
 
         // ファイルを元にタブを生成する
         initTabs();
@@ -217,7 +218,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         settingsEditorTab.start();
     }
 
-    private void loadFileContent()
+    private PersistenceModel loadFileContent()
     {
         IFileEditorInput input = (IFileEditorInput)getEditorInput();
         setPartName(input.getName());
@@ -257,11 +258,13 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 
         if (persistence == null)
         {
-            return;
+            return null;
         }
 
         loadSetting(persistence.getSettings());
         notifyLoad(persistence);
+
+        return persistence;
     }
 
     /**
