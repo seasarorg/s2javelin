@@ -138,6 +138,7 @@ public class CallTree
 
     /**
      * CallBackを追加する。
+     * 
      * @param callback CallBack
      */
     public void addCallback(Callback callback)
@@ -167,17 +168,23 @@ public class CallTree
 
     /**
      * フラグを設定する。
+     * 
      * @param flag フラグ
      * @param value 値
      * @return フラグ
      */
     public boolean setFlag(String flag, Object value)
     {
+        if (SystemLogger.getInstance().isDebugEnabled())
+        {
+            SystemLogger.getInstance().debug("フラグ:" + flag + "を設定しました。");
+        }
         return (this.flagMap_.put(flag, value) != null);
     }
 
     /**
      * フラグを取得する。
+     * 
      * @param flag フラグ
      * @return フラグ
      */
@@ -188,6 +195,7 @@ public class CallTree
 
     /**
      * flagがMapに登録されているか返す。
+     * 
      * @param flag フラグ
      * @return true:キーがMapに登録されている、false:キーがMapに登録されていない。
      */
@@ -198,6 +206,7 @@ public class CallTree
 
     /**
      * フラグの値をMapから除外する。
+     * 
      * @param flag フラグ
      * @return true:除外される、false:除外されない。
      */
@@ -208,6 +217,7 @@ public class CallTree
 
     /**
      * ログ値を設定する。
+     * 
      * @param key キー
      * @param value 値
      */
@@ -218,7 +228,8 @@ public class CallTree
 
     /**
      * Mapからキーを取得する。
-     * @return  キー配列
+     * 
+     * @return キー配列
      */
     public String[] getLoggingKeys()
     {
@@ -230,6 +241,7 @@ public class CallTree
 
     /**
      * Mapからキーに対応する値を取得する。
+     * 
      * @param key キー
      * @return キーの値
      */
@@ -240,6 +252,7 @@ public class CallTree
 
     /**
      * 例外の原因を取得する。
+     * 
      * @return 例外の原因
      */
     public Throwable getCause()
@@ -249,6 +262,7 @@ public class CallTree
 
     /**
      * 例外の原因を設定する。
+     * 
      * @param cause 例外の原因
      */
     public void setCause(Throwable cause)
