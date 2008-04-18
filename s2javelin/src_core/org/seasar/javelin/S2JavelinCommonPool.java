@@ -1,10 +1,7 @@
 package org.seasar.javelin;
 
 /**
- * ENdoSnipeのフィルタで使用する共通パラメータの内、
- * Seasar2としてオープンソースで公開する部分
  * @author fujii
- *
  */
 public class S2JavelinCommonPool {
 	/** クラス名 */
