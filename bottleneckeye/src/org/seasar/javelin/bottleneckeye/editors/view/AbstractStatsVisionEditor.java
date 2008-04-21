@@ -2,6 +2,7 @@ package org.seasar.javelin.bottleneckeye.editors.view;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -687,10 +688,11 @@ public abstract class AbstractStatsVisionEditor<T> extends GraphicalEditor imple
 
         ((ComponentModel)componentEditPart.getModel()).setExceededThresholdAlarm(null);
 
+        Map<String, ComponentEditPart> componentEditPartMap = Collections.synchronizedMap(this.componentEditPartMap_);
         for(int index = 0; index < BLINK_COUNT; index++)
         {
-            TimerTask blinkJobRed = new Blinker(display, className, methodName, this.componentEditPartMap_, ColorConstants.black, RED);
-            TimerTask blinkJobNormal = new Blinker(display, className, methodName, this.componentEditPartMap_, componentEditPart.getFgColor(invocation), componentEditPart.getBgColor(invocation));
+            TimerTask blinkJobRed = new Blinker(display, className, methodName, componentEditPartMap, ColorConstants.black, RED);
+            TimerTask blinkJobNormal = new Blinker(display, className, methodName, componentEditPartMap, componentEditPart.getFgColor(invocation), componentEditPart.getBgColor(invocation));
             result.add(blinkJobRed);
             result.add(blinkJobNormal);
         }

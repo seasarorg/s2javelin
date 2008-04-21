@@ -109,10 +109,8 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
      *
      * @param telegram 電文
      */
-    private boolean doAddResponseTelegramWithoutSetRootModel(final Telegram telegram)
+    private void doAddResponseTelegramWithoutSetRootModel(final Telegram telegram)
     {
-        boolean isAdded = false;
-
         // 電文よりモデルを作成する。
         InvocationModel[] invocations =
                 InvocationModel.createFromTelegram(telegram, getAlarmThreshold(),
@@ -125,14 +123,6 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
             String strClassName = invocation.getClassName();
 
             Map<String, ComponentModel> componentMap = getComponentMap();
-            if (componentMap.containsKey(strClassName) == false)
-            {
-                isAdded = true;
-            }
-            else if (componentMap.get(strClassName).isDeleted() == true)
-            {
-                isAdded = true;
-            }
             ComponentModel target =
                     getComponentModel(componentMap, this.rootModel, strClassName);
 
@@ -185,15 +175,12 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
                     if (target.getClassName().equals(callerName) == false)
                     {
                         addOneCaller(target, callerName);
-                        isAdded = true;
                     }
                 }
             }
         }
 
         layoutModel();
-
-        return isAdded;
     }
 
     /**
