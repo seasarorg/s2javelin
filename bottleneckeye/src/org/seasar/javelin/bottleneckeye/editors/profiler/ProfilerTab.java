@@ -98,7 +98,7 @@ public class ProfilerTab implements EditorTabInterface
     private Button                       reloadButton_;
 
     /** 電文送信オブジェクト */
-    private TelegramSender telegramSender_;
+    private TelegramSender               telegramSender_;
 
     /**
      * {@inheritDoc}
@@ -111,8 +111,8 @@ public class ProfilerTab implements EditorTabInterface
 
         this.reloadButton_ = new Button(composite, SWT.PUSH | SWT.FLAT);
         this.reloadButton_.setEnabled(false);
-        Image image =
-                StatsVisionPlugin.getDefault().getImageRegistry().get(StatsVisionPlugin.IMG_REFRESH);
+        Image image = StatsVisionPlugin.getDefault().getImageRegistry().get(
+                                                                            StatsVisionPlugin.IMG_REFRESH);
         this.reloadButton_.setImage(image);
         this.reloadButton_.setLayoutData(new GridData());
         this.reloadButton_.addSelectionListener(new SelectionAdapter() {
@@ -132,13 +132,13 @@ public class ProfilerTab implements EditorTabInterface
 
         this.viewer_.setInput(this.modelList_);
 
-        CellEditorActionHandler actionHandler =
-                new CellEditorActionHandler(editorPart.getEditorSite().getActionBars());
+        CellEditorActionHandler actionHandler = new CellEditorActionHandler(
+                                                                            editorPart.getEditorSite().getActionBars());
         ProfilerCopyAction action = new ProfilerCopyAction(this.viewer_);
         actionHandler.setCopyAction(action);
 
         // F5リロードのためのキーリスナ
-        KeyAdapter keyListener = new KeyAdapter(){
+        KeyAdapter keyListener = new KeyAdapter() {
             public void keyReleased(KeyEvent e)
             {
                 if (e.keyCode == SWT.F5)
@@ -511,26 +511,14 @@ public class ProfilerTab implements EditorTabInterface
      */
     public boolean receiveTelegram(Telegram telegram)
     {
-        Header header = telegram.getObjHeader();
-        byte telegramKind = header.getByteTelegramKind();
-        byte requestKind = header.getByteRequestKind();
-
         // 状態取得応答電文を受信した場合
-        if (telegramKind == Common.BYTE_TELEGRAM_KIND_GET
-                && requestKind == Common.BYTE_REQUEST_KIND_RESPONSE)
+        boolean valid = isTargetTelegram(telegram);
+
+        if (valid == true)
         {
             // InvocationMapに、該当InvocationModelを設定する
-            InvocationModel[] invocations = InvocationModel.createFromTelegram(telegram, 0, 0);
-
-            for (InvocationModel invocation : invocations)
-            {
-                this.modelMap_.put(invocation.getClassName() + "#" + invocation.getMethodName(),
-                                   invocation);
-            }
-
-            this.modelList_.clear();
-            this.modelList_.addAll(this.modelMap_.values());
-            this.viewer_.getControl().getDisplay().asyncExec(new Runnable(){
+            addToModelList(telegram, this.modelList_);
+            this.viewer_.getControl().getDisplay().asyncExec(new Runnable() {
                 public void run()
                 {
                     ProfilerTab.this.viewer_.refresh(true);
@@ -541,6 +529,45 @@ public class ProfilerTab implements EditorTabInterface
 
         return false;
     }
+
+    boolean isTargetTelegram(Telegram telegram)
+    {
+        Header header = telegram.getObjHeader();
+        byte telegramKind = header.getByteTelegramKind();
+        byte requestKind = header.getByteRequestKind();
+
+        boolean result = true;
+        
+        if (telegramKind != Common.BYTE_TELEGRAM_KIND_GET)
+        {
+            return false;
+        }
+        else if (requestKind != Common.BYTE_REQUEST_KIND_RESPONSE)
+        {
+            return false;
+        }
+
+        return result;
+    }
+    
+    /**
+     * @param telegram
+     */
+    void addToModelList(Telegram telegram, List<InvocationModel> list)
+    {
+        InvocationModel[] invocations = InvocationModel.createFromTelegram(telegram, 0, 0);
+
+        for (InvocationModel invocation : invocations)
+        {
+            this.modelMap_.put(invocation.getClassName() + "#" + invocation.getMethodName(),
+                               invocation);
+        }
+
+        list.clear();
+        list.addAll(this.modelMap_.values());
+    }
+
+
 
     /**
      * {@inheritDoc}
