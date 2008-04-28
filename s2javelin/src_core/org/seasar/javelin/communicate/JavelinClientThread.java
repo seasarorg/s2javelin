@@ -69,6 +69,11 @@ public class JavelinClientThread implements Runnable
                     logTelegram("電文を受信しました。", request);
                 }
 
+                if(request == null)
+                {
+                    continue;
+                }
+                
                 // 各TelegramListenerで処理を行う
                 for (TelegramListener listener : this.telegramListenerList_)
                 {
