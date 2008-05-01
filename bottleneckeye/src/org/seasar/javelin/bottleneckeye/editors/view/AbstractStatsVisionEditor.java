@@ -623,10 +623,10 @@ public abstract class AbstractStatsVisionEditor<T> extends GraphicalEditor imple
 
         // 「クラス名、メソッド名」で赤くブリンクメソッドのキーを取得する
         String className = invocation.getClassName();
-        String methodName = invocation.getMethodName();;
+        String methodName = invocation.getMethodName();
         if (className.startsWith("ROOT-"))
         {
-            className = className.substring(5);
+            className = className.substring("ROOT-".length());
         }
 
         // 赤くブリンクで表示する
