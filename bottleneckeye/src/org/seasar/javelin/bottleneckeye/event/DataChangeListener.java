@@ -11,5 +11,5 @@ public interface DataChangeListener
      * データの更新を行う。
      * @param element 要素
      */
-    public void updateData(Object element);
+    void updateData(Object element);
 }
