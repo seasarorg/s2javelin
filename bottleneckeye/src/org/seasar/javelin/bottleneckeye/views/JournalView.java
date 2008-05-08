@@ -279,6 +279,7 @@ public class JournalView extends ViewPart implements DataChangeListener
                 break;
             default:
                 ret = "";
+                break;
             }
 
             if (ret == null)
