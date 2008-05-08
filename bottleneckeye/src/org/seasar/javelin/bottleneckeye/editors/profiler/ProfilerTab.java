@@ -530,6 +530,10 @@ public class ProfilerTab implements EditorTabInterface
         return false;
     }
 
+    /**
+     * @param telegram óM‚µ‚½“d•¶
+     * @return ˆ—‘ÎÛ‚Ì“d•¶‚Å‚ ‚é‚©(TRUE‚È‚ç‘ÎÛ)
+     */
     boolean isTargetTelegram(Telegram telegram)
     {
         Header header = telegram.getObjHeader();
