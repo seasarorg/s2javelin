@@ -7,62 +7,87 @@ import org.seasar.javelin.bottleneckeye.StatsVisionPlugin;
 import org.seasar.javelin.bottleneckeye.model.ComponentModel;
 import org.seasar.javelin.bottleneckeye.model.ComponentType;
 
-public class ComponentTreeEditPart extends StatsVisionTreeEditPart {
-	private Image webImage_;
-	private Image classImage_;
-	private Image dbImage_;
+public class ComponentTreeEditPart extends StatsVisionTreeEditPart
+{
+    private Image webImage_;
 
-	public ComponentTreeEditPart() {
-		super();
-		this.webImage_ = StatsVisionPlugin
-				.getImageDescriptor("icons/outline_web.gif").createImage();
-		this.dbImage_ = StatsVisionPlugin
-				.getImageDescriptor("icons/outline_db.gif").createImage();
-		this.classImage_ = StatsVisionPlugin
-				.getImageDescriptor("icons/outline_class.gif").createImage();
-	}
+    private Image classImage_;
 
-	// オーバーライド
-	protected void refreshVisuals() {
-		ComponentModel model = (ComponentModel) getModel();
-		// ツリー・アイテムのテキストとしてモデルのテキストを設定
-		String className = model.getClassName();
-		setWidgetText(className);
+    private Image dbImage_;
 
-		// アウトラインにアイコンを表示する。
-		Image image = createImage(model);
-		if (image != null) {
-			setWidgetImage(image);
-		}
-	}
+    /**
+     * コンストラクタ
+     */
+    public ComponentTreeEditPart()
+    {
+        super();
+        this.webImage_ =
+                StatsVisionPlugin.getImageDescriptor("icons/outline_web.gif").createImage();
+        this.dbImage_ = StatsVisionPlugin.getImageDescriptor("icons/outline_db.gif").createImage();
+        this.classImage_ =
+                StatsVisionPlugin.getImageDescriptor("icons/outline_class.gif").createImage();
+    }
 
-	/**
-	 * ImageDescriptorから、modelに対応するアイコンを取得する。<br>
-	 * ComponentType毎に、WEB、データベース、クラスのアイコンを取得する。
-	 * 
-	 * @param model
-	 *            アイコンを作成するモデル。
-	 * @return アイコン
-	 */
-	private Image createImage(ComponentModel model) {
-		if (model == null) {
-			return null;
-		}
+    /**
+     * {@inheritDoc}
+     * 
+     */
+    @Override
+    protected void refreshVisuals()
+    {
+        ComponentModel model = (ComponentModel)getModel();
+        // ツリー・アイテムのテキストとしてモデルのテキストを設定
+        String className = model.getClassName();
+        setWidgetText(className);
 
-		Image image;
-		if (model.getComponentType() == ComponentType.WEB) {
-			image = this.webImage_;
-		} else if (model.getComponentType() == ComponentType.DATABASE) {
-			image = this.dbImage_;
-		} else {
-			image = this.classImage_;
-		}
-		return image;
-	}
+        // アウトラインにアイコンを表示する。
+        Image image = createImage(model);
+        if (image != null)
+        {
+            setWidgetImage(image);
+        }
+    }
 
-	public void propertyChange(PropertyChangeEvent evt) {
-		// モデルのテキストの変更をツリー・アイテムにも反映させる
-		if (evt.getPropertyName().equals(ComponentModel.P_CLASS_NAME))
-			refreshVisuals();
-	}
+    /**
+     * ImageDescriptorから、modelに対応するアイコンを取得する。<br>
+     * ComponentType毎に、WEB、データベース、クラスのアイコンを取得する。
+     * 
+     * @param model
+     *            アイコンを作成するモデル。
+     * @return アイコン
+     */
+    private Image createImage(ComponentModel model)
+    {
+        if (model == null)
+        {
+            return null;
+        }
+
+        Image image;
+        if (model.getComponentType() == ComponentType.WEB)
+        {
+            image = this.webImage_;
+        }
+        else if (model.getComponentType() == ComponentType.DATABASE)
+        {
+            image = this.dbImage_;
+        }
+        else
+        {
+            image = this.classImage_;
+        }
+        return image;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        // モデルのテキストの変更をツリー・アイテムにも反映させる
+        if (ComponentModel.P_CLASS_NAME.equals(evt.getPropertyName()))
+        {
+            refreshVisuals();
+        }
+    }
 }

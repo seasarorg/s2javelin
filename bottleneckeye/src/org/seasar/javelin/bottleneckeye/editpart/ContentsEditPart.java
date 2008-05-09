@@ -16,6 +16,7 @@ import org.seasar.javelin.bottleneckeye.editors.EditPartWithListener;
 import org.seasar.javelin.bottleneckeye.editors.MultiPageEditor;
 import org.seasar.javelin.bottleneckeye.editors.StatsVisionXYLayoutEditPolicy;
 import org.seasar.javelin.bottleneckeye.editors.view.StatsVisionEditor;
+import org.seasar.javelin.bottleneckeye.model.ComponentModel;
 import org.seasar.javelin.bottleneckeye.model.ContentsModel;
 
 
@@ -65,7 +66,10 @@ public class ContentsEditPart extends EditPartWithListener
 	    		new StatsVisionXYLayoutEditPolicy(this.statsVisionEditor_));
 	}
 
-	protected List getModelChildren()
+	/**
+	 * {@inheritDoc}
+	 */
+	protected List<ComponentModel> getModelChildren()
 	{
     	return ((ContentsModel)getModel()).getChildren();
 	}
@@ -75,7 +79,7 @@ public class ContentsEditPart extends EditPartWithListener
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
-        if (evt.getPropertyName().equals(ContentsModel.P_CHILDREN))
+        if (ContentsModel.P_CHILDREN.equals(evt.getPropertyName()))
         {
             refreshChildren();
         }
