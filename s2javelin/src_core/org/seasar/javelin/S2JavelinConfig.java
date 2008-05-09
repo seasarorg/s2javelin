@@ -170,7 +170,7 @@ public class S2JavelinConfig
     private static final String  DEFAULT_ALARM_LISTENERS     = "org.seasar.javelin.communicate.JmxListener";
 
     /** デフォルトでJMX通信による情報公開を行うかどうか */
-    private static final boolean DEFAULT_RECORD_JMX          = true;
+    private static final boolean DEFAULT_RECORD_JMX          = false;
 
     /** jvnログファイルの最大数のデフォルト */
     private static final int     DEFAULT_LOG_JVN_MAX         = 256;
