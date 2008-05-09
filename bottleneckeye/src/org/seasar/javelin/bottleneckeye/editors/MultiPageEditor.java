@@ -218,6 +218,10 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         settingsEditorTab.start();
     }
 
+    /**
+     * ファイルの中身を呼び出す。
+     * @return PersistenceModel
+     */
     private PersistenceModel loadFileContent()
     {
         IFileEditorInput input = (IFileEditorInput)getEditorInput();
@@ -268,59 +272,8 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
     }
 
     /**
-     * 文字列を入力し、文字列が0以上の整数の場合、その値を整数にして返す。 それ以外の場合はデフォルト値を返す。
-     * 
-     * @param key キー
-     * @param input 入力
-     * @param defaultValue デフォルト値
-     * @return データとして入力される値
+     * タブの初期化
      */
-    private int setInteger(String key, String input, int defaultValue)
-    {
-        int value;
-        if (input == null)
-        {
-            System.err.println("[BottleneckEye]" + key + "が設定されていません。デフォルト値(" + defaultValue
-                    + ")を使用します。");
-            return defaultValue;
-        }
-        try
-        {
-            value = Integer.parseInt(input);
-            if (value < 0)
-            {
-                return defaultValue;
-            }
-            return value;
-        }
-        catch (NumberFormatException ex)
-        {
-            System.err.println("[BottleneckEye]" + key + "に不正な値が入力されました。デフォルト値(" + defaultValue
-                    + ")を使用します。");
-            return defaultValue;
-        }
-    }
-
-    /**
-     * 文字列を入力し、文字列が空でなければ、入力された文字列を返す。
-     * 文字列が空であれば、デフォルト値を返す。
-     * 
-     * @param key キー
-     * @param input 入力
-     * @param defaultValue デフォルト値
-     * @return データとして入力される値
-     */
-    private String setString(String key, String input, String defaultValue)
-    {
-        if (input == null || "".equals(input))
-        {
-            System.err.println("[BottleneckEye]" + key + "が設定されていません。デフォルト値(" + defaultValue
-                    + ")を使用します。");
-            return defaultValue;
-        }
-        return input;
-    }
-
     private void initTabs()
     {
         BufferedReader reader = null;
@@ -536,7 +489,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 
     /**
      * 設定を読み込む。
-     * @param file
+     * @param settings 設定
      */
     protected void loadSetting(Settings settings)
     {
