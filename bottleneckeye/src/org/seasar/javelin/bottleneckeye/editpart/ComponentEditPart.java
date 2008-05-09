@@ -23,6 +23,7 @@ import org.eclipse.swt.graphics.Color;
 import org.seasar.javelin.bottleneckeye.editors.EditPartWithListener;
 import org.seasar.javelin.bottleneckeye.editors.StatsVisionDeleteEditPolicy;
 import org.seasar.javelin.bottleneckeye.editors.view.AbstractStatsVisionEditor;
+import org.seasar.javelin.bottleneckeye.model.AbstractConnectionModel;
 import org.seasar.javelin.bottleneckeye.model.ComponentModel;
 import org.seasar.javelin.bottleneckeye.model.ComponentType;
 import org.seasar.javelin.bottleneckeye.model.InvocationModel;
@@ -30,64 +31,67 @@ import org.seasar.javelin.bottleneckeye.model.InvocationModel;
 /**
  * クラスを表す EditPart 。
  */
-public class ComponentEditPart
-    extends EditPartWithListener implements NodeEditPart
+public class ComponentEditPart extends EditPartWithListener implements NodeEditPart
 {
 
     /** クラスの背景色。 */
-    private static final Color YELLOW = new Color(null, 255, 255, 206);
+    private static final Color               YELLOW                  =
+                                                                             new Color(null, 255,
+                                                                                       255, 206);
 
     /** メジャー警告色。 */
-    private static final Color RED    = ColorConstants.red;
+    private static final Color               RED                     = ColorConstants.red;
 
     /** マイナー警告色。 */
-    private static final Color ORANGE = new Color(null, 224, 160, 0);
+    private static final Color               ORANGE                  = new Color(null, 224, 160, 0);
 
     /** 有効色（呼び出されているクラス／メソッド）。 */
-    private static final Color BLACK   = ColorConstants.black;
-    
+    private static final Color               BLACK                   = ColorConstants.black;
+
     /** 無効色（呼び出されていないクラス／メソッド）。 */
-    private static final Color GRAY   = ColorConstants.gray;
+    private static final Color               GRAY                    = ColorConstants.gray;
 
     /** コンポーネント名の最大長。これを越える部分は...で表示する。 */
-    private static final int COMPONENTNAME_MAXLENGTH = 80;
+    private static final int                 COMPONENTNAME_MAXLENGTH = 80;
 
     /** メソッド名の最大長。これを越える部分は...で表示する。 */
-    private static final int METHODNAME_MAXLENGTH    = 80;
+    private static final int                 METHODNAME_MAXLENGTH    = 80;
 
     /** コンポーネント名 */
-    private String componentName_;
+    private String                           componentName_;
 
     /** StatsVisionEditor */
-    private AbstractStatsVisionEditor<?> statsVisionEditor_;
+    private AbstractStatsVisionEditor<?>     statsVisionEditor_;
 
     /** ブリンク用 */
-    private HashMap<String, Label> invocationLabelMap
-        = new HashMap<String, Label>();
+    private HashMap<String, Label>           invocationLabelMap_     = new HashMap<String, Label>();
 
     /** ブリンク用 */
-    private HashMap<String, InvocationModel> invocationMap
-        = new HashMap<String, InvocationModel>();
-
+    private HashMap<String, InvocationModel> invocationMap_          =
+                                                                             new HashMap<String, InvocationModel>();
 
     /**
      * クラスの EditPart を生成する。
      *
-     * @param rootModel ルートモデル
+     * @param statsVisionEditor エディタ
      */
     public ComponentEditPart(AbstractStatsVisionEditor<?> statsVisionEditor)
     {
         this.statsVisionEditor_ = statsVisionEditor;
     }
 
+    /**
+     * Viewを作成する。
+     * @return View 
+     */
     protected IFigure createFigure()
     {
         ComponentModel model = (ComponentModel)getModel();
 
         LineBorder border = new LineBorder();
         border.setColor(BLACK);
-        
-        Layer      layer  = new Layer();
+
+        Layer layer = new Layer();
         layer.setBorder(border);
         layer.setOpaque(true);
         layer.setBackgroundColor(YELLOW);
@@ -103,11 +107,11 @@ public class ComponentEditPart
         label.setOpaque(true);
 
         // 表示文字列の決定
-        String className     = model.getClassName();
+        String className = model.getClassName();
         this.componentName_ = className;
         ComponentType componentType = model.getComponentType();
         String componentText = createComponentText(componentType, className);
-        
+
         label.setForegroundColor(GRAY);
         for (InvocationModel invocation : model.getInvocationList())
         {
@@ -116,7 +120,7 @@ public class ComponentEditPart
                 label.setForegroundColor(BLACK);
             }
         }
-        
+
         label.setText(toStr(componentText, COMPONENTNAME_MAXLENGTH));
         layer.add(label);
 
@@ -140,8 +144,7 @@ public class ComponentEditPart
             {
                 invocationLabel.setForegroundColor(ORANGE);
             }
-            else if (invocation.getMaximum() < 0
-                    && invocation.getAverage() == 0)
+            else if (invocation.getMaximum() < 0 && invocation.getAverage() == 0)
             {
                 invocationLabel.setForegroundColor(GRAY);
             }
@@ -156,8 +159,8 @@ public class ComponentEditPart
             strKeyTemp.append(methodName);
             String strKey = strKeyTemp.toString();
 
-            this.invocationLabelMap.put(strKey, invocationLabel);
-            this.invocationMap.put(strKey, invocation);
+            this.invocationLabelMap_.put(strKey, invocationLabel);
+            this.invocationMap_.put(strKey, invocation);
 
             figure.add(invocationLabel);
         }
@@ -167,11 +170,16 @@ public class ComponentEditPart
         return layer;
     }
 
-	private String createComponentText(ComponentType componentType,
-			String className) {
-		String componentText = "";
-		if (componentType == ComponentType.WEB
-                || componentType == ComponentType.DATABASE)
+    /**
+     * コンポーネントのテキストを作成する。
+     * @param componentType タイプ：WEB、CLASS､DATABESE
+     * @param className クラス名
+     * @return コンポーネントのテキスト
+     */
+    private String createComponentText(ComponentType componentType, String className)
+    {
+        String componentText = "";
+        if (componentType == ComponentType.WEB || componentType == ComponentType.DATABASE)
         {
             componentText = className;
         }
@@ -187,8 +195,8 @@ public class ComponentEditPart
                 componentText = className;
             }
         }
-		return componentText;
-	}
+        return componentText;
+    }
 
     /**
      * コンポーネント名を取得する。
@@ -208,7 +216,7 @@ public class ComponentEditPart
      */
     public Label getMethodLabel(String methodName)
     {
-        return this.invocationLabelMap.get(methodName);
+        return this.invocationLabelMap_.get(methodName);
     }
 
     /**
@@ -219,18 +227,23 @@ public class ComponentEditPart
      */
     public InvocationModel getInvocationModel(String methodName)
     {
-        return this.invocationMap.get(methodName);
+        return this.invocationMap_.get(methodName);
     }
 
+    /**
+     * メソッドのラベルに表示するテキストを作成する。
+     * @param invocation Invocation
+     * @return メソッドのラベル
+     */
     private String createMethodLabelText(InvocationModel invocation)
     {
         String methodName;
         methodName = invocation.getMethodName();
         methodName = toStr(methodName, METHODNAME_MAXLENGTH);
         StringBuilder builder = new StringBuilder(methodName);
-        
+
         builder.append("(");
-        
+
         long max = invocation.getMaximum();
         if (max < 0)
         {
@@ -245,32 +258,47 @@ public class ComponentEditPart
             long avg = invocation.getAverage();
             builder.append(avg);
         }
-        
+
         builder.append(")");
-        
+
         return builder.toString();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public ConnectionAnchor getSourceConnectionAnchor(Request request)
     {
         return new ChopboxAnchor(getFigure());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public ConnectionAnchor getTargetConnectionAnchor(Request request)
     {
         return new ChopboxAnchor(getFigure());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public ConnectionAnchor getSourceConnectionAnchor(ConnectionEditPart connection)
     {
         return new ChopboxAnchor(getFigure());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public ConnectionAnchor getTargetConnectionAnchor(ConnectionEditPart connection)
     {
         return new ChopboxAnchor(getFigure());
     }
 
+    /**
+     * 更新
+     */
     protected void refreshVisuals()
     {
         // 制約の取得
@@ -300,15 +328,15 @@ public class ComponentEditPart
         {
             refreshVisuals(); // ビューを更新する
         }
-        else if (evt.getPropertyName().equals(ComponentModel.P_SOURCE_CONNECTION))
+        else if (ComponentModel.P_SOURCE_CONNECTION.equals(evt.getPropertyName()))
         {
             refreshSourceConnections(); // コネクション・ソースの更新
         }
-        else if (evt.getPropertyName().equals(ComponentModel.P_TARGET_CONNECTION))
+        else if (ComponentModel.P_TARGET_CONNECTION.equals(evt.getPropertyName()))
         {
             refreshTargetConnections(); // コネクション・ターゲットの更新
         }
-        else if (evt.getPropertyName().equals(ComponentModel.P_EXCEEDED_THRESHOLD_ALARM))
+        else if (ComponentModel.P_EXCEEDED_THRESHOLD_ALARM.equals(evt.getPropertyName()))
         {
             String methodName = (String)evt.getNewValue();
             this.statsVisionEditor_.exceededThresholdAlarm(this.componentName_, methodName, this);
@@ -318,7 +346,7 @@ public class ComponentEditPart
     /**
      * {@inheritDoc}
      */
-    protected List getModelSourceConnections()
+    protected List<AbstractConnectionModel> getModelSourceConnections()
     {
         // このEditPartを接続元とするコネクション・モデルのリストを返す
         return ((ComponentModel)getModel()).getModelSourceConnections();
@@ -327,71 +355,18 @@ public class ComponentEditPart
     /**
      * {@inheritDoc}
      */
-    protected List getModelTargetConnections()
+    protected List<? extends AbstractConnectionModel> getModelTargetConnections()
     {
         // このEditPartを接続先とするコネクション・モデルのリストを返す
         return ((ComponentModel)getModel()).getModelTargetConnections();
     }
-
+    
     /**
-     * アラームの閾値を超えた時に呼ばれるメソッド。
-     *
-     * @param classmethodName クラスとメソッドの名前
-     * @param componentEditPartMap コンポーネントの EditPart 一覧
-     * @return ブリンクさせるタイマータスクのリスト
+     * 結果を表示する。
+     * @param result 結果
+     * @param length 長さ
+     * @return 結果
      */
-//    public List<TimerTask> exceededThresholdAlarm(String classmethodName, Map<String, ComponentEditPart> componentEditPartMap)
-//    {
-//        List<TimerTask> result = new ArrayList<TimerTask>();
-//        
-//        Label label = this.invocationLabelMap.get(classmethodName);
-//        InvocationModel invocation = this.invocationMap.get(classmethodName);
-//        
-//        if(label == null || invocation == null 
-//        || invocation.getClassName() == null || invocation.getMethodName() == null)
-//        {
-//            return result;
-//        }
-//        
-//        Control control = null;
-//        try
-//        {
-//            EditPartViewer viewer = getViewer();
-//            if (viewer == null)
-//            {
-//                return result;
-//            }
-//            control = viewer.getControl();
-//            if (control == null)
-//            {
-//                return result;
-//            }
-//        }
-//        catch (NullPointerException npe)
-//        {
-//            return result;
-//        }
-//        
-//        Display display = control.getDisplay();
-//
-//        String methodLabelText = createMethodLabelText(invocation);
-//
-//        display.asyncExec(new LabelUpdateJob(label, methodLabelText));
-//
-//        ((ComponentModel)getModel()).setExceededThresholdAlarm(null);
-//        
-//        for(int index = 0; index < BLINK_COUNT; index++)
-//        {
-//            TimerTask blinkJobRed = new Blinker(display, classmethodName, componentList, ColorConstants.black, RED);
-//            TimerTask blinkJobNormal = new Blinker(display, this.rootModel_, getFgColor(invocation), getBgColor(invocation));
-//            
-//            result.add(blinkJobRed);
-//            result.add(blinkJobNormal);
-//        }
-//            
-//        return result;
-//    }
-
     public static String toStr(String result, int length)
     {
         // 引数がnullの場合は"null"を返す。
@@ -412,11 +387,20 @@ public class ComponentEditPart
         return result;
     }
 
-    public Color getBgColor(InvocationModel invocation)
+    /**
+     * 背景色を取得する。
+     * @return 背景色
+     */
+    public Color getBgColor()
     {
         return YELLOW;
     }
 
+    /**
+     * ビューの背景色を取得する。
+     * @param invocation Invocation
+     * @return ビューの背景色
+     */
     public Color getFgColor(InvocationModel invocation)
     {
         if (invocation.getMaximum() > invocation.getAlarmThreshold())
