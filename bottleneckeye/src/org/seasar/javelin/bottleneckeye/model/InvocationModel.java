@@ -356,40 +356,40 @@ public class InvocationModel implements Comparable, NotificationListener
             String strItemName = ((ResponseBody)objBody[index]).getStrItemName();
             Object[] objTempArr = ((ResponseBody)objBody[index]).getObjItemValueArr();
             // 呼び出し回数
-            if (strItemName.equals("callCount"))
+            if ("callCount".equals(strItemName))
                 invocation.setCount((Long)objTempArr[0]);
             // 平均時間
-            if (strItemName.equals("averageInterval"))
+            if ("averageInterval".equals(strItemName))
                 invocation.setAverage((Long)objTempArr[0]);
             // 最大処理時間
-            if (strItemName.equals("maximumInterval"))
+            if ("maximumInterval".equals(strItemName))
                 invocation.setMaximum((Long)objTempArr[0]);
             // 最小処理時間
-            if (strItemName.equals("minimumInterval"))
+            if ("minimumInterval".equals(strItemName))
                 invocation.setMinimum((Long)objTempArr[0]);
             // 平均CPU時間
-            if (strItemName.equals("averageCpuInterval"))
+            if ("averageCpuInterval".equals(strItemName))
                 invocation.setCpuAverage((Long)objTempArr[0]/1000000);
             // 最大CPU時間
-            if (strItemName.equals("maximumCpuInterval"))
+            if ("maximumCpuInterval".equals(strItemName))
                 invocation.setCpuMaximum((Long)objTempArr[0]/1000000);
             // 最小USER時間
-            if (strItemName.equals("minimumCpuInterval"))
+            if ("minimumCpuInterval".equals(strItemName))
                 invocation.setCpuMinimum((Long)objTempArr[0]/1000000);
             // 平均USER時間
-            if (strItemName.equals("averageUserInterval"))
+            if ("averageUserInterval".equals(strItemName))
                 invocation.setUserAverage((Long)objTempArr[0]/1000000);
             // 最大USER時間
-            if (strItemName.equals("maximumUserInterval"))
+            if ("maximumUserInterval".equals(strItemName))
                 invocation.setUserMaximum((Long)objTempArr[0]/1000000);
             // 最小USER時間
-            if (strItemName.equals("minimumUserInterval"))
+            if ("minimumUserInterval".equals(strItemName))
                 invocation.setUserMinimum((Long)objTempArr[0]/1000000);
             // 例外発生回数
-            if (strItemName.equals("throwableCount"))
+            if ("throwableCount".equals(strItemName))
                 invocation.setThrowableCount((Long)objTempArr[0]);
             // メソッドの呼び出し元 クラス名
-            if (strItemName.equals("allCallerNames"))
+            if ("allCallerNames".equals(strItemName))
             {
                 if (((ResponseBody)objBody[index]).getIntLoopCount() > 0)
                 {
@@ -399,8 +399,8 @@ public class InvocationModel implements Comparable, NotificationListener
                     {
                         strCallersName[j] = (String)objTempArr[j];
                     }
-                    // TODO 呼び出し元?
                 }
+                // TODO 呼び出し元?
             }
             invocation.setAlarmThreshold(alarmThreshold);
             invocation.setWarningThreshold(warningThreshold);
