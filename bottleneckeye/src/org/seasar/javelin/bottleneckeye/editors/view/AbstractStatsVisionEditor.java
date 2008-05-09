@@ -692,7 +692,7 @@ public abstract class AbstractStatsVisionEditor<T> extends GraphicalEditor imple
         for(int index = 0; index < BLINK_COUNT; index++)
         {
             TimerTask blinkJobRed = new Blinker(display, className, methodName, componentEditPartMap, ColorConstants.black, RED);
-            TimerTask blinkJobNormal = new Blinker(display, className, methodName, componentEditPartMap, componentEditPart.getFgColor(invocation), componentEditPart.getBgColor(invocation));
+            TimerTask blinkJobNormal = new Blinker(display, className, methodName, componentEditPartMap, componentEditPart.getFgColor(invocation), componentEditPart.getBgColor());
             result.add(blinkJobRed);
             result.add(blinkJobNormal);
         }
