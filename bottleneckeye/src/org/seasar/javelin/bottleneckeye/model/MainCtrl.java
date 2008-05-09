@@ -36,12 +36,15 @@ public final class MainCtrl
      */
     public static MainCtrl getInstance()
     {
-        if (instance__ == null)
+        synchronized (MainCtrl.class)
         {
-            instance__ = new MainCtrl();
-        }
+            if (instance__ == null)
+            {
+                instance__ = new MainCtrl();
+            }
 
-        return instance__;
+            return instance__;
+        }
     }
 
     /**
