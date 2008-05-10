@@ -86,6 +86,13 @@ public class TelegramReader implements Runnable
                 continue;
             }
             Telegram telegram = TelegramUtil.recoveryTelegram(telegramBytes);
+            
+            if(telegram == null)
+            {
+                System.out.println("éÛêMÇµÇΩìdï∂ÇÃì«Ç›çûÇ›Ç…é∏îsÇµÇ‹ÇµÇΩÅB");
+                continue;
+            }
+            
             boolean isProcess = false;
             for (EditorTabInterface editorTab : this.editorTabList_)
             {
