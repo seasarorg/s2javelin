@@ -4,6 +4,7 @@ import org.seasar.javelin.util.JavelinConfigUtil;
 
 /**
  * S2StatsJavelinの設定を保持するクラス。
+ * @author eriguchi
  */
 public class S2JavelinConfig
 {
@@ -850,24 +851,40 @@ public class S2JavelinConfig
         return result;
     }
 
+    /**
+     * メモリに保存する閾値を取得する。
+     * @return メモリに保存する閾値
+     */
     public long getStatisticsThreshold()
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         return configUtil.getLong(STATISTICSTHRESHOLD_KEY, DEFAULT_STATISTICSTHRESHOLD);
     }
 
+    /**
+     * メモリに保存する閾値を設定する。
+     * @param statisticsThreshold メモリに保存する閾値
+     */
     public void setStatisticsThreshold(long statisticsThreshold)
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         configUtil.setLong(STATISTICSTHRESHOLD_KEY, statisticsThreshold);
     }
 
+    /**
+     * ログに出力するArgsの長さの閾値を取得する。
+     * @return Argsの長さの閾値
+     */
     public int getStringLimitLength()
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         return configUtil.getInteger(STRINGLIMITLENGTH_KEY, DEFAULT_STRINGLIMITLENGTH);
     }
 
+    /**
+     * ログに出力するArgsの長さの閾値を設定する。
+     * @param stringLimitLength Argsの長さの閾値
+     */    
     public void setStringLimitLength(int stringLimitLength)
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
@@ -942,18 +959,30 @@ public class S2JavelinConfig
         configUtil.setString(ALARM_LISTENERS_KEY, alarmListeners);
     }
 
+    /**
+     * ログサイズの最大値を取得する。
+     * @return ログサイズの最大値
+     */
     public int getLogJvnMax()
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         return configUtil.getInteger(LOG_JVN_MAX_KEY, DEFAULT_LOG_JVN_MAX);
     }
 
+    /**
+     * Zip化するログのファイル数を取得する。
+     * @return Zip化するログのファイル数
+     */
     public int getLogZipMax()
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         return configUtil.getInteger(LOG_ZIP_MAX_KEY, DEFAULT_LOG_ZIP_MAX);
     }
 
+    /**
+     * ログをZip化するかどうかを返す。
+     * @return true:ログをZip化する、false:ログをZip化しない。
+     */
     public boolean isLogZipMax()
     {
         return isKeyExist(LOG_ZIP_MAX_KEY);
@@ -1047,18 +1076,30 @@ public class S2JavelinConfig
         return configUtil.getInteger(SYSTEM_LOG_SIZE_MAX_KEY, DEFAULT_SYSTEM_LOG_SIZE_MAX);
     }
 
+    /**
+     * システムログのレベルを取得する。
+     * @return システムログのレベル
+     */
     public String getSystemLogLevel()
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         return configUtil.getString(SYSTEM_LOG_LEVEL_KEY, DEFAULT_SYSTEM_LOG_LEVEL);
     }
 
+    /**
+     * CallTreeの最大値を取得する。
+     * @return CallTreeの最大値
+     */
     public int getCallTreeMax()
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         return configUtil.getInteger(CALL_TREE_MAX_KEY, DEFAULT_CALL_TREE_MAX);
     }
 
+    /**
+     * CallTreeの最大値を設定する。
+     * @param callTreeMax CallTreeの最大値
+     */
     public void setCallTreeMax(int callTreeMax)
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
