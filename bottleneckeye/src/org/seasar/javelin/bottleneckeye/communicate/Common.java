@@ -128,6 +128,18 @@ public class Common
     /** 項目名（リソース値での、トータルのガベージコレクションの時間） */
     public static final String ITEMNAME_GARBAGETOTALTIME = "garbageTotalTime";
 
+    /** 項目名（リソース値での、コレクションの数） */
+    public static final String ITEMNAME_LISTCOUNT = "listCount";
+
+    /** 項目名（リソース値での、コレクションの数） */
+    public static final String ITEMNAME_QUEUECOUNT = "queueCount";
+
+    /** 項目名（リソース値での、コレクションの数） */
+    public static final String ITEMNAME_SETCOUNT = "setCount";
+
+    /** 項目名（リソース値での、コレクションの数） */
+    public static final String ITEMNAME_MAPCOUNT = "mapCount";
+
     /** 項目名（JVNファイル JVNファイル名） */
     public static final String ITEMNAME_JVN_FILE_NAME = "jvnFileName";
 
