@@ -355,6 +355,19 @@ public class InvocationModel implements Comparable, NotificationListener
             // データをInvocationModelに設定する
             String strItemName = ((ResponseBody)objBody[index]).getStrItemName();
             Object[] objTempArr = ((ResponseBody)objBody[index]).getObjItemValueArr();
+
+            // 説明の配列長が0であればスキップする
+            if (objTempArr.length == 0)
+            {
+                continue;
+            }
+            
+            // 説明の配列の先頭要素がLongでなければスキップする
+            if (objTempArr[0] instanceof Long == false)
+            {
+                continue;
+            }
+            
             // 呼び出し回数
             if ("callCount".equals(strItemName))
                 invocation.setCount((Long)objTempArr[0]);
@@ -388,19 +401,10 @@ public class InvocationModel implements Comparable, NotificationListener
             // 例外発生回数
             if ("throwableCount".equals(strItemName))
                 invocation.setThrowableCount((Long)objTempArr[0]);
-            // メソッドの呼び出し元 クラス名
+            // メソッドの呼び出し元 クラス名については未実装
             if ("allCallerNames".equals(strItemName))
             {
-                if (((ResponseBody)objBody[index]).getIntLoopCount() > 0)
-                {
-                    String[] strCallersName = new String[0];
-                    strCallersName = new String[objTempArr.length];
-                    for (int j = 0; j < objTempArr.length; j++)
-                    {
-                        strCallersName[j] = (String)objTempArr[j];
-                    }
-                }
-                // TODO 呼び出し元?
+                // 未実装
             }
             invocation.setAlarmThreshold(alarmThreshold);
             invocation.setWarningThreshold(warningThreshold);
