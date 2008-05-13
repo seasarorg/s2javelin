@@ -17,11 +17,11 @@ import org.seasar.javelin.communicate.entity.Telegram;
 public class JavelinClientThread implements Runnable
 {
 
-    Socket                         clientSocket_          = null;
+    Socket                         clientSocket_         = null;
 
-    InetAddress                    clientIP_              = null;
+    InetAddress                    clientIP_             = null;
 
-    BufferedInputStream            inputStream_           = null;
+    BufferedInputStream            inputStream_          = null;
 
     BufferedOutputStream           outputStream_         = null;
 
@@ -69,11 +69,11 @@ public class JavelinClientThread implements Runnable
                     logTelegram("電文を受信しました。", request);
                 }
 
-                if(request == null)
+                if (request == null)
                 {
                     continue;
                 }
-                
+
                 // 各TelegramListenerで処理を行う
                 for (TelegramListener listener : this.telegramListenerList_)
                 {
@@ -113,8 +113,8 @@ public class JavelinClientThread implements Runnable
         String telegramStr = S2TelegramUtil.toPrintStr(response);
         SystemLogger.getInstance().debug(
                                          message + this.clientIP_.getHostAddress() + ":"
-                                                 + this.clientSocket_.getPort() + SystemLogger.NEW_LINE
-                                                 + telegramStr);
+                                                 + this.clientSocket_.getPort()
+                                                 + SystemLogger.NEW_LINE + telegramStr);
     }
 
     void close()
@@ -151,7 +151,7 @@ public class JavelinClientThread implements Runnable
      * 受信電文のbyte配列を返す。
      * 
      * @return byte配列
-     * @throws IOException
+     * @throws IOException 入出力例外の発生
      */
     byte[] recvRequest()
         throws IOException
@@ -171,14 +171,11 @@ public class JavelinClientThread implements Runnable
             throw new IOException();
         }
 
-        S2JavelinConfig config = new S2JavelinConfig();
-        if (config.isDebug())
-        {
-            SystemLogger.getInstance().debug("telegramLength  = [" + telegramLength + "]");
-        }
+        SystemLogger.getInstance().debug("telegramLength  = [" + telegramLength + "]");
+
         byte[] telegram = new byte[telegramLength];
         intInputCount =
-            this.inputStream_.read(telegram, Header.HEADER_LENGTH, telegramLength
+                this.inputStream_.read(telegram, Header.HEADER_LENGTH, telegramLength
                         - Header.HEADER_LENGTH);
         if (intInputCount < 0)
         {
