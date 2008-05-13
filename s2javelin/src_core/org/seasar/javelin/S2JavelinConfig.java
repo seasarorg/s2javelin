@@ -21,17 +21,22 @@ public class S2JavelinConfig
     /** Javelin系パラメータの接頭辞 */
     public static final String   JAVELIN_PREFIX              = "javelin.";
 
+    /** メソッド平均時間を出力するために記録するInvocation数のプロパティ */
     public static final String  INTERVALMAX_KEY             = JAVELIN_PREFIX + "intervalMax";
 
     public static final String  THROWABLEMAX_KEY            = JAVELIN_PREFIX + "throwableMax";
 
+    /** メモリに保存する閾値のプロパティ */
     public static final String  STATISTICSTHRESHOLD_KEY     = JAVELIN_PREFIX
                                                                      + "statisticsThreshold";
 
+    /** ファイルに出力するTATの閾値のプロパティ */
     public static final String  RECORDTHRESHOLD_KEY         = JAVELIN_PREFIX + "recordThreshold";
 
+    /** アラームを通知するTATの閾値のプロパティ */
     public static final String  ALARMTHRESHOLD_KEY          = JAVELIN_PREFIX + "alarmThreshold";
 
+    /** Javelinログを出力するファイル名のプロパティ */
     public static final String  JAVELINFILEDIR_KEY          = JAVELIN_PREFIX + "javelinFileDir";
 
     public static final String  DOMAIN_KEY                  = JAVELIN_PREFIX + "domain";
@@ -61,8 +66,6 @@ public class S2JavelinConfig
     public static final String  THREADMODEL_KEY             = JAVELIN_PREFIX + "threadModel";
 
     public static final String  HTTPPORT_KEY                = JAVELIN_PREFIX + "httpPort";
-
-    public static final String  DEBUG_KEY                   = JAVELIN_PREFIX + "debug";
 
     /** StatsJavelinの待ちうけポートのプロパティ名 */
     public static final String   ACCEPTPORT_KEY              = JAVELIN_PREFIX + "acceptPort";
@@ -120,10 +123,13 @@ public class S2JavelinConfig
 
     private static final int     DEFAULT_THROWABLEMAX        = 1000;
 
+    /** メモリに保存する閾値のプロパティ */
     private static final long    DEFAULT_STATISTICSTHRESHOLD = 0;
 
+    /** ファイルに出力するTATの閾値のプロパティ */
     private static final long    DEFAULT_RECORDTHRESHOLD     = 0;
 
+    /** アラームを通知するTATの閾値のプロパティ */
     private static final long    DEFAULT_ALARMTHRESHOLD      = 1000;
 
     private static final String  DEFAULT_JAVELINFILEDIR      = System.getProperty("java.io.tmpdir");
@@ -153,8 +159,6 @@ public class S2JavelinConfig
     private static final int     DEFAULT_THREADMODEL         = 1;
 
     private static final int     DEFAULT_HTTPPORT            = 0;
-
-    private static final boolean DEFAULT_DEBUG               = false;
 
     private static final int     DEFAULT_STRINGLIMITLENGTH   = 1024;
 
@@ -807,48 +811,6 @@ public class S2JavelinConfig
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         return configUtil.isKeyExist(key);
-    }
-
-    /**
-     * Debugモードが設定されているかどうかを調べる。
-     *
-     * @return 設定されていればtrue
-     */
-    public boolean isSetDebug()
-    {
-        return isKeyExist(DEBUG_KEY);
-    }
-
-    /**
-     * Debugモードをセットする
-     *
-     * @param isDebug Debugモード
-     */
-    public void setDebug(boolean isDebug)
-    {
-        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
-        configUtil.setBoolean(DEBUG_KEY, isDebug);
-    }
-
-    /**
-     * Debugモードを返す。
-     *
-     * @return Debugモード
-     */
-    public boolean isDebug()
-    {
-        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
-        boolean result = DEFAULT_DEBUG;
-        try
-        {
-            result = configUtil.getBoolean(DEBUG_KEY, DEFAULT_DEBUG);
-        }
-        catch (NumberFormatException nfe)
-        {
-            result = DEFAULT_DEBUG;
-            this.setDebug(result);
-        }
-        return result;
     }
 
     /**
