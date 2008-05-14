@@ -37,12 +37,13 @@ public class S2StatsJavelinRecorder
     /**
      * メソッドの呼び出し元オブジェクト。
      */
-    public static final ThreadLocal<CallTreeNode> callerNode_      = new ThreadLocal<CallTreeNode>() {
-                                                                       protected synchronized CallTreeNode initialValue()
-                                                                       {
-                                                                           return null;
-                                                                       }
-                                                                   };
+    public static final ThreadLocal<CallTreeNode> callerNode_      =
+                                                                           new ThreadLocal<CallTreeNode>() {
+                                                                               protected synchronized CallTreeNode initialValue()
+                                                                               {
+                                                                                   return null;
+                                                                               }
+                                                                           };
 
     private static VMStatusHelper                 vmStatusHelper__ = new VMStatusHelper();
 
@@ -59,9 +60,8 @@ public class S2StatsJavelinRecorder
     {
         if (initialized_ == true)
         {
-        	return;
+            return;
         }
-        
         try
         {
             // エラーロガーを初期化する。
@@ -80,7 +80,7 @@ public class S2StatsJavelinRecorder
             // TCPでの接続受付を開始する。
             int port = config.getAcceptPort();
             JavelinAcceptThread.getInstance().start(port);
-            
+
             initialized_ = true;
 
         }
@@ -97,7 +97,7 @@ public class S2StatsJavelinRecorder
      * <li>コンテキストクラスローダ</li>
      * </ol>
      * 
-     * @param config
+     * @param config パラメータの設定値を保存するオブジェクト
      */
     private static void registerAlarmListeners(S2JavelinConfig config)
     {
@@ -113,22 +113,19 @@ public class S2StatsJavelinRecorder
                     AlarmListener alarmListener = (AlarmListener)listener;
                     alarmListener.init();
                     addListener(alarmListener);
-                    SystemLogger.getInstance().info(
-                                                         alarmListenerName
-                                                                 + "をAlarmListenerとして登録しました。");
+                    SystemLogger.getInstance().info(alarmListenerName + "をAlarmListenerとして登録しました。");
                 }
                 else
                 {
                     SystemLogger.getInstance().info(
-                                                         alarmListenerName
-                                                                 + "はAlarmListenerを実装していないため、Alarm通知に利用しません。");
+                                                    alarmListenerName
+                                                            + "はAlarmListenerを実装していないため、Alarm通知に利用しません。");
                 }
             }
             catch (Exception ex)
             {
-                SystemLogger.getInstance().warn(
-                                                     alarmListenerName
-                                                             + "の登録に失敗したため、Alarm通知に利用しません。", ex);
+                SystemLogger.getInstance().warn(alarmListenerName + "の登録に失敗したため、Alarm通知に利用しません。",
+                                                ex);
             }
         }
     }
@@ -140,16 +137,13 @@ public class S2StatsJavelinRecorder
      * <li>コンテキストクラスローダ</li>
      * </ol>
      * 
-     * @param className
-     *            ロードするクラスの名前。
+     * @param className ロードするクラスの名前。
      * @return ロードしたクラス。
-     * @throws ClassNotFoundException
-     *             全てのクラスローダでクラスが見つからない場合
+     * @throws ClassNotFoundException 全てのクラスローダでクラスが見つからない場合
      */
     private static Class<?> loadClass(String className)
         throws ClassNotFoundException
     {
-
         Class<?> clazz;
         try
         {
@@ -160,17 +154,15 @@ public class S2StatsJavelinRecorder
             SystemLogger.getInstance().info(className + "のロードに失敗したため、コンテキストクラスローダからのロードを行います。");
             clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
         }
-
         return clazz;
     }
 
     /**
      * JavelinRecorder, JDBCJavelinRecorderから呼び出したときの前処理。
-     * 
-     * @param className
-     * @param methodName
-     * @param config
-     * @param args
+     * @param className クラス名
+     * @param methodName メソッド名
+     * @param config パラメータの設定値を保存するオブジェクト
+     * @param args 引数
      */
     public static void preProcess(String className, String methodName, Object[] args,
             S2JavelinConfig config)
@@ -180,17 +172,11 @@ public class S2StatsJavelinRecorder
 
     /**
      * 前処理。
-     * 
-     * @param className
-     *            クラス名
-     * @param methodName
-     *            メソッド名
-     * @param args
-     *            引数
-     * @param stacktrace
-     *            スタックトレース
-     * @param config
-     *            設定
+     * @param className  クラス名
+     * @param methodName メソッド名
+     * @param args 引数
+     * @param stacktrace スタックトレース
+     * @param config パラメータの設定値を保存するオブジェクト
      */
     public static void preProcess(String className, String methodName, Object[] args,
             StackTraceElement[] stacktrace, S2JavelinConfig config)
@@ -242,10 +228,10 @@ public class S2StatsJavelinRecorder
             {
                 objName = new ObjectName(name);
                 String processName = VMStatusHelper.getProcessName();
-                invocation = new Invocation(processName, objName, componentName, className,
-                                            methodName, config.getIntervalMax(),
-                                            config.getThrowableMax(), config.getRecordThreshold(),
-                                            config.getAlarmThreshold());
+                invocation =
+                        new Invocation(processName, objName, componentName, className, methodName,
+                                       config.getIntervalMax(), config.getThrowableMax(),
+                                       config.getRecordThreshold(), config.getAlarmThreshold());
 
                 component.addInvocation(invocation);
             }
@@ -258,13 +244,11 @@ public class S2StatsJavelinRecorder
                 SystemLogger.getInstance().warn(ex);
             }
         }
-
         try
         {
             // 呼び出し元情報取得。
             CallTreeNode node = callerNode_.get();
             CallTree tree = callTree_.get();
-
             if (node == null)
             {
                 vmStatusHelper__.resetPeakMemoryUsage();
@@ -297,8 +281,13 @@ public class S2StatsJavelinRecorder
 
     /**
      * ノードを設定する
-     * 
-     * @param node
+     * @param node ノード
+     * @param tree CallTree
+     * @param stacktrace スタックトレース
+     * @param args 引数
+     * @param invocation Invocation
+     * @param vmStatus VMの状態オブジェクト
+     * @param config パラメータの設定値を保存するオブジェクト
      */
     private static void setNode(CallTreeNode node, CallTree tree, StackTraceElement[] stacktrace,
             Object[] args, Invocation invocation, VMStatus vmStatus, S2JavelinConfig config)
@@ -321,7 +310,7 @@ public class S2StatsJavelinRecorder
                     node.setStacktrace(stacktrace);
                 }
                 parent.addChild(node);
-                if(parent.getChildren().size() > config.getCallTreeMax())
+                if (parent.getChildren().size() > config.getCallTreeMax())
                 {
                     String jvnFileName = dumpJavelinLog(config);
                     SystemLogger.getInstance().warn(
@@ -343,13 +332,13 @@ public class S2StatsJavelinRecorder
                     if (config.isArgsDetail())
                     {
                         int argsDetailDepth = config.getArgsDetailDepth();
-                        argStrings[index] = StatsUtil.buildDetailString(args[index],
-                                                                        argsDetailDepth);
+                        argStrings[index] =
+                                StatsUtil.buildDetailString(args[index], argsDetailDepth);
                     }
                     else
                     {
-                        argStrings[index] = StatsUtil.toStr(args[index],
-                                                            config.getStringLimitLength());
+                        argStrings[index] =
+                                StatsUtil.toStr(args[index], config.getStringLimitLength());
                     }
                 }
                 node.setArgs(argStrings);
@@ -367,6 +356,14 @@ public class S2StatsJavelinRecorder
         }
     }
 
+    /**
+     * CallTreeを初期化する。
+     * @param tree CallTree
+     * @param stacktrace スタックトレース
+     * @param vmStatus VMの状態オブジェクト
+     * @param config パラメータの設定値を保存するオブジェクト
+     * @return CallTreeNode
+     */
     private static CallTreeNode initCallTree(CallTree tree, StackTraceElement[] stacktrace,
             VMStatus vmStatus, S2JavelinConfig config)
     {
@@ -383,7 +380,6 @@ public class S2StatsJavelinRecorder
         {
             node.setStacktrace(stacktrace);
         }
-
         if (tree != null)
         {
             tree.setRootCallerName(config.getRootCallerName());
@@ -395,11 +391,8 @@ public class S2StatsJavelinRecorder
 
     /**
      * 後処理（本処理成功時）。
-     * 
-     * @param returnValue
-     *            戻り値
-     * @param config
-     *            設定
+     * @param returnValue 戻り値
+     * @param config パラメータの設定値を保存するオブジェクト
      */
     public static void postProcess(Object returnValue, S2JavelinConfig config)
     {
@@ -414,29 +407,28 @@ public class S2StatsJavelinRecorder
                 // (下位レイヤで例外が発生した場合のため。)
                 return;
             }
-
             VMStatus vmStatus = vmStatusHelper__.createVMStatus();
             node.setEndTime(System.currentTimeMillis());
             node.setEndVmStatus(vmStatus);
 
-            long endCpuTime   = node.getEndVmStatus().getCpuTime();
+            long endCpuTime = node.getEndVmStatus().getCpuTime();
             long startCpuTime = node.getStartVmStatus().getCpuTime();
-            long cpuTime      = endCpuTime - startCpuTime;
+            long cpuTime = endCpuTime - startCpuTime;
             if (cpuTime < 0)
             {
                 cpuTime = 0;
             }
             node.setCpuTime(cpuTime);
 
-            long endUserTime   = node.getEndVmStatus().getUserTime();
+            long endUserTime = node.getEndVmStatus().getUserTime();
             long startUserTime = node.getStartVmStatus().getUserTime();
-            long userTime      = endUserTime - startUserTime;
+            long userTime = endUserTime - startUserTime;
             if (userTime < 0)
             {
                 userTime = 0;
             }
             node.setUserTime(userTime);
-            
+
             if (returnValue != null)
             {
                 String returnString;
@@ -471,10 +463,9 @@ public class S2StatsJavelinRecorder
                 if (recordStrategy_.judgeGenerateJaveinFile(node) == true)
                 {
                     S2StatsJavelinFileGenerator generator = new S2StatsJavelinFileGenerator(config);
-                    jvnLogFileName = generator.generateJaveinFile(
-                                                                  callTree_.get(),
-                                                                  node,
-                                                                  recordStrategy_.createCallback(node));
+                    jvnLogFileName =
+                            generator.generateJaveinFile(callTree_.get(), node,
+                                                         recordStrategy_.createCallback(node));
                 }
 
                 // アラームの閾値を超えていた場合に、アラームを通知する。
@@ -502,8 +493,8 @@ public class S2StatsJavelinRecorder
     /**
      * 後処理（本処理失敗時）。
      * 
-     * @param cause
-     * @param config S2Javelinの設定
+     * @param cause 例外オブジェクト
+     * @param config パラメータの設定値を保存するオブジェクト
      */
     public static void postProcess(Throwable cause, S2JavelinConfig config)
     {
@@ -512,7 +503,7 @@ public class S2StatsJavelinRecorder
         try
         {
             CallTree callTree = callTree_.get();
-            if(callTree == null)
+            if (callTree == null)
             {
                 return;
             }
@@ -526,11 +517,10 @@ public class S2StatsJavelinRecorder
                 // (下位レイヤで例外が発生した場合のため。)
                 return;
             }
-
             VMStatus vmStatus = vmStatusHelper__.createVMStatus();
             node.setEndTime(System.currentTimeMillis());
             node.setEndVmStatus(vmStatus);
-            
+
             long endCpuTime = node.getEndVmStatus().getCpuTime();
             long startCpuTime = node.getStartVmStatus().getCpuTime();
             long cpuTime = endCpuTime - startCpuTime;
@@ -555,16 +545,8 @@ public class S2StatsJavelinRecorder
             {
                 recordTransaction(node);
 
-                // Javelinログファイルを出力する。
-                S2StatsJavelinFileGenerator generator = new S2StatsJavelinFileGenerator(config);
-                CallTreeNode callTreeNode = callerNode_.get();
-                String jvnLogFileName = generator.generateJaveinFile(
-                                                                     callTree,
-                                                                     callTreeNode,
-                                                                     recordStrategy_.createCallback(node));
-
-                // アラームを送信する。
-                sendExceedThresholdAlarm(jvnLogFileName, node);
+                // CallTreeNodeの情報をログ出力、アラーム通知する。
+                outputNodeInfo(config, callTree);
 
                 if (callTree != null)
                 {
@@ -594,9 +576,34 @@ public class S2StatsJavelinRecorder
     }
 
     /**
+     * 例外情報をログ出力、アラーム通知する。
+     * @param config パラメータの設定値を保存するオブジェクト
+     * @param callTree CallTree
+     */
+    private static void outputNodeInfo(S2JavelinConfig config, CallTree callTree)
+    {
+        String jvnLogFileName = null;
+        CallTreeNode node = callerNode_.get();
+        if (config.isRecordException() == true)
+        {
+            // 例外出力の設定が行われているとき、Javelinログファイルを出力する。
+            S2StatsJavelinFileGenerator generator = new S2StatsJavelinFileGenerator(config);
+            jvnLogFileName =
+                    generator.generateJaveinFile(callTree, node,
+                                                 recordStrategy_.createCallback(node));
+        }
+
+        if (config.isAlarmException() == true)
+        {
+            // アラームを送信する。
+            sendExceedThresholdAlarm(jvnLogFileName, node);
+        }
+    }
+
+    /**
      * Javelinログファイルを出力する。
-     * @param config S2Javelinの設定
-     * @return　ファイル名
+     * @param config パラメータの設定値を保存するオブジェクト
+     * @return Javelinログファイル
      */
     public static String dumpJavelinLog(S2JavelinConfig config)
     {
@@ -617,7 +624,6 @@ public class S2StatsJavelinRecorder
                     generator.generateJaveinFile(callTree, root,
                                                  recordStrategy_.createCallback(root));
         }
-        
         return fileName;
     }
 
@@ -637,7 +643,6 @@ public class S2StatsJavelinRecorder
                 javelinInit(config);
             }
         }
-
         try
         {
             // 呼び出し元情報取得。
@@ -714,14 +719,14 @@ public class S2StatsJavelinRecorder
     /**
      * トランザクションを記録する。
      * 
-     * @param node
+     * @param node CallTreeNode
      */
     public static void recordTransaction(CallTreeNode node)
     {
         Invocation invocation = node.getInvocation();
         if (invocation != null)
         {
-            InvocationInterval interval    = StatsUtil.getElapsedTime(node);
+            InvocationInterval interval = StatsUtil.getElapsedTime(node);
             invocation.addInterval(interval);
             if (node.getParent() != null)
             {
@@ -737,6 +742,11 @@ public class S2StatsJavelinRecorder
         }
     }
 
+    /**
+     * Alarm通知する。
+     * @param jvnFileName Javelinログファイル名
+     * @param node CallTreeNode
+     */
     private static void sendExceedThresholdAlarm(String jvnFileName, CallTreeNode node)
     {
         sendExceedThresholdAlarmImpl(jvnFileName, node);
@@ -749,6 +759,11 @@ public class S2StatsJavelinRecorder
         }
     }
 
+    /**
+     * Alarm通知する。
+     * @param jvnFileName Javelinログファイル名
+     * @param node CallTreeNode
+     */
     private static void sendExceedThresholdAlarmImpl(String jvnFileName, CallTreeNode node)
     {
         synchronized (alarmListenerList__)
@@ -762,22 +777,20 @@ public class S2StatsJavelinRecorder
                 {
                     continue;
                 }
-
                 // AlarmListenerにはCallTreeNodeをそのまま渡す
                 // →アラーム通知で累積時間を使用するものがある為
                 alarmListener.sendExceedThresholdAlarm(jvnFileName, node);
             }
         }
-
     }
 
+    /** アラームリスナのリスト */
     private static final List<AlarmListener> alarmListenerList__ = new ArrayList<AlarmListener>();
 
     /**
      * Alarm通知に利用するAlarmListenerを登録する
      * 
-     * @param alarmListener
-     *            Alarm通知に利用するAlarmListener
+     * @param alarmListener Alarm通知に利用するAlarmListener
      */
     public static void addListener(AlarmListener alarmListener)
     {
@@ -790,8 +803,7 @@ public class S2StatsJavelinRecorder
     /**
      * メソッド呼び出しツリーを初期化する。
      * 
-     * @param callTree
-     *            メソッド呼び出しツリー
+     * @param callTree メソッド呼び出しツリー
      */
     public static void initCallTree(CallTree callTree)
     {
@@ -800,19 +812,17 @@ public class S2StatsJavelinRecorder
 
     /**
      * スレッドのIDを設定する
-     * 
-     * @param threadId
-     *            スレッドID
+     * @param threadId スレッドID
      */
     public static void setThreadId(String threadId)
     {
         CallTree callTree = callTree_.get();
         callTree.setThreadID(threadId);
     }
-    
+
     /**
-     * 初期化されているかを返す.
-     * @return　true:初期化されている、false:初期化されていない.
+     * 初期化されているかを返す。
+     * @return true:初期化されている、false:初期化されていない.
      */
     public static boolean isInitialized()
     {
