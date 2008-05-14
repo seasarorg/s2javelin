@@ -411,6 +411,8 @@ public class S2JavelinFilter implements Filter
         out.println("\tjavelin.alarmThreshold          : " + this.config_.getAlarmThreshold());
         out.println("\tjavelin.javelinFileDir          : " + this.config_.getJavelinFileDir());
         out.println("\tjavelin.domain                  : " + this.config_.getDomain());
+        out.println("\tjavelin.recordException         : " + this.config_.isRecordException());
+        out.println("\tjavelin.alarmException          : " + this.config_.isAlarmException());
         out.println("\tjavelin.log.stacktrace          : " + this.config_.isLogStacktrace());
         out.println("\tjavelin.log.args                : " + this.config_.isLogArgs());
         out.println("\tjavelin.log.jmxinfo             : " + this.config_.isLogJmxInfo());

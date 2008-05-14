@@ -78,6 +78,7 @@ public class S2JavelinInterceptor extends AbstractInterceptor
      */
     private static final String           CATCH                   = "Catch ";
 
+    /** スタックトレースの深さ */
     private static final int              CALLER_STACKTRACE_INDEX = 3;
 
     /**
@@ -175,8 +176,7 @@ public class S2JavelinInterceptor extends AbstractInterceptor
      * 実行時に例外が発生した場合は、
      * 例外の発生回数や発生履歴も記録する。
      * 
-     * @param invocation
-     *            インターセプタによって取得された、呼び出すメソッドの情報
+     * @param invocation インターセプタによって取得された、呼び出すメソッドの情報
      * @return invocationを実行したときの戻り値
      * @throws Throwable invocationを実行したときに発生した例外
      */
@@ -337,6 +337,9 @@ public class S2JavelinInterceptor extends AbstractInterceptor
         return ret;
     }
 
+    /**
+     * 初期化する。
+     */
     private void initialize()
     {
         if (this.isInitialized_ == false)
@@ -482,7 +485,7 @@ public class S2JavelinInterceptor extends AbstractInterceptor
 
     /**
      * 
-     * @param intervalMax
+     * @param intervalMax 平均実行時間を計算するための結果の最大数
      */
     public void setIntervalMax(int intervalMax)
     {
@@ -494,7 +497,7 @@ public class S2JavelinInterceptor extends AbstractInterceptor
 
     /**
      * 
-     * @param throwableMax
+     * @param throwableMax Invocationに例外を保存する最大数
      */
     public void setThrowableMax(int throwableMax)
     {
@@ -506,7 +509,7 @@ public class S2JavelinInterceptor extends AbstractInterceptor
 
     /**
      * 
-     * @param recordThreshold
+     * @param recordThreshold ログ出力するTATの閾値
      */
     public void setRecordThreshold(int recordThreshold)
     {
@@ -518,7 +521,7 @@ public class S2JavelinInterceptor extends AbstractInterceptor
 
     /**
      * 
-     * @param alarmThreshold
+     * @param alarmThreshold アラームを通知するTATの閾値
      */
     public void setAlarmThreshold(int alarmThreshold)
     {
@@ -530,7 +533,7 @@ public class S2JavelinInterceptor extends AbstractInterceptor
 
     /**
      * 
-     * @param domain
+     * @param domain BottleneckEyeに利用するドメイン
      */
     public void setDomain(String domain)
     {
@@ -555,7 +558,7 @@ public class S2JavelinInterceptor extends AbstractInterceptor
 
     /**
      * 
-     * @param httpPort
+     * @param httpPort BottleneckEyeとの通信に利用するポート番号
      */
     public void setHttpPort(int httpPort)
     {
@@ -606,7 +609,7 @@ public class S2JavelinInterceptor extends AbstractInterceptor
 
     /**
      * 
-     * @param endCalleeName
+     * @param endCalleeName 末端の呼び出し先の名称
      */
     public void setEndCalleeName(String endCalleeName)
     {
@@ -618,7 +621,7 @@ public class S2JavelinInterceptor extends AbstractInterceptor
 
     /**
      * 
-     * @param endCallerName
+     * @param endCallerName 末端の呼び出し先の名称
      */
     public void setRootCallerName(String endCallerName)
     {
@@ -630,7 +633,7 @@ public class S2JavelinInterceptor extends AbstractInterceptor
 
     /**
      * 
-     * @param threadModel
+     * @param threadModel スレッド名称
      */
     public void setThreadModel(int threadModel)
     {
@@ -653,6 +656,8 @@ public class S2JavelinInterceptor extends AbstractInterceptor
         out.println("\tjavelin.recordThreshold         : " + this.config_.getRecordThreshold());
         out.println("\tjavelin.alarmThreshold          : " + this.config_.getAlarmThreshold());
         out.println("\tjavelin.javelinFileDir          : " + this.config_.getJavelinFileDir());
+        out.println("\tjavelin.recordException         : " + this.config_.isRecordException());
+        out.println("\tjavelin.alarmException          : " + this.config_.isAlarmException());
         out.println("\tjavelin.domain                  : " + this.config_.getDomain());
         out.println("\tjavelin.log.stacktrace          : " + this.config_.isLogStacktrace());
         out.println("\tjavelin.log.args                : " + this.config_.isLogArgs());
