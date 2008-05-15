@@ -70,13 +70,26 @@ public class ObjectNameUtil
 	public static String createInvocationBeanName(String className, String methodName,
 	        S2JavelinConfig config)
 	{
-	    return config.getDomain() + ".invocation:type=" + InvocationMBean.class.getName()
+        if(className == null || className.equals(""))
+        {
+            className = "unknown";
+        }
+        if(methodName == null || methodName.equals(""))
+        {
+            methodName = "unknown";
+        }
+
+        return config.getDomain() + ".invocation:type=" + InvocationMBean.class.getName()
 	            + ",class=" + encode(className) + ",method="
 	            + encode(methodName);
 	}
 
 	public static String createComponentBeanName(String className, S2JavelinConfig config)
 	{
+	    if(className == null || className.equals(""))
+	    {
+	        className = "unknown";
+	    }
 	    return config.getDomain() + ".component:type=" + ComponentMBean.class.getName() + ",class="
 	            + encode(className);
 	}
