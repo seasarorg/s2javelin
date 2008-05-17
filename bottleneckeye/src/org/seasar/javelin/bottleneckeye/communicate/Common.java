@@ -141,7 +141,7 @@ public class Common
     public static final String ITEMNAME_MAPCOUNT = "mapCount";
 
     /** 項目名（リソース値での、コレクションの数） */
-    public static final String ITEMNAME_GC_HISTOGRAM_SIZE = "gcHistogramSize";
+    public static final String ITEMNAME_CLASS_HISTOGRAM_SIZE = "classHistogramSize";
 
     /** 項目名（JVNファイル JVNファイル名） */
     public static final String ITEMNAME_JVN_FILE_NAME = "jvnFileName";
