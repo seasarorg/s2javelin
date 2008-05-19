@@ -140,8 +140,12 @@ public class Common
     /** 項目名（リソース値での、コレクションの数） */
     public static final String ITEMNAME_MAPCOUNT = "mapCount";
 
-    /** 項目名（リソース値での、コレクションの数） */
+    /** 項目名（リソース値での、クラスヒストグラムから取得したオブジェクトのサイズ） */
     public static final String ITEMNAME_CLASS_HISTOGRAM_SIZE = "classHistogramSize";
+
+    /** 項目名（リソース値での、クラスヒストグラムから取得したオブジェクトの数） */
+    public static final String ITEMNAME_CLASS_HISTOGRAM_COUNT = "classHistogramCount";
+
 
     /** 項目名（JVNファイル JVNファイル名） */
     public static final String ITEMNAME_JVN_FILE_NAME = "jvnFileName";
