@@ -27,12 +27,12 @@ class JavelinLoggerThread extends Thread {
 	private static final String EXTENTION_ZIP = ".zip";
 
 	/** jvnファイル名のフォーマット(日付フォーマット(ミリ(sec)まで表示) */
-	private static final String JVN_FILE_FORMAT = "javelin_{0,date,yyyyMMddHHmmssSSS}_{1,number,00000}"
+	private static final String JVN_FILE_FORMAT = "javelin_{0,date,yyyy_MM_dd_HHmmss_SSS}_{1,number,00000}"
 			+ EXTENTION_JVN;
 
 	/** zipファイル名のフォーマット(日付フォーマット(ミリ(sec)まで表示) */
 	private static final String ZIP_FILE_FORMAT = "{0}" + File.separator
-			+ "javelin_{1,date,yyyyMMddHHmmssSSS}_{2,number,00000}"
+			+ "javelin_{1,date,yyyy_MM_dd_HHmmss_SSS}_{2,number,00000}"
 			+ EXTENTION_ZIP;
 
 	private S2JavelinConfig javelinConfig;
