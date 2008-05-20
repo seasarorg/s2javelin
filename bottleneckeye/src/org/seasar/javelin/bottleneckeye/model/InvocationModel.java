@@ -19,7 +19,7 @@ public class InvocationModel implements Comparable, NotificationListener
 
     private static final int    INDEX_CLASSNAME        = 0;
 
-    public static final String CLASSMETHOD_SEPARATOR  = "###CLASSMETHOD_SEPARATOR###";
+    public static final String  CLASSMETHOD_SEPARATOR  = "###CLASSMETHOD_SEPARATOR###";
 
     private ComponentModel      component_;
 
@@ -52,7 +52,6 @@ public class InvocationModel implements Comparable, NotificationListener
     /** メソッドの平均CPU処理時間（単位:ミリ秒）。 */
     private long                cpuAverage_;
 
-
     /** メソッドの最短CPU処理時間（単位:ミリ秒）。 */
     private long                userMinimum_;
 
@@ -61,8 +60,7 @@ public class InvocationModel implements Comparable, NotificationListener
 
     /** メソッドの平均CPU処理時間（単位:ミリ秒）。 */
     private long                userAverage_;
-    
-    
+
     /** メソッド内での例外発生回数。 */
     private long                throwableCount_;
 
@@ -77,6 +75,9 @@ public class InvocationModel implements Comparable, NotificationListener
 
     /** 閾値判定用の定数文字列 */
     private static final String EXCEED_THRESHOLD_ALARM = "Alarm:EXCEED_THRESHOLD";
+
+    /** */
+    private static final int    MILLIS                 = 1000;
 
     public String getClassName()
     {
@@ -168,7 +169,6 @@ public class InvocationModel implements Comparable, NotificationListener
         this.cpuAverage_ = cpuAverage;
     }
 
-
     public long getUserMinimum()
     {
         return this.userMinimum_;
@@ -198,7 +198,7 @@ public class InvocationModel implements Comparable, NotificationListener
     {
         this.userAverage_ = userAverage;
     }
-    
+
     public long getThrowableCount()
     {
         return throwableCount_;
@@ -328,6 +328,28 @@ public class InvocationModel implements Comparable, NotificationListener
         {
             ResponseBody responseBody = (ResponseBody)objBody[index];
 
+            if (responseBody.getStrObjName() == null)
+            {
+                continue;
+            }
+
+            // 全て呼び出す元を設定用
+            // データをInvocationModelに設定する
+            String strItemName = ((ResponseBody)objBody[index]).getStrItemName();
+            Object[] objTempArr = ((ResponseBody)objBody[index]).getObjItemValueArr();
+
+            // 説明の配列長が0であればスキップする
+            if (objTempArr.length == 0)
+            {
+                continue;
+            }
+
+            // 説明の配列の先頭要素がLongでなければスキップする
+            if (objTempArr[0] instanceof Long == false)
+            {
+                continue;
+            }
+
             if (invocationMap.containsKey(responseBody.getStrObjName()) == false)
             {
                 // 取得した後、一つInvocationModelを作って、データを設定する
@@ -351,56 +373,130 @@ public class InvocationModel implements Comparable, NotificationListener
 
             InvocationModel invocation = (InvocationModel)invocationMap.get(responseBody.getStrObjName());
 
-            // 全て呼び出す元を設定用
-            // データをInvocationModelに設定する
-            String strItemName = ((ResponseBody)objBody[index]).getStrItemName();
-            Object[] objTempArr = ((ResponseBody)objBody[index]).getObjItemValueArr();
-
-            // 説明の配列長が0であればスキップする
-            if (objTempArr.length == 0)
-            {
-                continue;
-            }
-            
-            // 説明の配列の先頭要素がLongでなければスキップする
-            if (objTempArr[0] instanceof Long == false)
-            {
-                continue;
-            }
-            
             // 呼び出し回数
+            Long value = (Long)objTempArr[0];
             if ("callCount".equals(strItemName))
-                invocation.setCount((Long)objTempArr[0]);
+            {
+                if (value < 0)
+                {
+                    value = Long.valueOf(-1);
+                }
+                invocation.setCount(value);
+            }
             // 平均時間
             if ("averageInterval".equals(strItemName))
-                invocation.setAverage((Long)objTempArr[0]);
+            {
+                if (value < 0)
+                {
+                    value = Long.valueOf(-1);
+                }
+                invocation.setAverage(value);
+            }
             // 最大処理時間
             if ("maximumInterval".equals(strItemName))
-                invocation.setMaximum((Long)objTempArr[0]);
+            {
+                if (value < 0)
+                {
+                    value = Long.valueOf(-1);
+                }
+                invocation.setMaximum(value);
+            }
             // 最小処理時間
             if ("minimumInterval".equals(strItemName))
-                invocation.setMinimum((Long)objTempArr[0]);
+            {
+                if (value < 0)
+                {
+                    value = Long.valueOf(-1);
+                }
+                invocation.setMinimum(value);
+            }
             // 平均CPU時間
             if ("averageCpuInterval".equals(strItemName))
-                invocation.setCpuAverage((Long)objTempArr[0]/1000000);
+            {
+                if (value < 0)
+                {
+                    value = Long.valueOf(-1);
+                }
+                else
+                {
+                    value /= (MILLIS * MILLIS);
+                }
+                invocation.setCpuAverage(value);
+            }
             // 最大CPU時間
             if ("maximumCpuInterval".equals(strItemName))
-                invocation.setCpuMaximum((Long)objTempArr[0]/1000000);
+            {
+                if (value < 0)
+                {
+                    value = Long.valueOf(-1);
+                }
+                else
+                {
+                    value /= (MILLIS * MILLIS);
+                }
+                invocation.setCpuMaximum(value);
+            }
             // 最小USER時間
             if ("minimumCpuInterval".equals(strItemName))
-                invocation.setCpuMinimum((Long)objTempArr[0]/1000000);
+            {
+                if (value < 0)
+                {
+                    value = Long.valueOf(-1);
+                }
+                else
+                {
+                    value /= (MILLIS * MILLIS);
+                }
+                invocation.setCpuMinimum(value);
+            }
             // 平均USER時間
             if ("averageUserInterval".equals(strItemName))
-                invocation.setUserAverage((Long)objTempArr[0]/1000000);
+            {
+                if (value < 0)
+                {
+                    value = Long.valueOf(-1);
+                }
+                else
+                {
+                    value /= (MILLIS * MILLIS);
+                }
+                invocation.setUserAverage(value);
+            }
             // 最大USER時間
             if ("maximumUserInterval".equals(strItemName))
-                invocation.setUserMaximum((Long)objTempArr[0]/1000000);
+            {
+                if (value < 0)
+                {
+                    value = Long.valueOf(-1);
+                }
+                else
+                {
+                    value /= (MILLIS * MILLIS);
+                }
+                invocation.setUserMaximum(value);
+            }
             // 最小USER時間
             if ("minimumUserInterval".equals(strItemName))
-                invocation.setUserMinimum((Long)objTempArr[0]/1000000);
+            {
+                if (value < 0)
+                {
+                    value = Long.valueOf(-1);
+                }
+                else
+                {
+                    value /= (MILLIS * MILLIS);
+                }
+                invocation.setUserMinimum(value);
+            }
             // 例外発生回数
             if ("throwableCount".equals(strItemName))
-                invocation.setThrowableCount((Long)objTempArr[0]);
+            {
+                if (value < 0)
+                {
+                    value = Long.valueOf(-1);
+                }
+                invocation.setThrowableCount(value);
+            }
             // メソッドの呼び出し元 クラス名については未実装
             if ("allCallerNames".equals(strItemName))
             {
