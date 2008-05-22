@@ -70,7 +70,7 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 				SystemLogger.getInstance().warn(objException);
 			}
 		} catch (IOException objIOException) {
-			SystemLogger.getInstance().info(
+			SystemLogger.getInstance().warn(
 					"ポート[" + port + "]はすでに開かれています。処理を続行します。");
 		}
 	}
