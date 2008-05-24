@@ -152,10 +152,10 @@ public class S2JavelinConfig
     private static final long    DEFAULT_STATISTICSTHRESHOLD = 0;
 
     /** ファイルに出力するTATの閾値のプロパティ */
-    private static final long    DEFAULT_RECORDTHRESHOLD     = 0;
+    private static final long    DEFAULT_RECORDTHRESHOLD     = 5000;
 
     /** アラームを通知するTATの閾値のプロパティ */
-    private static final long    DEFAULT_ALARMTHRESHOLD      = 1000;
+    private static final long    DEFAULT_ALARMTHRESHOLD      = 5000;
 
     /** Javelinログを出力するファイル名のプロパティ */
     private static final String  DEFAULT_JAVELINFILEDIR      = System.getProperty("java.io.tmpdir");
