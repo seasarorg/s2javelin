@@ -628,6 +628,23 @@ public class ProfilerTab implements EditorTabInterface
      */
     public void onReload()
     {
+        sendJvnLogListTelegram();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void connected()
+    {
+        setReloadButtonEnabled(true);
+        sendJvnLogListTelegram();
+    }
+
+    /**
+     * データ得るための電文を送信する。
+     */
+    private void sendJvnLogListTelegram()
+    {
         if (this.telegramSender_ != null)
         {
             // 頭部データ対象を作って、データを設定する
@@ -641,14 +658,6 @@ public class ProfilerTab implements EditorTabInterface
 
             this.telegramSender_.sendTelegram(objOutputTelegram);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void connected()
-    {
-        setReloadButtonEnabled(true);
     }
 
     /**
