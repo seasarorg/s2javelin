@@ -29,7 +29,7 @@ public class SystemLogger
     private static final String EXTENTION   = ".log";
 
     /** システムログファイル名のフォーマット(日付フォーマット(ミリ(sec)まで表示) */
-    private static final String LOG_FILE_FORMAT = "jvn_sys_{0,date,yyyyMMddHHmmssSSS}" + EXTENTION;
+    private static final String LOG_FILE_FORMAT = "jvn_sys_{0,date,yyyy_MM_dd_HHmmss_SSS}" + EXTENTION;
 
     /** システムログファイルの最大数。 */
     private int                 systemLogNumMax_;
