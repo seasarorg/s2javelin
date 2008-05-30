@@ -76,8 +76,14 @@ public class VMStatusHelper
      */
     public void init()
     {
-        this.threadMBean.setThreadContentionMonitoringEnabled(true);
-        this.threadMBean.setThreadCpuTimeEnabled(true);
+        if(this.threadMBean.isThreadContentionMonitoringEnabled())
+        {
+            this.threadMBean.setThreadContentionMonitoringEnabled(true);
+        }
+        if(this.threadMBean.isThreadCpuTimeEnabled())
+        {
+            this.threadMBean.setThreadCpuTimeEnabled(true);
+        }
     }
 
     /**
