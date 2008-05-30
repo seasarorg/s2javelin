@@ -2,6 +2,10 @@ package org.seasar.javelin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
 import org.seasar.javelin.bean.Invocation;
 
 /**
@@ -58,6 +62,9 @@ public class CallTreeNode
 
     /** フィールドアクセス */
     private boolean             isFieldAccess_;
+
+    /**  */
+    private Map<String, Object> loggingValueMap_ = new TreeMap<String, Object>();
 
     /**
      * InvoCation
@@ -398,5 +405,41 @@ public class CallTreeNode
     public void setUserTime(long userTime)
     {
         this.userTime_ = userTime;
+    }
+
+
+    /**
+     * ログ値を設定する。
+     * 
+     * @param key キー
+     * @param value 値
+     */
+    public void setLoggingValue(String key, Object value)
+    {
+        this.loggingValueMap_.put(key, value);
+    }
+
+    /**
+     * Mapからキーを取得する。
+     * 
+     * @return キー配列
+     */
+    public String[] getLoggingKeys()
+    {
+        Set<String> keySet = this.loggingValueMap_.keySet();
+        String[] keys = keySet.toArray(new String[keySet.size()]);
+
+        return keys;
+    }
+
+    /**
+     * Mapからキーに対応する値を取得する。
+     * 
+     * @param key キー
+     * @return キーの値
+     */
+    public Object getLoggingValue(String key)
+    {
+        return this.loggingValueMap_.get(key);
     }
 }

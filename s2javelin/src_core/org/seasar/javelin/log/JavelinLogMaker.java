@@ -210,9 +210,14 @@ public class JavelinLogMaker
             {
                 for (String key : tree.getLoggingKeys())
                 {
-                	Object value = tree.getLoggingValue(key);
+                    Object value = tree.getLoggingValue(key);
                     addParam(jvnBuffer, key, value.toString());
                 }
+            }
+            for (String key : node.getLoggingKeys())
+            {
+            	Object value = node.getLoggingValue(key);
+                addParam(jvnBuffer, key, value.toString());
             }
             
             jvnBuffer.append(JAVELIN_EXTRAINFO_END);
