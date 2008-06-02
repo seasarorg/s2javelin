@@ -15,6 +15,11 @@ import org.seasar.javelin.bean.Invocation;
  */
 public class CallTreeNode
 {
+    public CallTreeNode()
+    {
+        
+    }
+    
     /**  */
     private Invocation          invocation_;
 

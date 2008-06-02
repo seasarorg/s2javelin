@@ -1,7 +1,10 @@
 package org.seasar.javelin;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -22,33 +25,37 @@ import org.seasar.javelin.util.StatsUtil;
 public class S2StatsJavelinRecorder
 {
     /** 初期化判定フラグ */
-    private static boolean                        initialized_;
+    private static boolean                                initialized_;
 
     /**
      * メソッドコールツリーの記録用オブジェクト。
      */
-    public static final ThreadLocal<CallTree>     callTree_        = new ThreadLocal<CallTree>() {
-                                                                       protected synchronized CallTree initialValue()
-                                                                       {
-                                                                           return new CallTree();
-                                                                       }
-                                                                   };
+    public static final ThreadLocal<CallTree>             callTree_        =
+                                                                                   new ThreadLocal<CallTree>() {
+                                                                                       protected synchronized CallTree initialValue()
+                                                                                       {
+                                                                                           return new CallTree();
+                                                                                       }
+                                                                                   };
 
     /**
      * メソッドの呼び出し元オブジェクト。
      */
-    public static final ThreadLocal<CallTreeNode> callerNode_      =
-                                                                           new ThreadLocal<CallTreeNode>() {
-                                                                               protected synchronized CallTreeNode initialValue()
-                                                                               {
-                                                                                   return null;
-                                                                               }
-                                                                           };
+    public static final ThreadLocal<CallTreeNode>         callerNode_      =
+                                                                                   new ThreadLocal<CallTreeNode>() {
+                                                                                       protected synchronized CallTreeNode initialValue()
+                                                                                       {
+                                                                                           return null;
+                                                                                       }
+                                                                                   };
 
-    private static VMStatusHelper                 vmStatusHelper__ = new VMStatusHelper();
+    private static VMStatusHelper                         vmStatusHelper__ = new VMStatusHelper();
+
+    private static Map<Long, WeakReference<CallTreeNode>> currentNodeMap__ =
+                                                                                   new HashMap<Long, WeakReference<CallTreeNode>>();
 
     /** 記録条件判定クラス */
-    private static RecordStrategy                 recordStrategy_;
+    private static RecordStrategy                         recordStrategy_;
 
     /**
      * 初期化処理。 AlarmListenerの登録を行う。 RecordStrategyを初期化する。
@@ -349,6 +356,10 @@ public class S2StatsJavelinRecorder
             // 呼び出し先を、
             // 次回ログ出力時の呼び出し元として使用するために保存する。
             callerNode_.set(node);
+
+            // Mapに格納する。
+            currentNodeMap__.put(Thread.currentThread().getId(),
+                                 new WeakReference<CallTreeNode>(node));
         }
         catch (Exception ex)
         {
@@ -827,6 +838,35 @@ public class S2StatsJavelinRecorder
     public static boolean isInitialized()
     {
         return initialized_;
+    }
+
+    public static CallTreeNode getNode(Long id)
+    {
+        WeakReference<CallTreeNode> weakReference = currentNodeMap__.get(id);
+        if (weakReference == null)
+        {
+            return null;
+        }
+
+        CallTreeNode callTreeNode = weakReference.get();
+        return callTreeNode;
+    }
+
+    public static void clearNode()
+    {
+        List<Long> deleteList = new ArrayList<Long>();
+        for (Map.Entry<Long, WeakReference<CallTreeNode>> entry : currentNodeMap__.entrySet())
+        {
+            if (entry.getValue() == null)
+            {
+                deleteList.add(entry.getKey());
+            }
+        }
+
+        for (int index = deleteList.size() - 1; index >= 0; index--)
+        {
+            deleteList.remove(index);
+        }
     }
 
 }
