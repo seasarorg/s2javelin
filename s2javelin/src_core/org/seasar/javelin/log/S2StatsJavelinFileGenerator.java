@@ -53,8 +53,8 @@ public class S2StatsJavelinFileGenerator {
 			if (isInitialized_ == false) {
 				JavelinLoggerThread thread = new JavelinLoggerThread(
 						javelinConfig_, queue_);
+                isInitialized_ = true;
 				thread.start();
-				isInitialized_ = true;
 			}
 		}
 
