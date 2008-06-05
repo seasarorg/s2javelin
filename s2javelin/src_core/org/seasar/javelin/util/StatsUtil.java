@@ -40,10 +40,8 @@ public class StatsUtil
      * 
      * @return スレッドを識別するための文字列
      */
-    public static String createThreadIDText()
+    public static String createThreadIDText(Thread currentThread)
     {
-        Thread currentThread = Thread.currentThread();
-
         StringBuilder threadId = new StringBuilder();
         threadId.append(currentThread.getName());
         threadId.append("@");
@@ -54,6 +52,18 @@ public class StatsUtil
         threadId.append(")");
 
         return threadId.toString();
+    }
+    
+    /**
+     * スレッドを識別するための文字列を出力する。 
+     * フォーマット：スレッド名@スレッドクラス名@スレッドオブジェクトのID
+     * 
+     * @return スレッドを識別するための文字列
+     */
+    public static String createThreadIDText()
+    {
+        Thread currentThread = Thread.currentThread();
+        return createThreadIDText(currentThread);
     }
 
     /**

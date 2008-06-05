@@ -41,6 +41,7 @@ public class Mx4JLauncher {
 				HttpAdaptor[] adaptors = (HttpAdaptor[]) beanSet
 						.toArray(new HttpAdaptor[beanSet.size()]);
 				adaptor = (HttpAdaptor) (adaptors[0]);
+	            adaptor.start();
 			}
 		} else {
 			adaptor = new HttpAdaptor();
