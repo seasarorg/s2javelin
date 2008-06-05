@@ -661,7 +661,7 @@ public final class S2TelegramUtil extends Common {
             String itemName = body.getStrItemName();
             String itemMode = "";
             String loopCount = "";
-            String itemValue = "";
+            StringBuffer itemValue = new StringBuffer();
 
             if (body instanceof ResponseBody)
             {
@@ -672,7 +672,7 @@ public final class S2TelegramUtil extends Common {
                 Object[] objArr = responseBody.getObjItemValueArr();
                 for (Object obj : objArr)
                 {
-                    itemValue += "[" + obj + "]";
+                    itemValue.append("[" + obj + "]");
                 }
             }
             receivedBuffer.append(objName);
