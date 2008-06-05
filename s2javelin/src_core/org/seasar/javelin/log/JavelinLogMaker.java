@@ -204,7 +204,10 @@ public class JavelinLogMaker
             jvnBuffer.append(NEW_LINE);
 
             long duration = node.getAccumulatedTime();
-            addParam(jvnBuffer, EXTRAPARAM_DURATION, duration);
+            if(duration >= 0)
+            {
+                addParam(jvnBuffer, EXTRAPARAM_DURATION, duration);
+            }
 
             if (node.getParent() == null)
             {
