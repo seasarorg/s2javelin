@@ -294,6 +294,9 @@ public class SystemLogger
             instance.systemLogNumMax_ = config.getSystemLogNumMax();
             instance.systemLogSizeMax_ = config.getSystemLogSizeMax();
             instance.systemLogLevel_ = toLogLevel(config.getSystemLogLevel());
+            
+            // 起動時にログファイルが多数ある場合は削除する。
+            IOUtil.removeLogFiles(instance.systemLogNumMax_, instance.logPath_, EXTENTION);
         }
     }
 
