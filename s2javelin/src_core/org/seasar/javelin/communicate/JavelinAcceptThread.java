@@ -194,7 +194,7 @@ public class JavelinAcceptThread implements Runnable, AlarmListener {
 				client.sendAlarm(bytes);
                 if (SystemLogger.getInstance().isDebugEnabled())
                 {
-                    client.logTelegram("電文を送信しました。", telegram);
+                    client.logTelegram("電文を送信しました。", telegram, bytes);
                 }
 			}
 		}

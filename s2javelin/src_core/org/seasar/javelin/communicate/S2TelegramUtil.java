@@ -631,14 +631,21 @@ public final class S2TelegramUtil extends Common {
 		return body;
 	}
 
-	public static String toPrintStr(Telegram telegram)
+	/**
+	 * 電文内容をシステムログに出力する
+	 * 
+	 * @param telegram 出力対象電文
+	 * @param telegramByteArray 出力対象電文のバイト列
+	 * @return ログ出力文字列
+	 */
+	public static String toPrintStr(Telegram telegram, byte[] telegramByteArray)
     {
         StringBuffer receivedBuffer = new StringBuffer();
 	    
         Header header = telegram.getObjHeader();
         byte telegramKind = header.getByteTelegramKind();
         byte requestKind = header.getByteRequestKind();
-        int length = header.getIntSize();
+        int length = telegramByteArray.length;
 
         receivedBuffer.append(NEW_LINE);
         receivedBuffer.append(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");

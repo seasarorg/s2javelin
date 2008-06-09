@@ -66,7 +66,7 @@ public class JavelinClientThread implements Runnable
 
                 if (SystemLogger.getInstance().isDebugEnabled())
                 {
-                    logTelegram("電文を受信しました。", request);
+                    logTelegram("電文を受信しました。", request, byteInputArr);
                 }
 
                 if (request == null)
@@ -91,7 +91,7 @@ public class JavelinClientThread implements Runnable
 
                         if (SystemLogger.getInstance().isDebugEnabled())
                         {
-                            logTelegram("電文を送信しました。", response);
+                            logTelegram("電文を送信しました。", response, byteOutputArr);
                         }
                     }
                 }
@@ -108,9 +108,9 @@ public class JavelinClientThread implements Runnable
         }
     }
 
-    public void logTelegram(String message, Telegram response)
+    public void logTelegram(String message, Telegram response, byte[] telegramByteArray)
     {
-        String telegramStr = S2TelegramUtil.toPrintStr(response);
+        String telegramStr = S2TelegramUtil.toPrintStr(response, telegramByteArray);
         SystemLogger.getInstance().debug(
                                          message + this.clientIP_.getHostAddress() + ":"
                                                  + this.clientSocket_.getPort()
