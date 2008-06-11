@@ -85,11 +85,13 @@ public class S2StatsJavelinRecorder
             }
             catch (ClassNotFoundException cfne)
             {
+                String defaultRecordstrategy = S2JavelinConfig.DEFAULT_RECORDSTRATEGY;
                 SystemLogger.getInstance().info(
                                                 strategyName
                                                         + "のロードに失敗したため、javelin.recordStrategyとして"
-                                                        + "デフォルト値(org.seasar.javelin.DefaultRecordStrategy)を利用します。");
-                recordStrategy_ = (RecordStrategy)loadClass(S2JavelinConfig.DEFAULT_RECORDSTRATEGY).newInstance();
+                                                        + "デフォルト値(" + defaultRecordstrategy
+                                                        + ")を利用します。");
+                recordStrategy_ = (RecordStrategy)loadClass(defaultRecordstrategy).newInstance();
             }
 
             // スレッドの監視を開始する。
