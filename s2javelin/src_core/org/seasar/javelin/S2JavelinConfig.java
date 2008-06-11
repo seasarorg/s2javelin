@@ -225,7 +225,7 @@ public class S2JavelinConfig
     private static final int     DEFAULT_LOG_ZIP_MAX         = 256;
 
     /** 記録条件判定クラスのデフォルト */
-    private static final String  DEFAULT_RECORDSTRATEGY      =
+    public static final String  DEFAULT_RECORDSTRATEGY      =
                                                                      "org.seasar.javelin.DefaultRecordStrategy";
 
     /** デフォルトで利用するTelegramListener名 */

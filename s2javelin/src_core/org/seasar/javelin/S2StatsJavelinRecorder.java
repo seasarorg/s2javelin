@@ -79,7 +79,18 @@ public class S2StatsJavelinRecorder
 
             // RecordStrategyを初期化する
             String strategyName = config.getRecordStrategy();
-            recordStrategy_ = (RecordStrategy)loadClass(strategyName).newInstance();
+            try
+            {
+                recordStrategy_ = (RecordStrategy)loadClass(strategyName).newInstance();
+            }
+            catch (ClassNotFoundException cfne)
+            {
+                SystemLogger.getInstance().info(
+                                                strategyName
+                                                        + "のロードに失敗したため、javelin.recordStrategyとして"
+                                                        + "デフォルト値(org.seasar.javelin.DefaultRecordStrategy)を利用します。");
+                recordStrategy_ = (RecordStrategy)loadClass(S2JavelinConfig.DEFAULT_RECORDSTRATEGY).newInstance();
+            }
 
             // スレッドの監視を開始する。
             vmStatusHelper__.init();
