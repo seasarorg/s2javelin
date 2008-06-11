@@ -155,9 +155,6 @@ public class IOUtil
         for (int index = files.length; index > maxFileCount; index--)
         {
             files[files.length - index].delete();
-            //			JavelinErrorLogger.getInstance().log(
-            //					"Remove file name = "
-            //							+ files[files.length - index].getName());
         }
     }
 
