@@ -53,6 +53,9 @@ public class S2JavelinConfig
     /** JMXInfoを出力するかどうか決定するプロパティ */
     public static final String   LOG_JMXNFO_KEY              = JAVELIN_PREFIX + "log.jmxinfo";
 
+    /** 端点で、JMXInfoを出力するかどうか決定するプロパティ */
+    public static final String   LOG_JMXNFO_ROOT_KEY              = JAVELIN_PREFIX + "log.jmxinfo.root";
+
     /** 戻り値を出力するかどうかを決定するプロパティ */
     public static final String   LOG_RETURN_KEY              = JAVELIN_PREFIX + "log.return";
 
@@ -171,6 +174,9 @@ public class S2JavelinConfig
 
     /** JMXInfoを出力するかどうか決定するデフォルト値 */
     private static final boolean DEFAULT_LOG_JMXINFO         = true;
+
+    /** JMXInfoを出力するかどうか決定するデフォルト値 */
+    private static final boolean DEFAULT_LOG_JMXINFO_ROOT         = true;
 
     /** 戻り値を出力するかどうかを決定するデフォルト値 */
     private static final boolean DEFAULT_LOG_RETURN          = true;
@@ -593,6 +599,17 @@ public class S2JavelinConfig
     }
 
     /**
+     * 端点で、JMXによって取得した情報を出力するかどうかの設定を返す。
+     *
+     * @return 端点で、JMXによって取得した情報を出力するならtrue
+     */
+    public boolean isLogJMXInfoRoot()
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        return configUtil.getBoolean(LOG_JMXNFO_ROOT_KEY, DEFAULT_LOG_JMXINFO_ROOT);
+    }
+
+    /**
      * 引数を出力するかどうかが設定されているかどうかを調べる。
      *
      * @return 設定されていればtrue
@@ -622,6 +639,17 @@ public class S2JavelinConfig
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         configUtil.setBoolean(LOG_JMXNFO_KEY, isLogJmxInfo);
+    }
+
+    /**
+     * JMXによって取得した情報を出力するかどうかを設定する。
+     *
+     * @param isLogJmxInfo JMXによって取得した情報を出力するならtrue
+     */
+    public void setLogJmxInfoRoot(boolean isLogJmxInfo)
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        configUtil.setBoolean(LOG_JMXNFO_ROOT_KEY, isLogJmxInfo);
     }
 
     /**

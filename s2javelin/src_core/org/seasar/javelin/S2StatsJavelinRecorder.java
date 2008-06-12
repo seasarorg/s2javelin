@@ -317,6 +317,12 @@ public class S2StatsJavelinRecorder
             if (node == null)
             {
                 node = initCallTree(tree, stacktrace, vmStatus, config);
+
+                // 端点でのみJMXInfoを取得する。
+                if(config.isLogJmxInfo() == false && config.isLogJMXInfoRoot() == true)
+                {
+                    node.setEndVmStatus(vmStatusHelper__.createVMStatusForce());
+                }
             }
             else
             {
@@ -476,6 +482,12 @@ public class S2StatsJavelinRecorder
             }
             else
             {
+                // 端点でのみJMXInfoを取得する。
+                if(config.isLogJmxInfo() == false && config.isLogJMXInfoRoot() == true)
+                {
+                    node.setEndVmStatus(vmStatusHelper__.createVMStatusForce());
+                }
+                
                 // 統計値記録の閾値を超えていた場合に、トランザクションを記録する。
                 if (node.getAccumulatedTime() >= config.getStatisticsThreshold())
                 {
@@ -567,6 +579,12 @@ public class S2StatsJavelinRecorder
             }
             else
             {
+                // 端点でのみJMXInfoを取得する。
+                if(config.isLogJmxInfo() == false && config.isLogJMXInfoRoot() == true)
+                {
+                    node.setEndVmStatus(vmStatusHelper__.createVMStatusForce());
+                }
+
                 recordTransaction(node);
 
                 // CallTreeNodeの情報をログ出力、アラーム通知する。

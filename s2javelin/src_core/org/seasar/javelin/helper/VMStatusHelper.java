@@ -110,13 +110,23 @@ public class VMStatusHelper
      */
     public VMStatus createVMStatus()
     {
-        VMStatus vmStatus = new VMStatus();
 
         if (false == this.javelinConfig.isLogJmxInfo())
         {
-            return vmStatus;
+            return new VMStatus();
         }
 
+        return createVMStatusForce();
+    }
+
+    /**
+     * JMXからVMの状態を取得し、VMStatusオブジェクトを生成する。<br>
+     * 
+     * @return JMXからVMの状態を取得した、VMStatusオブジェクト。
+     */
+    public VMStatus createVMStatusForce()
+    {
+        VMStatus vmStatus = new VMStatus();
         vmStatus.setCpuTime(this.threadMBean.getCurrentThreadCpuTime());
         vmStatus.setUserTime(this.threadMBean.getCurrentThreadUserTime());
         ThreadInfo threadInfo = this.threadMBean.getThreadInfo(Thread.currentThread().getId());
