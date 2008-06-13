@@ -603,7 +603,7 @@ public class S2JavelinConfig
      *
      * @return 端点で、JMXによって取得した情報を出力するならtrue
      */
-    public boolean isLogJMXInfoRoot()
+    public boolean isLogJmxInfoRoot()
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         return configUtil.getBoolean(LOG_JMXNFO_ROOT_KEY, DEFAULT_LOG_JMXINFO_ROOT);

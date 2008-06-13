@@ -171,7 +171,7 @@ public class JavelinLogMaker
             }
         }
 
-        if (config.isLogJmxInfo())
+        if (config.isLogJmxInfo() || (config.isLogJmxInfoRoot() && parent == null))
         {
             if (messageType == ID_CALL || messageType == ID_RETURN)
             {

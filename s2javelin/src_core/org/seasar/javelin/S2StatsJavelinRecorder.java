@@ -319,9 +319,9 @@ public class S2StatsJavelinRecorder
                 node = initCallTree(tree, stacktrace, vmStatus, config);
 
                 // 端点でのみJMXInfoを取得する。
-                if(config.isLogJmxInfo() == false && config.isLogJMXInfoRoot() == true)
+                if(config.isLogJmxInfo() == false && config.isLogJmxInfoRoot() == true)
                 {
-                    node.setEndVmStatus(vmStatusHelper__.createVMStatusForce());
+                    node.setStartVmStatus(vmStatusHelper__.createVMStatusForce());
                 }
             }
             else
@@ -483,7 +483,7 @@ public class S2StatsJavelinRecorder
             else
             {
                 // 端点でのみJMXInfoを取得する。
-                if(config.isLogJmxInfo() == false && config.isLogJMXInfoRoot() == true)
+                if(config.isLogJmxInfo() == false && config.isLogJmxInfoRoot() == true)
                 {
                     node.setEndVmStatus(vmStatusHelper__.createVMStatusForce());
                 }
@@ -580,7 +580,7 @@ public class S2StatsJavelinRecorder
             else
             {
                 // 端点でのみJMXInfoを取得する。
-                if(config.isLogJmxInfo() == false && config.isLogJMXInfoRoot() == true)
+                if(config.isLogJmxInfo() == false && config.isLogJmxInfoRoot() == true)
                 {
                     node.setEndVmStatus(vmStatusHelper__.createVMStatusForce());
                 }
