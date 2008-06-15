@@ -3,6 +3,8 @@ package org.seasar.javelin.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.seasar.javelin.S2JavelinConfig;
@@ -46,9 +48,19 @@ public class JavelinConfigUtil
     /** PropertyFileの存在ディレクトリ */
     private String                   propertyFileDirectory_;
 
+    /** Booleanの値を保持する。 */
+	private Map<String, Boolean> booleanMap_ = new HashMap<String, Boolean>();
+
+	/** Longの値を保持する。 */
+	private Map<String, Long> longMap_ = new HashMap<String, Long>();
+
+	/** Integerの値を保持する。 */
+	private Map<String, Integer> intMap_ = new HashMap<String, Integer>();
+    
+    
     /**
-     * Singleton
-     */
+	 * Singleton
+	 */
     private JavelinConfigUtil()
     {
         this.fileName1_ = System.getProperty(JAVELIN_OPTION_KEY_1);
@@ -163,21 +175,28 @@ public class JavelinConfigUtil
      */
     public int getInteger(String key, int defaultValue)
     {
-        String value = getString(key, null);
-        if (value != null)
-        {
-            try
-            {
-                return Integer.parseInt(value);
-            }
-            catch (NumberFormatException nfe)
-            {
-                System.out.println(key + "に不正な値が入力されました。デフォルト値(" + defaultValue + ")を使用します。");
-                setInteger(key, defaultValue);
-            }
-        }
-        return defaultValue;
-    }
+    	if(intMap_.containsKey(key) == false)
+    	{
+	        String value = getString(key, null);
+	        Integer intValue = Integer.valueOf(defaultValue);
+	        if (value != null)
+	        {
+	            try
+	            {
+	            	intValue = Integer.valueOf(value);
+	            }
+	            catch (NumberFormatException nfe)
+	            {
+	                System.out.println(key + "に不正な値が入力されました。デフォルト値(" + intValue + ")を使用します。");
+	                setInteger(key, intValue);
+	            }
+	        }
+	        
+	        intMap_.put(key, intValue);
+    	}
+    	
+        return intMap_.get(key).intValue();
+   }
 
     /**
      * 指定されたキーに対応する数値を返す。
@@ -190,20 +209,27 @@ public class JavelinConfigUtil
      */
     public long getLong(String key, long defaultValue)
     {
-        String value = getString(key, null);
-        if (value != null)
-        {
-            try
-            {
-                return Long.parseLong(value);
-            }
-            catch (NumberFormatException nfe)
-            {
-                System.out.println(key + "に不正な値が入力されました。デフォルト値(" + defaultValue + ")を使用します。");
-                setLong(key, defaultValue);
-            }
-        }
-        return defaultValue;
+    	if(longMap_.containsKey(key) == false)
+    	{
+	        String value = getString(key, null);
+	        Long longValue = Long.valueOf(defaultValue);
+	        if (value != null)
+	        {
+	            try
+	            {
+	            	longValue = Long.valueOf(value);
+	            }
+	            catch (NumberFormatException nfe)
+	            {
+	                System.out.println(key + "に不正な値が入力されました。デフォルト値(" + defaultValue + ")を使用します。");
+	                setLong(key, longValue);
+	            }
+	        }
+	        
+            longMap_.put(key, longValue);
+    	}
+    	
+        return longMap_.get(key).longValue();
     }
 
     /**
@@ -217,21 +243,32 @@ public class JavelinConfigUtil
      */
     public boolean getBoolean(String key, boolean defaultValue)
     {
-        String value = getString(key, null);
-        if (value != null)
-        {
-            if ("true".equals(value))
-            {
-                return true;
-            }
-            if ("false".equals(value))
-            {
-                return false;
-            }
-            System.out.println(key + "に不正な値が入力されました。デフォルト値(" + defaultValue + ")を使用します。");
-            setBoolean(key, defaultValue);
-        }
-        return defaultValue;
+    	if(booleanMap_.containsKey(key) == false)
+    	{
+	        String value = getString(key, null);
+	
+	        boolean result = defaultValue;
+	        if (value != null)
+	        {
+	            if ("true".equals(value))
+	            {
+	            	result = true;
+	            }
+	            else if ("false".equals(value))
+	            {
+	            	result = false;
+	            }
+	            else
+	            {
+		            System.out.println(key + "に不正な値が入力されました。デフォルト値(" + defaultValue + ")を使用します。");
+		            setBoolean(key, result);
+	            }
+	        }
+	        
+	        booleanMap_.put(key, result);
+    	}
+    	
+		return booleanMap_.get(key).booleanValue();
     }
 
     /**
@@ -442,4 +479,10 @@ public class JavelinConfigUtil
         return canonicalPath;
     }
 
+    public void update()
+    {
+    	this.longMap_ = new HashMap<String, Long>();
+    	this.booleanMap_ = new HashMap<String, Boolean>();
+    	this.intMap_ = new HashMap<String, Integer>();
+    }
 }
