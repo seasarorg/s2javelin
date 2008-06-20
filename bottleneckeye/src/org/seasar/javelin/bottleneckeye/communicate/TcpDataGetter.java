@@ -310,5 +310,4 @@ public class TcpDataGetter implements TelegramClientManager
     {
         return this.socketChannel_;
     }
-
 }
