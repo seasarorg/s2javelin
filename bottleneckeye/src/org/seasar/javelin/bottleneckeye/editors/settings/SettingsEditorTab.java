@@ -235,7 +235,7 @@ public class SettingsEditorTab
         this.stopButton_.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event)
             {
-                SettingsEditorTab.this.startButton_.setEnabled(true);
+                SettingsEditorTab.this.startButton_.setEnabled(false);
                 SettingsEditorTab.this.stopButton_.setEnabled(false);
                 SettingsEditorTab.this.resetButton_.setEnabled(false);
                 SettingsEditorTab.this.reloadButton_.setEnabled(false);
@@ -475,9 +475,7 @@ public class SettingsEditorTab
         notifyAllSettings();
 
         SettingsEditorTab.this.startButton_.setEnabled(false);
-        SettingsEditorTab.this.stopButton_.setEnabled(true);
-        SettingsEditorTab.this.resetButton_.setEnabled(true);
-        SettingsEditorTab.this.reloadButton_.setEnabled(true);
+        SettingsEditorTab.this.stopButton_.setEnabled(false);
         SettingsEditorTab.this.hostText_.setEnabled(false);
         SettingsEditorTab.this.portText_.setEnabled(false);
         SettingsEditorTab.this.domainText_.setEnabled(false);
@@ -487,5 +485,31 @@ public class SettingsEditorTab
         SettingsEditorTab.this.lineStyleCombo_.setEnabled(false);
 
         SettingsEditorTab.this.multiPageEditor_.notifyStart();
+    }
+    
+    /**
+     * TCP接続が開始したことの通知を受けた際の動作
+     * startボタンを再度押下不可能にする。
+     * stopボタン、resetボタン、reloadボタンを押下可能にする。
+     */
+    public void notifyCommunicateStart()
+    {
+        SettingsEditorTab.this.startButton_.setEnabled(false);
+        SettingsEditorTab.this.stopButton_.setEnabled(true);
+        SettingsEditorTab.this.resetButton_.setEnabled(true);
+        SettingsEditorTab.this.reloadButton_.setEnabled(true);
+    }
+    
+    /**
+     * TCP接続が終了したことの通知
+     * startボタンを押下可能にする。
+     * stopボタン、resetボタン、reloadボタンを押下不可能にする。
+     */
+    public void notifyCommunicateStop()
+    {
+        SettingsEditorTab.this.stopButton_.setEnabled(false);
+        SettingsEditorTab.this.startButton_.setEnabled(true);
+        SettingsEditorTab.this.resetButton_.setEnabled(false);
+        SettingsEditorTab.this.reloadButton_.setEnabled(false);
     }
 }
