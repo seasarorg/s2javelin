@@ -704,4 +704,20 @@ public class ProfilerTab implements EditorTabInterface
     {
         // Do Nothing.
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyCommunicateStart()
+    {
+        // Do nothing.
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void notifyCommunicateStop()
+    {
+        // Do nothing.
+    }
 }
