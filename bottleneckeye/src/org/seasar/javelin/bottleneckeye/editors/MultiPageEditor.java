@@ -52,7 +52,8 @@ import org.seasar.javelin.bottleneckeye.util.ModelSerializer;
  * <li>page 2 shows the words in page 0 in sorted order
  * </ul>
  */
-public class MultiPageEditor extends MultiPageEditorPart implements IResourceChangeListener, ISelectionListener
+public class MultiPageEditor extends MultiPageEditorPart implements IResourceChangeListener,
+        ISelectionListener
 {
     /** タブの設定が書かれているファイル */
     private static final String             TAB_SETTINGS_FILE             =
@@ -130,6 +131,8 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
     /** スタイルのデフォルト値 */
     private static final String             DEFAULT_STYLE                 = "NORMAL";
 
+    private SettingsEditorTab               settingsEditorTab_;
+
     /**
      * Creates a multi-page editor example.
      */
@@ -184,6 +187,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         // 設定画面タブを作成する。
         SettingsEditorTab settingsEditorTab = new SettingsEditorTab(this, this.editor_);
         Composite tabComposite = settingsEditorTab.createComposite(getContainer(), this);
+        this.settingsEditorTab_ = settingsEditorTab;
 
         notifyLoad(persistence);
 
@@ -203,7 +207,6 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
                 clientManager.addEditorTab(editorTabElem);
             }
         }
-
 
         // 初期設定をビューに通知する
         initSettingEditorTab(settingsEditorTab);
@@ -655,5 +658,15 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
                 this.editor_.selectionChanged(part, selection);
             }
         }
+    }
+    
+    public void notifyCommunicateStart()
+    {
+        this.settingsEditorTab_.notifyCommunicateStart();
+    }
+    
+    public void notifyCommunicateStop()
+    {
+        this.settingsEditorTab_.notifyCommunicateStop();
     }
 }
