@@ -269,6 +269,7 @@ public class StatsVisionEditorTab implements EditorTabInterface
             {
                 StatsVisionEditorTab.this.editorPart_.setTitleImage(StatsVisionPlugin.IMG_CONNECT_TITLE);
                 StatsVisionEditorTab.this.editor_.setBackground(AbstractStatsVisionEditor.CONNECTED_BACKCOLOR);
+                StatsVisionEditorTab.this.editorPart_.notifyCommunicateStart();
             }
         });
     }
@@ -283,6 +284,7 @@ public class StatsVisionEditorTab implements EditorTabInterface
             {
                 StatsVisionEditorTab.this.editorPart_.setTitleImage(StatsVisionPlugin.IMG_DISCONNECT_TITLE);
                 StatsVisionEditorTab.this.editor_.setBackground(AbstractStatsVisionEditor.DISCONNECTED_BACKCOLOR);
+                StatsVisionEditorTab.this.editorPart_.notifyCommunicateStart();
             }
         });
     }
@@ -318,5 +320,25 @@ public class StatsVisionEditorTab implements EditorTabInterface
             this.editor_.layoutModel();
         }
         this.editor_.getViewer().setContents(this.editor_.rootModel);
+    }
+    
+    public void notifyCommunicateStart()
+    {
+        Display.getDefault().asyncExec(new Runnable() {
+            public void run()
+            {
+                StatsVisionEditorTab.this.editorPart_.notifyCommunicateStart();
+            }
+        });
+    }
+
+    public void notifyCommunicateStop()
+    {
+        Display.getDefault().asyncExec(new Runnable() {
+            public void run()
+            {
+                StatsVisionEditorTab.this.editorPart_.notifyCommunicateStop();
+            }
+        });
     }
 }
