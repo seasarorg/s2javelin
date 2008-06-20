@@ -98,4 +98,15 @@ public interface EditorTabInterface
      * @param persistence 永続化モデル
      */
     void onLoad(PersistenceModel persistence);
+    
+    /**
+     * 通信が開始した際に呼び出される処理
+     * 通信開始後、初めて接続が確立／切断（通信失敗）した際に呼び出される
+     */
+    void notifyCommunicateStart();
+    
+    /**
+     * 通信試行が終了した時に呼び出される処理
+     */
+    void notifyCommunicateStop();
 }
