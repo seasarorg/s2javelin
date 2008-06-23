@@ -632,7 +632,7 @@ public class S2StatsJavelinRecorder
             S2StatsJavelinFileGenerator generator = new S2StatsJavelinFileGenerator(config);
             jvnLogFileName =
                     generator.generateJaveinFile(callTree, node,
-                                                 recordStrategy_.createCallback(node));
+                                                 recordStrategy_.createCallback());
         }
 
         if (config.isAlarmException() == true)
@@ -664,7 +664,7 @@ public class S2StatsJavelinRecorder
         {
             fileName =
                     generator.generateJaveinFile(callTree, root,
-                                                 recordStrategy_.createCallback(root));
+                                                 recordStrategy_.createCallback());
         }
         return fileName;
     }

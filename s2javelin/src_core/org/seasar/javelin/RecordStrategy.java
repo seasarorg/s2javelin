@@ -28,10 +28,17 @@ public interface RecordStrategy
 	/**
 	 * コールバックオブジェクトを返す。
 	 * 
-	 * @param Javelinログファイル名。
-	 * @param node
+	 * @param node　ノード。
 	 * 
 	 * @return コールバックオブジェクト。
 	 */
 	public JavelinLogCallback createCallback(CallTreeNode node);
+
+    
+    /**
+     * コールバックオブジェクトを返す。
+     * 
+     * @return コールバックオブジェクト。
+     */
+    public JavelinLogCallback createCallback();
 }

@@ -58,4 +58,14 @@ public class S2MaxAccumulatedTimeUpdateRecordStrategy implements RecordStrategy
         // Do Nothing
         return null;
     }
+
+    /**
+     * âΩÇ‡ÇµÇ»Ç¢ÅB
+     * @return null
+     */
+    public JavelinLogCallback createCallback()
+    {
+        // Do Nothing
+        return null;
+    }
 }
