@@ -63,6 +63,9 @@ public class SettingsEditorTab
     /** "Stop" ボタン */
     private Button            stopButton_;
 
+    /** 最後に押されたStart/StopボタンがStartの場合True、Stopの場合False */
+    private boolean           isLastStarted_;
+
     /**
      * コンストラクタ。関連するEditorを設定する。
      * @param multiPageEditor 親となるマルチページエディタ。
@@ -72,6 +75,7 @@ public class SettingsEditorTab
     {
         this.multiPageEditor_ = multiPageEditor;
         this.statsVisionEditor_ = statsVisionEditor;
+        this.isLastStarted_ = true;
     }
 
     /**
@@ -113,9 +117,10 @@ public class SettingsEditorTab
         this.modeCombo_ = createCombo(composite, 4, values, MultiPageEditor.MODE_TCP);
         createSpacer(composite, 6);
 
-        values = new String[]{MultiPageEditor.LINE_STYLE_NORMAL,
-                MultiPageEditor.LINE_STYLE_SHORTEST, MultiPageEditor.LINE_STYLE_FAN,
-                MultiPageEditor.LINE_STYLE_MANHATTAN};
+        values =
+                new String[]{MultiPageEditor.LINE_STYLE_NORMAL,
+                        MultiPageEditor.LINE_STYLE_SHORTEST, MultiPageEditor.LINE_STYLE_FAN,
+                        MultiPageEditor.LINE_STYLE_MANHATTAN};
 
         createLabel(composite, "Style:");
         this.lineStyleCombo_ = createCombo(composite, 4, values, "");
@@ -246,6 +251,8 @@ public class SettingsEditorTab
                 SettingsEditorTab.this.alarmText_.setEnabled(true);
                 SettingsEditorTab.this.modeCombo_.setEnabled(true);
                 SettingsEditorTab.this.lineStyleCombo_.setEnabled(true);
+                
+                SettingsEditorTab.this.isLastStarted_ = false;
 
                 SettingsEditorTab.this.multiPageEditor_.notifyStop();
             }
@@ -483,23 +490,30 @@ public class SettingsEditorTab
         SettingsEditorTab.this.alarmText_.setEnabled(false);
         SettingsEditorTab.this.modeCombo_.setEnabled(false);
         SettingsEditorTab.this.lineStyleCombo_.setEnabled(false);
+        
+        SettingsEditorTab.this.isLastStarted_ = true;
 
         SettingsEditorTab.this.multiPageEditor_.notifyStart();
     }
-    
+
     /**
      * TCP接続が開始したことの通知を受けた際の動作
+     * 最後にStartボタンが押下されていた場合、
      * startボタンを再度押下不可能にする。
      * stopボタン、resetボタン、reloadボタンを押下可能にする。
+     * 最後にStopボタンが押下されていた場合はStopボタンの２重押下を防止するため、処理は行わない。
      */
     public void notifyCommunicateStart()
     {
-        SettingsEditorTab.this.startButton_.setEnabled(false);
-        SettingsEditorTab.this.stopButton_.setEnabled(true);
-        SettingsEditorTab.this.resetButton_.setEnabled(true);
-        SettingsEditorTab.this.reloadButton_.setEnabled(true);
+        if(SettingsEditorTab.this.isLastStarted_)
+        {
+            SettingsEditorTab.this.startButton_.setEnabled(false);
+            SettingsEditorTab.this.stopButton_.setEnabled(true);
+            SettingsEditorTab.this.resetButton_.setEnabled(true);
+            SettingsEditorTab.this.reloadButton_.setEnabled(true);
+        }
     }
-    
+
     /**
      * TCP接続が終了したことの通知
      * startボタンを押下可能にする。
