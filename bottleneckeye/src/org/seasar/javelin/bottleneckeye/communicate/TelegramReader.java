@@ -27,7 +27,7 @@ public class TelegramReader implements Runnable
     private TcpDataGetter            tcpDataGetter_ = null;
 
     /** 前に送った通知が接続通知なら <code>true</code> 、切断通知なら <code>false</code> */
-    private boolean isPrevNotifyConnect_;
+    private boolean                  isPrevNotifyConnect_;
 
     /** リトライ時間 */
     private static final int         RETRY_INTERVAL = 10000;
@@ -62,8 +62,10 @@ public class TelegramReader implements Runnable
     public void run()
     {
         this.isRunning_ = true;
+        
         while (this.isRunning_)
         {
+            notifyCommunicateStart();
             this.channel_ = this.tcpDataGetter_.getChannel();
             if (this.channel_ == null)
             {
@@ -86,13 +88,13 @@ public class TelegramReader implements Runnable
                 continue;
             }
             Telegram telegram = TelegramUtil.recoveryTelegram(telegramBytes);
-            
-            if(telegram == null)
+
+            if (telegram == null)
             {
                 System.out.println("受信した電文の読み込みに失敗しました。");
                 continue;
             }
-            
+
             boolean isProcess = false;
             for (EditorTabInterface editorTab : this.editorTabList_)
             {
@@ -107,6 +109,7 @@ public class TelegramReader implements Runnable
         }
 
         sendDisconnectNotify();
+        notifyCommunicateStop();
     }
 
     /**
@@ -215,6 +218,42 @@ public class TelegramReader implements Runnable
                 for (EditorTabInterface editorTab : this.editorTabList_)
                 {
                     editorTab.disconnected();
+                }
+            }
+        }
+    }
+
+    /**
+     * 接続が開始されたことを各タブに通知する
+     */
+    private void notifyCommunicateStart()
+    {
+        synchronized (this)
+        {
+            if (this.isPrevNotifyConnect_ == false)
+            {
+                this.isPrevNotifyConnect_ = true;
+                for (EditorTabInterface editorTab : this.editorTabList_)
+                {
+                    editorTab.notifyCommunicateStart();
+                }
+            }
+        }
+    }
+
+    /**
+     * 接続が終了したことを各タブに通知する
+     */
+    private void notifyCommunicateStop()
+    {
+        synchronized (this)
+        {
+            if (this.isPrevNotifyConnect_ == false)
+            {
+                this.isPrevNotifyConnect_ = true;
+                for (EditorTabInterface editorTab : this.editorTabList_)
+                {
+                    editorTab.notifyCommunicateStop();
                 }
             }
         }
