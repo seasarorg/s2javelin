@@ -372,13 +372,7 @@ public class S2StatsJavelinRecorder
 
             node.setInvocation(invocation);
 
-            // 呼び出し先を、
-            // 次回ログ出力時の呼び出し元として使用するために保存する。
-            callerNode_.set(node);
-
-            // Mapに格納する。
-            currentNodeMap__.put(Thread.currentThread().getId(),
-                                 new WeakReference<CallTreeNode>(node));
+            setCallerNode(node);
         }
         catch (Exception ex)
         {
@@ -478,7 +472,7 @@ public class S2StatsJavelinRecorder
             CallTreeNode parent = node.getParent();
             if (parent != null)
             {
-                callerNode_.set(parent);
+                setCallerNode(parent);
             }
             else
             {
@@ -516,13 +510,29 @@ public class S2StatsJavelinRecorder
                     tree.executeCallback();
                 }
 
-                callerNode_.set(null);
+                setCallerNode(null);
                 callTree_.set(new CallTree());
             }
         }
         catch (Exception ex)
         {
             SystemLogger.getInstance().warn(ex);
+        }
+    }
+
+    private static void setCallerNode(CallTreeNode node)
+    {
+        callerNode_.set(node);
+
+        if(node == null)
+        {
+            currentNodeMap__.remove(Thread.currentThread().getId());
+        }
+        else
+        {
+            // Mapに格納する。
+            currentNodeMap__.put(Thread.currentThread().getId(),
+                                 new WeakReference<CallTreeNode>(node));
         }
     }
 
@@ -575,7 +585,7 @@ public class S2StatsJavelinRecorder
             CallTreeNode parent = node.getParent();
             if (parent != null)
             {
-                callerNode_.set(parent);
+                setCallerNode(parent);
             }
             else
             {
@@ -595,7 +605,7 @@ public class S2StatsJavelinRecorder
                     callTree.executeCallback();
                 }
 
-                callerNode_.set(null);
+                setCallerNode(null);
                 callTree_.set(new CallTree());
             }
 
@@ -716,8 +726,7 @@ public class S2StatsJavelinRecorder
                 node.setInvocation(invocation);
                 parent.addChild(node);
             }
-            // 呼び出し先を、次回ログ出力時の呼び出し元として使用するために保存する。
-            callerNode_.set(node);
+            setCallerNode(node);
         }
         catch (Exception ex)
         {
@@ -749,7 +758,7 @@ public class S2StatsJavelinRecorder
             CallTreeNode parent = node.getParent();
             if (parent != null)
             {
-                callerNode_.set(parent);
+                setCallerNode(parent);
             }
         }
         catch (Exception ex)
