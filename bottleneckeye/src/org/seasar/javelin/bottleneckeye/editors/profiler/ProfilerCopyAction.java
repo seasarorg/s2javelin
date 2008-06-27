@@ -19,18 +19,13 @@ import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.TOTA
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-import org.seasar.javelin.bottleneckeye.model.InvocationModel;
 
 /**
  * プロファイラビューでコピーを行った際のアクション。
@@ -92,8 +87,9 @@ public class ProfilerCopyAction extends Action
             builder.append(item.getText(0));
             for (int index = 1; index < headers__.length; index++)
             {
-                builder.append("\t");
+                builder.append("\t\"");
                 builder.append(item.getText(index));
+                builder.append("\"");
             }
             builder.append(NEWLINE);
         }
