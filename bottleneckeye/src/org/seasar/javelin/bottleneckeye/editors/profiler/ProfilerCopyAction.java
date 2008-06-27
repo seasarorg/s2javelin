@@ -1,21 +1,21 @@
 package org.seasar.javelin.bottleneckeye.editors.profiler;
 
+import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.AVERAGE_CPU_TIME;
 import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.AVERAGE_TIME;
+import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.AVERAGE_USER_TIME;
 import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.CALL_TIME;
 import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.CLASS_NAME;
-import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.MAX_TIME;
-import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.METHOD_NAME;
-import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.MIN_TIME;
-import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.TOTAL_USER_TIME;
-import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.AVERAGE_USER_TIME;
-import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.MAX_USER_TIME;
-import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.MIN_USER_TIME;
-import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.TOTAL_CPU_TIME;
-import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.AVERAGE_CPU_TIME;
 import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.MAX_CPU_TIME;
+import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.MAX_TIME;
+import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.MAX_USER_TIME;
+import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.METHOD_NAME;
 import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.MIN_CPU_TIME;
+import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.MIN_TIME;
+import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.MIN_USER_TIME;
 import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.THROWABLE_TIME;
+import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.TOTAL_CPU_TIME;
 import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.TOTAL_TIME;
+import static org.seasar.javelin.bottleneckeye.editors.profiler.ProfilerTab.TOTAL_USER_TIME;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jface.action.Action;
@@ -26,7 +26,10 @@ import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.seasar.javelin.bottleneckeye.model.InvocationModel;
 
 /**
@@ -45,25 +48,23 @@ public class ProfilerCopyAction extends Action
     /** クリップボード */
     private static Clipboard    clipboard__;
 
-    /** コピー対象のTableViewer */
-    private TableViewer         viewer_;
+    /** ヘッダ文字列。 */
+    private static String[]     headers__;
 
     static
     {
-        String[] headers =
-                {CLASS_NAME, METHOD_NAME, TOTAL_TIME, AVERAGE_TIME, MAX_TIME, MIN_TIME,
-            TOTAL_CPU_TIME, AVERAGE_CPU_TIME, MAX_CPU_TIME, MIN_CPU_TIME, TOTAL_USER_TIME,
-            AVERAGE_USER_TIME, MAX_USER_TIME, MIN_USER_TIME, CALL_TIME, THROWABLE_TIME};
-        HEADER = StringUtils.join(headers, "\t") + NEWLINE;
+        headers__ = new String[]{CLASS_NAME, METHOD_NAME, TOTAL_TIME, AVERAGE_TIME, MAX_TIME, MIN_TIME,
+         TOTAL_CPU_TIME, AVERAGE_CPU_TIME, MAX_CPU_TIME, MIN_CPU_TIME, TOTAL_USER_TIME,
+         AVERAGE_USER_TIME, MAX_USER_TIME, MIN_USER_TIME, CALL_TIME, THROWABLE_TIME};
+        HEADER = StringUtils.join(headers__, "\t") + NEWLINE;
     }
 
     /**
      * コンストラクタ。TableViewerを設定する。
-     * @param viewer TableViewer
      */
-    public ProfilerCopyAction(TableViewer viewer)
+    public ProfilerCopyAction()
     {
-        this.viewer_ = viewer;
+        // 何もしない。
     }
 
     /**
@@ -74,66 +75,32 @@ public class ProfilerCopyAction extends Action
      * InvocationModelから取得する。
      */
     @Override
-    public void run()
+    public void runWithEvent(Event event)
     {
-        TextTransfer textTransfer = TextTransfer.getInstance();
-        Object[] selection = ((IStructuredSelection)this.viewer_.getSelection()).toArray();
 
-        ColumnLabelProvider[] providers = getProviders();
-
+        if (event.widget instanceof Table == false)
+        {
+            return;
+        }
+        Table table = (Table)event.widget;
         StringBuilder builder = new StringBuilder();
         builder.append(HEADER);
-        for (int index = 0; index < selection.length; index++)
+
+        TableItem[] items = table.getSelection();
+        for (TableItem item : items)
         {
-            Object object = selection[index];
-            if (object instanceof InvocationModel == false)
+            builder.append(item.getText(0));
+            for (int index = 1; index < headers__.length; index++)
             {
-                continue;
+                builder.append("\t");
+                builder.append(item.getText(index));
             }
-
-            String str = createSingleLine(providers, (InvocationModel)object);
-
-            builder.append("\"").append(str).append("\"");
             builder.append(NEWLINE);
         }
         String content = new String(builder);
 
+        TextTransfer textTransfer = TextTransfer.getInstance();
         getClipboard().setContents(new Object[]{content}, new Transfer[]{textTransfer});
-    }
-
-    /**
-     * テーブルより、ColumnLabelProviderの配列を取得する。
-     * @return ColumnLabelProviderの配列
-     */
-    protected ColumnLabelProvider[] getProviders()
-    {
-        TableColumn[] columns = this.viewer_.getTable().getColumns();
-        int columnSize = columns.length;
-
-        ColumnLabelProvider[] providers = new ColumnLabelProvider[columnSize];
-        for (int index = 0; index < columnSize; index++)
-        {
-            providers[index] = (ColumnLabelProvider)this.viewer_.getLabelProvider(index);
-        }
-
-        return providers;
-    }
-
-    /**
-     * InvocationModelから、1行の文字列を作成する。
-     * @param providers ColumnLabelProviderの配列
-     * @param model InvocationModel
-     * @return 1行の文字列
-     */
-    protected String createSingleLine(ColumnLabelProvider[] providers, InvocationModel model)
-    {
-        String[] labels = new String[providers.length];
-        for (int columnIndex = 0; columnIndex < providers.length; columnIndex++)
-        {
-            labels[columnIndex] = providers[columnIndex].getText(model);
-        }
-        String str = StringUtils.join(labels, "\"\t\"");
-        return str;
     }
 
     /**

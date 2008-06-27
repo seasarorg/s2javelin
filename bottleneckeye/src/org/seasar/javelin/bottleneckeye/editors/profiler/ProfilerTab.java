@@ -134,7 +134,9 @@ public class ProfilerTab implements EditorTabInterface
 
         CellEditorActionHandler actionHandler = new CellEditorActionHandler(
                                                                             editorPart.getEditorSite().getActionBars());
-        ProfilerCopyAction action = new ProfilerCopyAction(this.viewer_);
+        
+        ProfilerCopyAction action = new ProfilerCopyAction();
+        
         actionHandler.setCopyAction(action);
 
         // F5リロードのためのキーリスナ
