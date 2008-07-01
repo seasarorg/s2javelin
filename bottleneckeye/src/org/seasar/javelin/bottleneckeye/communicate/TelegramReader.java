@@ -178,7 +178,7 @@ public class TelegramReader implements Runnable
         }
         catch (InterruptedException ex)
         {
-            ex.printStackTrace();
+            // Ø’f‚Éinterrupt‚·‚éB
         }
 
         if (this.isRunning_)

@@ -45,7 +45,9 @@ public class TcpDataGetter implements TelegramClientManager
     /** ê⁄ë±èÛë‘ */
     private boolean                  isConnect_      = false;
 
-    public TcpDataGetter()
+    private Thread readerThread_;
+
+        public TcpDataGetter()
     {
         this.editorTabList_ = new ArrayList<EditorTabInterface>();
     }
@@ -155,6 +157,7 @@ public class TcpDataGetter implements TelegramClientManager
                 if (TcpDataGetter.this.telegramReader_ != null)
                 {
                     TcpDataGetter.this.telegramReader_.setRunning(false);
+                    TcpDataGetter.this.readerThread_.interrupt();
                 }
 
                 if (TcpDataGetter.this.isConnect_ == false)
@@ -256,12 +259,12 @@ public class TcpDataGetter implements TelegramClientManager
                     TcpDataGetter.this.telegramReader_.addEditorTab(editorTab);
                 }
 
-                Thread readerThread =
+                TcpDataGetter.this.readerThread_ =
                         new Thread(TcpDataGetter.this.telegramReader_, "BeyeReaderThread-"
                                 + TcpDataGetter.this.hostName_ + ":"
                                 + TcpDataGetter.this.portNumber_);
 
-                readerThread.start();
+                TcpDataGetter.this.readerThread_.start();
             }
         });
     }
