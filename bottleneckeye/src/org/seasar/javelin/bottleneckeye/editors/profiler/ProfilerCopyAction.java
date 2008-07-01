@@ -84,7 +84,9 @@ public class ProfilerCopyAction extends Action
         TableItem[] items = table.getSelection();
         for (TableItem item : items)
         {
+            builder.append("\t\"");
             builder.append(item.getText(0));
+            builder.append("\"");
             for (int index = 1; index < headers__.length; index++)
             {
                 builder.append("\t\"");
