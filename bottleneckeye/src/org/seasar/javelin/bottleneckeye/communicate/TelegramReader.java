@@ -190,7 +190,7 @@ public class TelegramReader implements Runnable
     /**
      * 接続されたことを各タブへ通知する。
      */
-    private void sendConnectNotify()
+    public void sendConnectNotify()
     {
         synchronized (this)
         {

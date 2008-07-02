@@ -95,6 +95,10 @@ public class TcpDataGetter implements TelegramClientManager
                     // 接続中のメッセージ
                     System.out.println("\nサーバに接続しました:" + remote);
                     TcpDataGetter.this.isConnect_ = true;
+                    if (TcpDataGetter.this.telegramReader_ != null)
+                    {
+                        TcpDataGetter.this.telegramReader_.sendConnectNotify();
+                    }
                 }
                 catch (UnknownHostException objUnknownHostException)
                 {
