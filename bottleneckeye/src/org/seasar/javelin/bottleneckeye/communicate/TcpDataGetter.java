@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
+import java.nio.channels.UnresolvedAddressException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -95,24 +96,30 @@ public class TcpDataGetter implements TelegramClientManager
                     // 接続中のメッセージ
                     System.out.println("\nサーバに接続しました:" + remote);
                     TcpDataGetter.this.isConnect_ = true;
-                    if (TcpDataGetter.this.telegramReader_ != null)
+                    if (TcpDataGetter.this.telegramReader_ == null)
                     {
-                        TcpDataGetter.this.telegramReader_.sendConnectNotify();
+                        initTelegramReader();
                     }
+                    TcpDataGetter.this.telegramReader_.sendConnectNotify();
                 }
                 catch (UnknownHostException objUnknownHostException)
                 {
                     // エラーメッセージを出す
-                    System.out.println("サーバへの接続に失敗しました。サーバアドレス、ポートを通りに設定していることを確認してください。");
+                    System.out.println("サーバへの接続に失敗しました。サーバアドレス、ポートを正しく設定していることを確認してください。");
+                    System.out.println("サーバへの接続に失敗しました。サーバアドレス、ポートを正しく設定していることを確認してください。");
                     return;
-                    //            return false;
                 }
                 catch (IOException objIOException)
                 {
                     // エラーメッセージを出す
-                    System.out.println("サーバへの接続に失敗しました。サーバアドレス、ポートが正しく設定されていることを確認してください。");
+                    System.out.println("サーバへの接続に失敗しました。サーバアドレス、ポートを正しく設定していることを確認してください。");
                     return;
-                    //            return false;
+                }
+                catch (UnresolvedAddressException uae)
+                {
+                    // エラーメッセージを出す
+                    System.out.println("サーバへの接続に失敗しました。サーバアドレス、ポートを正しく設定していることを確認してください。");
+                    return;
                 }
 
                 try
@@ -257,12 +264,11 @@ public class TcpDataGetter implements TelegramClientManager
         this.writeExecutor_.execute(new Runnable() {
             public void run()
             {
-                TcpDataGetter.this.telegramReader_ = new TelegramReader(TcpDataGetter.this);
-                for (EditorTabInterface editorTab : TcpDataGetter.this.editorTabList_)
+                if (TcpDataGetter.this.telegramReader_ == null)
                 {
-                    TcpDataGetter.this.telegramReader_.addEditorTab(editorTab);
+                    initTelegramReader();
                 }
-
+                
                 TcpDataGetter.this.readerThread_ =
                         new Thread(TcpDataGetter.this.telegramReader_, "BeyeReaderThread-"
                                 + TcpDataGetter.this.hostName_ + ":"
@@ -270,6 +276,7 @@ public class TcpDataGetter implements TelegramClientManager
 
                 TcpDataGetter.this.readerThread_.start();
             }
+
         });
     }
 
@@ -316,5 +323,17 @@ public class TcpDataGetter implements TelegramClientManager
     public SocketChannel getChannel()
     {
         return this.socketChannel_;
+    }
+
+    /**
+     * TelegramReaderを初期化する。
+     */
+    public void initTelegramReader()
+    {
+        TcpDataGetter.this.telegramReader_ = new TelegramReader(TcpDataGetter.this);
+        for (EditorTabInterface editorTab : TcpDataGetter.this.editorTabList_)
+        {
+            TcpDataGetter.this.telegramReader_.addEditorTab(editorTab);
+        }
     }
 }

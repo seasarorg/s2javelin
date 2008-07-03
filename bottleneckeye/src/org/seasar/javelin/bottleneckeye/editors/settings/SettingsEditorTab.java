@@ -505,8 +505,13 @@ public class SettingsEditorTab
      */
     public void notifyCommunicateStart()
     {
-        if(SettingsEditorTab.this.isLastStarted_)
+        if (SettingsEditorTab.this.isLastStarted_)
         {
+            if (SettingsEditorTab.this.stopButton_.isDisposed() == true)
+            {
+                return;
+            }
+
             SettingsEditorTab.this.startButton_.setEnabled(false);
             SettingsEditorTab.this.stopButton_.setEnabled(true);
             SettingsEditorTab.this.resetButton_.setEnabled(true);
@@ -521,6 +526,11 @@ public class SettingsEditorTab
      */
     public void notifyCommunicateStop()
     {
+        if (SettingsEditorTab.this.stopButton_.isDisposed() == true)
+        {
+            return;
+        }
+
         SettingsEditorTab.this.stopButton_.setEnabled(false);
         SettingsEditorTab.this.startButton_.setEnabled(true);
         SettingsEditorTab.this.resetButton_.setEnabled(false);

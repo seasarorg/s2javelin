@@ -26,9 +26,6 @@ public class TelegramReader implements Runnable
     /**　再起動用TcpStatsVisionEditor */
     private TcpDataGetter            tcpDataGetter_ = null;
 
-    /** 前に送った通知が接続通知なら <code>true</code> 、切断通知なら <code>false</code> */
-    private boolean                  isPrevNotifyConnect_;
-
     /** リトライ時間 */
     private static final int         RETRY_INTERVAL = 10000;
 
@@ -41,7 +38,6 @@ public class TelegramReader implements Runnable
     public TelegramReader(TcpDataGetter tcpDataGetter)
     {
         this.isRunning_ = false;
-        this.isPrevNotifyConnect_ = false;
         this.editorTabList_ = new ArrayList<EditorTabInterface>();
         this.tcpDataGetter_ = tcpDataGetter;
     }
@@ -73,7 +69,6 @@ public class TelegramReader implements Runnable
                 retry();
                 continue;
             }
-            sendConnectNotify();
 
             byte[] telegramBytes = null;
             try
@@ -194,13 +189,9 @@ public class TelegramReader implements Runnable
     {
         synchronized (this)
         {
-            if (this.isPrevNotifyConnect_ == false)
+            for (EditorTabInterface editorTab : this.editorTabList_)
             {
-                this.isPrevNotifyConnect_ = true;
-                for (EditorTabInterface editorTab : this.editorTabList_)
-                {
-                    editorTab.connected();
-                }
+                editorTab.connected();
             }
         }
     }
@@ -212,13 +203,9 @@ public class TelegramReader implements Runnable
     {
         synchronized (this)
         {
-            if (this.isPrevNotifyConnect_ == true)
+            for (EditorTabInterface editorTab : this.editorTabList_)
             {
-                this.isPrevNotifyConnect_ = false;
-                for (EditorTabInterface editorTab : this.editorTabList_)
-                {
-                    editorTab.disconnected();
-                }
+                editorTab.disconnected();
             }
         }
     }
@@ -230,13 +217,9 @@ public class TelegramReader implements Runnable
     {
         synchronized (this)
         {
-            if (this.isPrevNotifyConnect_ == false)
+            for (EditorTabInterface editorTab : this.editorTabList_)
             {
-                this.isPrevNotifyConnect_ = true;
-                for (EditorTabInterface editorTab : this.editorTabList_)
-                {
-                    editorTab.notifyCommunicateStart();
-                }
+                editorTab.notifyCommunicateStart();
             }
         }
     }
@@ -248,13 +231,9 @@ public class TelegramReader implements Runnable
     {
         synchronized (this)
         {
-            if (this.isPrevNotifyConnect_ == false)
+            for (EditorTabInterface editorTab : this.editorTabList_)
             {
-                this.isPrevNotifyConnect_ = true;
-                for (EditorTabInterface editorTab : this.editorTabList_)
-                {
-                    editorTab.notifyCommunicateStop();
-                }
+                editorTab.notifyCommunicateStop();
             }
         }
     }
