@@ -78,6 +78,12 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
         setDirty(true);
     }
 
+    public void reload()
+    {
+        // —v‹‚Ì‘—M
+        this.tcpDataGetter_.request();
+    }
+    
     /**
      * {@inheritDoc}
      */
