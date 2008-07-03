@@ -389,7 +389,6 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         settingsEditorTab.setDomain(this.domain_);
         settingsEditorTab.setHostName(this.host_);
         settingsEditorTab.setLineStyle(this.lineStyle_);
-        settingsEditorTab.setMode(this.mode_);
         settingsEditorTab.setPortNum(Integer.valueOf(this.port_));
         settingsEditorTab.setWarningThreshold(Long.valueOf(this.warningThreshold_));
         this.editor_.setDirty(false);

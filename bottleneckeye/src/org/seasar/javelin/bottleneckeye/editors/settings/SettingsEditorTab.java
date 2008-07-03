@@ -45,9 +45,6 @@ public class SettingsEditorTab
     /** アラーム閾値を入力するテキストフィールド */
     private Text              alarmText_;
 
-    /** 通信モードを選択するコンボボックス */
-    private Combo             modeCombo_;
-
     /** 線のスタイルを選択するコンボボックス */
     private Combo             lineStyleCombo_;
 
@@ -112,10 +109,6 @@ public class SettingsEditorTab
 
         String[] values;
         values = new String[]{MultiPageEditor.MODE_TCP, MultiPageEditor.MODE_JMX};
-
-        createLabel(composite, "Mode:");
-        this.modeCombo_ = createCombo(composite, 4, values, MultiPageEditor.MODE_TCP);
-        createSpacer(composite, 6);
 
         values =
                 new String[]{MultiPageEditor.LINE_STYLE_NORMAL,
@@ -184,15 +177,6 @@ public class SettingsEditorTab
             }
         });
 
-        this.modeCombo_.addModifyListener(new ModifyListener() {
-            public void modifyText(ModifyEvent e)
-            {
-                String mode = SettingsEditorTab.this.modeCombo_.getText();
-                SettingsEditorTab.this.statsVisionEditor_.setMode(mode);
-                statsVisionEditor_.setDirty(true);
-            }
-        });
-
         this.lineStyleCombo_.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e)
             {
@@ -249,7 +233,6 @@ public class SettingsEditorTab
                 SettingsEditorTab.this.domainText_.setEnabled(true);
                 SettingsEditorTab.this.warningText_.setEnabled(true);
                 SettingsEditorTab.this.alarmText_.setEnabled(true);
-                SettingsEditorTab.this.modeCombo_.setEnabled(true);
                 SettingsEditorTab.this.lineStyleCombo_.setEnabled(true);
                 
                 SettingsEditorTab.this.isLastStarted_ = false;
@@ -328,16 +311,6 @@ public class SettingsEditorTab
     }
 
     /**
-     * 通信モードをセットする。
-     *
-     * @param mode 通信モード
-     */
-    public void setMode(String mode)
-    {
-        this.modeCombo_.setText(mode);
-    }
-
-    /**
      * ポート番号をセットする。
      *
      * @param port ポート番号
@@ -366,7 +339,6 @@ public class SettingsEditorTab
         this.statsVisionEditor_.setDomain(this.domainText_.getText());
         this.statsVisionEditor_.setHostName(this.hostText_.getText());
         this.statsVisionEditor_.setLineStyle(this.lineStyleCombo_.getText());
-        this.statsVisionEditor_.setMode(this.modeCombo_.getText());
         this.statsVisionEditor_.setPortNum(Integer.valueOf(this.portText_.getText()));
         this.statsVisionEditor_.setWarningThreshold(Long.valueOf(this.warningText_.getText()));
     }
@@ -488,7 +460,6 @@ public class SettingsEditorTab
         SettingsEditorTab.this.domainText_.setEnabled(false);
         SettingsEditorTab.this.warningText_.setEnabled(false);
         SettingsEditorTab.this.alarmText_.setEnabled(false);
-        SettingsEditorTab.this.modeCombo_.setEnabled(false);
         SettingsEditorTab.this.lineStyleCombo_.setEnabled(false);
         
         SettingsEditorTab.this.isLastStarted_ = true;
