@@ -198,7 +198,7 @@ public class JavelinLogMaker
             }
         }
 
-        if (messageType == ID_CALL || messageType == ID_RETURN)
+        if (messageType == ID_CALL)
         {
             jvnBuffer.append(JAVELIN_EXTRAINFO_START);
             jvnBuffer.append(NEW_LINE);
