@@ -232,7 +232,7 @@ public class S2JavelinConfig
 
     /** 記録条件判定クラスのデフォルト */
     public static final String  DEFAULT_RECORDSTRATEGY      =
-                                                                     "org.seasar.javelin.DefaultRecordStrategy";
+                                                                     "org.seasar.javelin.S2DefaultRecordStrategy";
 
     /** デフォルトで利用するTelegramListener名 */
     private static final String  DEFAULT_TELEGEAM_LISTENERS  =
