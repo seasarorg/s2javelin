@@ -90,4 +90,11 @@ public interface StatsVisionEditor extends IEditorPart, ISelectionListener
      */
     void setBackground(Color color);
 
+    /**
+     * Ú‘±ó‘Ô‚ğæ“¾‚·‚éB
+     *
+     * @return Ú‘±‚³‚ê‚Ä‚¢‚é‚È‚ç <code>true</code> A‚»‚¤‚Å‚È‚¢‚È‚ç <code>false</code>
+     */
+    boolean isConnected();
+
 }

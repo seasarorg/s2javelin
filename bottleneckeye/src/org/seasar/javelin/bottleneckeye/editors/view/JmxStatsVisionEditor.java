@@ -41,12 +41,18 @@ public class JmxStatsVisionEditor extends AbstractStatsVisionEditor<ObjectName>
         setEditDomain(new DefaultEditDomain(this));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setBlnReload(boolean blnReload)
     {
         // TODO Auto-generated method stub
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void start()
     {
         Map<ObjectName, ComponentModel> componentMap = new HashMap<ObjectName, ComponentModel>();
@@ -186,32 +192,59 @@ public class JmxStatsVisionEditor extends AbstractStatsVisionEditor<ObjectName>
         viewer.setContents(rootModel);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void connect()
     {
         // –¢ŽÀ‘•
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void disconnect()
     {
         // –¢ŽÀ‘•
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void stop()
     {
         // –¢ŽÀ‘•
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isConnected()
+    {
+        // –¢ŽÀ‘•
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void addResponseTelegram(Telegram telegram)
     {
         // –¢ŽÀ‘•
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addComponentEditPart(String className, ComponentEditPart componentPart)
     {
         this.componentEditPart = componentPart;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void reset()
     {
@@ -252,6 +285,9 @@ public class JmxStatsVisionEditor extends AbstractStatsVisionEditor<ObjectName>
         // Do nothing.
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected ObjectName getComponentKey(String className)
     {
@@ -266,6 +302,9 @@ public class JmxStatsVisionEditor extends AbstractStatsVisionEditor<ObjectName>
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public TelegramClientManager getTelegramClientManager()
     {
         return null;

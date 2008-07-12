@@ -280,6 +280,11 @@ public abstract class AbstractStatsVisionEditor<T> extends GraphicalEditor imple
     /**
      * {@inheritDoc}
      */
+    public abstract boolean isConnected();
+
+    /**
+     * {@inheritDoc}
+     */
     public void reload()
     {
         stop();

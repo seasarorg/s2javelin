@@ -59,6 +59,14 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
     /**
      * {@inheritDoc}
      */
+    public boolean isConnected()
+    {
+        return this.tcpDataGetter_.isConnected();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void disconnect()
     {
         this.tcpDataGetter_.close();
