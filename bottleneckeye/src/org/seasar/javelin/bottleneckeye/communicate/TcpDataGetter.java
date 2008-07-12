@@ -336,4 +336,15 @@ public class TcpDataGetter implements TelegramClientManager
             TcpDataGetter.this.telegramReader_.addEditorTab(editorTab);
         }
     }
+
+    /**
+     * Ú‘±ó‘Ô‚ğæ“¾‚·‚éB
+     *
+     * @return Ú‘±‚³‚ê‚Ä‚¢‚é‚È‚ç <code>true</code> A‚»‚¤‚Å‚È‚¢‚È‚ç <code>false</code>
+     */
+    public boolean isConnected()
+    {
+        return this.isConnect_;
+    }
+
 }
