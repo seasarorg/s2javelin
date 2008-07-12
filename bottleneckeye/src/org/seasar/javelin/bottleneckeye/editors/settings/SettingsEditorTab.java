@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.MultiPageEditorPart;
 import org.seasar.javelin.bottleneckeye.editors.MultiPageEditor;
 import org.seasar.javelin.bottleneckeye.editors.view.StatsVisionEditor;
+import org.seasar.javelin.bottleneckeye.editors.view.TcpStatsVisionEditor;
 
 /**
  * ê›íËÉ^ÉuÅB
@@ -485,8 +486,9 @@ public class SettingsEditorTab
 
             SettingsEditorTab.this.startButton_.setEnabled(false);
             SettingsEditorTab.this.stopButton_.setEnabled(true);
-            SettingsEditorTab.this.resetButton_.setEnabled(true);
-            SettingsEditorTab.this.reloadButton_.setEnabled(true);
+            boolean enabled = this.statsVisionEditor_.isConnected();
+            SettingsEditorTab.this.resetButton_.setEnabled(enabled);
+            SettingsEditorTab.this.reloadButton_.setEnabled(enabled);
         }
     }
 
