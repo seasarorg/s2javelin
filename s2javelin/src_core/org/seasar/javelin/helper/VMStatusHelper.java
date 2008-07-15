@@ -3,7 +3,6 @@ package org.seasar.javelin.helper;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
-import java.lang.management.MemoryUsage;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
@@ -129,11 +128,15 @@ public class VMStatusHelper
         VMStatus vmStatus = new VMStatus();
         vmStatus.setCpuTime(this.threadMBean.getCurrentThreadCpuTime());
         vmStatus.setUserTime(this.threadMBean.getCurrentThreadUserTime());
-        ThreadInfo threadInfo = this.threadMBean.getThreadInfo(Thread.currentThread().getId());
-        vmStatus.setBlockedTime(threadInfo.getBlockedTime());
-        vmStatus.setBlockedCount(threadInfo.getBlockedCount());
-        vmStatus.setWaitedTime(threadInfo.getWaitedTime());
-        vmStatus.setWaitedCount(threadInfo.getWaitedCount());
+        long threadId = Thread.currentThread().getId();
+        if(threadId != 0)
+        {
+            ThreadInfo threadInfo = this.threadMBean.getThreadInfo(threadId);
+            vmStatus.setBlockedTime(threadInfo.getBlockedTime());
+            vmStatus.setBlockedCount(threadInfo.getBlockedCount());
+            vmStatus.setWaitedTime(threadInfo.getWaitedTime());
+            vmStatus.setWaitedCount(threadInfo.getWaitedCount());
+        }
 
         long collectionCount = 0;
         long collectionTime = 0;
@@ -147,14 +150,15 @@ public class VMStatusHelper
         vmStatus.setCollectionTime(collectionTime);
 
         long peakMemoryUsage = 0;
-        for (MemoryPoolMXBean memoryPoolMXBean : this.memoryPoolMXBeanList_)
-        {
-            MemoryUsage peakUsage = memoryPoolMXBean.getPeakUsage();
-            if (peakUsage != null)
-            {
-                peakMemoryUsage += peakUsage.getUsed();
-            }
-        }
+        // この値は現在利用していないためコメントアウトする。
+//        for (MemoryPoolMXBean memoryPoolMXBean : this.memoryPoolMXBeanList_)
+//        {
+//            MemoryUsage peakUsage = memoryPoolMXBean.getPeakUsage();
+//            if (peakUsage != null)
+//            {
+//                peakMemoryUsage += peakUsage.getUsed();
+//            }
+//        }
         vmStatus.setPeakMamoryUsage(peakMemoryUsage);
 
         return vmStatus;
