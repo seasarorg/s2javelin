@@ -662,6 +662,7 @@ public class S2JavelinInterceptor extends AbstractInterceptor
         out.println("\tjavelin.log.stacktrace          : " + this.config_.isLogStacktrace());
         out.println("\tjavelin.log.args                : " + this.config_.isLogArgs());
         out.println("\tjavelin.log.jmxinfo             : " + this.config_.isLogJmxInfo());
+        out.println("\tjavelin.log.jmxinfo.root        : " + this.config_.isLogJmxInfoRoot());
         out.println("\tjavelin.log.return              : " + this.config_.isLogReturn());
         out.println("\tjavelin.log.return.detail       : " + this.config_.isReturnDetail());
         out.println("\tjavelin.log.return.detail.depth : " + this.config_.getReturnDetailDepth());
@@ -674,7 +675,6 @@ public class S2JavelinInterceptor extends AbstractInterceptor
         out.println("\tjavelin.acceptPort              : " + this.config_.getAcceptPort());
         out.println("\tjavelin.stringLimitLength       : " + this.config_.getStringLimitLength());
         out.println("\tjavelin.system.log              : " + this.config_.getSystemLog());
-        out.println("\tjavelin.record.jmx              : " + this.config_.isRecordJMX());
         out.println("\tjavelin.log.jvn.max             : " + this.config_.getLogJvnMax());
         out.println("\tjavelin.log.zip.max             : " + this.config_.getLogZipMax());
         out.println("\tjavelin.system.log.num.max      : " + this.config_.getSystemLogNumMax());
