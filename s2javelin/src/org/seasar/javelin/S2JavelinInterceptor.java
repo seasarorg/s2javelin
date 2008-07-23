@@ -661,8 +661,8 @@ public class S2JavelinInterceptor extends AbstractInterceptor
         out.println("\tjavelin.domain                  : " + this.config_.getDomain());
         out.println("\tjavelin.log.stacktrace          : " + this.config_.isLogStacktrace());
         out.println("\tjavelin.log.args                : " + this.config_.isLogArgs());
-        out.println("\tjavelin.log.jmxinfo             : " + this.config_.isLogJmxInfo());
-        out.println("\tjavelin.log.jmxinfo.root        : " + this.config_.isLogJmxInfoRoot());
+        out.println("\tjavelin.log.jmxinfo             : " + this.config_.isLogMBeanInfo());
+        out.println("\tjavelin.log.jmxinfo.root        : " + this.config_.isLogMBeanInfoRoot());
         out.println("\tjavelin.log.return              : " + this.config_.isLogReturn());
         out.println("\tjavelin.log.return.detail       : " + this.config_.isReturnDetail());
         out.println("\tjavelin.log.return.detail.depth : " + this.config_.getReturnDetailDepth());
