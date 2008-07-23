@@ -91,7 +91,7 @@ public class VMStatusHelper
      */
     public void resetPeakMemoryUsage()
     {
-        if (false == this.javelinConfig.isLogJmxInfo())
+        if (false == this.javelinConfig.isLogMBeanInfo())
         {
             return;
         }
@@ -110,7 +110,7 @@ public class VMStatusHelper
     public VMStatus createVMStatus()
     {
 
-        if (false == this.javelinConfig.isLogJmxInfo())
+        if (false == this.javelinConfig.isLogMBeanInfo())
         {
             return new VMStatus();
         }
