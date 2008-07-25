@@ -201,8 +201,6 @@ public class S2StatsJavelinRecorder
     public static void preProcess(String className, String methodName, Object[] args,
             StackTraceElement[] stacktrace, S2JavelinConfig config)
     {
-        JmxRecorder.preProcess(className, methodName, config);
-
         synchronized (S2StatsJavelinRecorder.class)
         {
             // ‰Šú‰»ˆ—
@@ -420,7 +418,6 @@ public class S2StatsJavelinRecorder
      */
     public static void postProcess(Object returnValue, S2JavelinConfig config)
     {
-        JmxRecorder.postProcess(config);
         try
         {
             // ŒÄ‚Ño‚µŒ³î•ñæ“¾B
@@ -544,8 +541,6 @@ public class S2StatsJavelinRecorder
      */
     public static void postProcess(Throwable cause, S2JavelinConfig config)
     {
-        JmxRecorder.postProcess(cause);
-
         try
         {
             CallTree callTree = callTree_.get();
