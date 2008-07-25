@@ -132,10 +132,13 @@ public class VMStatusHelper
         if(threadId != 0)
         {
             ThreadInfo threadInfo = this.threadMBean.getThreadInfo(threadId);
-            vmStatus.setBlockedTime(threadInfo.getBlockedTime());
-            vmStatus.setBlockedCount(threadInfo.getBlockedCount());
-            vmStatus.setWaitedTime(threadInfo.getWaitedTime());
-            vmStatus.setWaitedCount(threadInfo.getWaitedCount());
+            if(threadInfo != null)
+            {
+                vmStatus.setBlockedTime(threadInfo.getBlockedTime());
+                vmStatus.setBlockedCount(threadInfo.getBlockedCount());
+                vmStatus.setWaitedTime(threadInfo.getWaitedTime());
+                vmStatus.setWaitedCount(threadInfo.getWaitedCount());
+            }
         }
 
         long collectionCount = 0;
