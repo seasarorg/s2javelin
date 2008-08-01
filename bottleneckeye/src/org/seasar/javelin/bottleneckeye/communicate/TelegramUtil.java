@@ -1,5 +1,7 @@
 package org.seasar.javelin.bottleneckeye.communicate;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -29,6 +31,8 @@ public final class TelegramUtil extends Common
     /** ヘッダの長さ */
     private static final int TELEGRAM_HEADER_LENGTH = 6;
 
+    /** 電文長の最大。 */
+    private static final int BODY_MAX = 100 * 1024 * 1024;
 
     /**
      * 文字列をバイト配列（４バイト文字列長＋UTF8）に変換する。
@@ -148,81 +152,98 @@ public final class TelegramUtil extends Common
         Header header = objTelegram.getObjHeader();
 
         // 本体データを作る
-        byte[] bytesBody = null;
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
+        ByteBuffer headerBuffer = ByteBuffer.allocate(TELEGRAM_HEADER_LENGTH);
+        headerBuffer.putInt(0);
+        headerBuffer.put(header.getByteTelegramKind());
+        headerBuffer.put(header.getByteRequestKind());
+        try
+        {
+            byteArrayOutputStream.write(headerBuffer.array());
+        }
+        catch (IOException ioe)
+        {
+            ioe.printStackTrace();
+        }
+        
         if (objTelegram.getObjBody() != null)
         {
             for (Body body : objTelegram.getObjBody())
             {
-                byte[] bytesObjName = stringToByteArray(body.getStrObjName());
-                byte[] bytesItemName = stringToByteArray(body.getStrItemName());
-                byte[] bytesBodyNames = combineTwoByteArray(bytesObjName, bytesItemName);
-                // 本体データに設定する
-                bytesBody = combineTwoByteArray(bytesBody, bytesBodyNames);
-
-                Body responseBody = body;
-                byte itemType = responseBody.getByteItemMode();
-                int loopCount = responseBody.getIntLoopCount();
-                byte[] itemModeArray = new byte[]{itemType};
-                byte[] loopCountArray = intToByteArray(loopCount);
-                bytesBody = combineTwoByteArray(bytesBody, itemModeArray);
-                bytesBody = combineTwoByteArray(bytesBody, loopCountArray);
-                for (int index = 0; index < loopCount; index++)
+                if(byteArrayOutputStream.size() > BODY_MAX)
                 {
-                    Object obj = responseBody.getObjItemValueArr()[index];
-                    byte[] value = null;
-                    switch (itemType)
+                    byteArrayOutputStream = new ByteArrayOutputStream();
+                    break;
+                }
+                
+                try
+                {
+                    byte[] bytesObjName = stringToByteArray(body.getStrObjName());
+                    byte[] bytesItemName = stringToByteArray(body.getStrItemName());
+                    // 本体データに設定する
+                    byteArrayOutputStream.write(bytesObjName);
+                    byteArrayOutputStream.write(bytesItemName);
+
+                    Body responseBody = body;
+                    byte itemType = responseBody.getByteItemMode();
+                    int loopCount = responseBody.getIntLoopCount();
+                    byte[] itemModeArray = new byte[]{itemType};
+                    byte[] loopCountArray = intToByteArray(loopCount);
+                    byteArrayOutputStream.write(itemModeArray);
+                    byteArrayOutputStream.write(loopCountArray);
+
+                    for (int index = 0; index < loopCount; index++)
                     {
-                        case ResponseBody.ITEMTYPE_BYTE:
-                            value = new byte[]{ ((Byte)obj).byteValue() };
+                        Object obj = responseBody.getObjItemValueArr()[index];
+                        byte[] value = null;
+                        switch (itemType)
+                        {
+                        case Body.ITEMTYPE_BYTE:
+                            value = new byte[]{((Byte)obj).byteValue()};
                             break;
-                        case ResponseBody.ITEMTYPE_INT16:
+                        case Body.ITEMTYPE_INT16:
                             value = shortToByteArray((Short)obj);
                             break;
-                        case ResponseBody.ITEMTYPE_INT32:
+                        case Body.ITEMTYPE_INT32:
                             value = intToByteArray((Integer)obj);
                             break;
-                        case ResponseBody.ITEMTYPE_INT64:
+                        case Body.ITEMTYPE_INT64:
                             value = longToByteArray((Long)obj);
                             break;
-                        case ResponseBody.ITEMTYPE_FLOAT:
+                        case Body.ITEMTYPE_FLOAT:
                             value = floatToByteArray((Float)obj);
                             break;
-                        case ResponseBody.ITEMTYPE_DOUBLE:
+                        case Body.ITEMTYPE_DOUBLE:
                             value = doubleToByteArray((Double)obj);
                             break;
-                        case ResponseBody.ITEMTYPE_STRING:
+                        case Body.ITEMTYPE_STRING:
                             value = stringToByteArray((String)obj);
                             break;
                         default:
                             return null;
+                        }
+                        byteArrayOutputStream.write(value);
                     }
-                    bytesBody = combineTwoByteArray(bytesBody, value);
+                }
+                catch (IOException ex)
+                {
+                    ex.printStackTrace();
+                    continue;
                 }
             }
         }
 
-        int telegramLength = TELEGRAM_HEADER_LENGTH;
-        if (bytesBody != null)
-        {
-            telegramLength += bytesBody.length;
-        }
-
-        ByteBuffer outputBuffer = ByteBuffer.allocate(telegramLength);
+        byte[] bytesBody = byteArrayOutputStream.toByteArray();
+        int telegramLength = bytesBody.length;
+        ByteBuffer outputBuffer = ByteBuffer.wrap(bytesBody);
 
         // ヘッダを変換する
+        outputBuffer.rewind();
         outputBuffer.putInt(telegramLength);
-        outputBuffer.put(header.getByteTelegramKind());
-        outputBuffer.put(header.getByteRequestKind());
-
-        if (bytesBody != null)
-        {
-            outputBuffer.put(bytesBody);
-        }
-
         return outputBuffer.array();
     }
-
+    
     /**
      * バイト配列を電文オブジェクトに変換する。
      *
