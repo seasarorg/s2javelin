@@ -485,4 +485,55 @@ public class JavelinConfigUtil
     	this.booleanMap_ = new HashMap<String, Boolean>();
     	this.intMap_ = new HashMap<String, Integer>();
     }
+    
+    /**
+     * 指定したキーを持つBooleanの値の更新を反映する。
+     * 
+     * 実動作として、指定したキーを持つBooleanの値をbooleanMap_から削除する。
+     * 削除することによって、指定されたキーを持つ値が次に使用される際、
+     * propertiesから読み出されるため、更新した値が反映される。
+     * @param key 更新反映対象の値のキー
+     */
+    public void updateBooleanValue(String key)
+    {
+        if(key == null)
+        {
+            return;
+        }
+        this.booleanMap_.remove(key);
+    }
+    
+    /**
+     * 指定したキーを持つIntegerの値の更新を反映する。
+     * 
+     * 実動作として、指定したキーを持つIntegerの値をintMap_から削除する。
+     * 削除することによって、指定されたキーを持つ値が次に使用される際、
+     * propertiesから読み出されるため、更新した値が反映される。
+     * @param key 更新反映対象の値のキー
+     */
+    public void updateIntValue(String key)
+    {
+        if(key == null)
+        {
+            return;
+        }
+        this.intMap_.remove(key);
+    }
+    
+    /**
+     * 指定したキーを持つLongの値の更新を反映する。
+     * 
+     * 実動作として、指定したキーを持つLongの値をlongMap_から削除する。
+     * 削除することによって、指定されたキーを持つ値が次に使用される際、
+     * propertiesから読み出されるため、更新した値が反映される。
+     * @param key 更新反映対象の値のキー
+     */
+    public void updateLongValue(String key)
+    {
+        if(key == null)
+        {
+            return;
+        }
+        this.longMap_.remove(key);
+    }
 }

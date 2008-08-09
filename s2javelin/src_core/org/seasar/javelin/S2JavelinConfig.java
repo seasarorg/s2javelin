@@ -256,6 +256,39 @@ public class S2JavelinConfig
     {
         // 何もしない
     }
+    
+    /**
+     * 指定したキーに対するBoolean値の更新を確実に反映させる。
+     * 
+     * @param key 更新反映対象のキー
+     */
+    public void updateBooleanValue(String key)
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        configUtil.updateBooleanValue(key);
+    }
+    
+    /**
+     * 指定したキーに対するInteger値の更新を確実に反映させる。
+     * 
+     * @param key 更新反映対象のキー
+     */
+    public void updateIntValue(String key)
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        configUtil.updateIntValue(key);
+    }
+    
+    /**
+     * 指定したキーに対するLong値の更新を確実に反映させる。
+     * 
+     * @param key 更新反映対象のキー
+     */
+    public void updateLongValue(String key)
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        configUtil.updateLongValue(key);
+    }
 
     /**
      * 呼び出し情報を記録する際の閾値を返す。
