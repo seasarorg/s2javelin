@@ -45,7 +45,7 @@ public class StatsUtil
         StringBuilder threadId = new StringBuilder();
         threadId.append(currentThread.getName());
         threadId.append("@");
-        threadId.append(currentThread.getId());
+        threadId.append(ThreadUtil.getThreadId());
         threadId.append("(" + currentThread.getClass().getName());
         threadId.append("@");
         threadId.append(StatsUtil.getObjectID(currentThread));

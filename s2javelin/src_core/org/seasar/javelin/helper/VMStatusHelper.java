@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.seasar.javelin.S2JavelinConfig;
 import org.seasar.javelin.VMStatus;
+import org.seasar.javelin.util.ThreadUtil;
 
 /**
  * JMXからVMの状態を取得し、記録するために使用する。
@@ -128,7 +129,7 @@ public class VMStatusHelper
         VMStatus vmStatus = new VMStatus();
         vmStatus.setCpuTime(this.threadMBean.getCurrentThreadCpuTime());
         vmStatus.setUserTime(this.threadMBean.getCurrentThreadUserTime());
-        long threadId = Thread.currentThread().getId();
+        long threadId = ThreadUtil.getThreadId();
         if(threadId != 0)
         {
             ThreadInfo threadInfo = this.threadMBean.getThreadInfo(threadId);

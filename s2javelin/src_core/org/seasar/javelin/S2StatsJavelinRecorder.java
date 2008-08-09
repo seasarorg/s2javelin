@@ -18,6 +18,7 @@ import org.seasar.javelin.helper.VMStatusHelper;
 import org.seasar.javelin.log.S2StatsJavelinFileGenerator;
 import org.seasar.javelin.util.ObjectNameUtil;
 import org.seasar.javelin.util.StatsUtil;
+import org.seasar.javelin.util.ThreadUtil;
 
 /**
  * メソッド呼び出し情報の取得を行うクラス。
@@ -277,7 +278,7 @@ public class S2StatsJavelinRecorder
                 switch (config.getThreadModel())
                 {
                 case S2JavelinConfig.TM_THREAD_ID:
-                    tree.setThreadID("" + Thread.currentThread().getId());
+                    tree.setThreadID("" + ThreadUtil.getThreadId());
                     break;
                 case S2JavelinConfig.TM_THREAD_NAME:
                     tree.setThreadID(Thread.currentThread().getName());
@@ -523,12 +524,12 @@ public class S2StatsJavelinRecorder
 
         if(node == null)
         {
-            currentNodeMap__.remove(Thread.currentThread().getId());
+            currentNodeMap__.remove(ThreadUtil.getThreadId());
         }
         else
         {
             // Mapに格納する。
-            currentNodeMap__.put(Thread.currentThread().getId(),
+            currentNodeMap__.put(ThreadUtil.getThreadId(),
                                  new WeakReference<CallTreeNode>(node));
         }
     }
