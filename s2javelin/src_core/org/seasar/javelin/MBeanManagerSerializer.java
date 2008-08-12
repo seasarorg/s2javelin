@@ -3,6 +3,7 @@ package org.seasar.javelin;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
@@ -28,20 +29,29 @@ public class MBeanManagerSerializer {
 			return new HashMap<String, Component>();
 		}
 		
+		ObjectInputStream inObject = null;
 		try
 		{
 			FileInputStream inFile = new FileInputStream(serializeFile);
-			ObjectInputStream inObject = new ObjectInputStream(inFile);
+			inObject = new ObjectInputStream(inFile);
 			Map<String, Component> map = 
 				(Map<String, Component>) inObject.readObject();
-			inObject.close();
-			inFile.close();
 			return map;
 		} catch (Exception e) {
 			SystemLogger.getInstance().warn(
 					"MBeanManagerÇÃdeserializeÇ…é∏îsÇµÇ‹ÇµÇΩÅBdeserializeÇπÇ∏Ç…ãNìÆÇµÇ‹Ç∑ÅB"
 					+ "deserializeå≥[" + serializeFile + "]", e);
+		} finally {
+			if(inObject != null)
+			{
+				try {
+					inObject.close();
+				} catch (IOException ioe) {
+					SystemLogger.getInstance().warn(ioe);
+				}
+			}
 		}
+		
 		
 		return new HashMap<String, Component>();
 	}
