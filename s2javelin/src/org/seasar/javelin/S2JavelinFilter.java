@@ -62,9 +62,6 @@ public class S2JavelinFilter implements Filter
      */
     private static final String PNAME_THREAD_MODEL      = "threadModel";
 
-    /** JMXのHTTPAdaptorを公開するポート番号（0の場合は使用しない） */
-    private static final String PNAME_HTTP_PORT         = "httpPort";
-
     /** S2Javelinの設定値 */
     private S2JavelinConfig     config_;
 

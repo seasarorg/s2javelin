@@ -161,8 +161,6 @@ public class S2JavelinInterceptor extends AbstractInterceptor
     /** 設定値を標準出力に出力したらtrue */
     private boolean                       isPrintConfig_          = false;
 
-    private boolean                       isInitialized_          = false;
-
     /**
      * Javelinログ出力用のinvokeメソッド。
      * 

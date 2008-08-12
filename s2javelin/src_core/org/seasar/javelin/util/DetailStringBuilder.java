@@ -126,7 +126,7 @@ public class DetailStringBuilder
             return buildString(object);
         }
 
-        Class clazz = object.getClass();
+        Class<?> clazz = object.getClass();
         // 配列の場合、配列専用処理で出力を行う
         if (clazz.isArray())
         {
@@ -135,13 +135,13 @@ public class DetailStringBuilder
         // コレクションの場合、コレクション専用処理で出力を行う
         if (object instanceof Collection)
         {
-            Collection collectionObject = (Collection)object;
+            Collection<?> collectionObject = (Collection<?>)object;
             return toStringCollectionObject(collectionObject, detailDepth, currentDepth);
         }
         // Mapの場合、Map専用処理で出力を行う
-        if (object instanceof Map)
+        if (object instanceof Map<?, ?>)
         {
-            Map mapObject = (Map)object;
+            Map<?, ?> mapObject = (Map<?, ?>)object;
             return toStringMapObject(mapObject, detailDepth, currentDepth);
         }
 
@@ -201,7 +201,7 @@ public class DetailStringBuilder
      * @param currentDepth 現在深度
      * @return Mapの文字列表現
      */
-    protected static String toStringMapObject(Map mapObject, int detailDepth, int currentDepth)
+    protected static String toStringMapObject(Map<?, ?> mapObject, int detailDepth, int currentDepth)
     {
         // 配列がnullの時は"null"を返す。
         if (mapObject == null)
@@ -287,7 +287,7 @@ public class DetailStringBuilder
      * @param currentDepth 現在深度
      * @return 出力文字列
      */
-    protected static String toStringCollectionObject(Collection collection, int detailDepth,
+    protected static String toStringCollectionObject(Collection<?> collection, int detailDepth,
             int currentDepth)
     {
         // コレクションがnullの時は"null"を返す。
@@ -383,7 +383,7 @@ public class DetailStringBuilder
 
         // Fieldオブジェクトではない場合、プリミティブ型またはプリミティブ型のラッパークラス
         // の時には即出力対象とする。
-        Class clazz = object.getClass();
+        Class<?> clazz = object.getClass();
 
         if (clazz.isPrimitive())
         {

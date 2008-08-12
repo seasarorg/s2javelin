@@ -1,6 +1,5 @@
 package org.seasar.javelin.communicate;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
