@@ -342,21 +342,6 @@ public class S2JavelinInterceptor extends AbstractInterceptor
      */
     private void initialize()
     {
-        if (this.isInitialized_ == false)
-        {
-            if (this.config_.getHttpPort() != 0)
-            {
-                try
-                {
-                    Mx4JLauncher.execute(this.config_.getHttpPort());
-                }
-                catch (Exception ex)
-                {
-                    ex.printStackTrace();
-                }
-            }
-            this.isInitialized_ = true;
-        }
     }
 
     /**
@@ -557,18 +542,6 @@ public class S2JavelinInterceptor extends AbstractInterceptor
     }
 
     /**
-     * 
-     * @param httpPort BottleneckEyeとの通信に利用するポート番号
-     */
-    public void setHttpPort(int httpPort)
-    {
-        if (this.config_.isSetHttpPort() == false)
-        {
-            this.config_.setHttpPort(httpPort);
-        }
-    }
-
-    /**
      * 引数を出力するかどうかの設定を変更する。
      *
      * @param isLogArgs 引数を出力するならtrue
@@ -671,7 +644,6 @@ public class S2JavelinInterceptor extends AbstractInterceptor
         out.println("\tjavelin.rootCallerName          : " + this.config_.getRootCallerName());
         out.println("\tjavelin.endCalleeName           : " + this.config_.getEndCalleeName());
         out.println("\tjavelin.threadModel             : " + this.config_.getThreadModel());
-        out.println("\tjavelin.httpPort                : " + this.config_.getHttpPort());
         out.println("\tjavelin.acceptPort              : " + this.config_.getAcceptPort());
         out.println("\tjavelin.stringLimitLength       : " + this.config_.getStringLimitLength());
         out.println("\tjavelin.system.log              : " + this.config_.getSystemLog());

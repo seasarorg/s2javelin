@@ -81,9 +81,6 @@ public class S2JavelinConfig
     /** スレッドの名称の決定方法を表すプロパティ */
     public static final String   THREADMODEL_KEY             = JAVELIN_PREFIX + "threadModel";
 
-    /** JMXのHTTPAdaptorを公開するポート番号を表すプロパティ */
-    public static final String   HTTPPORT_KEY                = JAVELIN_PREFIX + "httpPort";
-
     /** StatsJavelinの待ちうけポートのプロパティ名 */
     public static final String   ACCEPTPORT_KEY              = JAVELIN_PREFIX + "acceptPort";
 
@@ -196,9 +193,6 @@ public class S2JavelinConfig
 
     /** スレッドの名称の決定方法を表すプロパティ */
     private static final int     DEFAULT_THREADMODEL         = 0;
-
-    /** JMXのHTTPAdaptorを公開するポート番号を表すプロパティ */
-    private static final int     DEFAULT_HTTPPORT            = 0;
 
     /** 属性、戻り値情報の文字列長のデフォルト値 */
     private static final int     DEFAULT_STRINGLIMITLENGTH   = 102400;
@@ -867,38 +861,6 @@ public class S2JavelinConfig
     {
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         configUtil.setInteger(THREADMODEL_KEY, threadModel);
-    }
-
-    /**
-     * HTTPポートを返す。
-     *
-     * @return HTTPポート
-     */
-    public int getHttpPort()
-    {
-        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
-        return configUtil.getInteger(HTTPPORT_KEY, DEFAULT_HTTPPORT);
-    }
-
-    /**
-     * HTTPポートが設定されているかどうかを調べる。
-     *
-     * @return 設定されていればtrue
-     */
-    public boolean isSetHttpPort()
-    {
-        return isKeyExist(HTTPPORT_KEY);
-    }
-
-    /**
-     * HTTPポートをセットする
-     *
-     * @param httpPort HTTPポート
-     */
-    public void setHttpPort(int httpPort)
-    {
-        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
-        configUtil.setInteger(HTTPPORT_KEY, httpPort);
     }
 
     /**

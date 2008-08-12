@@ -85,7 +85,7 @@ public class JavelinLogMaker
         if (parent == null)
         {
             String processName = VMStatusHelper.getProcessName();
-            caller = new Invocation(processName, null, null, tree.getRootCallerName(), "unknown", 0, 0, 0, 0);
+            caller = new Invocation(processName, tree.getRootCallerName(), "unknown", 0, 0, 0, 0);
         }
         else
         {

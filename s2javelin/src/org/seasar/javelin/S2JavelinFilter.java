@@ -144,11 +144,6 @@ public class S2JavelinFilter implements Filter
         {
             this.config_.setThreadModel(getInitParameterInteger(config, PNAME_THREAD_MODEL));
         }
-        if (this.config_.isSetHttpPort() == false
-                && isParameterIntegerValue(config, PNAME_HTTP_PORT))
-        {
-            this.config_.setHttpPort(getInitParameterInteger(config, PNAME_HTTP_PORT));
-        }
 
         synchronized (S2StatsJavelinRecorder.class)
         {
@@ -425,7 +420,6 @@ public class S2JavelinFilter implements Filter
         out.println("\tjavelin.rootCallerName          : " + this.config_.getRootCallerName());
         out.println("\tjavelin.endCalleeName           : " + this.config_.getEndCalleeName());
         out.println("\tjavelin.threadModel             : " + this.config_.getThreadModel());
-        out.println("\tjavelin.httpPort                : " + this.config_.getHttpPort());
         out.println("\tjavelin.acceptPort              : " + this.config_.getAcceptPort());
         out.println("\tjavelin.stringLimitLength       : " + this.config_.getStringLimitLength());
         out.println("\tjavelin.system.log              : " + this.config_.getSystemLog());

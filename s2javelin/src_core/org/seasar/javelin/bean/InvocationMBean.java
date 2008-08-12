@@ -2,12 +2,8 @@ package org.seasar.javelin.bean;
 
 import java.util.List;
 
-import javax.management.ObjectName;
-
 public interface InvocationMBean {
 
-	ObjectName getComponentObjectName();
-	
 	String getClassName();
 	String getMethodName();
 	
@@ -20,7 +16,6 @@ public interface InvocationMBean {
     long getCpuAverage();
 	long getThrowableCount();
 	List<Throwable> getThrowableList();
-	ObjectName[] getAllCallerObjectName();
 
 	long getRecordThreshold();
 	void setRecordThreshold(long recordThreshold);

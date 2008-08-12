@@ -6,17 +6,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
 import org.seasar.javelin.bean.Component;
-import org.seasar.javelin.bean.InvocationInterval;
 import org.seasar.javelin.bean.Invocation;
+import org.seasar.javelin.bean.InvocationInterval;
 import org.seasar.javelin.communicate.AlarmListener;
 import org.seasar.javelin.communicate.JavelinAcceptThread;
 import org.seasar.javelin.helper.VMStatusHelper;
 import org.seasar.javelin.log.S2StatsJavelinFileGenerator;
-import org.seasar.javelin.util.ObjectNameUtil;
 import org.seasar.javelin.util.StatsUtil;
 import org.seasar.javelin.util.ThreadUtil;
 
@@ -214,20 +210,13 @@ public class S2StatsJavelinRecorder
         VMStatus vmStatus = vmStatusHelper__.createVMStatus();
 
         Component component = MBeanManager.getComponent(className);
-        ObjectName componentName = null;
         if (component == null)
         {
-            String name = ObjectNameUtil.createComponentBeanName(className, config);
             try
             {
-                componentName = new ObjectName(name);
-                component = new Component(componentName, className);
+                component = new Component(className);
 
                 MBeanManager.setComponent(className, component);
-            }
-            catch (MalformedObjectNameException ex)
-            {
-                SystemLogger.getInstance().warn(ex);
             }
             catch (NullPointerException ex)
             {
@@ -241,22 +230,14 @@ public class S2StatsJavelinRecorder
         Invocation invocation = component.getInvocation(methodName);
         if (invocation == null)
         {
-            String name = ObjectNameUtil.createInvocationBeanName(className, methodName, config);
-            ObjectName objName;
             try
             {
-                objName = new ObjectName(name);
                 String processName = VMStatusHelper.getProcessName();
                 invocation =
-                        new Invocation(processName, objName, componentName, className, methodName,
-                                       config.getIntervalMax(), config.getThrowableMax(),
+                        new Invocation(processName, className, methodName, config.getIntervalMax(), config.getThrowableMax(),
                                        config.getRecordThreshold(), config.getAlarmThreshold());
 
                 component.addInvocation(invocation);
-            }
-            catch (MalformedObjectNameException ex)
-            {
-                SystemLogger.getInstance().warn(ex);
             }
             catch (NullPointerException ex)
             {

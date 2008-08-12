@@ -6,18 +6,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import javax.management.NotificationBroadcasterSupport;
-import javax.management.ObjectName;
-
-public class Invocation extends NotificationBroadcasterSupport implements InvocationMBean, Serializable
+public class Invocation implements InvocationMBean, Serializable
 {
 	private static final long serialVersionUID = -5812420032608047545L;
 
 	private static final long              INITIAL             = -1;
-
-    private ObjectName                     objName_;
-
-    private ObjectName                     classObjName_;
 
     private String                         className_;
 
@@ -73,13 +66,10 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
 
     private String                         processName_;
 
-    public Invocation(String processName, ObjectName objName, ObjectName classObjName,
-            String className, String methodName, int intervalMax, int throwableMax,
-            long recordThreshold, long alarmThreshold)
+    public Invocation(String processName, String className, String methodName,
+            int intervalMax, int throwableMax, long recordThreshold, long alarmThreshold)
     {
         processName_ = processName;
-        objName_ = objName;
-        classObjName_ = classObjName;
         className_ = className;
         methodName_ = methodName;
         intervalMax_ = intervalMax;
@@ -88,15 +78,6 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
         alarmThreshold_ = alarmThreshold;
     }
 
-    public ObjectName getComponentObjectName()
-    {
-        return classObjName_;
-    }
-
-    public ObjectName getObjectName()
-    {
-        return objName_;
-    }
 
     public String getClassName()
     {
@@ -187,15 +168,16 @@ public class Invocation extends NotificationBroadcasterSupport implements Invoca
         return throwableList_;
     }
 
-    public synchronized ObjectName[] getAllCallerObjectName()
+    public synchronized String[] getAllCallerName()
     {
         Invocation[] invocations =
                 (Invocation[])callerSet_.toArray(new Invocation[callerSet_.size()]);
-        ObjectName[] objNames = new ObjectName[invocations.length];
+        String[] objNames = new String[invocations.length];
 
         for (int index = 0; index < invocations.length; index++)
         {
-            objNames[index] = invocations[index].getObjectName();
+            objNames[index] = invocations[index].getClassName() + "#"
+					+ invocations[index].getMethodName();
         }
 
         return objNames;
