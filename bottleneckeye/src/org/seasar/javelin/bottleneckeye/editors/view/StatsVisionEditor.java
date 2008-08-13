@@ -52,6 +52,15 @@ public interface StatsVisionEditor extends IEditorPart, ISelectionListener
 
     void setAlarmThreshold(long alarmThreshold);
 
+    /**
+     * 表示するメソッドの最大数をセットする。
+     * ここで指定した数のメソッドを、上位から表示する。
+     * 0以下を指定した場合は、Longの最大値をセットする。
+     *
+     * @param maxMethodCount 最大メソッド数
+     */
+    void setMaxMethodCount(long maxMethodCount);
+
     void setBlnReload(boolean blnReload);
 
     void reset();

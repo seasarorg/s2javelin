@@ -299,15 +299,16 @@ public class StatsVisionEditorTab implements EditorTabInterface
         settings.setDomain(this.editor_.getDomain());
         settings.setWarningThreshold(this.editor_.getWarningThreshold());
         settings.setAlarmThreshold(this.editor_.getAlarmThreshold());
+        settings.setMaxMethodCount(this.editor_.getMaxMethodCount());
         settings.setMode(this.editor_.getMode());
         settings.setLineStyle(this.editor_.getLineStyle());
 
         Collection<ComponentModel> components = this.editor_.getComponentMap().values();
 		View view = ModelConverter.toView(components);
         persistence.setView(view);
-        
+
         this.editor_.updatePointMap(components);
-        
+
     	this.editor_.setDirty(false);
     }
 

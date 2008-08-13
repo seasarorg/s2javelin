@@ -15,7 +15,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.MultiPageEditorPart;
 import org.seasar.javelin.bottleneckeye.editors.MultiPageEditor;
 import org.seasar.javelin.bottleneckeye.editors.view.StatsVisionEditor;
-import org.seasar.javelin.bottleneckeye.editors.view.TcpStatsVisionEditor;
 
 /**
  * 設定タブ。
@@ -48,6 +47,9 @@ public class SettingsEditorTab
 
     /** 線のスタイルを選択するコンボボックス */
     private Combo             lineStyleCombo_;
+
+    /** View画面のクラス１つに表示するメソッドの最大数 */
+    private Text              maxMethodText_;
 
     /** "Reload" ボタン */
     private Button            reloadButton_;
@@ -108,6 +110,10 @@ public class SettingsEditorTab
         this.alarmText_ = createText(composite, 6, Long.toString(0));
         createSpacer(composite, 4);
 
+        createLabel(composite, "Max methods:");
+        this.maxMethodText_ = createText(composite, 6, Long.toString(0));
+        createSpacer(composite, 4);
+
         String[] values;
         values = new String[]{MultiPageEditor.MODE_TCP, MultiPageEditor.MODE_JMX};
 
@@ -126,8 +132,8 @@ public class SettingsEditorTab
         this.stopButton_ = createButton(composite, "Stop", false);
         createSpacer(composite, 4);
 
-        final Button printButton = createButton(composite, "Print", true);
-        final Button copyButton = createButton(composite, "Copy", true);
+        Button printButton = createButton(composite, "Print", true);
+        Button copyButton = createButton(composite, "Copy", true);
         // ------------------------------------------------------------
 
         this.hostText_.addModifyListener(new ModifyListener() {
@@ -135,7 +141,7 @@ public class SettingsEditorTab
             {
                 String hostName = SettingsEditorTab.this.hostText_.getText();
                 SettingsEditorTab.this.statsVisionEditor_.setHostName(hostName);
-                statsVisionEditor_.setDirty(true);
+                SettingsEditorTab.this.statsVisionEditor_.setDirty(true);
             }
         });
 
@@ -145,7 +151,7 @@ public class SettingsEditorTab
                 String portText = SettingsEditorTab.this.portText_.getText();
                 int port = Integer.parseInt(portText);
                 SettingsEditorTab.this.statsVisionEditor_.setPortNum(port);
-                statsVisionEditor_.setDirty(true);
+                SettingsEditorTab.this.statsVisionEditor_.setDirty(true);
             }
         });
 
@@ -154,7 +160,7 @@ public class SettingsEditorTab
             {
                 String domain = SettingsEditorTab.this.domainText_.getText();
                 SettingsEditorTab.this.statsVisionEditor_.setDomain(domain);
-                statsVisionEditor_.setDirty(true);
+                SettingsEditorTab.this.statsVisionEditor_.setDirty(true);
             }
         });
 
@@ -164,7 +170,7 @@ public class SettingsEditorTab
                 String thresholdText = SettingsEditorTab.this.warningText_.getText();
                 long threshold = Long.parseLong(thresholdText);
                 SettingsEditorTab.this.statsVisionEditor_.setWarningThreshold(threshold);
-                statsVisionEditor_.setDirty(true);
+                SettingsEditorTab.this.statsVisionEditor_.setDirty(true);
             }
         });
 
@@ -174,7 +180,7 @@ public class SettingsEditorTab
                 String thresholdText = SettingsEditorTab.this.alarmText_.getText();
                 long threshold = Long.parseLong(thresholdText);
                 SettingsEditorTab.this.statsVisionEditor_.setAlarmThreshold(threshold);
-                statsVisionEditor_.setDirty(true);
+                SettingsEditorTab.this.statsVisionEditor_.setDirty(true);
             }
         });
 
@@ -183,7 +189,17 @@ public class SettingsEditorTab
             {
                 String lineStyle = SettingsEditorTab.this.lineStyleCombo_.getText();
                 SettingsEditorTab.this.statsVisionEditor_.setLineStyle(lineStyle);
-                statsVisionEditor_.setDirty(true);
+                SettingsEditorTab.this.statsVisionEditor_.setDirty(true);
+            }
+        });
+
+        this.maxMethodText_.addModifyListener(new ModifyListener() {
+            public void modifyText(ModifyEvent e)
+            {
+                String maxMethodCountText = SettingsEditorTab.this.maxMethodText_.getText();
+                long maxMethodCount = Long.parseLong(maxMethodCountText);
+                SettingsEditorTab.this.statsVisionEditor_.setMaxMethodCount(maxMethodCount);
+                SettingsEditorTab.this.statsVisionEditor_.setDirty(true);
             }
         });
 
@@ -225,20 +241,7 @@ public class SettingsEditorTab
         this.stopButton_.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event)
             {
-                SettingsEditorTab.this.startButton_.setEnabled(false);
-                SettingsEditorTab.this.stopButton_.setEnabled(false);
-                SettingsEditorTab.this.resetButton_.setEnabled(false);
-                SettingsEditorTab.this.reloadButton_.setEnabled(false);
-                SettingsEditorTab.this.hostText_.setEnabled(true);
-                SettingsEditorTab.this.portText_.setEnabled(true);
-                SettingsEditorTab.this.domainText_.setEnabled(true);
-                SettingsEditorTab.this.warningText_.setEnabled(true);
-                SettingsEditorTab.this.alarmText_.setEnabled(true);
-                SettingsEditorTab.this.lineStyleCombo_.setEnabled(true);
-                
-                SettingsEditorTab.this.isLastStarted_ = false;
-
-                SettingsEditorTab.this.multiPageEditor_.notifyStop();
+                stop();
             }
         });
 
@@ -312,6 +315,16 @@ public class SettingsEditorTab
     }
 
     /**
+     * View画面のクラス１つに表示するメソッドの最大数をセットする。
+     *
+     * @param maxMethodCount View画面のクラス１つに表示するメソッドの最大数
+     */
+    public void setMaxMethodCount(long maxMethodCount)
+    {
+        this.maxMethodText_.setText(String.valueOf(maxMethodCount));
+    }
+
+    /**
      * ポート番号をセットする。
      *
      * @param port ポート番号
@@ -340,6 +353,7 @@ public class SettingsEditorTab
         this.statsVisionEditor_.setDomain(this.domainText_.getText());
         this.statsVisionEditor_.setHostName(this.hostText_.getText());
         this.statsVisionEditor_.setLineStyle(this.lineStyleCombo_.getText());
+        this.statsVisionEditor_.setMaxMethodCount(Long.valueOf(this.maxMethodText_.getText()));
         this.statsVisionEditor_.setPortNum(Integer.valueOf(this.portText_.getText()));
         this.statsVisionEditor_.setWarningThreshold(Long.valueOf(this.warningText_.getText()));
     }
@@ -450,22 +464,48 @@ public class SettingsEditorTab
         spacerLabel.setLayoutData(spacerGrid);
     }
 
+    /**
+     * 接続を開始する。
+     */
     public void start()
     {
         notifyAllSettings();
 
-        SettingsEditorTab.this.startButton_.setEnabled(false);
-        SettingsEditorTab.this.stopButton_.setEnabled(false);
-        SettingsEditorTab.this.hostText_.setEnabled(false);
-        SettingsEditorTab.this.portText_.setEnabled(false);
-        SettingsEditorTab.this.domainText_.setEnabled(false);
-        SettingsEditorTab.this.warningText_.setEnabled(false);
-        SettingsEditorTab.this.alarmText_.setEnabled(false);
-        SettingsEditorTab.this.lineStyleCombo_.setEnabled(false);
-        
-        SettingsEditorTab.this.isLastStarted_ = true;
+        this.startButton_.setEnabled(false);
+        this.stopButton_.setEnabled(false);
+        this.hostText_.setEnabled(false);
+        this.portText_.setEnabled(false);
+        this.domainText_.setEnabled(false);
+        this.warningText_.setEnabled(false);
+        this.alarmText_.setEnabled(false);
+        this.lineStyleCombo_.setEnabled(false);
+        this.maxMethodText_.setEnabled(false);
 
-        SettingsEditorTab.this.multiPageEditor_.notifyStart();
+        this.isLastStarted_ = true;
+
+        this.multiPageEditor_.notifyStart();
+    }
+
+    /**
+     * 接続を終了する。
+     */
+    private void stop()
+    {
+        this.startButton_.setEnabled(false);
+        this.stopButton_.setEnabled(false);
+        this.resetButton_.setEnabled(false);
+        this.reloadButton_.setEnabled(false);
+        this.hostText_.setEnabled(true);
+        this.portText_.setEnabled(true);
+        this.domainText_.setEnabled(true);
+        this.warningText_.setEnabled(true);
+        this.alarmText_.setEnabled(true);
+        this.lineStyleCombo_.setEnabled(true);
+        this.maxMethodText_.setEnabled(true);
+
+        this.isLastStarted_ = false;
+
+        this.multiPageEditor_.notifyStop();
     }
 
     /**
@@ -477,18 +517,18 @@ public class SettingsEditorTab
      */
     public void notifyCommunicateStart()
     {
-        if (SettingsEditorTab.this.isLastStarted_)
+        if (this.isLastStarted_)
         {
-            if (SettingsEditorTab.this.stopButton_.isDisposed() == true)
+            if (this.stopButton_.isDisposed() == true)
             {
                 return;
             }
 
-            SettingsEditorTab.this.startButton_.setEnabled(false);
-            SettingsEditorTab.this.stopButton_.setEnabled(true);
+            this.startButton_.setEnabled(false);
+            this.stopButton_.setEnabled(true);
             boolean enabled = this.statsVisionEditor_.isConnected();
-            SettingsEditorTab.this.resetButton_.setEnabled(enabled);
-            SettingsEditorTab.this.reloadButton_.setEnabled(enabled);
+            this.resetButton_.setEnabled(enabled);
+            this.reloadButton_.setEnabled(enabled);
         }
     }
 
@@ -499,14 +539,14 @@ public class SettingsEditorTab
      */
     public void notifyCommunicateStop()
     {
-        if (SettingsEditorTab.this.stopButton_.isDisposed() == true)
+        if (this.stopButton_.isDisposed() == true)
         {
             return;
         }
 
-        SettingsEditorTab.this.stopButton_.setEnabled(false);
-        SettingsEditorTab.this.startButton_.setEnabled(true);
-        SettingsEditorTab.this.resetButton_.setEnabled(false);
-        SettingsEditorTab.this.reloadButton_.setEnabled(false);
+        this.stopButton_.setEnabled(false);
+        this.startButton_.setEnabled(true);
+        this.resetButton_.setEnabled(false);
+        this.reloadButton_.setEnabled(false);
     }
 }

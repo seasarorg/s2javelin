@@ -14,6 +14,9 @@ public class Settings
 
     private Long    alarmThreshold;
 
+    /** View画面のクラス１つに表示するメソッドの最大数 */
+    private Long    maxMethodCount;
+
     private String  mode;
 
     private String  lineStyle;
@@ -71,6 +74,27 @@ public class Settings
     public void setAlarmThreshold(Long alarmThreshold)
     {
         this.alarmThreshold = alarmThreshold;
+    }
+
+    /**
+     * View画面のクラス１つに表示するメソッドの最大数を返す。
+     *
+     * @return View画面のクラス１つに表示するメソッドの最大数
+     */
+    @XmlAttribute
+    public Long getMaxMethodCount()
+    {
+        return this.maxMethodCount;
+    }
+
+    /**
+     * View画面のクラス１つに表示するメソッドの最大数をセットする。
+     *
+     * @param maxMethodCount View画面のクラス１つに表示するメソッドの最大数
+     */
+    public void setMaxMethodCount(Long maxMethodCount)
+    {
+        this.maxMethodCount = maxMethodCount;
     }
 
     @XmlAttribute

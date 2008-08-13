@@ -39,6 +39,9 @@ public class NewFileWizardPage extends WizardPage
 
     private Text                alarmText;
 
+    /** View画面のクラス１つに表示するメソッドの最大数 */
+    private Text                maxMethodText;
+
     private Combo               modeCombo;
 
     private Combo               lineStyleCombo;
@@ -102,6 +105,13 @@ public class NewFileWizardPage extends WizardPage
         this.alarmText.addModifyListener(listener);
 
         label = new Label(composite, SWT.NULL);
+        label.setText("Max method:");
+        this.maxMethodText = new Text(composite, SWT.BORDER);
+        this.maxMethodText.setText("20");
+        this.maxMethodText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        this.maxMethodText.addModifyListener(listener);
+
+        label = new Label(composite, SWT.NULL);
         label.setText("Mode:");
         this.modeCombo = new Combo(composite, SWT.READ_ONLY);
         this.modeCombo.add("TCP");
@@ -154,43 +164,56 @@ public class NewFileWizardPage extends WizardPage
             return;
         }
 
-        try
+        boolean isOK = checkLongValueValidation("Warn", this.warnText);
+        if (isOK == false)
         {
-            long warn = Long.parseLong(this.warnText.getText());
-            if (warn < 1)
-            {
-                setErrorMessage("Warn must be from 1 to max long value.");
-                setPageComplete(false);
-                return;
-            }
-        }
-        catch (NumberFormatException nfEx)
-        {
-            setErrorMessage("Warn must be from 1 to max long value.");
-            setPageComplete(false);
             return;
         }
 
-        try
+        isOK = checkLongValueValidation("Alarm", this.alarmText);
+        if (isOK == false)
         {
-            long alarm = Long.parseLong(this.alarmText.getText());
-            if (alarm < 1)
-            {
-                setErrorMessage("Alarm must be from 1 to max long value.");
-                setPageComplete(false);
-                return;
-            }
+            return;
         }
-        catch (NumberFormatException nfEx)
+
+        isOK = checkLongValueValidation("Max method", this.maxMethodText);
+        if (isOK == false)
         {
-            setErrorMessage("Alarm must be from 1 to max long value.");
-            setPageComplete(false);
             return;
         }
 
         setErrorMessage(null);
         setPageComplete(true);
     }
+
+    /**
+     * Long値を入力するテキストフィールドの値のバリデーションを行う。
+     *
+     * @param name 項目名
+     * @param text テキストフィールド
+     * @return 入力が有効の場合は <code>true</code> 、無効の場合は <code>false</code>
+     */
+    private boolean checkLongValueValidation(String name, Text text)
+    {
+        try
+        {
+            long value = Long.parseLong(text.getText());
+            if (value < 1)
+            {
+                setErrorMessage(name + " must be from 1 to max long value.");
+                setPageComplete(false);
+                return false;
+            }
+        }
+        catch (NumberFormatException nfEx)
+        {
+            setErrorMessage(name + " must be from 1 to max long value.");
+            setPageComplete(false);
+            return false;
+        }
+        return true;
+    }
+
 
     /**
      * 保存する。
@@ -209,6 +232,7 @@ public class NewFileWizardPage extends WizardPage
         settings.setDomain(this.domainText.getText());
         settings.setWarningThreshold(convertToLong(this.warnText.getText()));
         settings.setAlarmThreshold(convertToLong(this.alarmText.getText()));
+        settings.setMaxMethodCount(convertToLong(this.maxMethodText.getText()));
         settings.setMode((this.modeCombo.getText()));
         settings.setLineStyle((this.lineStyleCombo.getText()));
 

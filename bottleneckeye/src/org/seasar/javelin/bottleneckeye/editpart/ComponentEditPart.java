@@ -1,6 +1,9 @@
 package org.seasar.javelin.bottleneckeye.editpart;
 
 import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -87,6 +90,7 @@ public class ComponentEditPart extends EditPartWithListener implements NodeEditP
     protected IFigure createFigure()
     {
         ComponentModel model = (ComponentModel)getModel();
+        List<InvocationModel> upperMethodList = getUpperMethodList(model.getInvocationList());
 
         LineBorder border = new LineBorder();
         border.setColor(BLACK);
@@ -113,7 +117,7 @@ public class ComponentEditPart extends EditPartWithListener implements NodeEditP
         String componentText = createComponentText(componentType, className);
 
         label.setForegroundColor(GRAY);
-        for (InvocationModel invocation : model.getInvocationList())
+        for (InvocationModel invocation : upperMethodList)
         {
             if (invocation.getMaximum() >= 0)
             {
@@ -127,7 +131,7 @@ public class ComponentEditPart extends EditPartWithListener implements NodeEditP
         CompartmentFigure figure = new CompartmentFigure();
         figure.setBackgroundColor(YELLOW);
 
-        for (InvocationModel invocation : model.getInvocationList())
+        for (InvocationModel invocation : upperMethodList)
         {
             Label invocationLabel = new Label();
             invocationLabel.setOpaque(true);
@@ -168,6 +172,42 @@ public class ComponentEditPart extends EditPartWithListener implements NodeEditP
         layer.add(figure);
 
         return layer;
+    }
+
+    /**
+     * 処理時間が長いメソッドを返す。
+     * 返すリストの最大要素数は maxMethodCount 。
+     *
+     * @param allMethodList すべてのメソッド
+     * @return 処理時間が長いメソッド
+     */
+    private List<InvocationModel> getUpperMethodList(List<InvocationModel> allMethodList)
+    {
+        long maxMethodCount = this.statsVisionEditor_.getMaxMethodCount();
+
+        // 最大要素数より少ないメソッドしかない場合は、そのまま返す
+        if (allMethodList.size() <= maxMethodCount)
+        {
+            return allMethodList;
+        }
+
+        // 最大要素数より多いメソッドがメモリ上に存在する場合、
+        // メソッドの最長処理時間が長い順にソートし、
+        // メソッドの最長処理時間が長いものから、指定された要素数分（maxMethodCount）だけ取得する
+        List<InvocationModel> sortedList = new ArrayList<InvocationModel>(allMethodList);
+        Collections.sort(sortedList, new Comparator<InvocationModel>()
+        {
+            public int compare(InvocationModel o1, InvocationModel o2)
+            {
+                return (int)(o2.getMaximum() - o1.getMaximum());
+            }
+        });
+        sortedList = sortedList.subList(0, (int)maxMethodCount);
+
+        // メソッドの並び順を保持するため、元のリストから処理時間が短いメソッドを消してリストを作成する
+        List<InvocationModel> upperMethodList = new ArrayList<InvocationModel>(allMethodList);
+        upperMethodList.retainAll(sortedList);
+        return upperMethodList;
     }
 
     /**
@@ -416,4 +456,5 @@ public class ComponentEditPart extends EditPartWithListener implements NodeEditP
             return ColorConstants.black;
         }
     }
+
 }

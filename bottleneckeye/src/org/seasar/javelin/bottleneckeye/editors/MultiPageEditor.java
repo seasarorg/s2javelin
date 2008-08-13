@@ -101,6 +101,9 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
     /** アラーム閾値 */
     private long                            alarmThreshold_;
 
+    /** View画面のクラス１つに表示するメソッドの最大数 */
+    private long                            maxMethodCount_;
+
     /** モード */
     private String                          mode_                         = MODE_TCP;
 
@@ -124,6 +127,9 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 
     /** Alarm閾値のデフォルト値 */
     private static final int                DEFAULT_ALARM                 = 0;
+
+    /** Max methodのデフォルト値 */
+    private static final long               DEFAULT_MAXMETHOD             = 20;
 
     /** モードのデフォルト値 */
     private static final String             DEFAULT_MODE                  = "TCP";
@@ -389,6 +395,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         settingsEditorTab.setDomain(this.domain_);
         settingsEditorTab.setHostName(this.host_);
         settingsEditorTab.setLineStyle(this.lineStyle_);
+        settingsEditorTab.setMaxMethodCount(this.maxMethodCount_);
         settingsEditorTab.setPortNum(Integer.valueOf(this.port_));
         settingsEditorTab.setWarningThreshold(Long.valueOf(this.warningThreshold_));
         this.editor_.setDirty(false);
@@ -485,6 +492,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         this.domain_ = DEFAULT_DOMAIN;
         this.warningThreshold_ = DEFAULT_WARNING;
         this.alarmThreshold_ = DEFAULT_ALARM;
+        this.maxMethodCount_ = DEFAULT_MAXMETHOD;
         this.mode_ = DEFAULT_MODE;
         this.lineStyle_ = DEFAULT_STYLE;
     }
@@ -512,6 +520,11 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
         if (settings.getAlarmThreshold() != null)
         {
             this.alarmThreshold_ = settings.getAlarmThreshold();
+        }
+
+        if (settings.getMaxMethodCount() != null)
+        {
+            this.maxMethodCount_ = settings.getMaxMethodCount();
         }
 
         this.mode_ = settings.getMode();

@@ -85,6 +85,9 @@ public abstract class AbstractStatsVisionEditor<T> extends GraphicalEditor imple
 
     private long                         alarmThreshold_        = Long.MAX_VALUE;
 
+    /** View画面のクラス１つに表示するメソッドの最大数 */
+    private long                         maxMethodCount_        = Long.MAX_VALUE;
+
     private String                       mode_                  = "TCP";
 
     private String                       lineStyle_             = "NORMAL";
@@ -558,8 +561,32 @@ public abstract class AbstractStatsVisionEditor<T> extends GraphicalEditor imple
     public void setAlarmThreshold(long alarmThreshold)
     {
         if (alarmThreshold < 0)
+        {
             alarmThreshold = Long.MAX_VALUE;
+        }
         this.alarmThreshold_ = alarmThreshold;
+    }
+
+    /**
+     * 表示するメソッド数の最大数を返す。
+     *
+     * @return 表示するメソッド数の最大数
+     */
+    public long getMaxMethodCount()
+    {
+        return this.maxMethodCount_;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setMaxMethodCount(long maxMethodCount)
+    {
+        if (maxMethodCount <= 0)
+        {
+            maxMethodCount = Long.MAX_VALUE;
+        }
+        this.maxMethodCount_ = maxMethodCount;
     }
 
     public String getMode()
