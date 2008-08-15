@@ -27,32 +27,42 @@ public class S2StatsJavelinRecorder
     /**
      * メソッドコールツリーの記録用オブジェクト。
      */
-    public static final ThreadLocal<CallTree>             callTree_        =
-                                                                                   new ThreadLocal<CallTree>() {
-                                                                                       protected synchronized CallTree initialValue()
-                                                                                       {
-                                                                                           return new CallTree();
-                                                                                       }
-                                                                                   };
+    public static final ThreadLocal<CallTree>             callTree_             =
+                                                                                        new ThreadLocal<CallTree>() {
+                                                                                            protected synchronized CallTree initialValue()
+                                                                                            {
+                                                                                                return new CallTree();
+                                                                                            }
+                                                                                        };
 
     /**
      * メソッドの呼び出し元オブジェクト。
      */
-    public static final ThreadLocal<CallTreeNode>         callerNode_      =
-                                                                                   new ThreadLocal<CallTreeNode>() {
-                                                                                       protected synchronized CallTreeNode initialValue()
-                                                                                       {
-                                                                                           return null;
-                                                                                       }
-                                                                                   };
+    public static final ThreadLocal<CallTreeNode>         callerNode_           =
+                                                                                        new ThreadLocal<CallTreeNode>() {
+                                                                                            protected synchronized CallTreeNode initialValue()
+                                                                                            {
+                                                                                                return null;
+                                                                                            }
+                                                                                        };
 
-    private static VMStatusHelper                         vmStatusHelper__ = new VMStatusHelper();
+    private static VMStatusHelper                         vmStatusHelper__      =
+                                                                                        new VMStatusHelper();
 
-    private static Map<Long, WeakReference<CallTreeNode>> currentNodeMap__ =
-                                                                                   new HashMap<Long, WeakReference<CallTreeNode>>();
+    private static Map<Long, WeakReference<CallTreeNode>> currentNodeMap__      =
+                                                                                        new HashMap<Long, WeakReference<CallTreeNode>>();
 
     /** 記録条件判定クラス */
     private static RecordStrategy                         recordStrategy_;
+
+    /** S2StatsJavelinRecorderの呼び出しステータス管理オブジェクト */
+    private static ThreadLocal<Boolean>                   isRecordMethodCalled_ =
+                                                                                        new ThreadLocal<Boolean>() {
+                                                                                            protected synchronized Boolean initialValue()
+                                                                                            {
+                                                                                                return Boolean.FALSE;
+                                                                                            }
+                                                                                        };
 
     /**
      * 初期化処理。 AlarmListenerの登録を行う。 RecordStrategyを初期化する。
@@ -207,6 +217,15 @@ public class S2StatsJavelinRecorder
             }
         }
 
+        // Javelinのログ出力処理が呼び出されている場合、処理を行わない
+        if (isRecordMethodCalled_.get())
+        {
+            return;
+        }
+
+        // Javelinのログ出力処理呼び出しステータスをセット
+        isRecordMethodCalled_.set(Boolean.TRUE);
+
         VMStatus vmStatus = vmStatusHelper__.createVMStatus();
 
         Component component = MBeanManager.getComponent(className);
@@ -234,8 +253,9 @@ public class S2StatsJavelinRecorder
             {
                 String processName = VMStatusHelper.getProcessName();
                 invocation =
-                        new Invocation(processName, className, methodName, config.getIntervalMax(), config.getThrowableMax(),
-                                       config.getRecordThreshold(), config.getAlarmThreshold());
+                        new Invocation(processName, className, methodName, config.getIntervalMax(),
+                                       config.getThrowableMax(), config.getRecordThreshold(),
+                                       config.getAlarmThreshold());
 
                 component.addInvocation(invocation);
             }
@@ -277,6 +297,11 @@ public class S2StatsJavelinRecorder
         {
             SystemLogger.getInstance().warn(ex);
         }
+        finally
+        {
+            // Javelinのログ出力処理呼び出しステータスを解除
+            isRecordMethodCalled_.set(Boolean.FALSE);
+        }
     }
 
     /**
@@ -299,7 +324,7 @@ public class S2StatsJavelinRecorder
                 node = initCallTree(tree, stacktrace, vmStatus, config);
 
                 // 端点でのみJMXInfoを取得する。
-                if(config.isLogMBeanInfo() == false && config.isLogMBeanInfoRoot() == true)
+                if (config.isLogMBeanInfo() == false && config.isLogMBeanInfoRoot() == true)
                 {
                     node.setStartVmStatus(vmStatusHelper__.createVMStatusForce());
                 }
@@ -400,6 +425,15 @@ public class S2StatsJavelinRecorder
      */
     public static void postProcess(Object returnValue, S2JavelinConfig config)
     {
+        // Javelinのログ出力処理が呼び出されている場合、処理を行わない
+        if (isRecordMethodCalled_.get())
+        {
+            return;
+        }
+
+        // Javelinのログ出力処理呼び出しステータスをセット
+        isRecordMethodCalled_.set(Boolean.TRUE);
+
         try
         {
             // 呼び出し元情報取得。
@@ -456,11 +490,11 @@ public class S2StatsJavelinRecorder
             else
             {
                 // 端点でのみJMXInfoを取得する。
-                if(config.isLogMBeanInfo() == false && config.isLogMBeanInfoRoot() == true)
+                if (config.isLogMBeanInfo() == false && config.isLogMBeanInfoRoot() == true)
                 {
                     node.setEndVmStatus(vmStatusHelper__.createVMStatusForce());
                 }
-                
+
                 // 統計値記録の閾値を超えていた場合に、トランザクションを記録する。
                 if (node.getAccumulatedTime() >= config.getStatisticsThreshold())
                 {
@@ -497,21 +531,25 @@ public class S2StatsJavelinRecorder
         {
             SystemLogger.getInstance().warn(ex);
         }
+        finally
+        {
+            // Javelinのログ出力処理呼び出しステータスを解除
+            isRecordMethodCalled_.set(Boolean.FALSE);
+        }
     }
 
     private static void setCallerNode(CallTreeNode node)
     {
         callerNode_.set(node);
 
-        if(node == null)
+        if (node == null)
         {
             currentNodeMap__.remove(ThreadUtil.getThreadId());
         }
         else
         {
             // Mapに格納する。
-            currentNodeMap__.put(ThreadUtil.getThreadId(),
-                                 new WeakReference<CallTreeNode>(node));
+            currentNodeMap__.put(ThreadUtil.getThreadId(), new WeakReference<CallTreeNode>(node));
         }
     }
 
@@ -523,6 +561,15 @@ public class S2StatsJavelinRecorder
      */
     public static void postProcess(Throwable cause, S2JavelinConfig config)
     {
+        // Javelinのログ出力処理が呼び出されている場合、処理を行わない
+        if (isRecordMethodCalled_.get())
+        {
+            return;
+        }
+
+        // Javelinのログ出力処理呼び出しステータスをセット
+        isRecordMethodCalled_.set(Boolean.TRUE);
+
         try
         {
             CallTree callTree = callTree_.get();
@@ -567,7 +614,7 @@ public class S2StatsJavelinRecorder
             else
             {
                 // 端点でのみJMXInfoを取得する。
-                if(config.isLogMBeanInfo() == false && config.isLogMBeanInfoRoot() == true)
+                if (config.isLogMBeanInfo() == false && config.isLogMBeanInfoRoot() == true)
                 {
                     node.setEndVmStatus(vmStatusHelper__.createVMStatusForce());
                 }
@@ -602,6 +649,11 @@ public class S2StatsJavelinRecorder
         {
             SystemLogger.getInstance().warn(ex);
         }
+        finally
+        {
+            // Javelinのログ出力処理呼び出しステータスを解除
+            isRecordMethodCalled_.set(Boolean.FALSE);
+        }
     }
 
     /**
@@ -618,8 +670,7 @@ public class S2StatsJavelinRecorder
             // 例外出力の設定が行われているとき、Javelinログファイルを出力する。
             S2StatsJavelinFileGenerator generator = new S2StatsJavelinFileGenerator(config);
             jvnLogFileName =
-                    generator.generateJaveinFile(callTree, node,
-                                                 recordStrategy_.createCallback());
+                    generator.generateJaveinFile(callTree, node, recordStrategy_.createCallback());
         }
 
         if (config.isAlarmException() == true)
@@ -650,8 +701,7 @@ public class S2StatsJavelinRecorder
         if (root != null)
         {
             fileName =
-                    generator.generateJaveinFile(callTree, root,
-                                                 recordStrategy_.createCallback());
+                    generator.generateJaveinFile(callTree, root, recordStrategy_.createCallback());
         }
         return fileName;
     }
