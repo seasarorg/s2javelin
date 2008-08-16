@@ -13,6 +13,8 @@ import org.seasar.javelin.bottleneckeye.editors.EditorTabInterface;
  */
 public class TelegramReader implements Runnable
 {
+    private static final int SO_TIMEOUT = 10000;
+
     private volatile boolean         isRunning_;
 
     /** 電文を転送するターゲットオブジェクトのリスト */
@@ -116,7 +118,7 @@ public class TelegramReader implements Runnable
     public byte[] readTelegramBytes()
         throws IOException
     {
-
+        this.channel_.socket().setSoTimeout(0);
         int readCount = 0;
         while (readCount < Header.HEADER_LENGTH)
         {
@@ -128,7 +130,7 @@ public class TelegramReader implements Runnable
 
             readCount += count;
         }
-
+        
         this.headerBuffer.rewind();
         int telegramLength = this.headerBuffer.getInt();
 
@@ -143,6 +145,7 @@ public class TelegramReader implements Runnable
         ByteBuffer bodyBuffer = ByteBuffer.allocate(telegramLength);
         bodyBuffer.put(this.headerBuffer.array());
 
+        this.channel_.socket().setSoTimeout(SO_TIMEOUT);
         while (bodyBuffer.remaining() > 0)
         {
             this.channel_.read(bodyBuffer);

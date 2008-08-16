@@ -32,7 +32,7 @@ public final class TelegramUtil extends Common
     private static final int TELEGRAM_HEADER_LENGTH = 6;
 
     /** 電文長の最大。 */
-    private static final int BODY_MAX = 100 * 1024 * 1024;
+    public static final int TELEGRAM_MAX = 100 * 1024 * 1024;
 
     /**
      * 文字列をバイト配列（４バイト文字列長＋UTF8）に変換する。
@@ -171,7 +171,7 @@ public final class TelegramUtil extends Common
         {
             for (Body body : objTelegram.getObjBody())
             {
-                if(byteArrayOutputStream.size() > BODY_MAX)
+                if(byteArrayOutputStream.size() > TELEGRAM_MAX)
                 {
                     byteArrayOutputStream = new ByteArrayOutputStream();
                     break;
