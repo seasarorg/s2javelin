@@ -14,6 +14,8 @@ import org.seasar.javelin.communicate.entity.Telegram;
 
 public class JavelinClientConnection
 {
+    private static final int      SO_TIMEOUT      = 10000;
+
     private static final int      SEND_QUEUE_SIZE = 100;
 
     Socket                        clientSocket_   = null;
@@ -99,6 +101,7 @@ public class JavelinClientConnection
     {
         byte[] header = new byte[Header.HEADER_LENGTH];
 
+        this.clientSocket_.setSoTimeout(0);
         int intInputCount = this.inputStream_.read(header);
         if (intInputCount < 0)
         {
@@ -111,13 +114,19 @@ public class JavelinClientConnection
         {
             throw new IOException();
         }
+        if (telegramLength > S2TelegramUtil.TELEGRAM_LENGTH_MAX)
+        {
+            throw new IOException();
+        }
 
         SystemLogger.getInstance().debug("telegramLength  = [" + telegramLength + "]");
 
+        this.clientSocket_.setSoTimeout(SO_TIMEOUT);
         byte[] telegram = new byte[telegramLength];
         intInputCount =
                 this.inputStream_.read(telegram, Header.HEADER_LENGTH, telegramLength
                         - Header.HEADER_LENGTH);
+
         if (intInputCount < 0)
         {
             throw new IOException();

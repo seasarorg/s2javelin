@@ -24,7 +24,9 @@ import org.seasar.javelin.communicate.entity.Telegram;
 public final class S2TelegramUtil extends Common {
     private static final String CLASSMETHOD_SEPARATOR = "###CLASSMETHOD_SEPARATOR###";
     private static final int TELEGRAM_ITEM_COUNT = 12;
-    private static final int BODY_MAX = 100 * 1024 * 1024;
+    
+    /** “d•¶‚ÌÅ‘å’·B */
+    public static final int TELEGRAM_LENGTH_MAX = 100 * 1024 * 1024;
 
 
 
@@ -194,7 +196,7 @@ public final class S2TelegramUtil extends Common {
         {
             for (Body body : objTelegram.getObjBody())
             {
-                if(byteArrayOutputStream.size() > BODY_MAX)
+                if(byteArrayOutputStream.size() > TELEGRAM_LENGTH_MAX)
                 {
                     byteArrayOutputStream = new ByteArrayOutputStream();
                     break;
