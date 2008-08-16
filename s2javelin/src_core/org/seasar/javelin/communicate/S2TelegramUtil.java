@@ -46,7 +46,7 @@ public final class S2TelegramUtil extends Common {
     private static final int DOUBLE_BYTE_SWITCH_LENGTH = 8;
 
     /** ƒwƒbƒ_‚Ì’·‚³ */
-    private static final int TELEGRAM_HEADER_LENGTH = 6;
+    public static final int TELEGRAM_HEADER_LENGTH = 6;
     private static final byte ITEMTYPE_BYTE = 0;
     private static final byte ITEMTYPE_INT16 = 1;
     private static final byte ITEMTYPE_INT32 = 2;

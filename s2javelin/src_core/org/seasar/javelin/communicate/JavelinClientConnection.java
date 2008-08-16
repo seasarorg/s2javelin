@@ -76,7 +76,12 @@ public class JavelinClientConnection
             return;
         }
 
-        this.outputStream_.write(byteOutputArr);
+        int headerLength = S2TelegramUtil.TELEGRAM_HEADER_LENGTH;
+        this.outputStream_.write(byteOutputArr, 0, headerLength);
+        this.outputStream_.flush();
+
+        this.outputStream_.write(byteOutputArr, headerLength,
+                                 byteOutputArr.length - headerLength);
         this.outputStream_.flush();
     }
 
