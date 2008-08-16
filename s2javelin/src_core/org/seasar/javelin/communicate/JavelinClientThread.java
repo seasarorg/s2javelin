@@ -22,10 +22,11 @@ public class JavelinClientThread implements Runnable
     {
         try
         {
-            JavelinClientSendRunnable clientSendThread =
+            JavelinClientSendRunnable clientSendRunnable =
                     new JavelinClientSendRunnable(this.clientConnection_);
-            Thread clientSendTh = new Thread(clientSendThread);
-            clientSendTh.start();
+            String threadName = Thread.currentThread().getName() + "-Send";
+            Thread clientSendThread = new Thread(clientSendRunnable, threadName);
+            clientSendThread.start();
 
             this.isRunning = true;
             while (this.isRunning)

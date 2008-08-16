@@ -16,21 +16,21 @@ public class JavelinClientSendRunnable implements Runnable
 
     public void run()
     {
-        while (true)
+        try
         {
-            byte[] telegramArray;
-            try
+            while (true)
             {
-                telegramArray = clientConnection_.take();
-            }
-            catch (InterruptedException ex)
-            {
-                SystemLogger.getInstance().warn(ex);
-                continue;
-            }
+                byte[] telegramArray;
+                try
+                {
+                    telegramArray = clientConnection_.take();
+                }
+                catch (InterruptedException ex)
+                {
+                    SystemLogger.getInstance().warn(ex);
+                    continue;
+                }
 
-            try
-            {
                 this.clientConnection_.send(telegramArray);
 
                 if (SystemLogger.getInstance().isDebugEnabled())
@@ -39,11 +39,11 @@ public class JavelinClientSendRunnable implements Runnable
                     this.clientConnection_.logTelegram("電文を送信しました。", telegram, telegramArray);
                 }
             }
-            catch (IOException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+        }
+        catch (IOException ex)
+        {
+            SystemLogger.getInstance().warn("電文送信中に例外が発生しました。", ex);
+            this.clientConnection_.close();
         }
     }
 }

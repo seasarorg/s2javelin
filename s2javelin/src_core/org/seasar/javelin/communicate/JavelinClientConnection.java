@@ -77,11 +77,8 @@ public class JavelinClientConnection
             return;
         }
 
-        synchronized (this.outputStream_)
-        {
-            this.outputStream_.write(byteOutputArr);
-            this.outputStream_.flush();
-        }
+        this.outputStream_.write(byteOutputArr);
+        this.outputStream_.flush();
     }
 
     public void logTelegram(String message, Telegram response, byte[] telegramByteArray)
@@ -135,7 +132,11 @@ public class JavelinClientConnection
     // スレッド外から呼ばれる。
     public void sendAlarm(byte[] telegramArray)
     {
-        this.queue_.offer(telegramArray);
+        boolean offerResult = this.queue_.offer(telegramArray);
+        if(offerResult == false)
+        {
+            SystemLogger.getInstance().warn("送信キューへの追加に失敗しました。");
+        }
     }
 
     public boolean isClosed()
@@ -157,6 +158,11 @@ public class JavelinClientConnection
         {
             try
             {
+                if ("".equals(listenerName))
+                {
+                    continue;
+                }
+                
                 Class<?> listenerClass = loadClass(listenerName);
                 Object listener = listenerClass.newInstance();
                 if (listener instanceof TelegramListener)
