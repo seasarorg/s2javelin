@@ -19,7 +19,6 @@ import org.seasar.javelin.bottleneckeye.editors.EditorTabInterface;
 
 public class TcpDataGetter implements TelegramClientManager
 {
-
     /**
      * 通信ソケット
      */
@@ -105,20 +104,22 @@ public class TcpDataGetter implements TelegramClientManager
                 catch (UnknownHostException objUnknownHostException)
                 {
                     // エラーメッセージを出す
-                    System.out.println("サーバへの接続に失敗しました。サーバアドレス、ポートを正しく設定していることを確認してください。");
-                    System.out.println("サーバへの接続に失敗しました。サーバアドレス、ポートを正しく設定していることを確認してください。");
+                    logConnectExceptioin(TcpDataGetter.this.hostName_,
+                                         TcpDataGetter.this.portNumber_);
                     return;
                 }
                 catch (IOException objIOException)
                 {
                     // エラーメッセージを出す
-                    System.out.println("サーバへの接続に失敗しました。サーバアドレス、ポートを正しく設定していることを確認してください。");
+                    logConnectExceptioin(TcpDataGetter.this.hostName_,
+                                         TcpDataGetter.this.portNumber_);
                     return;
                 }
                 catch (UnresolvedAddressException uae)
                 {
                     // エラーメッセージを出す
-                    System.out.println("サーバへの接続に失敗しました。サーバアドレス、ポートを正しく設定していることを確認してください。");
+                    logConnectExceptioin(TcpDataGetter.this.hostName_,
+                                         TcpDataGetter.this.portNumber_);
                     return;
                 }
 
@@ -134,10 +135,7 @@ public class TcpDataGetter implements TelegramClientManager
                     // エラーメッセージを出す
                     objIOException.printStackTrace();
                     return;
-                    //            return false;
                 }
-
-                //        return true;
             }
         });
     }
@@ -345,6 +343,12 @@ public class TcpDataGetter implements TelegramClientManager
     public boolean isConnected()
     {
         return this.isConnect_;
+    }
+
+    private void logConnectExceptioin(String ip, int port)
+    {
+        System.out.println("サーバへの接続に失敗しました。サーバアドレス(" + ip + ")、ポート(" + port
+                + ")を正しく設定していることを確認してください。");
     }
 
 }
