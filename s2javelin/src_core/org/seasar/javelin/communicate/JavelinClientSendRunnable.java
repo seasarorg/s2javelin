@@ -31,6 +31,13 @@ public class JavelinClientSendRunnable implements Runnable
                     continue;
                 }
 
+                if(telegramArray == null || telegramArray.length == 0)
+                {
+                    // 切断し、スレッドを終了する。
+                    this.clientConnection_.close();
+                    return;
+                }
+                
                 this.clientConnection_.send(telegramArray);
 
                 if (SystemLogger.getInstance().isDebugEnabled())

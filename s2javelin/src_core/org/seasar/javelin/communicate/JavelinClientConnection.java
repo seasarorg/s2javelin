@@ -3,40 +3,32 @@ package org.seasar.javelin.communicate;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import org.seasar.javelin.S2JavelinConfig;
 import org.seasar.javelin.SystemLogger;
 import org.seasar.javelin.communicate.entity.Header;
 import org.seasar.javelin.communicate.entity.Telegram;
 
 public class JavelinClientConnection
 {
-    Socket                         clientSocket_         = null;
+    private static final int      SEND_QUEUE_SIZE = 100;
 
-    InetAddress                    clientIP_             = null;
+    Socket                        clientSocket_   = null;
 
-    BufferedInputStream            inputStream_          = null;
+    BufferedInputStream           inputStream_    = null;
 
-    BufferedOutputStream           outputStream_         = null;
+    BufferedOutputStream          outputStream_   = null;
 
-    private BlockingQueue<byte[]>  queue_;
-
-    /** 電文処理クラスのリスト */
-    private List<TelegramListener> telegramListenerList_ = new ArrayList<TelegramListener>();
+    private BlockingQueue<byte[]> queue_;
 
     public JavelinClientConnection(Socket objSocket)
         throws IOException
     {
-        this.queue_ = new ArrayBlockingQueue<byte[]>(1000);
+        this.queue_ = new ArrayBlockingQueue<byte[]>(SEND_QUEUE_SIZE);
         this.clientSocket_ = objSocket;
-        this.clientIP_ = this.clientSocket_.getInetAddress();
         try
         {
             this.inputStream_ = new BufferedInputStream(this.clientSocket_.getInputStream());
@@ -47,9 +39,6 @@ public class JavelinClientConnection
             close();
             throw ioe;
         }
-
-        // 電文処理クラスを登録する
-        registerTelegramListeners(new S2JavelinConfig());
     }
 
     void close()
@@ -58,6 +47,7 @@ public class JavelinClientConnection
         {
             if (this.clientSocket_ != null)
             {
+                stopSendThread();
                 this.clientSocket_.close();
             }
         }
@@ -66,10 +56,17 @@ public class JavelinClientConnection
             SystemLogger.getInstance().warn("クライアント通信ソケットのクローズに失敗しました。", ioe);
         }
 
-        SystemLogger.getInstance().info("クライアントと切断しました。[" + this.clientIP_ + "]");
+        SystemLogger.getInstance().info(
+                                        "クライアントと切断しました。[" + this.clientSocket_.getInetAddress()
+                                                + "]");
     }
 
-    public void send(byte[] byteOutputArr)
+    private void stopSendThread()
+    {
+        this.sendAlarm(new byte[0]);
+    }
+
+    void send(byte[] byteOutputArr)
         throws IOException
     {
         if (this.clientSocket_.isClosed() == true)
@@ -85,8 +82,9 @@ public class JavelinClientConnection
     {
         String telegramStr = S2TelegramUtil.toPrintStr(response, telegramByteArray);
         SystemLogger.getInstance().debug(
-                                         message + this.clientIP_.getHostAddress() + ":"
-                                                 + this.clientSocket_.getPort()
+                                         message
+                                                 + this.clientSocket_.getInetAddress().getHostAddress()
+                                                 + ":" + this.clientSocket_.getPort()
                                                  + SystemLogger.NEW_LINE + telegramStr);
     }
 
@@ -133,112 +131,16 @@ public class JavelinClientConnection
     public void sendAlarm(byte[] telegramArray)
     {
         boolean offerResult = this.queue_.offer(telegramArray);
-        if(offerResult == false)
+        if (offerResult == false)
         {
-            SystemLogger.getInstance().warn("送信キューへの追加に失敗しました。");
+            SystemLogger.getInstance().warn("送信キューへの追加に失敗しました。通信を終了します。");
+            close();
         }
     }
 
     public boolean isClosed()
     {
         return this.clientSocket_.isClosed();
-    }
-
-    /**
-     * TelegramListenerのクラスをJavelin設定から読み込み、登録する。 クラスのロードは、以下の順でクラスローダでのロードを試みる。
-     * <ol> <li>JavelinClientThreadをロードしたクラスローダ</li> <li>コンテキストクラスローダ</li>
-     * </ol>
-     * 
-     * @param config
-     */
-    private void registerTelegramListeners(S2JavelinConfig config)
-    {
-        String[] listeners = config.getTelegramListeners().split(",");
-        for (String listenerName : listeners)
-        {
-            try
-            {
-                if ("".equals(listenerName))
-                {
-                    continue;
-                }
-                
-                Class<?> listenerClass = loadClass(listenerName);
-                Object listener = listenerClass.newInstance();
-                if (listener instanceof TelegramListener)
-                {
-                    addListener((TelegramListener)listener);
-                    SystemLogger.getInstance().info(listenerName + "をTelegramListenerとして登録しました。");
-                }
-                else
-                {
-                    SystemLogger.getInstance().info(
-                                                    listenerName
-                                                            + "はTelegramListenerを実装していないため、電文処理に利用しません。");
-                }
-            }
-            catch (Exception ex)
-            {
-                SystemLogger.getInstance().warn(listenerName + "の登録に失敗したため、電文処理に利用しません。", ex);
-            }
-        }
-    }
-
-    /**
-     * クラスをロードする。 以下の順でクラスローダでのロードを試みる。 <ol> <li>JavelinClientThreadをロードしたクラスローダ</li>
-     * <li>コンテキストクラスローダ</li> </ol>
-     * 
-     * @param className ロードするクラスの名前。
-     * @return ロードしたクラス。
-     * @throws ClassNotFoundException 全てのクラスローダでクラスが見つからない場合
-     */
-    private Class<?> loadClass(String className)
-        throws ClassNotFoundException
-    {
-
-        Class<?> clazz;
-        try
-        {
-            clazz = Class.forName(className);
-        }
-        catch (ClassNotFoundException cnfe)
-        {
-            SystemLogger.getInstance().info(className + "のロードに失敗したため、コンテキストクラスローダからのロードを行います。");
-            clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
-        }
-
-        return clazz;
-    }
-
-    /**
-     * 電文処理に利用するTelegramListenerを登録する
-     * 
-     * @param listener 電文処理に利用するTelegramListener
-     */
-    public void addListener(TelegramListener listener)
-    {
-        synchronized (this.telegramListenerList_)
-        {
-            this.telegramListenerList_.add(listener);
-        }
-    }
-
-    void receiveTelegram(Telegram request)
-        throws Exception,
-            IOException
-    {
-        // 各TelegramListenerで処理を行う
-        for (TelegramListener listener : this.telegramListenerList_)
-        {
-            Telegram response = listener.receiveTelegram(request);
-
-            // 応答電文がある場合のみ、応答を返す
-            if (response != null)
-            {
-                byte[] byteOutputArr = S2TelegramUtil.createTelegram(response);
-                queue_.offer(byteOutputArr);
-            }
-        }
     }
 
     byte[] take()

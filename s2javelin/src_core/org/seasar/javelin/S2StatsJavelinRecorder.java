@@ -133,6 +133,11 @@ public class S2StatsJavelinRecorder
         {
             try
             {
+                if("".equals(alarmListenerName))
+                {
+                    continue;
+                }
+                
                 Class<?> alarmListenerClass = loadClass(alarmListenerName);
                 Object listener = alarmListenerClass.newInstance();
                 if (listener instanceof AlarmListener)
