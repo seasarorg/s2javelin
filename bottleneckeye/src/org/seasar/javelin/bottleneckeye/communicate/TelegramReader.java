@@ -63,11 +63,24 @@ public class TelegramReader implements Runnable
         
         while (this.isRunning_)
         {
-            notifyCommunicateStart();
+            if (this.tcpDataGetter_.isStart() == false)
+            {
+                try
+                {
+                    Thread.sleep(RETRY_INTERVAL);
+                }
+                catch (InterruptedException ex)
+                {
+                    // interruptする。
+                }
+                continue;
+            }
             this.channel_ = this.tcpDataGetter_.getChannel();
+            this.tcpDataGetter_.notifyCommunicateStart();
+
             if (this.channel_ == null)
             {
-                sendDisconnectNotify();
+                this.tcpDataGetter_.sendDisconnectNotify();
                 retry();
                 continue;
             }
@@ -80,7 +93,7 @@ public class TelegramReader implements Runnable
             catch (IOException ioe)
             {
                 // 切断された
-                sendDisconnectNotify();
+                this.tcpDataGetter_.sendDisconnectNotify();
                 retry();
                 continue;
             }
@@ -105,8 +118,6 @@ public class TelegramReader implements Runnable
             }
         }
 
-        sendDisconnectNotify();
-        notifyCommunicateStop();
     }
 
     /**
@@ -165,7 +176,7 @@ public class TelegramReader implements Runnable
      */
     private void retry()
     {
-        if (this.isRunning_ == false)
+        if (this.isRunning_ == false || this.tcpDataGetter_.isStart() == false)
         {
             return;
         }
@@ -185,60 +196,5 @@ public class TelegramReader implements Runnable
         }
     }
 
-    /**
-     * 接続されたことを各タブへ通知する。
-     */
-    public void sendConnectNotify()
-    {
-        synchronized (this)
-        {
-            for (EditorTabInterface editorTab : this.editorTabList_)
-            {
-                editorTab.connected();
-            }
-        }
-    }
-
-    /**
-     * 切断されたことを各タブへ通知する。
-     */
-    public void sendDisconnectNotify()
-    {
-        synchronized (this)
-        {
-            for (EditorTabInterface editorTab : this.editorTabList_)
-            {
-                editorTab.disconnected();
-            }
-        }
-    }
-
-    /**
-     * 接続が開始されたことを各タブに通知する
-     */
-    private void notifyCommunicateStart()
-    {
-        synchronized (this)
-        {
-            for (EditorTabInterface editorTab : this.editorTabList_)
-            {
-                editorTab.notifyCommunicateStart();
-            }
-        }
-    }
-
-    /**
-     * 接続が終了したことを各タブに通知する
-     */
-    private void notifyCommunicateStop()
-    {
-        synchronized (this)
-        {
-            for (EditorTabInterface editorTab : this.editorTabList_)
-            {
-                editorTab.notifyCommunicateStop();
-            }
-        }
-    }
 
 }

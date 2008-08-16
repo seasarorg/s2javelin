@@ -43,7 +43,7 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
             this.tcpDataGetter_.setPortNumber(getPortNum());
 
             // サーバに接続する。
-            this.tcpDataGetter_.open();
+            this.tcpDataGetter_.start();
 
             // 読み込みを開始する。
             this.tcpDataGetter_.startRead();
@@ -69,7 +69,7 @@ public class TcpStatsVisionEditor extends AbstractStatsVisionEditor<String>
      */
     public void disconnect()
     {
-        this.tcpDataGetter_.close();
+        this.tcpDataGetter_.stop();
     }
 
     /**
