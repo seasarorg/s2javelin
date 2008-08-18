@@ -190,10 +190,7 @@ public class TelegramReader implements Runnable
             // Ø’f‚Éinterrupt‚·‚éB
         }
 
-        if (this.isRunning_)
-        {
-            this.tcpDataGetter_.open();
-        }
+        this.tcpDataGetter_.open();
     }
 
 

@@ -83,6 +83,10 @@ public class TcpDataGetter implements TelegramClientManager
         this.writeExecutor_.execute(new Runnable() {
             public void run()
             {
+                if (TcpDataGetter.this.isStart() == false)
+                {
+                    return;
+                }
                 connect();
             }
         });
