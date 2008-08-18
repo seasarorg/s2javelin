@@ -101,7 +101,7 @@ public class TcpDataGetter implements TelegramClientManager
             public void run()
             {
                 connect();
-                isStart_ = true;
+                TcpDataGetter.this.isStart_ = true;
             }
         });
     }
@@ -131,7 +131,7 @@ public class TcpDataGetter implements TelegramClientManager
             public void run()
             {
                 closeImpl();
-                isStart_ = false;
+                TcpDataGetter.this.isStart_ = false;
                 sendDisconnectNotify();
                 notifyCommunicateStop();
             }
