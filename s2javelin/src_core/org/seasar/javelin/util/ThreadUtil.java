@@ -1,5 +1,8 @@
 package org.seasar.javelin.util;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
 import java.lang.reflect.Field;
 
 import org.seasar.javelin.SystemLogger;
@@ -10,6 +13,9 @@ import org.seasar.javelin.SystemLogger;
  */
 public class ThreadUtil
 {
+    /** スレッド情報取得用MXBean。 */
+    private static ThreadMXBean          threadMBean__           = ManagementFactory.getThreadMXBean();
+    
     private static Field             tidField__;
     static
     {
@@ -17,6 +23,15 @@ public class ThreadUtil
         {
             tidField__ = Thread.class.getDeclaredField("tid");
             tidField__.setAccessible(true);
+
+            if (threadMBean__.isThreadContentionMonitoringSupported())
+            {
+                threadMBean__.setThreadContentionMonitoringEnabled(true);
+            }
+            if (threadMBean__.isThreadCpuTimeSupported())
+            {
+                threadMBean__.setThreadCpuTimeEnabled(true);
+            }
         }
         catch (Exception ex)
         {
@@ -33,6 +48,7 @@ public class ThreadUtil
                                                }
                                            };
 
+                                           
     /**
      * スタックトレースを取得する。
      * 
@@ -109,7 +125,23 @@ public class ThreadUtil
         }
         return tid;
     }
+    
+    public static long[] getAllThreadIds()
+    {
+        return threadMBean__.getAllThreadIds();
+    }
 
+    /**
+     * スレッド情報を取得する。
+     * 
+     * @param maxDepth
+     * @param threadIdLong
+     * @return　スレッド情報。
+     */
+    public static ThreadInfo getThreadInfo(Long threadIdLong, int maxDepth)
+    {
+        return threadMBean__.getThreadInfo(threadIdLong, maxDepth);
+    }    
     /**
      * インスタンス化を禁止する。
      */
