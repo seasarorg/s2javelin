@@ -66,6 +66,9 @@ public class Invocation implements InvocationMBean, Serializable
 
     private String                         processName_;
 
+    /** ハッシュコード。 */
+    private int                            code_               = 0;
+
     public Invocation(String processName, String className, String methodName,
             int intervalMax, int throwableMax, long recordThreshold, long alarmThreshold)
     {
@@ -76,6 +79,9 @@ public class Invocation implements InvocationMBean, Serializable
         throwableMax_ = throwableMax;
         recordThreshold_ = recordThreshold;
         alarmThreshold_ = alarmThreshold;
+        
+        String id = className_ + "#" + methodName_;
+        code_ = id.hashCode();
     }
 
 
@@ -355,8 +361,7 @@ public class Invocation implements InvocationMBean, Serializable
 
     public int hashCode()
     {
-        String id = className_ + "#" + methodName_;
-        return id.hashCode();
+        return code_;
     }
 
     public synchronized void reset()
