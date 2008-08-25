@@ -231,8 +231,6 @@ public class S2StatsJavelinRecorder
         // Javelinのログ出力処理呼び出しステータスをセット
         isRecordMethodCalled_.set(Boolean.TRUE);
 
-        VMStatus vmStatus = vmStatusHelper__.createVMStatus();
-
         Component component = MBeanManager.getComponent(className);
         if (component == null)
         {
@@ -296,7 +294,7 @@ public class S2StatsJavelinRecorder
                     break;
                 }
             }
-            setNode(node, tree, stacktrace, args, invocation, vmStatus, config);
+            setNode(node, tree, stacktrace, args, invocation, config);
         }
         catch (Exception ex)
         {
@@ -320,64 +318,34 @@ public class S2StatsJavelinRecorder
      * @param config パラメータの設定値を保存するオブジェクト
      */
     private static void setNode(CallTreeNode node, CallTree tree, StackTraceElement[] stacktrace,
-            Object[] args, Invocation invocation, VMStatus vmStatus, S2JavelinConfig config)
+            Object[] args, Invocation invocation, S2JavelinConfig config)
     {
         try
         {
+            VMStatus vmStatus = null;
             if (node == null)
             {
-                node = initCallTree(tree, stacktrace, vmStatus, config);
-
                 // 端点でのみJMXInfoを取得する。
-                if (config.isLogMBeanInfo() == false && config.isLogMBeanInfoRoot() == true)
+                if (config.isLogMBeanInfoRoot() == true)
                 {
-                    node.setStartVmStatus(vmStatusHelper__.createVMStatusForce());
-                }
-            }
-            else
-            {
-                // 2回目以降は、階層構造を形成する
-                CallTreeNode parent = node;
-                node = new CallTreeNode();
-                node.setStartTime(System.currentTimeMillis());
-                node.setStartVmStatus(vmStatusHelper__.createVMStatus());
-                if (config.isLogStacktrace())
-                {
-                    node.setStacktrace(stacktrace);
-                }
-                parent.addChild(node);
-                if (parent.getChildren().size() > config.getCallTreeMax())
-                {
-                    String jvnFileName = dumpJavelinLog(config);
-                    SystemLogger.getInstance().warn(
-                                                    "CallTreeのサイズが閾値を超えました。CallTreeをクリアし、jvnログを出力します。ファイル名:"
-                                                            + jvnFileName);
-                    node = initCallTree(tree, stacktrace, vmStatus, config);
+                    vmStatus = vmStatusHelper__.createVMStatusForce();
                 }
                 else
                 {
-                    invocation.addCaller(parent.getInvocation());
+                    vmStatus = vmStatusHelper__.createVMStatus();
                 }
+                node = initCallTree(tree, stacktrace, vmStatus, config);
+            }
+            else
+            {
+                vmStatus = vmStatusHelper__.createVMStatus();
+                
+                node = addCallTree(node, tree, stacktrace, invocation, config, vmStatus);
             }
             // パラメータ設定が行われているとき、ノードにパラメータを設定する
             if (config.isLogArgs())
             {
-                String[] argStrings = new String[args.length];
-                for (int index = 0; index < args.length; index++)
-                {
-                    if (config.isArgsDetail())
-                    {
-                        int argsDetailDepth = config.getArgsDetailDepth();
-                        argStrings[index] =
-                                StatsUtil.buildDetailString(args[index], argsDetailDepth);
-                    }
-                    else
-                    {
-                        argStrings[index] =
-                                StatsUtil.toStr(args[index], config.getStringLimitLength());
-                    }
-                }
-                node.setArgs(argStrings);
+                addLogArgs(node, args, config);
             }
 
             node.setInvocation(invocation);
@@ -388,6 +356,55 @@ public class S2StatsJavelinRecorder
         {
             SystemLogger.getInstance().warn(ex);
         }
+    }
+
+    private static CallTreeNode addCallTree(CallTreeNode node, CallTree tree,
+            StackTraceElement[] stacktrace, Invocation invocation, S2JavelinConfig config,
+            VMStatus vmStatus)
+    {
+        // 2回目以降は、階層構造を形成する
+        CallTreeNode parent = node;
+        node = new CallTreeNode();
+        node.setStartTime(System.currentTimeMillis());
+        node.setStartVmStatus(vmStatus);
+        if (config.isLogStacktrace())
+        {
+            node.setStacktrace(stacktrace);
+        }
+        parent.addChild(node);
+        if (parent.getChildren().size() > config.getCallTreeMax())
+        {
+            String jvnFileName = dumpJavelinLog(config);
+            SystemLogger.getInstance().warn(
+                                            "CallTreeのサイズが閾値を超えました。CallTreeをクリアし、jvnログを出力します。ファイル名:"
+                                                    + jvnFileName);
+            node = initCallTree(tree, stacktrace, vmStatus, config);
+        }
+        else
+        {
+            invocation.addCaller(parent.getInvocation());
+        }
+        return node;
+    }
+
+    private static void addLogArgs(CallTreeNode node, Object[] args, S2JavelinConfig config)
+    {
+        String[] argStrings = new String[args.length];
+        for (int index = 0; index < args.length; index++)
+        {
+            if (config.isArgsDetail())
+            {
+                int argsDetailDepth = config.getArgsDetailDepth();
+                argStrings[index] =
+                        StatsUtil.buildDetailString(args[index], argsDetailDepth);
+            }
+            else
+            {
+                argStrings[index] =
+                        StatsUtil.toStr(args[index], config.getStringLimitLength());
+            }
+        }
+        node.setArgs(argStrings);
     }
 
     /**
@@ -449,7 +466,19 @@ public class S2StatsJavelinRecorder
                 // (下位レイヤで例外が発生した場合のため。)
                 return;
             }
-            VMStatus vmStatus = vmStatusHelper__.createVMStatus();
+            
+            CallTreeNode parent = node.getParent();
+
+            VMStatus vmStatus;
+            if(parent == null && config.isLogMBeanInfoRoot() == true)
+            {
+                vmStatus = vmStatusHelper__.createVMStatusForce();
+            }
+            else
+            {
+                vmStatus = vmStatusHelper__.createVMStatus();
+            }
+
             node.setEndTime(System.currentTimeMillis());
             node.setEndVmStatus(vmStatus);
 
@@ -487,19 +516,12 @@ public class S2StatsJavelinRecorder
                 node.setReturnValue(returnString);
             }
 
-            CallTreeNode parent = node.getParent();
             if (parent != null)
             {
                 setCallerNode(parent);
             }
             else
             {
-                // 端点でのみJMXInfoを取得する。
-                if (config.isLogMBeanInfo() == false && config.isLogMBeanInfoRoot() == true)
-                {
-                    node.setEndVmStatus(vmStatusHelper__.createVMStatusForce());
-                }
-
                 // 統計値記録の閾値を超えていた場合に、トランザクションを記録する。
                 if (node.getAccumulatedTime() >= config.getStatisticsThreshold())
                 {
@@ -818,7 +840,8 @@ public class S2StatsJavelinRecorder
         }
 
         List<CallTreeNode> children = node.getChildren();
-        for (int index = 0; index < children.size(); index++)
+        int size = children.size();
+        for (int index = 0; index < size; index++)
         {
             CallTreeNode child = children.get(index);
             recordTransaction(child);

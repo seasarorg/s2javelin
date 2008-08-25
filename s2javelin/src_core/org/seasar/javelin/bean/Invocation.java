@@ -1,10 +1,10 @@
 package org.seasar.javelin.bean;
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Invocation implements InvocationMBean, Serializable
 {
@@ -30,7 +30,8 @@ public class Invocation implements InvocationMBean, Serializable
 
     private LinkedList<Throwable>          throwableList_      = new LinkedList<Throwable>();
 
-    private Set<Invocation>                callerSet_          = new HashSet<Invocation>();
+    private Map<Invocation, Invocation>    callerSet_          =
+                                                                       new ConcurrentHashMap<Invocation, Invocation>();
 
     private boolean                        isFieldAccess_      = false;
 
@@ -110,7 +111,7 @@ public class Invocation implements InvocationMBean, Serializable
         return maximumInterval_.getInterval();
     }
 
-    public synchronized long getAverage()
+    public long getAverage()
     {
         if (count_ == 0)
         {
@@ -130,7 +131,7 @@ public class Invocation implements InvocationMBean, Serializable
         return maximumInterval_.getCpuInterval();
     }
 
-    public synchronized long getCpuAverage()
+    public long getCpuAverage()
     {
         if (count_ == 0)
         {
@@ -150,7 +151,7 @@ public class Invocation implements InvocationMBean, Serializable
         return maximumInterval_.getUserInterval();
     }
 
-    public synchronized long getUserAverage()
+    public long getUserAverage()
     {
         if (count_ == 0)
         {
@@ -177,7 +178,7 @@ public class Invocation implements InvocationMBean, Serializable
     public synchronized String[] getAllCallerName()
     {
         Invocation[] invocations =
-                (Invocation[])callerSet_.toArray(new Invocation[callerSet_.size()]);
+                (Invocation[])callerSet_.keySet().toArray(new Invocation[callerSet_.size()]);
         String[] objNames = new String[invocations.length];
 
         for (int index = 0; index < invocations.length; index++)
@@ -192,7 +193,7 @@ public class Invocation implements InvocationMBean, Serializable
     public synchronized Invocation[] getAllCallerInvocation()
     {
         Invocation[] invocations =
-                (Invocation[])callerSet_.toArray(new Invocation[callerSet_.size()]);
+                (Invocation[])callerSet_.keySet().toArray(new Invocation[callerSet_.size()]);
 
         return invocations;
     }
@@ -283,11 +284,11 @@ public class Invocation implements InvocationMBean, Serializable
         return result;
     }
 
-    public synchronized void addCaller(Invocation caller)
+    public void addCaller(Invocation caller)
     {
         if (caller != null)
         {
-            callerSet_.add(caller);
+            callerSet_.put(caller, caller);
         }
     }
 
