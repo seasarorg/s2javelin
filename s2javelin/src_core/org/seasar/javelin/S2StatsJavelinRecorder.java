@@ -133,11 +133,11 @@ public class S2StatsJavelinRecorder
         {
             try
             {
-                if("".equals(alarmListenerName))
+                if ("".equals(alarmListenerName))
                 {
                     continue;
                 }
-                
+
                 Class<?> alarmListenerClass = loadClass(alarmListenerName);
                 Object listener = alarmListenerClass.newInstance();
                 if (listener instanceof AlarmListener)
@@ -249,9 +249,13 @@ public class S2StatsJavelinRecorder
         {
             return;
         }
+
         Invocation invocation = component.getInvocation(methodName);
+
         if (invocation == null)
         {
+            int recordedInvocationNum = component.getRecordedInvocationNum();
+
             try
             {
                 String processName = VMStatusHelper.getProcessName();
@@ -260,12 +264,16 @@ public class S2StatsJavelinRecorder
                                        config.getThrowableMax(), config.getRecordThreshold(),
                                        config.getAlarmThreshold());
 
-                component.addInvocation(invocation);
+                if (recordedInvocationNum < config.getRecordInvocationMax())
+                {
+                    component.addInvocation(invocation);
+                }
             }
             catch (NullPointerException ex)
             {
                 SystemLogger.getInstance().warn(ex);
             }
+
         }
         try
         {
@@ -339,7 +347,7 @@ public class S2StatsJavelinRecorder
             else
             {
                 vmStatus = vmStatusHelper__.createVMStatus();
-                
+
                 node = addCallTree(node, tree, stacktrace, invocation, config, vmStatus);
             }
             // パラメータ設定が行われているとき、ノードにパラメータを設定する
@@ -395,13 +403,11 @@ public class S2StatsJavelinRecorder
             if (config.isArgsDetail())
             {
                 int argsDetailDepth = config.getArgsDetailDepth();
-                argStrings[index] =
-                        StatsUtil.buildDetailString(args[index], argsDetailDepth);
+                argStrings[index] = StatsUtil.buildDetailString(args[index], argsDetailDepth);
             }
             else
             {
-                argStrings[index] =
-                        StatsUtil.toStr(args[index], config.getStringLimitLength());
+                argStrings[index] = StatsUtil.toStr(args[index], config.getStringLimitLength());
             }
         }
         node.setArgs(argStrings);
@@ -466,11 +472,11 @@ public class S2StatsJavelinRecorder
                 // (下位レイヤで例外が発生した場合のため。)
                 return;
             }
-            
+
             CallTreeNode parent = node.getParent();
 
             VMStatus vmStatus;
-            if(parent == null && config.isLogMBeanInfoRoot() == true)
+            if (parent == null && config.isLogMBeanInfoRoot() == true)
             {
                 vmStatus = vmStatusHelper__.createVMStatusForce();
             }

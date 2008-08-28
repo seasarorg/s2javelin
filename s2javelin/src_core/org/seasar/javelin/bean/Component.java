@@ -4,15 +4,13 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class Component implements ComponentMBean, Serializable
 {
-	private static final long serialVersionUID = -6357402061431088667L;
+    private static final long       serialVersionUID = -6357402061431088667L;
 
-	private String                  className_;
+    private String                  className_;
 
-
-    private Map<String, Invocation> invocationMap_ = new HashMap<String, Invocation>();
+    private Map<String, Invocation> invocationMap_   = new HashMap<String, Invocation>();
 
     public Component(String className)
     {
@@ -39,6 +37,11 @@ public class Component implements ComponentMBean, Serializable
     public synchronized Invocation getInvocation(String methodName)
     {
         return invocationMap_.get(methodName);
+    }
+
+    public synchronized int getRecordedInvocationNum()
+    {
+        return invocationMap_.size();
     }
 
     public synchronized void reset()
