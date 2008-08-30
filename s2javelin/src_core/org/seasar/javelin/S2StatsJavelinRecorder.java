@@ -264,7 +264,11 @@ public class S2StatsJavelinRecorder
                                        config.getThrowableMax(), config.getRecordThreshold(),
                                        config.getAlarmThreshold());
 
-                if (recordedInvocationNum < config.getRecordInvocationMax())
+                if (recordedInvocationNum >= config.getRecordInvocationMax())
+                {
+                    component.addAndDeleteOldestInvocation(invocation);
+                }
+                else
                 {
                     component.addInvocation(invocation);
                 }

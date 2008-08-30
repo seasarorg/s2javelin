@@ -15,6 +15,7 @@ public interface InvocationMBean {
     long getCpuMaximum();
     long getCpuAverage();
 	long getThrowableCount();
+	long getLastUpdatedTime();
 	List<Throwable> getThrowableList();
 
 	long getRecordThreshold();

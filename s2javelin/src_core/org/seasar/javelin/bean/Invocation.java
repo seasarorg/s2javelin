@@ -8,9 +8,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Invocation implements InvocationMBean, Serializable
 {
-	private static final long serialVersionUID = -5812420032608047545L;
+    private static final long              serialVersionUID    = -5812420032608047545L;
 
-	private static final long              INITIAL             = -1;
+    private static final long              INITIAL             = -1;
 
     private String                         className_;
 
@@ -26,7 +26,8 @@ public class Invocation implements InvocationMBean, Serializable
 
     private InvocationInterval             maximumInterval_    = new InvocationInterval();
 
-    private LinkedList<InvocationInterval> intervalList_ = new LinkedList<InvocationInterval>();
+    private LinkedList<InvocationInterval> intervalList_       =
+                                                                       new LinkedList<InvocationInterval>();
 
     private LinkedList<Throwable>          throwableList_      = new LinkedList<Throwable>();
 
@@ -70,109 +71,124 @@ public class Invocation implements InvocationMBean, Serializable
     /** ハッシュコード。 */
     private int                            code_               = 0;
 
-    public Invocation(String processName, String className, String methodName,
-            int intervalMax, int throwableMax, long recordThreshold, long alarmThreshold)
-    {
-        processName_ = processName;
-        className_ = className;
-        methodName_ = methodName;
-        intervalMax_ = intervalMax;
-        throwableMax_ = throwableMax;
-        recordThreshold_ = recordThreshold;
-        alarmThreshold_ = alarmThreshold;
-        
-        String id = className_ + "#" + methodName_;
-        code_ = id.hashCode();
-    }
+    /** 最終更新時刻 */
+    private long                           lastUpdatedTime_;
 
+    /**
+     * 
+     * @param processName
+     * @param className
+     * @param methodName
+     * @param intervalMax
+     * @param throwableMax
+     * @param recordThreshold
+     * @param alarmThreshold
+     */
+    public Invocation(String processName, String className, String methodName, int intervalMax,
+            int throwableMax, long recordThreshold, long alarmThreshold)
+    {
+        this.processName_ = processName;
+        this.className_ = className;
+        this.methodName_ = methodName;
+        this.intervalMax_ = intervalMax;
+        this.throwableMax_ = throwableMax;
+        this.recordThreshold_ = recordThreshold;
+        this.alarmThreshold_ = alarmThreshold;
+
+        String id = this.className_ + "#" + this.methodName_;
+        this.code_ = id.hashCode();
+
+        this.lastUpdatedTime_ = System.currentTimeMillis();
+    }
 
     public String getClassName()
     {
-        return className_;
+        return this.className_;
     }
 
     public String getMethodName()
     {
-        return methodName_;
+        return this.methodName_;
     }
 
     public long getCount()
     {
-        return count_;
+        return this.count_;
     }
 
     public long getMinimum()
     {
-        return minimumInterval_.getInterval();
+        return this.minimumInterval_.getInterval();
     }
 
     public long getMaximum()
     {
-        return maximumInterval_.getInterval();
+        return this.maximumInterval_.getInterval();
     }
 
     public long getAverage()
     {
-        if (count_ == 0)
+        if (this.count_ == 0)
         {
             return 0;
         }
 
-        return intervalSum_.getInterval() / count_;
+        return this.intervalSum_.getInterval() / this.count_;
     }
 
     public long getCpuMinimum()
     {
-        return minimumInterval_.getCpuInterval();
+        return this.minimumInterval_.getCpuInterval();
     }
 
     public long getCpuMaximum()
     {
-        return maximumInterval_.getCpuInterval();
+        return this.maximumInterval_.getCpuInterval();
     }
 
     public long getCpuAverage()
     {
-        if (count_ == 0)
+        if (this.count_ == 0)
         {
             return 0;
         }
 
-        return intervalSum_.getCpuInterval() / count_;
+        return this.intervalSum_.getCpuInterval() / this.count_;
     }
 
     public long getUserMinimum()
     {
-        return minimumInterval_.getUserInterval();
+        return this.minimumInterval_.getUserInterval();
     }
 
     public long getUserMaximum()
     {
-        return maximumInterval_.getUserInterval();
+        return this.maximumInterval_.getUserInterval();
     }
 
     public long getUserAverage()
     {
-        if (count_ == 0)
+        if (this.count_ == 0)
         {
             return 0;
         }
 
-        return intervalSum_.getUserInterval() / count_;
-    }    
+        return this.intervalSum_.getUserInterval() / this.count_;
+    }
+
     public List<InvocationInterval> getIntervalList()
     {
-        return intervalList_;
+        return this.intervalList_;
     }
 
     public long getThrowableCount()
     {
-        return throwableList_.size();
+        return this.throwableList_.size();
     }
 
     public List<Throwable> getThrowableList()
     {
-        return throwableList_;
+        return this.throwableList_;
     }
 
     public synchronized String[] getAllCallerName()
@@ -183,8 +199,8 @@ public class Invocation implements InvocationMBean, Serializable
 
         for (int index = 0; index < invocations.length; index++)
         {
-            objNames[index] = invocations[index].getClassName() + "#"
-					+ invocations[index].getMethodName();
+            objNames[index] =
+                    invocations[index].getClassName() + "#" + invocations[index].getMethodName();
         }
 
         return objNames;
@@ -210,10 +226,10 @@ public class Invocation implements InvocationMBean, Serializable
 
         InvocationInterval intervalSum = this.intervalSum_;
         updateIntervalSum(intervalSum, interval);
-        intervalList_.add(interval);
-        while (intervalList_.size() > intervalMax_)
+        this.intervalList_.add(interval);
+        while (this.intervalList_.size() > this.intervalMax_)
         {
-            intervalList_.removeFirst();
+            this.intervalList_.removeFirst();
         }
 
         InvocationInterval minInterval = this.minimumInterval_;
@@ -221,6 +237,8 @@ public class Invocation implements InvocationMBean, Serializable
 
         InvocationInterval maxInterval = this.maximumInterval_;
         updateMaxInterval(interval, maxInterval);
+        
+        updateLastUpdatedTime();
     }
 
     private void updateIntervalSum(InvocationInterval intervalSum, InvocationInterval interval)
@@ -232,6 +250,8 @@ public class Invocation implements InvocationMBean, Serializable
         intervalSum.setInterval(sum);
         intervalSum.setCpuInterval(cpuSum);
         intervalSum.setUserInterval(userSum);
+        
+        updateLastUpdatedTime();
     }
 
     private void updateMaxInterval(InvocationInterval interval, InvocationInterval maxInterval)
@@ -246,6 +266,8 @@ public class Invocation implements InvocationMBean, Serializable
         maxInterval.setInterval(newMaxInterval);
         maxInterval.setCpuInterval(newCpuMaxInterval);
         maxInterval.setUserInterval(newUserMaxInterval);
+        
+        updateLastUpdatedTime();
     }
 
     private void updateMinInterval(InvocationInterval interval, InvocationInterval minInterval)
@@ -256,10 +278,12 @@ public class Invocation implements InvocationMBean, Serializable
                 calcUpdateMinInterval(minInterval.getCpuInterval(), interval.getCpuInterval());
         long newMinUserInterval =
                 calcUpdateMinInterval(minInterval.getUserInterval(), interval.getUserInterval());
-        
+
         minInterval.setInterval(newMinInterval);
         minInterval.setCpuInterval(newMinCpuInterval);
         minInterval.setUserInterval(newMinUserInterval);
+        
+        updateLastUpdatedTime();
     }
 
     private long calcUpdateMinInterval(long oldValue, long newValue)
@@ -290,6 +314,8 @@ public class Invocation implements InvocationMBean, Serializable
         {
             callerSet_.put(caller, caller);
         }
+        
+        updateLastUpdatedTime();
     }
 
     public synchronized void addThrowable(Throwable throwable)
@@ -299,6 +325,8 @@ public class Invocation implements InvocationMBean, Serializable
         {
             throwableList_.removeFirst();
         }
+        
+        updateLastUpdatedTime();
     }
 
     public long getRecordThreshold()
@@ -309,6 +337,8 @@ public class Invocation implements InvocationMBean, Serializable
     public void setRecordThreshold(long recordThreshold)
     {
         recordThreshold_ = recordThreshold;
+        
+        updateLastUpdatedTime();
     }
 
     public long getAlarmThreshold()
@@ -319,6 +349,8 @@ public class Invocation implements InvocationMBean, Serializable
     public void setAlarmThreshold(long alarmThreshold)
     {
         alarmThreshold_ = alarmThreshold;
+        
+        updateLastUpdatedTime();
     }
 
     public String toString()
@@ -375,6 +407,8 @@ public class Invocation implements InvocationMBean, Serializable
         intervalList_.clear();
 
         throwableList_.clear();
+        
+        updateLastUpdatedTime();
     }
 
     public boolean isFieldAccess()
@@ -385,6 +419,8 @@ public class Invocation implements InvocationMBean, Serializable
     public void setFieldAccess(boolean isFieldAccess)
     {
         isFieldAccess_ = isFieldAccess;
+        
+        updateLastUpdatedTime();
     }
 
     public boolean isReadFieldAccess()
@@ -395,6 +431,8 @@ public class Invocation implements InvocationMBean, Serializable
     public void setReadFieldAccess(boolean isReadFieldAccess)
     {
         isReadFieldAccess_ = isReadFieldAccess;
+        
+        updateLastUpdatedTime();
     }
 
     public String getProcessName()
@@ -415,6 +453,8 @@ public class Invocation implements InvocationMBean, Serializable
             maxAccumulatedTime_ = accumulatedTime_;
             maxAccumulatedTimeUpdateCount_++;
         }
+        
+        updateLastUpdatedTime();
     }
 
     public long getMaxAccumulatedTime()
@@ -445,6 +485,7 @@ public class Invocation implements InvocationMBean, Serializable
     public void setRecordCpuThreshold(long recordCpuThreshold)
     {
         this.recordCpuThreshold_ = recordCpuThreshold;
+        updateLastUpdatedTime();
     }
 
     /**
@@ -465,5 +506,23 @@ public class Invocation implements InvocationMBean, Serializable
     public void setAlarmCpuThreshold(long alarmCpuThreshold)
     {
         this.alarmCpuThreshold_ = alarmCpuThreshold;
+        updateLastUpdatedTime();
+    }
+
+    /**
+     * 最終更新時刻を取得
+     * @return 最終更新時刻
+     */
+    public long getLastUpdatedTime()
+    {
+        return this.lastUpdatedTime_;
+    }
+    
+    /**
+     * 最終更新時刻を更新
+     */
+    private void updateLastUpdatedTime()
+    {
+        this.lastUpdatedTime_ = System.currentTimeMillis();
     }
 }

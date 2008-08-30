@@ -1,6 +1,7 @@
 package org.seasar.javelin.bean;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +32,18 @@ public class Component implements ComponentMBean, Serializable
 
     public synchronized void addInvocation(Invocation invocation)
     {
+        invocationMap_.put(invocation.getMethodName(), invocation);
+    }
+
+    public synchronized void addAndDeleteOldestInvocation(Invocation invocation)
+    {
+        int size = invocationMap_.size();
+        Invocation[] invocations = invocationMap_.values().toArray(new Invocation[size]);
+        Arrays.sort(invocations, new InvocationUpdatedTimeComparator());
+
+        String deleteInvocationKey = invocations[0].getMethodName();
+
+        invocationMap_.remove(deleteInvocationKey);
         invocationMap_.put(invocation.getMethodName(), invocation);
     }
 
