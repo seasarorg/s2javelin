@@ -41,9 +41,12 @@ public class Component implements ComponentMBean, Serializable
         Invocation[] invocations = invocationMap_.values().toArray(new Invocation[size]);
         Arrays.sort(invocations, new InvocationUpdatedTimeComparator());
 
-        String deleteInvocationKey = invocations[0].getMethodName();
+        if (0 < size)
+        {
+            String deleteInvocationKey = invocations[0].getMethodName();
+            invocationMap_.remove(deleteInvocationKey);
+        }
 
-        invocationMap_.remove(deleteInvocationKey);
         invocationMap_.put(invocation.getMethodName(), invocation);
     }
 
