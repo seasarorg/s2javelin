@@ -1,9 +1,10 @@
 package org.seasar.javelin.bean;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Component implements ComponentMBean, Serializable
 {
@@ -11,7 +12,9 @@ public class Component implements ComponentMBean, Serializable
 
     private String                  className_;
 
-    private Map<String, Invocation> invocationMap_   = new HashMap<String, Invocation>();
+    private Map<String, Invocation> invocationMap_   = new ConcurrentHashMap<String, Invocation>();
+
+    private Queue<String>           methodNameQueue_ = new ConcurrentLinkedQueue<String>();
 
     public Component(String className)
     {
@@ -23,7 +26,7 @@ public class Component implements ComponentMBean, Serializable
         return className_;
     }
 
-    public synchronized Invocation[] getAllInvocation()
+    public Invocation[] getAllInvocation()
     {
         int size = invocationMap_.values().size();
         Invocation[] invocations = invocationMap_.values().toArray(new Invocation[size]);
@@ -35,38 +38,35 @@ public class Component implements ComponentMBean, Serializable
         invocationMap_.put(invocation.getMethodName(), invocation);
     }
 
-    public synchronized void addAndDeleteOldestInvocation(Invocation invocation)
+    public void addAndDeleteOldestInvocation(Invocation invocation)
     {
-        int size = invocationMap_.size();
-        Invocation[] invocations = invocationMap_.values().toArray(new Invocation[size]);
-        Arrays.sort(invocations, new InvocationUpdatedTimeComparator());
-
+        int size = methodNameQueue_.size();
         if (0 < size)
         {
-            String deleteInvocationKey = invocations[0].getMethodName();
+            String deleteInvocationKey = methodNameQueue_.poll();
             invocationMap_.remove(deleteInvocationKey);
         }
 
-        invocationMap_.put(invocation.getMethodName(), invocation);
+        String methodName = invocation.getMethodName();
+        methodNameQueue_.offer(methodName);
+        invocationMap_.put(methodName, invocation);
     }
 
-    public synchronized Invocation getInvocation(String methodName)
+    public Invocation getInvocation(String methodName)
     {
         return invocationMap_.get(methodName);
     }
 
-    public synchronized int getRecordedInvocationNum()
+    public int getRecordedInvocationNum()
     {
         return invocationMap_.size();
     }
 
-    public synchronized void reset()
+    public void reset()
     {
-        int size = invocationMap_.values().size();
-        Invocation[] invocations = invocationMap_.values().toArray(new Invocation[size]);
-        for (int index = 0; index < invocations.length; index++)
+        for (Invocation invocation : invocationMap_.values())
         {
-            invocations[index].reset();
+            invocation.reset();
         }
     }
 }
