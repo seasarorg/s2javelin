@@ -33,9 +33,11 @@ public class Component implements ComponentMBean, Serializable
         return invocations;
     }
 
-    public synchronized void addInvocation(Invocation invocation)
+    public void addInvocation(Invocation invocation)
     {
-        invocationMap_.put(invocation.getMethodName(), invocation);
+        String methodName = invocation.getMethodName();
+        methodNameQueue_.offer(methodName);
+        invocationMap_.put(methodName, invocation);
     }
 
     public void addAndDeleteOldestInvocation(Invocation invocation)
@@ -47,9 +49,7 @@ public class Component implements ComponentMBean, Serializable
             invocationMap_.remove(deleteInvocationKey);
         }
 
-        String methodName = invocation.getMethodName();
-        methodNameQueue_.offer(methodName);
-        invocationMap_.put(methodName, invocation);
+        addInvocation(invocation);
     }
 
     public Invocation getInvocation(String methodName)
