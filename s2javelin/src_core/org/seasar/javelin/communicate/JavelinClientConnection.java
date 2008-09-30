@@ -145,7 +145,7 @@ public class JavelinClientConnection
     public void sendAlarm(byte[] telegramArray)
     {
         boolean offerResult = this.queue_.offer(telegramArray);
-        if (offerResult == false)
+        if (offerResult == false && telegramArray != null && telegramArray.length > 0)
         {
             SystemLogger.getInstance().warn("送信キューへの追加に失敗しました。通信を終了します。");
             close();
