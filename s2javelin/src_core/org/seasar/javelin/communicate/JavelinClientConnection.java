@@ -153,7 +153,7 @@ public class JavelinClientConnection
 
     public boolean isClosed()
     {
-        return this.clientSocket_.isClosed();
+        return this.clientSocket_ == null || this.clientSocket_.isClosed();
     }
 
     byte[] take()
