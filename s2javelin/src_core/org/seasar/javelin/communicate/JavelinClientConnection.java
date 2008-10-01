@@ -80,8 +80,7 @@ public class JavelinClientConnection
         this.outputStream_.write(byteOutputArr, 0, headerLength);
         this.outputStream_.flush();
 
-        this.outputStream_.write(byteOutputArr, headerLength,
-                                 byteOutputArr.length - headerLength);
+        this.outputStream_.write(byteOutputArr, headerLength, byteOutputArr.length - headerLength);
         this.outputStream_.flush();
     }
 
