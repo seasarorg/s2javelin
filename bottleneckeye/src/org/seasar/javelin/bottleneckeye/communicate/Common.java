@@ -5,7 +5,6 @@ package org.seasar.javelin.bottleneckeye.communicate;
  */
 public class Common 
 {
-
     /** 電文種別（状態通知） */
 	public static final byte BYTE_TELEGRAM_KIND_ALERT = 0;
 
@@ -146,11 +145,12 @@ public class Common
     /** 項目名（リソース値での、クラスヒストグラムから取得したオブジェクトの数） */
     public static final String ITEMNAME_CLASS_HISTOGRAM_COUNT = "classHistogramCount";
 
-
     /** 項目名（JVNファイル JVNファイル名） */
     public static final String ITEMNAME_JVN_FILE_NAME = "jvnFileName";
 
     /** 項目名（JVNファイル JVNファイル内容） */
     public static final String ITEMNAME_JVN_FILE_CONTENT = "jvnFileContent";
 
+    /** 項目名（Tomcatのワーカースレッドプール(最大数,稼動数)） */
+    public static final String ITEMNAME_TOMCAT_POOL = "tomcatPool";
 }
