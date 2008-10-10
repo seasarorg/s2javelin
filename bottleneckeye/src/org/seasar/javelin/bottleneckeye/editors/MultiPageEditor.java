@@ -129,7 +129,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
     private static final int                DEFAULT_ALARM                 = 0;
 
     /** Max methodのデフォルト値 */
-    private static final long               DEFAULT_MAXMETHOD             = 20;
+    private static final long               DEFAULT_MAXMETHOD             = 50;
 
     /** モードのデフォルト値 */
     private static final String             DEFAULT_MODE                  = "TCP";
