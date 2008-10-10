@@ -151,6 +151,6 @@ public class Common
     /** 項目名（JVNファイル JVNファイル内容） */
     public static final String ITEMNAME_JVN_FILE_CONTENT = "jvnFileContent";
 
-    /** 項目名（Tomcatのワーカースレッドプール(最大数,稼動数)） */
-    public static final String ITEMNAME_TOMCAT_POOL = "tomcatPool";
+    /** 項目名（APサーバのワーカースレッドプール(最大数,稼動数)） */
+    public static final String ITEMNAME_SERVER_POOL = "serverPool";
 }
