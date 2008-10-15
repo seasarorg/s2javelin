@@ -14,15 +14,31 @@ import org.seasar.javelin.SystemLogger;
 public class ThreadUtil
 {
     /** スレッド情報取得用MXBean。 */
-    private static ThreadMXBean          threadMBean__           = ManagementFactory.getThreadMXBean();
-    
+    private static ThreadMXBean      threadMBean__ = ManagementFactory.getThreadMXBean();
+
     private static Field             tidField__;
     static
     {
+
         try
         {
-            tidField__ = Thread.class.getDeclaredField("tid");
-            tidField__.setAccessible(true);
+            try
+            {
+                tidField__ = Thread.class.getDeclaredField("tid");
+            }
+            catch (SecurityException se)
+            {
+                SystemLogger.getInstance().warn(se);
+            }
+            catch (NoSuchFieldException nsfe)
+            {
+                tidField__ = Thread.class.getDeclaredField("uniqueId");
+            }
+
+            if (tidField__ != null)
+            {
+                tidField__.setAccessible(true);
+            }
 
             if (threadMBean__.isThreadContentionMonitoringSupported())
             {
@@ -39,16 +55,16 @@ public class ThreadUtil
         }
     }
 
-    private static ThreadLocal<Long> tid__ = new ThreadLocal<Long>() {
-                                               protected Long initialValue()
-                                               {
-                                                   Thread thread = Thread.currentThread();
-                                                   Long tid = ThreadUtil.getThreadId(thread);
-                                                   return tid;
-                                               }
-                                           };
+    private static ThreadLocal<Long> tid__         = new ThreadLocal<Long>() {
+                                                       protected Long initialValue()
+                                                       {
+                                                           Thread thread = Thread.currentThread();
+                                                           Long tid =
+                                                                   ThreadUtil.getThreadId(thread);
+                                                           return tid;
+                                                       }
+                                                   };
 
-                                           
     /**
      * スタックトレースを取得する。
      * 
@@ -66,7 +82,7 @@ public class ThreadUtil
      * @param stacktraces スタックトレース。
      * @return スタックトレース文字列。
      */
-    public static String getStackTrace(StackTraceElement[] stacktraces)
+    public static String getStackTrace(StackTraceElement[] stacktraces, int depth)
     {
         StringBuffer traceBuffer = new StringBuffer();
 
@@ -82,15 +98,29 @@ public class ThreadUtil
             }
         }
 
-        for (; index < stacktraces.length; index++)
+        for (; index < stacktraces.length && depth > 0; index++)
         {
             StackTraceElement stackTraceElement = stacktraces[index];
             String stackTraceLine = stackTraceElement.toString();
             traceBuffer.append("\tat ");
             traceBuffer.append(stackTraceLine);
             traceBuffer.append(SystemLogger.NEW_LINE);
+
+            depth--;
         }
+
         return traceBuffer.toString();
+    }
+
+    /**
+     * スタックトレースを文字列に変換する。
+     *  
+     * @param stacktraces スタックトレース。
+     * @return スタックトレース文字列。
+     */
+    public static String getStackTrace(StackTraceElement[] stacktraces)
+    {
+        return getStackTrace(stacktraces, -1);
     }
 
     /**
@@ -118,6 +148,10 @@ public class ThreadUtil
             {
                 tid = (Long)tidField__.get(thread);
             }
+            else
+            {
+                tid = thread.getId();
+            }
         }
         catch (Exception ex)
         {
@@ -125,7 +159,7 @@ public class ThreadUtil
         }
         return tid;
     }
-    
+
     public static long[] getAllThreadIds()
     {
         return threadMBean__.getAllThreadIds();
@@ -141,7 +175,8 @@ public class ThreadUtil
     public static ThreadInfo getThreadInfo(Long threadIdLong, int maxDepth)
     {
         return threadMBean__.getThreadInfo(threadIdLong, maxDepth);
-    }    
+    }
+
     /**
      * インスタンス化を禁止する。
      */
