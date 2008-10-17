@@ -80,6 +80,7 @@ public class ThreadUtil
      * スタックトレースを文字列に変換する。
      *  
      * @param stacktraces スタックトレース。
+     * @param depth スタックトレース取得の深さ。
      * @return スタックトレース文字列。
      */
     public static String getStackTrace(StackTraceElement[] stacktraces, int depth)
@@ -135,7 +136,7 @@ public class ThreadUtil
 
     /**
      * スレッドIDを取得する。
-     * @param スレッド。
+     * @param thread スレッド。
      * 
      * @return スレッドID。
      */
@@ -160,6 +161,11 @@ public class ThreadUtil
         return tid;
     }
 
+    /**
+     * 全てのスレッドIDを取得する。
+     * 
+     * @return 全てのスレッドID。
+     */
     public static long[] getAllThreadIds()
     {
         return threadMBean__.getAllThreadIds();
@@ -168,9 +174,9 @@ public class ThreadUtil
     /**
      * スレッド情報を取得する。
      * 
-     * @param maxDepth
-     * @param threadIdLong
-     * @return　スレッド情報。
+     * @param maxDepth 深さ。
+     * @param threadIdLong スレッドID。
+     * @return スレッド情報。
      */
     public static ThreadInfo getThreadInfo(Long threadIdLong, int maxDepth)
     {
