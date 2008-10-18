@@ -259,7 +259,7 @@ public class S2JavelinConfig
     private static final boolean DEFAULT_ALARM_EXCEPTION     = true;
 
     /** １クラス辺り保持するInvocation（メソッド呼び出し）最大数のデフォルト値 */
-    private static final int     DEFAULT_REC_INVOCATION_MAX  = 256;
+    private static final int     DEFAULT_REC_INVOCATION_MAX  = 1024;
 
     /**
      * S2StatsJavelinの設定を保持するオブジェクトを作成する。
