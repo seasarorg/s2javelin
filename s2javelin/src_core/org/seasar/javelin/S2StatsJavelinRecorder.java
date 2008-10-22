@@ -537,10 +537,19 @@ public class S2StatsJavelinRecorder
                 {
                     recordTransaction(node);
                 }
+                
+                boolean judgeGenerateJaveinFile = recordStrategy_.judgeGenerateJaveinFile(node);
+                boolean judgeSendExceedThresholdAlarm = recordStrategy_.judgeSendExceedThresholdAlarm(node);
+
+                boolean isLastAlarmTooNear = false;
+                if (judgeGenerateJaveinFile || judgeSendExceedThresholdAlarm)
+                {
+                    isLastAlarmTooNear = checkLastAlarmTime(node, config);
+                }
 
                 // ファイル出力の閾値を超えていた場合に、Javelinログをファイルに出力する。
                 String jvnLogFileName = null;
-                if (recordStrategy_.judgeGenerateJaveinFile(node) == true)
+                if (judgeGenerateJaveinFile == true && isLastAlarmTooNear == true)
                 {
                     S2StatsJavelinFileGenerator generator = new S2StatsJavelinFileGenerator(config);
                     jvnLogFileName =
@@ -549,7 +558,7 @@ public class S2StatsJavelinRecorder
                 }
 
                 // アラームの閾値を超えていた場合に、アラームを通知する。
-                if (recordStrategy_.judgeSendExceedThresholdAlarm(node) == true)
+                if (judgeSendExceedThresholdAlarm == true && isLastAlarmTooNear == true)
                 {
                     sendExceedThresholdAlarm(jvnLogFileName, node);
                 }
@@ -573,6 +582,33 @@ public class S2StatsJavelinRecorder
             // Javelinのログ出力処理呼び出しステータスを解除
             isRecordMethodCalled_.set(Boolean.FALSE);
         }
+    }
+
+    /**
+     * 最終アラーム送信時刻を確認し、更新する。
+     * アラーム送信時刻から現在までの経過時間が閾値(javelin.alarmIntervalThreshold)を
+     * 超えていた場合には、ログを出力しfalseを返す。
+     * 
+     * @param node 対象のノード。
+     * @param config 設定。
+     * @return アラーム送信時刻から現在までの経過時間が閾値を超えていた場合に限りtrueを返す。
+     */
+    private static boolean checkLastAlarmTime(CallTreeNode node, S2JavelinConfig config)
+    {
+        boolean isLastAlarmTooNear = false;
+        Invocation invocation = node.getInvocation();
+        long lastAlarmTime = invocation.getLastAlarmTime();
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastAlarmTime >= config.getAlarmIntervalThreshold())
+        {
+            isLastAlarmTooNear = true;
+            invocation.setLastAlarmTime(currentTime);
+            SystemLogger.getInstance().warn(
+                                            "Alarm Discard: Class= " + invocation.getClassName()
+                                                    + ", Method= " + invocation.getMethodName());
+        }
+
+        return isLastAlarmTooNear;
     }
 
     private static void setCallerNode(CallTreeNode node)
@@ -700,6 +736,16 @@ public class S2StatsJavelinRecorder
      */
     private static void outputNodeInfo(S2JavelinConfig config, CallTree callTree)
     {
+        if (config.isRecordException() == true || config.isAlarmException() == true)
+        {
+            CallTreeNode rootNode = callTree.getRootNode();
+            boolean isLastAlarmTooNear = checkLastAlarmTime(rootNode, config);
+            if(isLastAlarmTooNear)
+            {
+                return;
+            }
+        }
+        
         String jvnLogFileName = null;
         CallTreeNode node = callerNode_.get();
         if (config.isRecordException() == true)

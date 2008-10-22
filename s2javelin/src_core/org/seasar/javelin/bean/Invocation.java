@@ -73,6 +73,9 @@ public class Invocation implements InvocationMBean, Serializable
 
     /** 最終更新時刻 */
     private long                           lastUpdatedTime_;
+    
+    /** 最終アラーム発生時刻 */
+    private long                           lastAlarmTime_;
 
     /**
      * 
@@ -97,6 +100,8 @@ public class Invocation implements InvocationMBean, Serializable
 
         String id = this.className_ + "#" + this.methodName_;
         this.code_ = id.hashCode();
+
+        this.lastAlarmTime_ = 0;
 
         this.lastUpdatedTime_ = System.currentTimeMillis();
     }
@@ -524,5 +529,15 @@ public class Invocation implements InvocationMBean, Serializable
     private void updateLastUpdatedTime()
     {
         this.lastUpdatedTime_ = System.currentTimeMillis();
+    }
+
+    public long getLastAlarmTime()
+    {
+        return lastAlarmTime_;
+    }
+
+    public void setLastAlarmTime(long lastAlarmTime)
+    {
+        lastAlarmTime_ = lastAlarmTime;
     }
 }

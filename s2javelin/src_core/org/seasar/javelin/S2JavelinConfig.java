@@ -146,6 +146,11 @@ public class S2JavelinConfig
                                                                      JAVELIN_PREFIX
                                                                              + "record.invocation.num.max";
 
+    /** アラーム送信・Javelinログ出力を行う間隔の閾値。前回アラーム送信・Javelinログ出力を行った際から
+     * 経過した時間がこの閾値を超えていた場合のみアラーム送信・Javelinログ出力を行う。*/
+    public static final String   ALARM_INTERVAL_THRESHOLD_KEY      = JAVELIN_PREFIX + "alarmIntervalThreshold";
+
+    
     /** 保存するCallTree数のデフォルト値 */
     private static final int     DEFAULT_CALL_TREE_MAX       = 1000000;
 
@@ -260,6 +265,9 @@ public class S2JavelinConfig
 
     /** １クラス辺り保持するInvocation（メソッド呼び出し）最大数のデフォルト値 */
     private static final int     DEFAULT_REC_INVOCATION_MAX  = 1024;
+
+    /** アラーム送信・Javelinログ出力を行う間隔の閾値のデフォルト値。*/
+    public static final long     DEFAULT_ALARM_INTERVAL_THRESHOLD = 1000;
 
     /**
      * S2StatsJavelinの設定を保持するオブジェクトを作成する。
@@ -1209,4 +1217,30 @@ public class S2JavelinConfig
         configUtil.setInteger(RECORD_INVOCATION_MAX_KEY, recInvocationMax);
     }
 
+    /**
+     * アラーム送信・Javelinログ出力を行う間隔の閾値を取得する。
+     * 
+     * 前回アラーム送信・Javelinログ出力を行った際から
+     * 経過した時間がこの閾値を超えていた場合のみ、アラーム送信・Javelinログ出力を行う。
+     * @return アラーム送信・Javelinログ出力を行う間隔の閾値。
+     */
+    public long getAlarmIntervalThreshold()
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        return configUtil.getLong(ALARM_INTERVAL_THRESHOLD_KEY, DEFAULT_ALARM_INTERVAL_THRESHOLD);
+    }
+    
+    /**
+     * アラーム送信・Javelinログ出力を行う間隔の閾値を設定する。
+     * 
+     * 前回アラーム送信・Javelinログ出力を行った際から
+     * 経過した時間がこの閾値を超えていた場合のみ、アラーム送信・Javelinログ出力を行う。
+     * 
+     * @param alarmIntervalThreshold 閾値。
+     */
+    public void setAlarmIntervalThreshold(long alarmIntervalThreshold)
+    {
+        JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
+        configUtil.setLong(ALARM_INTERVAL_THRESHOLD_KEY, alarmIntervalThreshold);
+    }
 }
