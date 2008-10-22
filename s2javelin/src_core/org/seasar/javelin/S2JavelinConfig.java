@@ -267,7 +267,7 @@ public class S2JavelinConfig
     private static final int     DEFAULT_REC_INVOCATION_MAX  = 1024;
 
     /** アラーム送信・Javelinログ出力を行う間隔の閾値のデフォルト値。*/
-    public static final long     DEFAULT_ALARM_INTERVAL_THRESHOLD = 1000;
+    public static final long     DEFAULT_ALARM_INTERVAL_THRESHOLD = 60000;
 
     /**
      * S2StatsJavelinの設定を保持するオブジェクトを作成する。
