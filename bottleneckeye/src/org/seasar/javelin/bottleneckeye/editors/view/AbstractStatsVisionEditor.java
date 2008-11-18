@@ -582,7 +582,7 @@ public abstract class AbstractStatsVisionEditor<T> extends GraphicalEditor imple
      */
     public void setMaxMethodCount(long maxMethodCount)
     {
-        if (maxMethodCount <= 0)
+        if (maxMethodCount < 0)
         {
             maxMethodCount = Long.MAX_VALUE;
         }
