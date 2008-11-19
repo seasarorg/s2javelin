@@ -51,7 +51,6 @@ public class JavelinClientConnection
             {
                 stopSendThread();
                 this.clientSocket_.close();
-                this.clientSocket_ = null;
             }
         }
         catch (IOException ioe)
