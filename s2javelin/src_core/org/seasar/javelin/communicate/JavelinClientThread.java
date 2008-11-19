@@ -65,7 +65,6 @@ public class JavelinClientThread implements Runnable
         {
             this.isRunning = false;
             this.clientConnection_.close();
-            this.clientConnection_ = null;
         }
     }
 
