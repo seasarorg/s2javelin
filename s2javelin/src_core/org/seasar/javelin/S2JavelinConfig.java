@@ -10,261 +10,303 @@ public class S2JavelinConfig
 {
 
     /** スレッドモデルの値：スレッドID */
-    public static final int      TM_THREAD_ID                = 1;
+    public static final int      TM_THREAD_ID                     = 1;
 
     /** スレッドモデルの値：スレッド名 */
-    public static final int      TM_THREAD_NAME              = 2;
+    public static final int      TM_THREAD_NAME                   = 2;
 
     /** スレッドモデルの値： */
-    public static final int      TM_CONTEXT_PATH             = 3;
+    public static final int      TM_CONTEXT_PATH                  = 3;
 
     /** Javelin系パラメータの接頭辞 */
-    public static final String   JAVELIN_PREFIX              = "javelin.";
+    public static final String   JAVELIN_PREFIX                   = "javelin.";
 
     /** メソッド平均時間を出力するために記録するInvocation数のプロパティ */
-    public static final String   INTERVALMAX_KEY             = JAVELIN_PREFIX + "intervalMax";
+    public static final String   INTERVALMAX_KEY                  = JAVELIN_PREFIX + "intervalMax";
 
     /** 例外の数を記録するためのInvocation数のプロパティ */
-    public static final String   THROWABLEMAX_KEY            = JAVELIN_PREFIX + "throwableMax";
+    public static final String   THROWABLEMAX_KEY                 = JAVELIN_PREFIX + "throwableMax";
 
     /** メモリに保存する閾値のプロパティ */
-    public static final String   STATISTICSTHRESHOLD_KEY     =
-                                                                     JAVELIN_PREFIX + "statistics"
-                                                                             + "Threshold";
+    public static final String   STATISTICSTHRESHOLD_KEY          =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "statistics"
+                                                                                  + "Threshold";
 
     /** ファイルに出力するTATの閾値のプロパティ */
-    public static final String   RECORDTHRESHOLD_KEY         = JAVELIN_PREFIX + "recordThreshold";
+    public static final String   RECORDTHRESHOLD_KEY              =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "recordThreshold";
 
     /** アラームを通知するTATの閾値のプロパティ */
-    public static final String   ALARMTHRESHOLD_KEY          = JAVELIN_PREFIX + "alarmThreshold";
+    public static final String   ALARMTHRESHOLD_KEY               =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "alarmThreshold";
 
     /** Javelinログを出力するファイル名のプロパティ */
-    public static final String   JAVELINFILEDIR_KEY          = JAVELIN_PREFIX + "javelinFileDir";
+    public static final String   JAVELINFILEDIR_KEY               =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "javelinFileDir";
 
     /** BottleneckEyeに利用するドメインのプロパティ */
-    public static final String   DOMAIN_KEY                  = JAVELIN_PREFIX + "domain";
+    public static final String   DOMAIN_KEY                       = JAVELIN_PREFIX + "domain";
 
     /** スタックトレースを出力するかどうかを決定するプロパティ */
-    public static final String   LOG_STACKTRACE_KEY          = JAVELIN_PREFIX + "log.stacktrace";
+    public static final String   LOG_STACKTRACE_KEY               =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "log.stacktrace";
 
     /** 引数情報を出力するかどうかを決定するプロパティ */
-    public static final String   LOG_ARGS_KEY                = JAVELIN_PREFIX + "log.args";
+    public static final String   LOG_ARGS_KEY                     = JAVELIN_PREFIX + "log.args";
 
     /** JMXInfoを出力するかどうか決定するプロパティ */
-    public static final String   LOG_MBEANINFO_KEY           = JAVELIN_PREFIX + "log.mbeaninfo";
+    public static final String   LOG_MBEANINFO_KEY                =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "log.mbeaninfo";
 
     /** 端点で、JMXInfoを出力するかどうか決定するプロパティ */
-    public static final String   LOG_MBEANINFO_ROOT_KEY      =
-                                                                     JAVELIN_PREFIX
-                                                                             + "log.mbeaninfo.root";
+    public static final String   LOG_MBEANINFO_ROOT_KEY           =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "log.mbeaninfo.root";
 
     /** 戻り値を出力するかどうかを決定するプロパティ */
-    public static final String   LOG_RETURN_KEY              = JAVELIN_PREFIX + "log.return";
+    public static final String   LOG_RETURN_KEY                   = JAVELIN_PREFIX + "log.return";
 
     /** 引数の詳細情報を出力するかどうかを決定するプロパティ */
-    public static final String   ARGS_DETAIL_KEY             = JAVELIN_PREFIX + "log.args.detail";
+    public static final String   ARGS_DETAIL_KEY                  =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "log.args.detail";
 
     /** 戻り値の詳細情報を出力するかどうかを決定するプロパティ */
-    public static final String   RETURN_DETAIL_KEY           = JAVELIN_PREFIX + "log.return.detail";
+    public static final String   RETURN_DETAIL_KEY                =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "log.return.detail";
 
     /** 引数の詳細情報の深さを表すプロパティ */
-    public static final String   ARGS_DETAIL_DEPTH_KEY       =
-                                                                     JAVELIN_PREFIX + "log.args."
-                                                                             + "detail.depth";
+    public static final String   ARGS_DETAIL_DEPTH_KEY            =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "log.args."
+                                                                                  + "detail.depth";
 
     /** 戻り値の詳細情報の深さを表すプロパティ */
-    public static final String   RETURN_DETAIL_DEPTH_KEY     =
-                                                                     JAVELIN_PREFIX + "log.return."
-                                                                             + "detail.depth";
+    public static final String   RETURN_DETAIL_DEPTH_KEY          =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "log.return."
+                                                                                  + "detail.depth";
 
     /** 呼び出し元が不明のときに設定する名前のプロパティ */
-    public static final String   ROOTCALLERNAME_KEY          = JAVELIN_PREFIX + "rootCallerName";
+    public static final String   ROOTCALLERNAME_KEY               =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "rootCallerName";
 
     /** 最も深い呼び出し先が不明のときに設定する名前のプロパティ */
-    public static final String   ENDCALLEENAME_KEY           = JAVELIN_PREFIX + "endCalleeName";
+    public static final String   ENDCALLEENAME_KEY                =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "endCalleeName";
 
     /** スレッドの名称の決定方法を表すプロパティ */
-    public static final String   THREADMODEL_KEY             = JAVELIN_PREFIX + "threadModel";
+    public static final String   THREADMODEL_KEY                  = JAVELIN_PREFIX + "threadModel";
 
     /** StatsJavelinの待ちうけポートのプロパティ名 */
-    public static final String   ACCEPTPORT_KEY              = JAVELIN_PREFIX + "acceptPort";
+    public static final String   ACCEPTPORT_KEY                   = JAVELIN_PREFIX + "acceptPort";
 
     /** Javelinのログ出力ON/OFF切替フラグのプロパティ名 */
-    public static final String   JAVELINENABLE_KEY           = JAVELIN_PREFIX + "javelinEnable";
+    public static final String   JAVELINENABLE_KEY                =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "javelinEnable";
 
     /** 属性、戻り値情報の文字列長 */
-    public static final String   STRINGLIMITLENGTH_KEY       = JAVELIN_PREFIX + "stringLimitLength";
+    public static final String   STRINGLIMITLENGTH_KEY            =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "stringLimitLength";
 
     /** エラーログファイルのプロパティ名 */
-    public static final String   SYSTEMLOG_KEY               = JAVELIN_PREFIX + "system.log";
+    public static final String   SYSTEMLOG_KEY                    = JAVELIN_PREFIX + "system.log";
 
     /** 利用するAlarmListener名 */
-    public static final String   ALARM_LISTENERS_KEY         = JAVELIN_PREFIX + "alarmListeners";
+    public static final String   ALARM_LISTENERS_KEY              =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "alarmListeners";
 
     /** JMX通信による情報公開を行うかどうかを表すプロパティ名 */
-    public static final String   RECORD_JMX_KEY              = JAVELIN_PREFIX + "record.jmx";
+    public static final String   RECORD_JMX_KEY                   = JAVELIN_PREFIX + "record.jmx";
 
     /** jvnログファイルの最大数を表すプロパティ名 */
-    public static final String   LOG_JVN_MAX_KEY             = JAVELIN_PREFIX + "log.jvn.max";
+    public static final String   LOG_JVN_MAX_KEY                  = JAVELIN_PREFIX + "log.jvn.max";
 
     /** jvnログファイルを圧縮したzipファイルの最大数を表すプロパティ名 */
-    public static final String   LOG_ZIP_MAX_KEY             = JAVELIN_PREFIX + "log.zip.max";
+    public static final String   LOG_ZIP_MAX_KEY                  = JAVELIN_PREFIX + "log.zip.max";
 
     /** 記録条件判定クラス */
-    public static final String   RECORDSTRATEGY_KEY          = JAVELIN_PREFIX + "recordStrategy";
+    public static final String   RECORDSTRATEGY_KEY               =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "recordStrategy";
 
     /** 利用するTelegramListener名 */
-    public static final String   TELERAM_LISTENERS_KEY       = JAVELIN_PREFIX + "telegramListeners";
+    public static final String   TELERAM_LISTENERS_KEY            =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "telegramListeners";
 
     /** Javelinのシステムログの最大ファイル数のキー */
-    private static final String  SYSTEM_LOG_NUM_MAX_KEY      =
-                                                                     JAVELIN_PREFIX
-                                                                             + "system.log.num.max";
+    private static final String  SYSTEM_LOG_NUM_MAX_KEY           =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "system.log.num.max";
 
     /** Javelinのシステムログの最大ファイルサイズのキー */
-    private static final String  SYSTEM_LOG_SIZE_MAX_KEY     =
-                                                                     JAVELIN_PREFIX + "system.log."
-                                                                             + "size.max";
+    private static final String  SYSTEM_LOG_SIZE_MAX_KEY          =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "system.log."
+                                                                                  + "size.max";
 
     /** Javelinのシステムログのログレベルのキー */
-    private static final String  SYSTEM_LOG_LEVEL_KEY        = JAVELIN_PREFIX + "system.log.level";
+    private static final String  SYSTEM_LOG_LEVEL_KEY             =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "system.log.level";
 
     /** MBeanManagerが持つ情報をシリアライズするファイル名 */
-    public static final String   SERIALIZE_FILE_KEY          = JAVELIN_PREFIX + "serializeFile";
+    public static final String   SERIALIZE_FILE_KEY               =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "serializeFile";
 
     /** 保存するCallTree数のプロパティ */
-    private static final String  CALL_TREE_MAX_KEY           = JAVELIN_PREFIX + "call.tree.max";
+    private static final String  CALL_TREE_MAX_KEY                =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "call.tree.max";
 
     /** アプリケーション実行時の例外を出力するかどうかを決定するプロパティ */
-    public static final String   RECORD_EXCEPTION_KEY        = JAVELIN_PREFIX + "recordException";
+    public static final String   RECORD_EXCEPTION_KEY             =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "recordException";
 
     /** アプリケーション実行時の例外を出力するかどうかを決定するプロパティ */
-    public static final String   ALARM_EXCEPTION_KEY         = JAVELIN_PREFIX + "alarmException";
+    public static final String   ALARM_EXCEPTION_KEY              =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "alarmException";
 
     /** １クラス辺り保持するInvocation（メソッド呼び出し）最大数のキー */
-    public static final String   RECORD_INVOCATION_MAX_KEY   =
-                                                                     JAVELIN_PREFIX
-                                                                             + "record.invocation.num.max";
+    public static final String   RECORD_INVOCATION_MAX_KEY        =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "record.invocation.num.max";
 
     /** アラーム送信・Javelinログ出力を行う間隔の閾値。前回アラーム送信・Javelinログ出力を行った際から
      * 経過した時間がこの閾値を超えていた場合のみアラーム送信・Javelinログ出力を行う。*/
-    public static final String   ALARM_INTERVAL_THRESHOLD_KEY      = JAVELIN_PREFIX + "alarmIntervalThreshold";
+    public static final String   ALARM_INTERVAL_THRESHOLD_KEY     =
+                                                                          JAVELIN_PREFIX
+                                                                                  + "alarmIntervalThreshold";
 
-    
     /** 保存するCallTree数のデフォルト値 */
-    private static final int     DEFAULT_CALL_TREE_MAX       = 1000000;
+    private static final int     DEFAULT_CALL_TREE_MAX            = 1000000;
 
     /** メソッド平均時間を出力するために記録するInvocation数のデフォルト値 */
-    private static final int     DEFAULT_INTERVALMAX         = 500;
+    private static final int     DEFAULT_INTERVALMAX              = 500;
 
     /** 例外の数を記録するためのInvocation数のデフォルト値 */
-    private static final int     DEFAULT_THROWABLEMAX        = 500;
+    private static final int     DEFAULT_THROWABLEMAX             = 500;
 
     /** メモリに保存する閾値のプロパティ */
-    private static final long    DEFAULT_STATISTICSTHRESHOLD = 0;
+    private static final long    DEFAULT_STATISTICSTHRESHOLD      = 0;
 
     /** ファイルに出力するTATの閾値のプロパティ */
-    private static final long    DEFAULT_RECORDTHRESHOLD     = 5000;
+    private static final long    DEFAULT_RECORDTHRESHOLD          = 5000;
 
     /** アラームを通知するTATの閾値のプロパティ */
-    private static final long    DEFAULT_ALARMTHRESHOLD      = 5000;
+    private static final long    DEFAULT_ALARMTHRESHOLD           = 5000;
 
     /** Javelinログを出力するファイル名のプロパティ */
-    private static final String  DEFAULT_JAVELINFILEDIR      = "../logs";
+    private static final String  DEFAULT_JAVELINFILEDIR           = "../logs";
 
     /** BottleneckEyeに利用するドメインのデフォルト値 */
-    private static final String  DEFAULT_DOMAIN              = "default";
+    private static final String  DEFAULT_DOMAIN                   = "default";
 
     /** スタックトレースを出力するかどうかを決定するデフォルト値 */
-    private static final boolean DEFAULT_LOG_STACKTRACE      = false;
+    private static final boolean DEFAULT_LOG_STACKTRACE           = false;
 
     /** 引数情報を出力するかどうかを決定するデフォルト値 */
-    private static final boolean DEFAULT_LOG_ARGS            = true;
+    private static final boolean DEFAULT_LOG_ARGS                 = true;
 
     /** JMXInfoを出力するかどうか決定するデフォルト値 */
-    private static final boolean DEFAULT_LOG_MBEANINFO       = true;
+    private static final boolean DEFAULT_LOG_MBEANINFO            = true;
 
     /** JMXInfoを出力するかどうか決定するデフォルト値 */
-    private static final boolean DEFAULT_LOG_MBEANINFO_ROOT  = true;
+    private static final boolean DEFAULT_LOG_MBEANINFO_ROOT       = true;
 
     /** 戻り値を出力するかどうかを決定するデフォルト値 */
-    private static final boolean DEFAULT_LOG_RETURN          = true;
+    private static final boolean DEFAULT_LOG_RETURN               = true;
 
     /** 引数の詳細情報を出力するかどうかを決定するデフォルト値 */
-    private static final boolean DEFAULT_ARGS_DETAIL         = false;
+    private static final boolean DEFAULT_ARGS_DETAIL              = false;
 
     /** 戻り値の詳細情報を出力するかどうかを決定するデフォルト値 */
-    private static final boolean DEFAULT_RETURN_DETAIL       = false;
+    private static final boolean DEFAULT_RETURN_DETAIL            = false;
 
     /** 引数の詳細情報の深さのデフォルト値 */
-    private static final int     DEFAULT_ARGS_DETAIL_DEPTH   = 1;
+    private static final int     DEFAULT_ARGS_DETAIL_DEPTH        = 1;
 
     /** 戻り値の詳細情報の深さのデフォルト値 */
-    private static final int     DEFAULT_RETURN_DETAIL_DEPTH = 1;
+    private static final int     DEFAULT_RETURN_DETAIL_DEPTH      = 1;
 
     /** 呼び出し元が不明のときに設定する名前のプロパティ */
-    private static final String  DEFAULT_ROOTCALLERNAME      = "root";
+    private static final String  DEFAULT_ROOTCALLERNAME           = "root";
 
     /** 最も深い呼び出し先が不明のときに設定する名前のプロパティ */
-    private static final String  DEFAULT_ENDCALLEENAME       = "unknown";
+    private static final String  DEFAULT_ENDCALLEENAME            = "unknown";
 
     /** スレッドの名称の決定方法を表すプロパティ */
-    private static final int     DEFAULT_THREADMODEL         = 0;
+    private static final int     DEFAULT_THREADMODEL              = 0;
 
     /** 属性、戻り値情報の文字列長のデフォルト値 */
-    private static final int     DEFAULT_STRINGLIMITLENGTH   = 102400;
+    private static final int     DEFAULT_STRINGLIMITLENGTH        = 102400;
 
     /** Javelinログを出力するかどうかのデフォルト設定 */
-    public static final boolean  DEFAULT_JAVELINENABLE       = false;
+    public static final boolean  DEFAULT_JAVELINENABLE            = false;
 
     /** 待ちうけポート番号のデフォルト値 */
-    public static final int      DEFAULT_ACCEPTPORT          = 18000;
+    public static final int      DEFAULT_ACCEPTPORT               = 18000;
 
     /** Javelin実行エラーメッセージの出力先パスのデフォルト値 */
-    public static final String   DEFAULT_SYSTEMLOG           = "../traces";
+    public static final String   DEFAULT_SYSTEMLOG                = "../traces";
 
     /** デフォルトで利用するAlarmListener名 */
-    private static final String  DEFAULT_ALARM_LISTENERS     =
-                                                                     "org.seasar.javelin.communicate.JmxListener";
+    private static final String  DEFAULT_ALARM_LISTENERS          = "";
 
     /** デフォルトでJMX通信による情報公開を行うかどうか */
-    private static final boolean DEFAULT_RECORD_JMX          = true;
+    private static final boolean DEFAULT_RECORD_JMX               = true;
 
     /** jvnログファイルの最大数のデフォルト */
-    private static final int     DEFAULT_LOG_JVN_MAX         = 256;
+    private static final int     DEFAULT_LOG_JVN_MAX              = 256;
 
     /** jvnログファイルを圧縮したzipファイルの最大数のデフォルト */
-    private static final int     DEFAULT_LOG_ZIP_MAX         = 256;
+    private static final int     DEFAULT_LOG_ZIP_MAX              = 256;
 
     /** 記録条件判定クラスのデフォルト */
-    public static final String   DEFAULT_RECORDSTRATEGY      =
-                                                                     "org.seasar.javelin.S2DefaultRecordStrategy";
+    public static final String   DEFAULT_RECORDSTRATEGY           =
+                                                                          "org.seasar.javelin.S2DefaultRecordStrategy";
 
     /** デフォルトで利用するTelegramListener名 */
-    private static final String  DEFAULT_TELEGEAM_LISTENERS  =
-                                                                     "org.seasar.javelin.communicate.GetRequestTelegramListener,"
-                                                                             + "org.seasar.javelin.communicate.ResetRequestTelegramListener";
+    private static final String  DEFAULT_TELEGEAM_LISTENERS       =
+                                                                          "org.seasar.javelin.communicate.GetRequestTelegramListener,"
+                                                                                  + "org.seasar.javelin.communicate.ResetRequestTelegramListener";
 
     /** Javelinのシステムログの最大ファイル数のデフォルト */
-    private static final int     DEFAULT_SYSTEM_LOG_NUM_MAX  = 16;
+    private static final int     DEFAULT_SYSTEM_LOG_NUM_MAX       = 16;
 
     /** Javelinのシステムログの最大ファイルサイズのデフォルト */
-    private static final int     DEFAULT_SYSTEM_LOG_SIZE_MAX = 1000000;
+    private static final int     DEFAULT_SYSTEM_LOG_SIZE_MAX      = 1000000;
 
     /** MBeanManagerが持つ情報をシリアライズするファイル名のデフォルト */
-    public static final String   DEFAULT_SERIALIZE_FILE      = "../data/serialize.dat";
+    public static final String   DEFAULT_SERIALIZE_FILE           = "../data/serialize.dat";
 
     /** Javelinのシステムログのログレベルのデフォルト */
-    private static final String  DEFAULT_SYSTEM_LOG_LEVEL    = "INFO";
+    private static final String  DEFAULT_SYSTEM_LOG_LEVEL         = "INFO";
 
     /** アプリケーション実行時の例外時にログ出力するデフォルト値 */
-    private static final boolean DEFAULT_RECORD_EXCEPTION    = true;
+    private static final boolean DEFAULT_RECORD_EXCEPTION         = true;
 
     /** アプリケーション実行時の例外時にアラーム通知するデフォルト値 */
-    private static final boolean DEFAULT_ALARM_EXCEPTION     = true;
+    private static final boolean DEFAULT_ALARM_EXCEPTION          = true;
 
     /** １クラス辺り保持するInvocation（メソッド呼び出し）最大数のデフォルト値 */
-    private static final int     DEFAULT_REC_INVOCATION_MAX  = 1024;
+    private static final int     DEFAULT_REC_INVOCATION_MAX       = 1024;
 
     /** アラーム送信・Javelinログ出力を行う間隔の閾値のデフォルト値。*/
     public static final long     DEFAULT_ALARM_INTERVAL_THRESHOLD = 60000;
@@ -1229,7 +1271,7 @@ public class S2JavelinConfig
         JavelinConfigUtil configUtil = JavelinConfigUtil.getInstance();
         return configUtil.getLong(ALARM_INTERVAL_THRESHOLD_KEY, DEFAULT_ALARM_INTERVAL_THRESHOLD);
     }
-    
+
     /**
      * アラーム送信・Javelinログ出力を行う間隔の閾値を設定する。
      * 
