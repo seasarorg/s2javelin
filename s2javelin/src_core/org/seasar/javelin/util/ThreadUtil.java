@@ -99,7 +99,7 @@ public class ThreadUtil
             }
         }
 
-        for (; index < stacktraces.length && depth > 0; index++)
+        for (; index < stacktraces.length && depth != 0; index++)
         {
             StackTraceElement stackTraceElement = stacktraces[index];
             String stackTraceLine = stackTraceElement.toString();
